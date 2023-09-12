@@ -4,6 +4,7 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 
 import App from './App';
+import Auth from 'routes/Auth';
 import Datasets from 'routes/Datasets';
 import Dataset from 'routes/Dataset';
 import Annotator from 'routes/Annotator';
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: '/models',
         element: <Models />,
+      },
+      {
+        path: '/auth',
+        element: <Auth />,
       },
     ],
   },
