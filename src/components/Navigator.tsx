@@ -6,7 +6,7 @@ export default function Navigator(props: {
   handleCurrentMode: (nextmode: string) => void;
 }) {
   return (
-    <nav id="nav" className="navbar navbar-expand-lg bg-body-tertiary">
+    <nav id="nav" className="navbar navbar-expand-lg bg-body-tertiary p-2 pe-3">
       <div className="container-fluid">
         <a className="navbar-brand" href="#">
           Annotator

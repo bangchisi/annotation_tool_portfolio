@@ -1,5 +1,4 @@
 import React from 'react';
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import 'assets/css/datasets.css';
@@ -8,7 +7,7 @@ import Dropdown from 'components/Dropdown';
 
 function Description() {
   return (
-    <div id="description">
+    <div id="description" className="p-1">
       <div>Dataset Name</div>
       <div>created by user_1</div>
       <div>update: 2 hours ago</div>
@@ -18,7 +17,7 @@ function Description() {
 
 function Status() {
   return (
-    <div id="status">
+    <div id="status" className="p-1">
       <div id="categories">
         <span>thing</span>
         <span>stuff</span>
@@ -34,13 +33,16 @@ function Status() {
 
 function Content(props: { id: number }) {
   return (
-    <div className="datasets-content" style={{ border: '1px solid black' }}>
+    <div
+      className="datasets-content m-5 mt-3 mb-1 p-1 rounded-1"
+      style={{ border: '1px solid black' }}
+    >
       <Link to={'/dataset/' + props.id}>
-        <img src="http://placehold.it/100x100" />
+        <img src="http://placehold.it/100x100" className="p-1" />
       </Link>
       <Description />
       <Status />
-      <ul style={{ listStyle: 'none' }}>
+      <ul style={{ listStyle: 'none' }} className="p-1">
         menu
         <Dropdown />
       </ul>
@@ -49,33 +51,28 @@ function Content(props: { id: number }) {
 }
 
 export default function Datasets() {
+  // TODO: style dataset-search
   return (
-    <div id="datasets">
-      <div id="datasets-controls">
+    <div id="datasets" className="pe-5 ps-5">
+      <div id="datasets-controls" className="mb-4">
         <div id="datasets-search">
           <button className="btn btn-secondary">Sort by</button>
-          <form className="row g-3">
-            <div className="col-auto">
-              <label htmlFor="inputPassword2" className="visually-hidden">
-                Password
-              </label>
-              <input
-                type="password"
-                className="form-control"
-                id="inputPassword2"
-                placeholder="Password"
-              />
-            </div>
-            <div className="col-auto">
-              <button type="submit" className="btn btn-primary mb-3">
-                Confirm identity
-              </button>
-            </div>
+          <form id="datasets-search-form">
+            <input
+              type="text"
+              className="form-control ms-2 me-2"
+              placeholder="Search.."
+            />
+            <button type="submit" className="btn btn-primary">
+              Search
+            </button>
           </form>
         </div>
-        <button id="btn-add-dataset">+</button>
+        <button id="btn-add-dataset" className="btn btn-primary p-0">
+          +
+        </button>
       </div>
-      <div id="dataset-list">
+      <div id="dataset-list" className="mt-4">
         <Content id={1} />
         <Content id={2} />
         <Content id={3} />
