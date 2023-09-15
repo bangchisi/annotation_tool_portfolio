@@ -19,7 +19,7 @@ export default function App() {
           handleCurrentMode={handleCurrentMode}
         />
       )}
-      <div id="main" className="pe-5 ps-5">
+      <div id="main">
         <Outlet />
       </div>
     </div>

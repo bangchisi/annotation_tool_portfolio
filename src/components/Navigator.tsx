@@ -6,7 +6,10 @@ export default function Navigator(props: {
   handleCurrentMode: (nextmode: string) => void;
 }) {
   return (
-    <nav id="nav" className="navbar navbar-expand-lg bg-body-tertiary p-2 pe-3">
+    <nav
+      id="nav"
+      className="navbar navbar-expand-lg bg-body-tertiary p-2 pe-3 border-bottom"
+    >
       <div className="container-fluid">
         <a className="navbar-brand" href="#">
           Annotator
@@ -31,10 +34,8 @@ export default function Navigator(props: {
                 to="/datasets"
                 style={{
                   fontWeight:
-                    props.currentMode === null ||
-                    props.currentMode === 'datasets'
-                      ? 'bold'
-                      : 'normal',
+                    // props.currentMode === null ||
+                    props.currentMode === 'datasets' ? 'bold' : 'normal',
                 }}
               >
                 Datasets
@@ -50,6 +51,18 @@ export default function Navigator(props: {
                 }}
               >
                 Models
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link
+                className="nav-link"
+                to="/annotator/1"
+                style={{
+                  fontWeight:
+                    props.currentMode === 'annotator' ? 'bold' : 'normal',
+                }}
+              >
+                Annotator
               </Link>
             </li>
             <li className="nav-item">
