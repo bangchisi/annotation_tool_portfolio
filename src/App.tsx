@@ -13,6 +13,7 @@ export default function App() {
 
   return (
     <div id="app">
+      {/* TODO: should change true to currentMode !== 'auth' or something else */}
       {true && (
         <Navigator
           currentMode={currentMode}

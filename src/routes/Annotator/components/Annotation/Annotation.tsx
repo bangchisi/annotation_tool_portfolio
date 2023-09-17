@@ -3,6 +3,7 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { Container } from './Annotation.style';
 
 export interface AnnotationType {
   id: number;
@@ -11,28 +12,7 @@ export interface AnnotationType {
 
 export function Annotation({ id, polygon }: AnnotationType) {
   return (
-    <Box
-      className="annotation"
-      sx={{
-        borderBottom: 1,
-        display: 'flex',
-        height: 45,
-        backgroundColor: 'rgba(50, 50, 195, 0.5)',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-      }}
-    >
-      <Box
-        sx={{
-          borderRight: 1,
-          width: 10,
-          height: '100%',
-          border: 1,
-          borderBottom: 0,
-          backgroundColor: 'white',
-          marginRight: 1,
-        }}
-      ></Box>
+    <Container>
       (id: {id})
       <Select
         value="thing"
@@ -53,6 +33,6 @@ export function Annotation({ id, polygon }: AnnotationType) {
         <MenuItem value="other">other</MenuItem>
         <MenuItem value="something">something</MenuItem>
       </Select>
-    </Box>
+    </Container>
   );
 }
