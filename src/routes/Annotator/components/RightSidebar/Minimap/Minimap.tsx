@@ -1,16 +1,9 @@
-import { Box } from '@mui/material';
+import { Container } from './Minimap.style';
 
 export default function Minimap() {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-      id="annotator-minimap"
-    >
+    <Container>
       <img src="/test.png" width="200" height="200" />
-    </Box>
+    </Container>
   );
 }
