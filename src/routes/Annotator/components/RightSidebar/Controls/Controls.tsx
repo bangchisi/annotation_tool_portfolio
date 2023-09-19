@@ -18,13 +18,10 @@ export default function Controls() {
   return (
     <Container>
       <TabContainer>
-        <Button
-          variant="outlined"
-          onClick={() => setSelectedTab('annotations')}
-        >
+        <Button variant="text" onClick={() => setSelectedTab('annotations')}>
           Annotations
         </Button>
-        <Button variant="outlined" onClick={() => setSelectedTab('explorer')}>
+        <Button variant="text" onClick={() => setSelectedTab('explorer')}>
           Explorer
         </Button>
       </TabContainer>
