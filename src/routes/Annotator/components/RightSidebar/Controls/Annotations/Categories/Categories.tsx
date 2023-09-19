@@ -1,10 +1,12 @@
 import { FormControl, NativeSelect } from '@mui/material';
+import { ChangeEvent } from 'react';
 
-export default function Categories() {
-  const handleChange = () => {
-    console.log('Cateogries, handleChange');
-  };
+interface CategoriesProps {
+  currentCategory: string;
+  handleChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+}
 
+export default function Categories(props: CategoriesProps) {
   return (
     <FormControl id="category-dropdown" fullWidth>
       <NativeSelect
@@ -13,7 +15,7 @@ export default function Categories() {
           name: 'category',
           id: 'uncontrolled-native',
         }}
-        onChange={handleChange}
+        onChange={props.handleChange}
       >
         <option value={'thing'}>thing</option>
         <option value={'other'}>other</option>

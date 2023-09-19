@@ -1,12 +1,16 @@
 import { Annotation, AnnotationType } from '../../../../Annotation/Annotation';
 import { Container } from './AnnotationList.style';
 
-export default function AnnotationList() {
-  interface CategoryType {
-    name: string;
-    annotations: AnnotationType[];
-  }
+interface AnnotationListProps {
+  currentCategory: string;
+}
 
+interface CategoryType {
+  name: string;
+  annotations: AnnotationType[];
+}
+
+export default function AnnotationList(props: AnnotationListProps) {
   // TODO: categories should be 'API response' later
   const categories: CategoryType[] = [
     {
@@ -61,16 +65,17 @@ export default function AnnotationList() {
     <Container>
       {categories.map((category) => (
         <div key={category.name}>
-          {category.name}
-          <div className="annotations">
-            {category.annotations.map((annotation) => (
-              <Annotation
-                key={annotation.id}
-                id={annotation.id}
-                polygon={annotation.polygon}
-              />
-            ))}
-          </div>
+          {category.name === props.currentCategory ? (
+            <div className="annotations">
+              {category.annotations.map((annotation) => (
+                <Annotation
+                  key={annotation.id}
+                  id={annotation.id}
+                  polygon={annotation.polygon}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
       ))}
     </Container>
