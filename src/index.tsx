@@ -10,7 +10,7 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 
 import App from './App';
-import Auth from 'routes/Auth';
+import Auth from 'routes/Auth/Auth';
 import Datasets from 'routes/Datasets/Datasets';
 import Dataset from 'routes/Dataset/Dataset';
 import Annotator from 'routes/Annotator/Annotator';

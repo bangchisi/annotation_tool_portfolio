@@ -1,5 +1,3 @@
-import { Fragment } from 'react';
-
 import { Toolbar, Box, List, Divider } from '@mui/material';
 import ToolIcon from './ToolIcon';
 

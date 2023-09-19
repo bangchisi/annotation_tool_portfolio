@@ -1,5 +1,5 @@
-import { Container } from '@mui/material';
-import { Annotation, AnnotationType } from '../../Annotation/Annotation';
+import { Annotation, AnnotationType } from '../../../../Annotation/Annotation';
+import { Container } from './AnnotationList.style';
 
 export default function AnnotationList() {
   interface CategoryType {

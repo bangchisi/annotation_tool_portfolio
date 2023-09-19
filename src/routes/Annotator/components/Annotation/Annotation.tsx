@@ -1,6 +1,5 @@
 import React from 'react';
 
-import Box from '@mui/material/Box';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { Container } from './Annotation.style';
@@ -13,7 +12,7 @@ export interface AnnotationType {
 export function Annotation({ id, polygon }: AnnotationType) {
   return (
     <Container>
-      (id: {id})
+      (id: {id}) {polygon}
       <Select
         value="thing"
         displayEmpty
@@ -26,9 +25,6 @@ export function Annotation({ id, polygon }: AnnotationType) {
           backgroundColor: 'white',
         }}
       >
-        <MenuItem value="">
-          <em>None</em>
-        </MenuItem>
         <MenuItem value="thing">thing</MenuItem>
         <MenuItem value="other">other</MenuItem>
         <MenuItem value="something">something</MenuItem>

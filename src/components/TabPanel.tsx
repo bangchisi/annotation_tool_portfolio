@@ -8,7 +8,7 @@ export interface TabPanelProps {
   value: number;
 }
 
-export function CustomTabPanel(props: TabPanelProps) {
+export function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
