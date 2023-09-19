@@ -5,8 +5,8 @@ import { FormContainer } from './LoginForm.style';
 // temp end
 
 export default function LoginForm() {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   //temp
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ export default function LoginForm() {
           className="form-control form-control-lg"
           name="username"
           type="text"
-          value={username}
+          value={process.env.NODE_ENV === 'development' ? 'admin' : username}
           placeholder="username"
           onChange={handleUsernameChange}
         />
@@ -48,7 +48,7 @@ export default function LoginForm() {
           className="form-control form-control-lg"
           name="password"
           type="password"
-          value={password}
+          value={process.env.NODE_ENV === 'development' ? 'admin' : password}
           placeholder="password"
           onChange={handlePasswordChange}
         />

@@ -4,15 +4,25 @@ import RegisterForm from '../RegisterForm/RegisterForm';
 import { AuthButton, AuthTabs, Container } from './AuthForm.style';
 
 export default function AuthForm() {
-  const [mode, setMode] = useState<string>('login');
+  enum mode {
+    LOGIN,
+    REGISTER,
+  }
+
+  const [currentMode, setCurrentMode] = useState<mode>(mode.LOGIN);
 
   return (
     <Container>
       <AuthTabs>
-        <AuthButton onClick={() => setMode('login')}>Login</AuthButton>
-        <AuthButton onClick={() => setMode('register')}>Register</AuthButton>
+        <AuthButton onClick={() => setCurrentMode(mode.LOGIN)}>
+          Login
+        </AuthButton>
+        <AuthButton onClick={() => setCurrentMode(mode.REGISTER)}>
+          Register
+        </AuthButton>
       </AuthTabs>
-      {mode === 'login' ? <LoginForm /> : <RegisterForm />}
+      {currentMode === mode.LOGIN && <LoginForm />}
+      {currentMode === mode.REGISTER && <RegisterForm />}
     </Container>
   );
 }
