@@ -8,7 +8,7 @@ export default function RightSidebar() {
     <Container>
       <Controls />
       <Preferences />
-      <Minimap />
+      <Minimap view={null} image={null} />
     </Container>
   );
 }

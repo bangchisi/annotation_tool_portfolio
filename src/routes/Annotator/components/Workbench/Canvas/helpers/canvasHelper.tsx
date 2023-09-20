@@ -87,7 +87,7 @@ export async function fetchImage({
   // }
 
   const img = new Image();
-  img.src = 'https://placehold.it/500x500';
+  img.src = '/test.png';
   // console.log('fetchImage(), result');
   // console.dir(img);
   return img;
