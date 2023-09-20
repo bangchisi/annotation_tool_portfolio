@@ -10,6 +10,15 @@ import SaveIcon from '@mui/icons-material/Save';
 import { Container } from './LeftSidebar.style';
 import { Tool } from 'routes/Annotator/Annotator';
 
+/** 기능
+ * 툴을 선택해서 <Annotator />의 state인 selectedTool을 변경
+ * selectedTool에 따라 paper.view에 적용할 마우스 이벤트가 달라진다
+ */
+
+/** props
+ * onChangeTool(tool: Tool): void
+ */
+
 interface LeftSidebarProps {
   onChangeTool: (tool: Tool) => void;
 }
@@ -27,7 +36,11 @@ export default function LeftSidebar(props: LeftSidebarProps) {
             iconComponent={<BackHandOutlinedIcon />}
             onClick={() => onChangeTool(Tool.Select)}
           />
-          <ToolIcon toolName="Box" iconComponent={<RectangleOutlinedIcon />} />
+          <ToolIcon
+            toolName="Box"
+            iconComponent={<RectangleOutlinedIcon />}
+            onClick={() => onChangeTool(Tool.Box)}
+          />
           <ToolIcon
             toolName="Brush"
             iconComponent={<BrushOutlinedIcon />}
@@ -36,8 +49,13 @@ export default function LeftSidebar(props: LeftSidebarProps) {
           <ToolIcon
             toolName="Eraser"
             iconComponent={<AutoFixOffOutlinedIcon />}
+            onClick={() => onChangeTool(Tool.Eraser)}
           />
-          <ToolIcon toolName="SAM" iconComponent={<FacebookOutlinedIcon />} />
+          <ToolIcon
+            toolName="SAM"
+            iconComponent={<FacebookOutlinedIcon />}
+            onClick={() => onChangeTool(Tool.SAM)}
+          />
         </List>
         <Divider />
         <List>
