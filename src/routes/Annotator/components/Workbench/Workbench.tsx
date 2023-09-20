@@ -2,7 +2,7 @@ import { Container } from './Workbench.style';
 import Canvas from './Canvas/Canvas';
 import { useEffect, useRef, useState } from 'react';
 import { Tool } from 'routes/Annotator/Annotator';
-import { Color, Path, Event } from 'paper';
+// import { Color, Path, Event } from 'paper';
 
 interface WorkbenchProps {
   selectedTool: Tool;
