@@ -3,9 +3,14 @@ import Explorer from './Explorer/Explorer';
 import { Container, TabContainer } from './Controls.style';
 import Annotations from './Annotations/Annotations';
 import { useState } from 'react';
-import { Tab } from 'routes/Annotator/Annotator.data';
 
 export default function Controls() {
+  // TEMP
+  enum Tab {
+    ANNOTATIONS,
+    EXPLORER,
+  }
+
   const [selectedTab, setSelectedTab] = useState<Tab>(Tab.ANNOTATIONS);
 
   return (
