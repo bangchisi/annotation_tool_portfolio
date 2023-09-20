@@ -10,6 +10,10 @@ import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import { Container } from './LeftSidebar.style';
 
+/** props
+ * handleCurrentToolChange
+ */
+
 export default function LeftSidebar() {
   return (
     <Container id="annotator-left-sidebar">
