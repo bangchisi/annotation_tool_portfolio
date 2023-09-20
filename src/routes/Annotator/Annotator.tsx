@@ -6,9 +6,9 @@ import { useState } from 'react';
 
 export enum Tool {
   Select,
-  Polygon,
   Box,
   Brush,
+  Eraser,
 }
 
 export default function Annotator() {
