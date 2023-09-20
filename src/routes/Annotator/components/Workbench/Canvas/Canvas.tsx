@@ -7,7 +7,6 @@ import {
 } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { Tool } from 'routes/Annotator/Annotator';
-import { PaperClassKey } from '@mui/material';
 
 interface CanvasProps {
   selectedTool: Tool;
@@ -16,11 +15,11 @@ interface CanvasProps {
 }
 
 const SelectTool = (
-  initPoint: any,
-  containerWidth: any,
-  containerHeight: any,
-  imgWidth: any,
-  imgHeight: any,
+  initPoint: paper.Point | null,
+  containerWidth: number | null,
+  containerHeight: number | null,
+  imgWidth: number | null,
+  imgHeight: number | null,
 ) => {
   paper.view.onMouseDown = (event: paper.MouseEvent) => {
     initPoint = event.point;
@@ -52,12 +51,12 @@ const SelectTool = (
   };
 };
 
-const PolygonTool = () => {
-  let myPath: any = null;
+const BrushTool = () => {
+  let myPath: paper.Path | null = null;
   const strokeColor = new paper.Color('black');
 
-  let brush_path: any = null;
-  const createBrush = (center? : any) => {
+  let brush_path: paper.Path.Circle | null = null;
+  const createBrush = (center?: paper.Point) => {
     center = center || new paper.Point(0, 0);
     brush_path = new paper.Path.Circle({
       center: center,
@@ -70,7 +69,6 @@ const PolygonTool = () => {
   const createSelection = () => {
     // do nothing
   };
-  
 
   paper.view.onMouseDown = (event: paper.ToolEvent) => {
     console.log('Polygon Mouse Down', event);
@@ -162,9 +160,9 @@ export default function Canvas({
           imgWidth,
           imgHeight,
         );
-      } else if (selectedTool == Tool.Polygon) {
+      } else if (selectedTool == Tool.Brush) {
         console.log('Go Polygon');
-        PolygonTool();
+        BrushTool();
       }
 
       canvas.onwheel = onCanvasWheel;
