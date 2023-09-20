@@ -9,6 +9,7 @@ export enum Tool {
   Box,
   Brush,
   Eraser,
+  SAM,
 }
 
 export default function Annotator() {
