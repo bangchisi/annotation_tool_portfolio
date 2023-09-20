@@ -152,28 +152,33 @@ export default function Canvas({
         }
       });
 
-      if (selectedTool == Tool.Select) {
-        SelectTool(
-          initPoint,
-          containerWidth,
-          containerHeight,
-          imgWidth,
-          imgHeight,
-        );
-      } else if (selectedTool == Tool.Brush) {
-        console.log('Go Polygon');
-        BrushTool();
-      }
-
-      canvas.onwheel = onCanvasWheel;
+      // canvas.onwheel = onCanvasWheel;
 
       return () => {
         raster.remove();
-        paper.view.onMouseDown = null;
-        paper.view.onMouseMove = null;
-        paper.view.onMouseDrag = null;
       };
     }
+  }, []);
+
+  useEffect(() => {
+    if (selectedTool == Tool.Select) {
+      SelectTool(
+        initPoint,
+        containerWidth,
+        containerHeight,
+        imgWidth,
+        imgHeight,
+      );
+    } else if (selectedTool == Tool.Brush) {
+      console.log('Go Brush');
+      BrushTool();
+    }
+
+    return () => {
+      paper.view.onMouseDown = null;
+      paper.view.onMouseMove = null;
+      paper.view.onMouseDrag = null;
+    };
   }, [selectedTool]);
 
   useEffect(() => {
