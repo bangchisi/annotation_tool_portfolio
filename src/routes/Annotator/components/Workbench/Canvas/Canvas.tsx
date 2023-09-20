@@ -1,10 +1,6 @@
 import paper from 'paper';
-import { useEffect, useRef } from 'react';
-import {
-  drawAnnotation,
-  fetchImage,
-  onCanvasWheel,
-} from './helpers/canvasHelper';
+import { useEffect, useRef, useState } from 'react';
+import { fetchImage, onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { Tool } from 'routes/Annotator/Annotator';
 
@@ -13,88 +9,6 @@ interface CanvasProps {
   containerWidth: number | null;
   containerHeight: number | null;
 }
-
-const SelectTool = (
-  initPoint: paper.Point | null,
-  containerWidth: number | null,
-  containerHeight: number | null,
-  imgWidth: number | null,
-  imgHeight: number | null,
-) => {
-  paper.view.onMouseDown = (event: paper.MouseEvent) => {
-    initPoint = event.point;
-    if (containerWidth && containerHeight && imgWidth && imgHeight) {
-      console.log('trying drawAnnotation()');
-      drawAnnotation(containerWidth, containerHeight, imgWidth, imgHeight);
-      console.log(
-        event.point.subtract(
-          new paper.Point(containerWidth / 2, containerHeight / 2),
-        ),
-      );
-    }
-  };
-
-  paper.view.onMouseMove = (event: paper.MouseEvent) => {
-    initPoint = event.point;
-  };
-
-  paper.view.onMouseDrag = (event: paper.MouseEvent) => {
-    console.log('onMouseDrag', event);
-    if (initPoint) {
-      const delta_x: number | null = initPoint.x - event.point.x;
-      const delta_y: number | null = initPoint.y - event.point.y;
-      const center_delta = new paper.Point(delta_x, delta_y);
-      const new_center = paper.view.center.add(center_delta);
-      paper.view.center = new_center;
-      console.log(paper.view.center);
-    }
-  };
-};
-
-const BrushTool = () => {
-  let myPath: paper.Path | null = null;
-  const strokeColor = new paper.Color('black');
-
-  let brush_path: paper.Path.Circle | null = null;
-  const createBrush = (center?: paper.Point) => {
-    center = center || new paper.Point(0, 0);
-    brush_path = new paper.Path.Circle({
-      center: center,
-      strokeColor: strokeColor,
-      strokeWidth: 30,
-      radius: 10,
-    });
-  };
-
-  const createSelection = () => {
-    // do nothing
-  };
-
-  paper.view.onMouseDown = (event: paper.ToolEvent) => {
-    console.log('Polygon Mouse Down', event);
-    myPath = new paper.Path();
-    myPath.strokeColor = new paper.Color('black');
-  };
-
-  paper.view.onMouseDrag = (event: paper.ToolEvent) => {
-    console.log('Polygon Mouse Drag', event);
-    const circle = new paper.Path.Circle({
-      center: event.middlePoint,
-      radius: event.delta.length / 2,
-    });
-    circle.fillColor = new paper.Color('white');
-  };
-
-  paper.view.onMouseUp = (event: paper.ToolEvent) => {
-    console.log('Polygon Mouse Up', event);
-    const myCircle = new paper.Path.Circle({
-      center: event.point,
-      radius: 10,
-    });
-    myCircle.strokeColor = new paper.Color('black');
-    myCircle.fillColor = new paper.Color('white');
-  };
-};
 
 // TODO: paper init to another file?
 export default function Canvas({
@@ -107,17 +21,19 @@ export default function Canvas({
   // } else if (selectedTool == Tool.Polygon) {
   //   PolygonTool();
   // }
-
-  const initPoint: paper.Point | null = null;
+  const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
+  // const initPoint: paper.Point | null = null;
   let imgWidth: number | null = null;
   let imgHeight: number | null = null;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   // const img = new Image();
   // img.src = 'https://placehold.it/550x550';
 
+  // 캔버스 초기 설정 useEffect
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
+      // paper.install(window);
       paper.setup(canvas);
       // FIX: (700, 700) into flexible value
       if (containerWidth && containerHeight) {
@@ -141,6 +57,7 @@ export default function Canvas({
             raster.position = paper.view.center;
             imgWidth = raster.image.width;
             imgHeight = raster.image.height;
+            console.log(imgWidth, imgHeight);
             // raster.sendToBack();
 
             if (tempCtx) {
@@ -160,20 +77,17 @@ export default function Canvas({
     }
   }, []);
 
+  // 툴 변경 시 useEffect
   useEffect(() => {
     if (selectedTool == Tool.Select) {
-      SelectTool(
-        initPoint,
-        containerWidth,
-        containerHeight,
-        imgWidth,
-        imgHeight,
-      );
+      console.log('Select Tool ON');
+      // SelectTool(initPoint);
     } else if (selectedTool == Tool.Brush) {
       console.log('Go Brush');
-      BrushTool();
+      // BrushTool();
     }
 
+    // selectedTool이 변경되기 전에 mouse event 비활성화
     return () => {
       paper.view.onMouseDown = null;
       paper.view.onMouseMove = null;
@@ -181,6 +95,7 @@ export default function Canvas({
     };
   }, [selectedTool]);
 
+  // window 리사이즈 시 useEffect
   useEffect(() => {
     if (containerWidth && containerHeight) {
       paper.view.viewSize = new paper.Size(containerWidth, containerHeight);
