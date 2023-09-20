@@ -2,14 +2,12 @@ import { Toolbar, Box, List, Divider } from '@mui/material';
 import ToolIcon from './ToolIcon';
 
 import BackHandOutlinedIcon from '@mui/icons-material/BackHandOutlined';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import RectangleOutlinedIcon from '@mui/icons-material/RectangleOutlined';
 import BrushOutlinedIcon from '@mui/icons-material/BrushOutlined';
 import AutoFixOffOutlinedIcon from '@mui/icons-material/AutoFixOffOutlined';
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import { Container } from './LeftSidebar.style';
-import { useState } from 'react';
 import { Tool } from 'routes/Annotator/Annotator';
 
 interface LeftSidebarProps {
@@ -29,13 +27,12 @@ export default function LeftSidebar(props: LeftSidebarProps) {
             iconComponent={<BackHandOutlinedIcon />}
             onClick={() => onChangeTool(Tool.Select)}
           />
-          <ToolIcon
-            toolName="Polygon"
-            iconComponent={<EditOutlinedIcon />}
-            onClick={() => onChangeTool(Tool.Polygon)}
-          />
           <ToolIcon toolName="Box" iconComponent={<RectangleOutlinedIcon />} />
-          <ToolIcon toolName="Brush" iconComponent={<BrushOutlinedIcon />} />
+          <ToolIcon
+            toolName="Brush"
+            iconComponent={<BrushOutlinedIcon />}
+            onClick={() => onChangeTool(Tool.Brush)}
+          />
           <ToolIcon
             toolName="Eraser"
             iconComponent={<AutoFixOffOutlinedIcon />}
