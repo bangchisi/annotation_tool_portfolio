@@ -4,16 +4,12 @@ export const onBrushMouseDrag = (
   event: paper.MouseEvent,
   initPoint: paper.Point | null,
   radius: number,
-  // color: paper.Color,
 ): paper.PathItem => {
   // console.log('Brush Mouse Drag', event);
   const { point } = event;
   const circle = new paper.Path.Circle({
     center: point,
     radius,
-    // fillColor: color,
-    // strokeWidth: 0.5,
-    // strokeColor: 'white',
   });
 
   return circle;

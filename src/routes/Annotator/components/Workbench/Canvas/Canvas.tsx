@@ -11,8 +11,7 @@ interface CanvasProps {
   containerHeight: number | null;
 }
 /** 커서 변경 방법
- * Canvas 위에서만 커서를 변경해야 하니 Canvas cursur css를 주기로 함.
- * selectedTool이 변할때 Editor의 css를 변경하는 방법?
+ * Canvas 위에서만 커서를 변경해야 하니 Canvas cursor css를 주기로 함.
  */
 
 // TODO: paper init to another file?
@@ -21,11 +20,7 @@ export default function Canvas({
   containerWidth,
   containerHeight,
 }: CanvasProps) {
-  // if (selectedTool == Tool.Select) {
-  //   console.log('Go Select');
-  // } else if (selectedTool == Tool.Polygon) {
-  //   PolygonTool();
-  // }
+  // console.log('rendering Canvas.tsx');
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
   // console.log('Canvas, initPoint ', initPoint);
   // const initPoint: paper.Point | null = null;
