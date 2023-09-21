@@ -23,7 +23,7 @@ export default function Canvas({
   //   PolygonTool();
   // }
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
-  console.log('Canvas, initPoint ', initPoint);
+  // console.log('Canvas, initPoint ', initPoint);
   // const initPoint: paper.Point | null = null;
   let imgWidth: number | null = null;
   let imgHeight: number | null = null;
@@ -80,7 +80,7 @@ export default function Canvas({
     }
   }, []);
 
-  const { onMouseMove, onMouseDown, onMouseDrag } = useTools({
+  const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({
     initPoint,
     selectedTool,
     onChangePoint: setInitPoint,
@@ -91,11 +91,13 @@ export default function Canvas({
 
   useEffect(() => {
     paper.view.onMouseDown = onMouseDown;
+    paper.view.onMouseUp = onMouseUp;
     paper.view.onMouseMove = onMouseMove;
     paper.view.onMouseDrag = onMouseDrag;
 
     return () => {
       paper.view.onMouseDown = null;
+      paper.view.onMouseUp = null;
       paper.view.onMouseMove = null;
       paper.view.onMouseDrag = null;
     };
