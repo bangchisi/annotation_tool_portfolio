@@ -84,8 +84,8 @@ export default function Canvas({
     initPoint,
     selectedTool,
     onChangePoint: setInitPoint,
-    containerWidth,
-    containerHeight,
+    // containerWidth,
+    // containerHeight,
     // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임
   });
 

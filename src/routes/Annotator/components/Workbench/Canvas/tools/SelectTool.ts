@@ -1,34 +1,37 @@
 import paper from 'paper';
 
-// 마우스 이동, 이미지 가운데가 (0, 0)인 좌표를 사용함
 export const onSelectMouseMove = (
   event: paper.MouseEvent,
   onChangePoint: (point: paper.Point) => void,
-  containerWidth: number | null,
-  containerHeight: number | null,
+  // containerWidth: number | null,
+  // containerHeight: number | null,
 ) => {
   const { point } = event;
-  let tempPoint: paper.Point | null = null;
+  // let tempPoint: paper.Point | null = null;
 
-  if (containerWidth && containerHeight) {
-    const containerPoint = new paper.Point(
-      containerWidth / 2,
-      containerHeight / 2,
-    );
+  // if (containerWidth && containerHeight) {
+  //   const containerPoint = new paper.Point(
+  //     containerWidth / 2,
+  //     containerHeight / 2,
+  //   );
 
-    // 이미지 가운데가 (0, 0)인 좌표로 변환
-    tempPoint = point.subtract(containerPoint);
-    onChangePoint(tempPoint);
-    // console.log('SelectTool.ts, onSelectMouseMove, tempPoint: ', tempPoint);
-  } else {
-    // 그냥 그대로, 혹시 모르니
-    onChangePoint(point);
-  }
+  //   // 이미지 가운데가 (0, 0)인 좌표로 변환
+  //   tempPoint = point.subtract(containerPoint);
+  //   onChangePoint(tempPoint);
+  //   // console.log('SelectTool.ts, onSelectMouseMove, tempPoint: ', tempPoint);
+  // } else {
+  //   // 그냥 그대로, 혹시 모르니
+  //   onChangePoint(point);
+  // }
+  onChangePoint(point);
 };
 
 // 마우스 버튼 누름
 export const onSelectMouseDown = (event: paper.MouseEvent) => {
-  console.log(event.point);
+  console.log(
+    'SelectTool.ts, onSelectMouseDown, actual point is ',
+    event.point,
+  );
 };
 
 // 마우스 드래그
