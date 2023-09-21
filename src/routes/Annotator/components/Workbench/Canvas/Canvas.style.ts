@@ -5,19 +5,20 @@ interface EditorProps {
   selectedTool: Tool;
 }
 
-const CursorTypes = {
-  [Tool.Select]: 'pointer',
-  [Tool.Box]: 'crosshair',
-  [Tool.Brush]: 'default',
-  [Tool.Eraser]: 'default',
-  [Tool.SAM]: 'crosshair',
-};
+// const CursorTypes = {
+//   [Tool.Select]: 'pointer',
+//   [Tool.Box]: 'crosshair',
+//   [Tool.Brush]: 'default',
+//   [Tool.Eraser]: 'default',
+//   [Tool.SAM]: 'crosshair',
+// };
 
-export const Editor = styled('canvas')<EditorProps>(({ selectedTool }) => {
+// export const Editor = styled('canvas')<EditorProps>(({ selectedTool }) => {
+export const Editor = styled('canvas')<EditorProps>(() => {
   return {
     width: '100%',
     height: 'auto',
     backgroundColor: 'white',
-    cursor: CursorTypes[selectedTool] ?? 'default',
+    // cursor: CursorTypes[selectedTool] ?? 'default',
   };
 });
