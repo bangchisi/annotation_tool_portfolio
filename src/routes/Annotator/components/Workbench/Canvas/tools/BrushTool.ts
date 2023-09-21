@@ -4,6 +4,7 @@ let brushCursor: paper.Path.Circle | null = null;
 let brushSelection: paper.CompoundPath | null = null;
 // radius will change when preferences panel is implemented.
 const radius = 20;
+const strokeWidth = 2;
 
 export const onBrushMouseMove = (event: paper.MouseEvent) => {
   if (brushCursor !== null) {
@@ -16,7 +17,7 @@ export const onBrushMouseMove = (event: paper.MouseEvent) => {
     brushCursor = new paper.Path.Circle({
       center: event.point,
       radius,
-      strokeWidth: 0.5,
+      strokeWidth,
       strokeColor: new paper.Color(1, 1, 1, 1),
     });
   }

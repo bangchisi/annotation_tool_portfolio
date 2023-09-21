@@ -43,7 +43,7 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       onSelectMouseDown(event);
     } else if (selectedTool === Tool.Brush) {
-      // brush click
+      // ..
     } else if (selectedTool === Tool.Box) {
       onBoxMouseDown(event);
     }
