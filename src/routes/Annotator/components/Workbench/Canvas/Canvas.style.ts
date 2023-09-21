@@ -1,14 +1,23 @@
 import { styled } from '@mui/material';
+import { Tool } from 'routes/Annotator/Annotator';
 
-export const Editor = styled('canvas')(({}) => {
-  // FIX: width and heigth into flexible values
+interface EditorProps {
+  selectedTool: Tool;
+}
+
+const CursorTypes = {
+  [Tool.Select]: 'pointer',
+  [Tool.Box]: 'crosshair',
+  [Tool.Brush]: 'default',
+  [Tool.Eraser]: 'default',
+  [Tool.SAM]: 'crosshair',
+};
+
+export const Editor = styled('canvas')<EditorProps>(({ selectedTool }) => {
   return {
-    // display: 'block',
-    // width: '700px',
-    // height: '700px',
     width: '100%',
     height: 'auto',
-    // maxHeight: '100%',
     backgroundColor: 'white',
+    cursor: CursorTypes[selectedTool] ?? 'default',
   };
 });

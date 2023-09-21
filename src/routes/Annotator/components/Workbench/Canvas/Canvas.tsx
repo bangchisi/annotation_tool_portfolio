@@ -10,6 +10,10 @@ interface CanvasProps {
   containerWidth: number | null;
   containerHeight: number | null;
 }
+/** 커서 변경 방법
+ * Canvas 위에서만 커서를 변경해야 하니 Canvas cursur css를 주기로 함.
+ * selectedTool이 변할때 Editor의 css를 변경하는 방법?
+ */
 
 // TODO: paper init to another file?
 export default function Canvas({
@@ -110,5 +114,7 @@ export default function Canvas({
     }
   }, [containerWidth, containerHeight]);
 
-  return <Editor ref={canvasRef} id="canvas"></Editor>;
+  return (
+    <Editor ref={canvasRef} id="canvas" selectedTool={selectedTool}></Editor>
+  );
 }
