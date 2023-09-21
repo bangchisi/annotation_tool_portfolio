@@ -1,61 +1,59 @@
 import paper from 'paper';
 
-export const onBrushMouseDrag = (
-  event: paper.MouseEvent,
-  initPoint: paper.Point | null,
-  radius: number,
-): paper.PathItem => {
-  // console.log('Brush Mouse Drag', event);
-  const { point } = event;
-  const circle = new paper.Path.Circle({
-    center: point,
-    radius,
-  });
+let brushCursor: paper.Path.Circle | null = null;
+let brushSelection: paper.CompoundPath | null = null;
+// radius will change when preferences panel is implemented.
+const radius = 20;
 
-  return circle;
+export const onBrushMouseMove = (event: paper.MouseEvent) => {
+  if (brushCursor !== null) {
+    // remove brush cursor
+    brushCursor.remove();
+    brushCursor = null;
+  }
+  if (brushCursor === null) {
+    // create brush cursor
+    brushCursor = new paper.Path.Circle({
+      center: event.point,
+      radius,
+      strokeWidth: 0.5,
+      strokeColor: new paper.Color(1, 1, 1, 1),
+    });
+  }
 };
 
-// export const BrushTool = () => {
-//   let myPath: paper.Path | null = null;
-//   const strokeColor = new paper.Color('black');
+export const onBrushMouseUp = () => {
+  console.log(paper.project.activeLayer.children);
+};
 
-//   let brush_path: paper.Path.Circle | null = null;
-//   const createBrush = (center?: paper.Point) => {
-//     center = center || new paper.Point(0, 0);
-//     brush_path = new paper.Path.Circle({
-//       center: center,
-//       strokeColor: strokeColor,
-//       strokeWidth: 30,
-//       radius: 10,
-//     });
-//   };
+export const onBrushMouseDrag = (event: paper.MouseEvent) => {
+  const color = new paper.Color(1, 1, 1, 0.5);
 
-//   const createSelection = () => {
-//     // do nothing
-//   };
+  let tempBrush: paper.Path.Circle | null;
 
-//   paper.view.onMouseDown = (event: paper.ToolEvent) => {
-//     console.log('Polygon Mouse Down', event);
-//     myPath = new paper.Path();
-//     myPath.strokeColor = new paper.Color('black');
-//   };
+  if (brushCursor) {
+    brushCursor.position = event.point;
+  }
+  if (brushSelection === null) {
+    tempBrush = createBrush(event, radius);
+    brushSelection = new paper.CompoundPath(tempBrush);
+    brushSelection.fillColor = color;
+    tempBrush.remove();
+    tempBrush = null;
+  } else {
+    // brushSelection?.addTo(paper.project);
+    tempBrush = createBrush(event, radius);
+    brushSelection.addChild(createBrush(event, radius));
+    tempBrush.remove();
+    tempBrush = null;
+  }
+};
 
-//   paper.view.onMouseDrag = (event: paper.ToolEvent) => {
-//     console.log('Polygon Mouse Drag', event);
-//     const circle = new paper.Path.Circle({
-//       center: event.middlePoint,
-//       radius: event.delta.length / 2,
-//     });
-//     circle.fillColor = new paper.Color('white');
-//   };
-
-//   paper.view.onMouseUp = (event: paper.ToolEvent) => {
-//     console.log('Polygon Mouse Up', event);
-//     const myCircle = new paper.Path.Circle({
-//       center: event.point,
-//       radius: 10,
-//     });
-//     myCircle.strokeColor = new paper.Color('black');
-//     myCircle.fillColor = new paper.Color('white');
-//   };
-// };
+const createBrush = (event: paper.MouseEvent, radius: number) => {
+  const { point } = event;
+  return new paper.Path.Circle({
+    center: point,
+    radius,
+    fillColor: new paper.Color(1, 0, 0, 1),
+  });
+};
