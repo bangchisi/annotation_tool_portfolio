@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { fetchImage, onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { Tool } from 'routes/Annotator/Annotator';
+import { useTools } from './hooks/useTools';
 
 interface CanvasProps {
   selectedTool: Tool;
@@ -22,6 +23,7 @@ export default function Canvas({
   //   PolygonTool();
   // }
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
+  console.log('Canvas, initPoint ', initPoint);
   // const initPoint: paper.Point | null = null;
   let imgWidth: number | null = null;
   let imgHeight: number | null = null;
@@ -69,7 +71,8 @@ export default function Canvas({
         }
       });
 
-      // canvas.onwheel = onCanvasWheel;
+      // 줌, 스크롤은 항상 적용
+      canvas.onwheel = onCanvasWheel;
 
       return () => {
         raster.remove();
@@ -77,23 +80,26 @@ export default function Canvas({
     }
   }, []);
 
-  // 툴 변경 시 useEffect
-  useEffect(() => {
-    if (selectedTool == Tool.Select) {
-      console.log('Select Tool ON');
-      // SelectTool(initPoint);
-    } else if (selectedTool == Tool.Brush) {
-      console.log('Go Brush');
-      // BrushTool();
-    }
+  const { onMouseMove, onMouseDown, onMouseDrag } = useTools({
+    initPoint,
+    selectedTool,
+    onChangePoint: setInitPoint,
+    containerWidth,
+    containerHeight,
+    // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임
+  });
 
-    // selectedTool이 변경되기 전에 mouse event 비활성화
+  useEffect(() => {
+    paper.view.onMouseDown = onMouseDown;
+    paper.view.onMouseMove = onMouseMove;
+    paper.view.onMouseDrag = onMouseDrag;
+
     return () => {
       paper.view.onMouseDown = null;
       paper.view.onMouseMove = null;
       paper.view.onMouseDrag = null;
     };
-  }, [selectedTool]);
+  }, [selectedTool, onMouseMove, onMouseDown, onMouseDrag]);
 
   // window 리사이즈 시 useEffect
   useEffect(() => {
