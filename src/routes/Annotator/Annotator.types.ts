@@ -1,5 +1,7 @@
 export interface AnnotationType {
-  path: paper.CompoundPath | paper.PathItem | null;
+  annotationId?: number;
+  category?: string;
+  path?: paper.CompoundPath | paper.PathItem | null;
   // points: number[][];
   // color: string;
 }
