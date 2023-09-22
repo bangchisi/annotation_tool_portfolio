@@ -7,11 +7,14 @@ import {
   onBrushMouseUp,
 } from '../tools/BrushTool';
 import { onBoxMouseDown, onBoxMouseUp, onBoxMouseMove } from '../tools/BoxTool';
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
 
 interface UseToolsProps {
   initPoint: paper.Point | null;
   selectedTool: Tool;
   onChangePoint: (point: paper.Point) => void;
+  annotations: AnnotationType[];
+  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>;
   // containerWidth: number | null;
   // containerHeight: number | null;
 }
@@ -21,6 +24,8 @@ export const useTools = (props: UseToolsProps) => {
     selectedTool,
     onChangePoint,
     initPoint,
+    annotations,
+    onAnnotationsChange,
     // containerWidth,
     // containerHeight,
   } = props;
@@ -55,9 +60,9 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       // ...
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseUp();
+      onBrushMouseUp(annotations, onAnnotationsChange);
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseUp(event);
+      onBoxMouseUp(event, annotations, onAnnotationsChange);
     }
   };
 
@@ -74,28 +79,28 @@ export const useTools = (props: UseToolsProps) => {
   return { onMouseMove, onMouseDown, onMouseUp, onMouseDrag };
 };
 
-const onToolsMouseMove = (
-  event: paper.MouseEvent,
-  onChangePoint: (point: paper.Point) => void,
-  // containerWidth: number | null,
-  // containerHeight: number | null,
-) => {
-  const { point } = event;
-  // let tempPoint: paper.Point | null = null;
+// const onToolsMouseMove = (
+//   event: paper.MouseEvent,
+//   onChangePoint: (point: paper.Point) => void,
+//   // containerWidth: number | null,
+//   // containerHeight: number | null,
+// ) => {
+//   const { point } = event;
+//   // let tempPoint: paper.Point | null = null;
 
-  // if (containerWidth && containerHeight) {
-  //   const containerPoint = new paper.Point(
-  //     containerWidth / 2,
-  //     containerHeight / 2,
-  //   );
+//   // if (containerWidth && containerHeight) {
+//   //   const containerPoint = new paper.Point(
+//   //     containerWidth / 2,
+//   //     containerHeight / 2,
+//   //   );
 
-  //   // 이미지 가운데가 (0, 0)인 좌표로 변환
-  //   tempPoint = point.subtract(containerPoint);
-  //   onChangePoint(tempPoint);
-  //   // console.log('SelectTool.ts, onSelectMouseMove, tempPoint: ', tempPoint);
-  // } else {
-  //   // 그냥 그대로, 혹시 모르니
-  //   onChangePoint(point);
-  // }
-  onChangePoint(point);
-};
+//   //   // 이미지 가운데가 (0, 0)인 좌표로 변환
+//   //   tempPoint = point.subtract(containerPoint);
+//   //   onChangePoint(tempPoint);
+//   //   // console.log('SelectTool.ts, onSelectMouseMove, tempPoint: ', tempPoint);
+//   // } else {
+//   //   // 그냥 그대로, 혹시 모르니
+//   //   onChangePoint(point);
+//   // }
+//   onChangePoint(point);
+// };

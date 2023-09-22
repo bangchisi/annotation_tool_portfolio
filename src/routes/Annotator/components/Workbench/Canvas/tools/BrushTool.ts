@@ -1,4 +1,5 @@
 import paper from 'paper';
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
 
 let brushCursor: paper.Path.Circle | null = null;
 let brushSelection: paper.CompoundPath | null = null;
@@ -23,8 +24,17 @@ export const onBrushMouseMove = (event: paper.MouseEvent) => {
   }
 };
 
-export const onBrushMouseUp = () => {
-  console.log(paper.project.activeLayer.children);
+export const onBrushMouseUp = (
+  annotations: AnnotationType[],
+  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>,
+) => {
+  // append brush path to annotations
+  const nextAnnotations = annotations.slice();
+  nextAnnotations.push({
+    path: brushSelection,
+  });
+  onAnnotationsChange(nextAnnotations);
+  // console.log(paper.project.activeLayer.children);
 };
 
 export const onBrushMouseDrag = (event: paper.MouseEvent) => {

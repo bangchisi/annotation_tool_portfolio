@@ -2,13 +2,20 @@ import { Container } from './Workbench.style';
 import Canvas from './Canvas/Canvas';
 import { useEffect, useRef, useState } from 'react';
 import { Tool } from 'routes/Annotator/Annotator';
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
 // import { Color, Path, Event } from 'paper';
 
 interface WorkbenchProps {
   selectedTool: Tool;
+  annotations: AnnotationType[];
+  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>;
 }
 
-export default function Workbench({ selectedTool }: WorkbenchProps) {
+export default function Workbench({
+  selectedTool,
+  annotations,
+  onAnnotationsChange,
+}: WorkbenchProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
@@ -41,6 +48,8 @@ export default function Workbench({ selectedTool }: WorkbenchProps) {
         selectedTool={selectedTool}
         containerWidth={containerWidth}
         containerHeight={containerHeight}
+        annotations={annotations}
+        onAnnotationsChange={onAnnotationsChange}
       />
     </Container>
   );

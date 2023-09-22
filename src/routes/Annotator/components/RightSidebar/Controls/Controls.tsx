@@ -3,6 +3,7 @@ import Explorer from './Explorer/Explorer';
 import { Container, TabContainer } from './Controls.style';
 import Annotations from './Annotations/Annotations';
 import { useState } from 'react';
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
 // import { Tab } from 'routes/Annotator/Annotator.data';
 
 /** 기능
@@ -14,10 +15,17 @@ import { useState } from 'react';
  */
 
 /** state
- * 어
  */
 
-export default function Controls() {
+interface ControlsProps {
+  annotations: AnnotationType[];
+  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>;
+}
+
+export default function Controls({
+  annotations,
+  onAnnotationsChange,
+}: ControlsProps) {
   // TEMP
   enum Tab {
     ANNOTATIONS,
@@ -36,7 +44,12 @@ export default function Controls() {
           Explorer
         </Button>
       </TabContainer>
-      {selectedTab === Tab.ANNOTATIONS && <Annotations />}
+      {selectedTab === Tab.ANNOTATIONS && (
+        <Annotations
+          annotations={annotations}
+          onAnnotationsChange={onAnnotationsChange}
+        />
+      )}
       {selectedTab === Tab.EXPLORER && <Explorer />}
     </Container>
   );

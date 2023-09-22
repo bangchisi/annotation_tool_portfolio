@@ -1,7 +1,27 @@
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
 import { Container } from './AnnotationList.style';
 
-export default function AnnotationList() {
+interface AnnotationListProps {
+  annotations: AnnotationType[];
+  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>;
+}
+
+export default function AnnotationList({
+  annotations,
+  onAnnotationsChange,
+}: AnnotationListProps) {
   // TODO: categories should be 'API response' later
 
-  return <Container>리스트</Container>;
+  return (
+    <Container>
+      {annotations.map((annotation, index) => {
+        return (
+          <div key={index}>
+            <span>annotation</span>
+            <span>some path</span>
+          </div>
+        );
+      })}
+    </Container>
+  );
 }

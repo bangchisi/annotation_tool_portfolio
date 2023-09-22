@@ -1,4 +1,5 @@
 import paper from 'paper';
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
 
 let currentBox: paper.Path.Rectangle | null;
 let startPoint: paper.Point | null;
@@ -34,15 +35,27 @@ export const onBoxMouseDown = (event: paper.MouseEvent) => {
   }
 };
 
-export const onBoxMouseUp = (event: paper.MouseEvent) => {
+export const onBoxMouseUp = (
+  event: paper.MouseEvent,
+  annotations: AnnotationType[],
+  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>,
+) => {
   if (startPoint && endPoint) {
     // draw box
-    new paper.Path.Rectangle({
+    const box = new paper.Path.Rectangle({
       from: startPoint,
       to: event.point,
       strokeWidth: 2,
       strokeColor: new paper.Color(1, 0, 0, 1),
     });
+
+    // append box path to annotations
+    const nextAnnotations = annotations.slice();
+    nextAnnotations.push({
+      path: box,
+    });
+    onAnnotationsChange(nextAnnotations);
+
     startPoint = null;
     endPoint = null;
 
@@ -51,6 +64,6 @@ export const onBoxMouseUp = (event: paper.MouseEvent) => {
       currentBox.remove();
       currentBox = null;
     }
-    console.dir(paper.project.activeLayer.children);
+    // console.dir(paper.project.activeLayer.children);
   }
 };

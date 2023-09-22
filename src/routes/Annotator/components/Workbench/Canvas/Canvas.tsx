@@ -4,11 +4,14 @@ import { fetchImage, onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { Tool } from 'routes/Annotator/Annotator';
 import { useTools } from './hooks/useTools';
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
 
 interface CanvasProps {
   selectedTool: Tool;
   containerWidth: number | null;
   containerHeight: number | null;
+  annotations: AnnotationType[];
+  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>;
 }
 /** 커서 변경 방법
  * Canvas 위에서만 커서를 변경해야 하니 Canvas cursor css를 주기로 함.
@@ -19,6 +22,8 @@ export default function Canvas({
   selectedTool,
   containerWidth,
   containerHeight,
+  annotations,
+  onAnnotationsChange,
 }: CanvasProps) {
   // console.log('rendering Canvas.tsx');
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
@@ -56,9 +61,11 @@ export default function Canvas({
           img.onload = () => {
             raster.source = response.src;
             raster.position = paper.view.center;
+            // console.log('raster resolution', raster.resolution);
+            // console.log('raster image', raster.image);
             imgWidth = raster.image.width;
             imgHeight = raster.image.height;
-            console.log(imgWidth, imgHeight);
+            // console.log(imgWidth, imgHeight);
             // raster.sendToBack();
 
             if (tempCtx) {
@@ -83,6 +90,8 @@ export default function Canvas({
     initPoint,
     selectedTool,
     onChangePoint: setInitPoint,
+    annotations,
+    onAnnotationsChange,
     // containerWidth,
     // containerHeight,
     // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임
