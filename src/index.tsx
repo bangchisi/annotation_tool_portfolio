@@ -22,6 +22,8 @@ import {
   RouterProvider,
   Navigate,
 } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from 'store';
 
 /**
  * 서버 정보?, 로그인 정보
@@ -130,7 +132,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>,
 );
 
