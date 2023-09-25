@@ -3,7 +3,6 @@ import LeftSidebar from './components/LeftSidebar/LeftSidebar';
 import { Container } from './Annotator.style';
 import Workbench from './components/Workbench/Workbench';
 import { useState } from 'react';
-import { AnnotationType } from './Annotator.types';
 
 export enum Tool {
   Select,
@@ -13,27 +12,43 @@ export enum Tool {
   SAM,
 }
 
-const initialAnnotations: AnnotationType[] = [];
+// 서버에서 받아와야 할 정보. category 목록, 각 category의 annotation 목록
+// categories 안에 category가 있고 category 안에 annotations가 있음
+// const initialCategories = ['human', 'animal', 'building', 'machine'].map(
+//   (categoryName, index) => setCategory(index, categoryName, []),
+// );
+
+// const initialCategories = {
+//   data: {
+//     human: {
+//       id: 1,
+//       name: 'human',
+//       annotations: [],
+//     },
+//     animal: {
+//       id: 2,
+//       name: 'animal',
+//       annotations: [],
+//     },
+//     building: {
+//       id: 3,
+//       name: 'building',
+//       annotations: [],
+//     },
+//     machine: {
+//       id: 4,
+//       name: 'machine',
+//       annotations: [],
+//     },
+//   },
+// };
 
 export default function Annotator() {
-  const [selectedTool, setSelectedTool] = useState<Tool>(Tool.Select);
-  const [annotations, setAnnotations] =
-    useState<AnnotationType[]>(initialAnnotations);
-
-  console.log('annotations: ');
-  console.dir(annotations);
   return (
     <Container>
-      <LeftSidebar onChangeTool={setSelectedTool} />
-      <Workbench
-        selectedTool={selectedTool}
-        annotations={annotations}
-        onAnnotationsChange={setAnnotations}
-      />
-      <RightSidebar
-        annotations={annotations}
-        onAnnotationsChange={setAnnotations}
-      />
+      <LeftSidebar />
+      <Workbench />
+      <RightSidebar />
     </Container>
   );
 }

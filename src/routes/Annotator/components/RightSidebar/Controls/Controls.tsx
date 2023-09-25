@@ -17,15 +17,7 @@ import { AnnotationType } from 'routes/Annotator/Annotator.types';
 /** state
  */
 
-interface ControlsProps {
-  annotations: AnnotationType[];
-  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>;
-}
-
-export default function Controls({
-  annotations,
-  onAnnotationsChange,
-}: ControlsProps) {
+export default function Controls() {
   // TEMP
   enum Tab {
     ANNOTATIONS,
@@ -44,12 +36,7 @@ export default function Controls({
           Explorer
         </Button>
       </TabContainer>
-      {selectedTab === Tab.ANNOTATIONS && (
-        <Annotations
-          annotations={annotations}
-          onAnnotationsChange={onAnnotationsChange}
-        />
-      )}
+      {selectedTab === Tab.ANNOTATIONS && <Annotations />}
       {selectedTab === Tab.EXPLORER && <Explorer />}
     </Container>
   );
