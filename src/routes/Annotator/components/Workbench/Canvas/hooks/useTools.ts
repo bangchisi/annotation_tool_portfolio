@@ -7,14 +7,13 @@ import {
   onBrushMouseUp,
 } from '../tools/BrushTool';
 import { onBoxMouseDown, onBoxMouseUp, onBoxMouseMove } from '../tools/BoxTool';
-import { AnnotationType } from 'routes/Annotator/Annotator.types';
+// import { AnnotationType } from 'routes/Annotator/Annotator.types';
+import { useAppDispatch } from 'App.hooks';
 
 interface UseToolsProps {
   initPoint: paper.Point | null;
   selectedTool: Tool;
   onChangePoint: (point: paper.Point) => void;
-  annotations: AnnotationType[];
-  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>;
   // containerWidth: number | null;
   // containerHeight: number | null;
 }
@@ -24,12 +23,11 @@ export const useTools = (props: UseToolsProps) => {
     selectedTool,
     onChangePoint,
     initPoint,
-    annotations,
-    onAnnotationsChange,
     // containerWidth,
     // containerHeight,
   } = props;
 
+  const dispatch = useAppDispatch();
   // 마우스 커서 움직임
   const onMouseMove = (event: paper.MouseEvent) => {
     if (selectedTool === Tool.Select) {
@@ -60,9 +58,9 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       // ...
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseUp(annotations, onAnnotationsChange);
+      onBrushMouseUp(dispatch);
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseUp(event, annotations, onAnnotationsChange);
+      onBoxMouseUp(event, dispatch);
     }
   };
 
