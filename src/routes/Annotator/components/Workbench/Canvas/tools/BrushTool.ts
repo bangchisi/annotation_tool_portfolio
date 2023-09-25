@@ -1,5 +1,7 @@
 import paper from 'paper';
-import { AnnotationType } from 'routes/Annotator/Annotator.types';
+import { addAnnotation } from 'routes/Annotator/slices/annotationsSlice';
+import { addBoxAnnotation } from 'routes/Annotator/slices/annotatorSlice';
+import { AppDispatch } from 'store';
 
 let brushCursor: paper.Path.Circle | null = null;
 let brushSelection: paper.CompoundPath | null = null;
@@ -24,23 +26,52 @@ export const onBrushMouseMove = (event: paper.MouseEvent) => {
   }
 };
 
-export const onBrushMouseUp = (
-  annotations: AnnotationType[],
-  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>,
-) => {
+// TODO: unite compound's children to make one polygon not plenty of circles
+export const onBrushMouseUp = (dispatch: AppDispatch) => {
   // append brush path to annotations
-  const nextAnnotations = annotations.slice();
-  nextAnnotations.push({
-    path: brushSelection,
-  });
-  onAnnotationsChange(nextAnnotations);
-  // console.log(paper.project.activeLayer.children);
+  // const newAnnotation = setAnnotation(11, 'bird', brushSelection);
+
+  if (brushSelection) {
+    // brushSelection.children = [];
+    // const tempPath = new paper.Path(brushSelection.children);
+    const unitedPath = brushSelection.children.reduce(
+      (prevPath, currentPath) => {
+        const tempPath1 = new paper.Path(prevPath);
+        const tempPath2 = new paper.Path(currentPath);
+        return tempPath1.unite(tempPath2);
+      },
+    );
+
+    dispatch(addAnnotation(unitedPath));
+    dispatch(addBoxAnnotation({ newAnnotation: unitedPath }));
+
+    unitedPath.remove();
+
+    brushSelection.onMouseDown = () => {
+      console.log('brush Selection, mouse down');
+    };
+
+    brushSelection.onMouseEnter = () => {
+      console.log('brush Selection, mouse enter');
+      if (brushSelection) {
+        brushSelection.selected = true;
+      }
+    };
+
+    brushSelection.onMouseLeave = () => {
+      console.log('brush Selection, mouse leave');
+      if (brushSelection) {
+        brushSelection.selected = false;
+      }
+    };
+  }
+  // dispatch(addAnnotation(newAnnotation));
 };
 
 export const onBrushMouseDrag = (event: paper.MouseEvent) => {
   const color = new paper.Color(1, 1, 1, 0.5);
 
-  let tempBrush: paper.Path.Circle | null;
+  let tempBrush: paper.Path | null;
 
   if (brushCursor) {
     brushCursor.position = event.point;
