@@ -2,9 +2,10 @@ import paper from 'paper';
 import { useEffect, useRef, useState } from 'react';
 import { fetchImage, onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
-import { Tool } from 'routes/Annotator/Annotator';
+// import { Tool } from 'routes/Annotator/Annotator';
 import { useTools } from './hooks/useTools';
-import { useAppDispatch, useAppSelector } from 'App.hooks';
+import { useAppSelector } from 'App.hooks';
+// import { useAppDispatch } from 'App.hooks';
 
 interface CanvasProps {
   // selectedTool: Tool;

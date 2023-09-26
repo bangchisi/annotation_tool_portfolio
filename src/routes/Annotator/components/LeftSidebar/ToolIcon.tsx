@@ -27,7 +27,7 @@ export default function ToolIcon(props: {
   const dispatch = useAppDispatch();
 
   // Box, brush, eraser, sam
-  const { toolName, toolId, placement } = props;
+  const { toolName, toolId, placement, iconComponent } = props;
 
   const handleClick = () => {
     dispatch(setTool({ selectedTool: toolId }));
@@ -40,7 +40,7 @@ export default function ToolIcon(props: {
         onClick={handleClick}
         color={selectedTool === toolId ? 'primary' : 'default'}
       >
-        {props.iconComponent}
+        {iconComponent}
       </IconButton>
     </Tooltip>
   );

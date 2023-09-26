@@ -3,7 +3,6 @@ import Explorer from './Explorer/Explorer';
 import { Container, TabContainer } from './Controls.style';
 import Annotations from './Annotations/Annotations';
 import { useState } from 'react';
-import { AnnotationType } from 'routes/Annotator/Annotator.types';
 // import { Tab } from 'routes/Annotator/Annotator.data';
 
 /** 기능

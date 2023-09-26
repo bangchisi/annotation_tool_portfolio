@@ -23,9 +23,9 @@ import ImageCard from './ImageCard/ImageCard';
  * 필요 없을듯?
  */
 
-interface ExplorerProps {
-  images: any[];
-}
+// interface ExplorerProps {
+//   images: any[];
+// }
 
 // TODO: props: ExplorerProps to Explorer props
 export default function Explorer() {
