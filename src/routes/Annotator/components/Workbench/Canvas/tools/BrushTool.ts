@@ -1,101 +1,94 @@
 import paper from 'paper';
-import { addAnnotation } from 'routes/Annotator/slices/annotationsSlice';
-import { addBoxAnnotation } from 'routes/Annotator/slices/annotatorSlice';
 import { AppDispatch } from 'store';
 
-let brushCursor: paper.Path.Circle | null = null;
-let brushSelection: paper.CompoundPath | null = null;
 // radius will change when preferences panel is implemented.
+let selection: paper.PathItem | null = null;
+let brushCursor: paper.Path.Circle | null = null;
 const radius = 20;
+const fillColor = new paper.Color(1, 1, 1, 0.2);
+const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
+// 최종 selection을 annotation의 path로 추가하면 됨
+
 export const onBrushMouseMove = (event: paper.MouseEvent) => {
+  // brush cursor 이미 있으면 제거
   if (brushCursor !== null) {
-    // remove brush cursor
     brushCursor.remove();
     brushCursor = null;
   }
-  if (brushCursor === null) {
-    // create brush cursor
-    brushCursor = new paper.Path.Circle({
-      center: event.point,
-      radius,
-      strokeWidth,
-      strokeColor: new paper.Color(1, 1, 1, 1),
-    });
-  }
+
+  // brush cursor 생성
+  brushCursor = createBrush(event.point, radius);
 };
 
-// TODO: unite compound's children to make one polygon not plenty of circles
-export const onBrushMouseUp = (dispatch: AppDispatch) => {
-  // append brush path to annotations
-  // const newAnnotation = setAnnotation(11, 'bird', brushSelection);
+export const onBrushMouseDown = (event: paper.MouseEvent) => {
+  console.group('%cbrush down', 'color: red');
+  // selection이 없을때만 selection을 현재 위치 원으로 생성
+  if (!selection) {
+    selection = new paper.Path.Circle({
+      center: event.point,
+      radius,
+      fillColor,
+      strokeColor,
+      strokeWidth,
+    });
+  }
+  console.groupEnd();
+};
 
-  if (brushSelection) {
-    // brushSelection.children = [];
-    // const tempPath = new paper.Path(brushSelection.children);
-    const unitedPath = brushSelection.children.reduce(
-      (prevPath, currentPath) => {
-        const tempPath1 = new paper.Path(prevPath);
-        const tempPath2 = new paper.Path(currentPath);
-        return tempPath1.unite(tempPath2);
-      },
-    );
-
-    dispatch(addAnnotation(unitedPath));
-    dispatch(addBoxAnnotation({ newAnnotation: unitedPath }));
-
-    unitedPath.remove();
-
-    brushSelection.onMouseDown = () => {
-      console.log('brush Selection, mouse down');
+// 마우스 버튼 뗌
+export const onBrushMouseUp = () => {
+  console.group('%cbrush up', 'color: red');
+  // selection이 있으면 path에 mouse event 할당
+  if (selection) {
+    selection.onMouseEnter = () => {
+      if (selection) selection.selected = true;
     };
 
-    brushSelection.onMouseEnter = () => {
-      console.log('brush Selection, mouse enter');
-      if (brushSelection) {
-        brushSelection.selected = true;
-      }
-    };
-
-    brushSelection.onMouseLeave = () => {
-      console.log('brush Selection, mouse leave');
-      if (brushSelection) {
-        brushSelection.selected = false;
-      }
+    selection.onMouseLeave = () => {
+      if (selection) selection.selected = false;
     };
   }
-  // dispatch(addAnnotation(newAnnotation));
+  // brush cursor 제거
+  if (brushCursor) {
+    brushCursor.remove();
+    brushCursor = null;
+  }
+  console.log(paper.project.activeLayer.children);
+  console.groupEnd();
 };
 
 export const onBrushMouseDrag = (event: paper.MouseEvent) => {
-  const color = new paper.Color(1, 1, 1, 0.5);
-
-  let tempBrush: paper.Path | null;
-
-  if (brushCursor) {
-    brushCursor.position = event.point;
+  // brush cursor 이미 있으면 제거
+  if (brushCursor !== null) {
+    brushCursor.remove();
+    brushCursor = null;
   }
-  if (brushSelection === null) {
-    tempBrush = createBrush(event, radius);
-    brushSelection = new paper.CompoundPath(tempBrush);
-    brushSelection.fillColor = color;
-    tempBrush.remove();
-    tempBrush = null;
-  } else {
-    // brushSelection?.addTo(paper.project);
-    tempBrush = createBrush(event, radius);
-    brushSelection.addChild(createBrush(event, radius));
-    tempBrush.remove();
-    tempBrush = null;
+
+  // brush cursor 생성
+  brushCursor = createBrush(event.point, radius);
+
+  // selection이 있을때만 새로운 brush를 unite
+  if (selection) {
+    const c1 = new paper.Path.Circle({
+      center: event.point,
+      radius,
+    });
+
+    const newSelection = selection.unite(c1);
+    c1.remove();
+    selection.remove();
+    selection = newSelection;
   }
 };
 
-const createBrush = (event: paper.MouseEvent, radius: number) => {
-  const { point } = event;
+const createBrush = (point: paper.Point, radius: number) => {
   return new paper.Path.Circle({
     center: point,
     radius,
-    fillColor: new paper.Color(1, 0, 0, 1),
+    strokeColor,
+    strokeWidth,
+    guide: true,
   });
 };
