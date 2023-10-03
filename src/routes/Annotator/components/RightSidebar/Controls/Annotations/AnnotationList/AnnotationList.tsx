@@ -5,10 +5,8 @@ import FunctionIcon from 'routes/Annotator/components/LeftSidebar/FunctionIcon';
 import { Annotation } from './Annotation/Annotation';
 import {
   addAnnotation,
-  setCategories,
   setCurrentAnnotation,
 } from 'routes/Annotator/slices/annotatorSlice';
-import { useEffect } from 'react';
 
 export default function AnnotationList() {
   const categories = useAppSelector((state) => state.annotator.categories);
@@ -39,16 +37,6 @@ export default function AnnotationList() {
       }),
     );
   }
-
-  // currentCategory가 변경될 때 categories를 업데이트
-  useEffect(() => {
-    if (currentCategory) {
-      const updatedCategories = categories.map((category) =>
-        category.id === currentCategory.id ? currentCategory : category,
-      );
-      dispatch(setCategories(updatedCategories));
-    }
-  }, [currentCategory]);
 
   return (
     <Container>

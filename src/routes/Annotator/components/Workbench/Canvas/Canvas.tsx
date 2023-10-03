@@ -24,6 +24,9 @@ export default function Canvas({
 }: CanvasProps) {
   // console.log('rendering Canvas.tsx');
   const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
+  const currentAnnotation = useAppSelector(
+    (state) => state.annotator.currentAnnotation,
+  );
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
   // const annotations = useAppSelector((state) => state.annotations);
   // console.log('Canvas, initPoint ', initPoint);
@@ -89,6 +92,7 @@ export default function Canvas({
     initPoint,
     selectedTool,
     onChangePoint: setInitPoint,
+    currentAnnotation,
     // containerWidth,
     // containerHeight,
     // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임

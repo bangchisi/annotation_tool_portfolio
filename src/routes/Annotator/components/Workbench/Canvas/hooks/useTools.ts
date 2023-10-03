@@ -2,18 +2,21 @@ import paper from 'paper';
 import { Tool } from 'routes/Annotator/Annotator';
 import { onSelectMouseDown, onSelectMouseDrag } from '../tools/SelectTool';
 import {
+  onBrushMouseDown,
   onBrushMouseDrag,
   onBrushMouseMove,
   onBrushMouseUp,
 } from '../tools/BrushTool';
 import { onBoxMouseDown, onBoxMouseUp, onBoxMouseMove } from '../tools/BoxTool';
-// import { AnnotationType } from 'routes/Annotator/Annotator.types';
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
 import { useAppDispatch } from 'App.hooks';
+import { onEraserDrag, onEraserMouseDown } from '../tools/EraserTool';
 
 interface UseToolsProps {
   initPoint: paper.Point | null;
   selectedTool: Tool;
   onChangePoint: (point: paper.Point) => void;
+  currentAnnotation?: AnnotationType;
   // containerWidth: number | null;
   // containerHeight: number | null;
 }
@@ -23,6 +26,7 @@ export const useTools = (props: UseToolsProps) => {
     selectedTool,
     onChangePoint,
     initPoint,
+    currentAnnotation,
     // containerWidth,
     // containerHeight,
   } = props;
@@ -33,7 +37,6 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       // ...
     } else if (selectedTool === Tool.Brush) {
-      // ...
       onBrushMouseMove(event);
     } else if (selectedTool === Tool.Box) {
       onBoxMouseMove(event);
@@ -46,9 +49,11 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       onSelectMouseDown(event);
     } else if (selectedTool === Tool.Brush) {
-      // ..
+      onBrushMouseDown(event);
     } else if (selectedTool === Tool.Box) {
       onBoxMouseDown(event);
+    } else if (selectedTool === Tool.Eraser) {
+      onEraserMouseDown(event, dispatch, currentAnnotation);
     }
   };
 
@@ -71,6 +76,8 @@ export const useTools = (props: UseToolsProps) => {
       onSelectMouseDrag(event, initPoint);
     } else if (selectedTool === Tool.Brush) {
       onBrushMouseDrag(event);
+    } else if (selectedTool === Tool.Eraser) {
+      onEraserDrag(event, currentAnnotation);
     }
   };
 

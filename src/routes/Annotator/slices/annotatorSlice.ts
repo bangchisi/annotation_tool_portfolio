@@ -46,12 +46,24 @@ const annotatorSlice = createSlice({
       state.currentCategory?.annotations.push(action.payload.newAnnotation);
     },
     addAnnotation: (state, action) => {
-      console.log('add annotation');
+      console.log('annotatorSlice.ts, add annotation');
       state.currentCategory?.annotations.push(action.payload.newAnnotation);
     },
     updateAnnotation: (state, action) => {
       if (state.currentAnnotation) {
         state.currentAnnotation.path = action.payload.path;
+      }
+    },
+    updateCurrentCategory: (state, action) => {
+      if (state.currentCategory) {
+        state.currentCategory.annotations =
+          state.currentCategory?.annotations.map((annotation) => {
+            if (annotation.id === action.payload.id) {
+              return action.payload;
+            } else {
+              return annotation;
+            }
+          });
       }
     },
   },
@@ -65,6 +77,7 @@ export const {
   addBoxAnnotation,
   updateAnnotation,
   addAnnotation,
+  updateCurrentCategory,
 } = annotatorSlice.actions;
 
 export default annotatorSlice.reducer;

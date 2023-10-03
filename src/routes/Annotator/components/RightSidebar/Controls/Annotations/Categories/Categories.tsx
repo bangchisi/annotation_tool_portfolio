@@ -1,6 +1,27 @@
 import { FormControl, NativeSelect } from '@mui/material';
+import { useAppDispatch, useAppSelector } from 'App.hooks';
+import { setCurrentCategory } from 'routes/Annotator/slices/annotatorSlice';
 
 export default function Categories() {
+  const dispatch = useAppDispatch();
+  const categories = useAppSelector((state) => state.annotator.categories);
+
+  const handleCategoryChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const selectedCategoryName = event.target.value;
+
+    const selectedCategory = categories.find(
+      (category) => category.name === selectedCategoryName,
+    );
+
+    console.log(selectedCategory);
+
+    if (selectedCategory) {
+      dispatch(setCurrentCategory({ currentCategory: selectedCategory }));
+    }
+  };
+
   return (
     <FormControl id="category-dropdown" fullWidth>
       <NativeSelect
@@ -9,10 +30,13 @@ export default function Categories() {
           name: 'category',
           id: 'uncontrolled-native',
         }}
+        onChange={handleCategoryChange}
       >
-        <option value={'thing'}>thing</option>
-        <option value={'other'}>other</option>
-        <option value={'something'}>something</option>
+        {categories.map((category) => (
+          <option key={category.id} value={category.name}>
+            {category.name}
+          </option>
+        ))}
       </NativeSelect>
     </FormControl>
   );

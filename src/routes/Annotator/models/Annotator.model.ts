@@ -5,22 +5,54 @@ const baseURL = '/api/annotator/';
 const initialCategories = {
   data: [
     {
-      id: 1,
+      id: 0,
       name: 'human',
-      annotations: [],
+      annotations: [
+        {
+          id: 0,
+          categoryId: 0,
+          path: null,
+        },
+        {
+          id: 1,
+          categoryId: 0,
+          path: null,
+        },
+        {
+          id: 2,
+          categoryId: 0,
+          path: null,
+        },
+      ],
+    },
+    {
+      id: 1,
+      name: 'animal',
+      annotations: [
+        {
+          id: 0,
+          categoryId: 1,
+          path: null,
+        },
+        {
+          id: 1,
+          categoryId: 1,
+          path: null,
+        },
+        {
+          id: 2,
+          categoryId: 1,
+          path: null,
+        },
+      ],
     },
     {
       id: 2,
-      name: 'animal',
-      annotations: [],
-    },
-    {
-      id: 3,
       name: 'building',
       annotations: [],
     },
     {
-      id: 4,
+      id: 3,
       name: 'machine',
       annotations: [],
     },
@@ -30,14 +62,15 @@ const initialCategories = {
 const AnnotatorModel = {
   getCategories: async (datasetId: number, imageId: number) => {
     try {
+      console.group('%cAnnotator.model.ts, getCategories()', 'color: red');
       const response =
         process.env.NODE_ENV === 'development'
           ? initialCategories
           : await axios.get(`${baseURL}/${datasetId}/${imageId}`);
 
-      console.log('Annotator.model.ts, getCategories()');
-      console.log(response.data);
-
+      console.group('%cresponse.data', 'color: blue');
+      console.dir(response.data);
+      console.groupEnd();
       return response.data;
     } catch (error) {
       console.log('Failed to get categories');
@@ -46,6 +79,8 @@ const AnnotatorModel = {
       }
 
       return null;
+    } finally {
+      console.groupEnd();
     }
   },
 };

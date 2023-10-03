@@ -5,11 +5,11 @@ import Workbench from './components/Workbench/Workbench';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import {
   setCategories,
-  setCurrentAnnotation,
   setCurrentCategory,
+  updateCurrentCategory,
 } from './slices/annotatorSlice';
 import AnnotatorModel from './models/Annotator.model';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export enum Tool {
   Select,
@@ -19,44 +19,38 @@ export enum Tool {
   SAM,
 }
 
-// 서버에서 받아와야 할 정보. category 목록, 각 category의 annotation 목록
-// categories 안에 category가 있고 category 안에 annotations가 있음
-// const initialCategories = ['human', 'animal', 'building', 'machine'].map(
-//   (categoryName, index) => setCategory(index, categoryName, []),
-// );
-
 export default function Annotator() {
   const dispatch = useAppDispatch();
   const categories = useAppSelector((state) => state.annotator.categories);
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
   );
-  // const currentAnnotation = useAppSelector(
-  //   (state) => state.annotator.currentAnnotation,
-  // );
+  const currentAnnotation = useAppSelector(
+    (state) => state.annotator.currentAnnotation,
+  );
+  const [prevAnnotation, setPrevAnnotation] = useState(currentAnnotation);
 
-  // categories가 변경
+  // 처음 한번 categories 세팅
   useEffect(() => {
     console.group(
       '%cAnnotator.tsx, useEffect, [categories, dispatch]',
       'color: green',
     );
 
+    // categories 가져오는 async 함수
     async function fetchCategories() {
       try {
         const newCategories = await AnnotatorModel.getCategories(0, 0);
-        // categories를 받아온 정보로 init
+        // 받아온 정보로 categories init
         dispatch(setCategories(newCategories));
 
-        // if (categories.length === 0) {
         // 받아온 categories 내용이 있으면
         if (newCategories.length > 0) {
           // 0번째 category를 currentCategory로
           dispatch(setCurrentCategory({ currentCategory: newCategories[0] }));
         }
-        // }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error init categories:', error);
       }
     }
 
@@ -64,48 +58,64 @@ export default function Annotator() {
       // categories가 비어있을 때만 데이터를 가져옴
       fetchCategories();
     }
-
-    // if (currentCategory && currentCategory.annotations.length > 0) {
-    //   dispatch(
-    //     setCurrentAnnotation({
-    //       currentAnnotation: currentCategory.annotations[0],
-    //     }),
-    //   );
-    // }
     console.groupEnd();
-    // }, []);
-  }, [categories, dispatch]);
+  }, [dispatch]);
 
-  // currentCategory가 변경
-  // useEffect(() => {
-  //   console.group(
-  //     '%cAnnotator.tsx, useEffect, [currentCategory]',
-  //     'color: green',
-  //   );
-  //   if (currentCategory !== null) {
-  //     const prevCategory = categories.find(
-  //       (category) => category.id === currentCategory.id,
-  //     );
+  // currentCategory 세팅
+  useEffect(() => {
+    console.group(
+      '%cAnnotator.tsx, useEffect, [currentCategory]',
+      'color: green',
+    );
+    if (categories.length > 0) {
+      dispatch(setCurrentCategory({ currentCategory: categories[0] }));
+    }
+    console.groupEnd();
+  }, [dispatch]);
 
-  //     console.log(
-  //       prevCategory === currentCategory
-  //         ? 'currentCategory 값에 변화 없음.'
-  //         : 'currentCategory 값이 변함.',
-  //     );
-  //   } else {
-  //     console.log('currentCategory가 null임.');
-  //   }
-  //   console.groupEnd();
-  // }, [currentCategory]);
+  // currentCategory 변경 -> categories 갱신
+  useEffect(() => {
+    console.group(
+      '%cAnnotator.tsx, useEffect, [currentCategory]',
+      'color: green',
+    );
+    if (currentCategory) {
+      const updatedCategories = categories.map((category) =>
+        category.id === currentCategory.id ? currentCategory : category,
+      );
+      dispatch(setCategories(updatedCategories));
+    }
+    console.groupEnd();
+  }, [currentCategory, dispatch]);
 
-  // currentAnnotation이 변경
-  // useEffect(() => {
-  //   console.group(
-  //     '%cAnnotator.tsx, useEffect, [currentAnnotation]',
-  //     'color: green',
-  //   );
-  //   console.groupEnd();
-  // }, [currentAnnotation]);
+  // currentAnnotation.path 변경 -> currentCategory 갱신
+  useEffect(() => {
+    console.group(
+      '%cAnnotator.tsx, useEffect, [currentAnnotation, currentAnnotation?.path]',
+      'color: green',
+    );
+
+    console.log('prevAnnotation', prevAnnotation);
+    console.log('currentAnnotation', currentAnnotation);
+
+    // currentAnnotation과 이전 currentAnnotation의 id 비교
+    if (prevAnnotation && prevAnnotation.id === currentAnnotation?.id) {
+      // id가 같으면 path만 변경
+      console.log('Only path has changed.');
+      // currentAnnotation의 path 변경 로직 작성
+      // currentCategory.annotations 업데이트 로직 작성
+      console.log(currentAnnotation);
+      dispatch(updateCurrentCategory(currentAnnotation));
+    } else {
+      // id가 다르면 currentAnnotation 전체를 변경
+      console.log('Annotation has changed.');
+      // currentAnnotation 전체를 업데이트하는 로직 작성
+    }
+
+    // 현재 currentAnnotation을 이전 currentAnnotation으로 설정
+    setPrevAnnotation(currentAnnotation);
+    console.groupEnd();
+  }, [currentAnnotation, dispatch]);
 
   return (
     <Container>
