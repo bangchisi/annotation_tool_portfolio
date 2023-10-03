@@ -1,4 +1,5 @@
 import paper from 'paper';
+import { updateAnnotation } from 'routes/Annotator/slices/annotatorSlice';
 import { AppDispatch } from 'store';
 
 // radius will change when preferences panel is implemented.
@@ -38,7 +39,7 @@ export const onBrushMouseDown = (event: paper.MouseEvent) => {
 };
 
 // 마우스 버튼 뗌
-export const onBrushMouseUp = () => {
+export const onBrushMouseUp = (dispatch: AppDispatch) => {
   console.group('%cbrush up', 'color: red');
   // selection이 있으면 path에 mouse event 할당
   if (selection) {
@@ -55,6 +56,8 @@ export const onBrushMouseUp = () => {
     brushCursor.remove();
     brushCursor = null;
   }
+
+  dispatch(updateAnnotation({ path: JSON.parse(JSON.stringify(selection)) }));
   console.log(paper.project.activeLayer.children);
   console.groupEnd();
 };
@@ -69,13 +72,14 @@ export const onBrushMouseDrag = (event: paper.MouseEvent) => {
   // brush cursor 생성
   brushCursor = createBrush(event.point, radius);
 
-  // selection이 있을때만 새로운 brush를 unite
+  // selection이 있을때만
   if (selection) {
     const c1 = new paper.Path.Circle({
       center: event.point,
       radius,
     });
 
+    // 새로운 brush를 unite
     const newSelection = selection.unite(c1);
     c1.remove();
     selection.remove();

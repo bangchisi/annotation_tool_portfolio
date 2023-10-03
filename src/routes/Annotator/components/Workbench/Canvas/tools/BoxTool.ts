@@ -1,5 +1,6 @@
 import paper from 'paper';
-import { AnnotationType } from 'routes/Annotator/Annotator.types';
+import { addBoxAnnotation } from 'routes/Annotator/slices/annotatorSlice';
+import { AppDispatch } from 'store';
 
 let currentBox: paper.Path.Rectangle | null;
 let startPoint: paper.Point | null;
@@ -37,8 +38,8 @@ export const onBoxMouseDown = (event: paper.MouseEvent) => {
 
 export const onBoxMouseUp = (
   event: paper.MouseEvent,
-  annotations: AnnotationType[],
-  onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>,
+  dispatch: AppDispatch,
+  // onAnnotationsChange: React.Dispatch<React.SetStateAction<AnnotationType[]>>,
 ) => {
   if (startPoint && endPoint) {
     // draw box
@@ -50,12 +51,8 @@ export const onBoxMouseUp = (
     });
 
     // append box path to annotations
-    const nextAnnotations = annotations.slice();
-    nextAnnotations.push({
-      path: box,
-    });
-    onAnnotationsChange(nextAnnotations);
-
+    // dispatch(addAnnotation(box));
+    dispatch(addBoxAnnotation({ newAnnotation: box }));
     startPoint = null;
     endPoint = null;
 
