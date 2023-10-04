@@ -53,7 +53,11 @@ export function Annotation({ annotation }: AnnotationProps) {
       data-annotationid={annotation.id}
       data-categoryid={annotation.categoryId}
     >
-      {annotation && <div>(id: {annotation.id})</div>}
+      {annotation && (
+        <div>
+          (id: {annotation.id}) {annotation.path === null && 'empty'}
+        </div>
+      )}
     </Container>
   );
 }
