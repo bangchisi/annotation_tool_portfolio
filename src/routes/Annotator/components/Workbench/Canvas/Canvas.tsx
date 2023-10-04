@@ -27,6 +27,9 @@ export default function Canvas({
   const currentAnnotation = useAppSelector(
     (state) => state.annotator.currentAnnotation,
   );
+  const currentCategory = useAppSelector(
+    (state) => state.annotator.currentCategory,
+  );
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
   let imgWidth: number | null = null;
   let imgHeight: number | null = null;
@@ -88,6 +91,7 @@ export default function Canvas({
     selectedTool,
     onChangePoint: setInitPoint,
     currentAnnotation,
+    currentCategory,
     // containerWidth,
     // containerHeight,
     // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임

@@ -21,6 +21,7 @@ export enum Tool {
 
 export default function Annotator() {
   const dispatch = useAppDispatch();
+  const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
   const categories = useAppSelector((state) => state.annotator.categories);
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
@@ -112,6 +113,11 @@ export default function Annotator() {
       console.log('Annotation has changed.');
       // TODO: currentAnnotation 전체를 업데이트하는 로직 작성
       // selection에 currentAnnotation.path를 넣어야 함
+
+      // box tool일때만 categories까지 업데이트
+      if (selectedTool === Tool.Box) {
+        dispatch(updateCurrentCategory(currentAnnotation));
+      }
     }
 
     // 현재 currentAnnotation을 이전 currentAnnotation으로 설정

@@ -8,7 +8,7 @@ import {
   onBrushMouseUp,
 } from '../tools/BrushTool';
 import { onBoxMouseDown, onBoxMouseUp, onBoxMouseMove } from '../tools/BoxTool';
-import { AnnotationType } from 'routes/Annotator/Annotator.types';
+import { AnnotationType, CategoryType } from 'routes/Annotator/Annotator.types';
 import { useAppDispatch } from 'App.hooks';
 import { onEraserDrag, onEraserMouseDown } from '../tools/EraserTool';
 
@@ -17,6 +17,7 @@ interface UseToolsProps {
   selectedTool: Tool;
   onChangePoint: (point: paper.Point) => void;
   currentAnnotation?: AnnotationType;
+  currentCategory?: CategoryType;
   // containerWidth: number | null;
   // containerHeight: number | null;
 }
@@ -27,6 +28,7 @@ export const useTools = (props: UseToolsProps) => {
     onChangePoint,
     initPoint,
     currentAnnotation,
+    currentCategory,
     // containerWidth,
     // containerHeight,
   } = props;
@@ -65,7 +67,7 @@ export const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Brush) {
       onBrushMouseUp(dispatch);
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseUp(event, dispatch);
+      onBoxMouseUp(event, dispatch, currentCategory);
     }
   };
 
