@@ -26,27 +26,27 @@ const annotatorSlice = createSlice({
   initialState,
   reducers: {
     setTool: (state, action) => {
-      console.log('annotatorSlice.ts, set tool');
+      // console.log('annotatorSlice.ts, set tool');
       state.selectedTool = action.payload.selectedTool;
     },
     setCategories: (state, action) => {
-      console.log('annotatorSlice.ts, set categories');
+      // console.log('annotatorSlice.ts, set categories');
       state.categories = action.payload;
     },
     setCurrentCategory: (state, action) => {
-      console.log('annotatorSlice.ts, set currentCategory');
+      // console.log('annotatorSlice.ts, set currentCategory');
       state.currentCategory = action.payload.currentCategory;
     },
     setCurrentAnnotation: (state, action) => {
-      console.log('annotatorSlice.ts, set currentAnnotation');
+      // console.log('annotatorSlice.ts, set currentAnnotation');
       state.currentAnnotation = action.payload.currentAnnotation;
     },
     addBoxAnnotation: (state, action) => {
-      console.log('annotatorSlice.ts, add annotation');
+      // console.log('annotatorSlice.ts, add annotation');
       state.currentCategory?.annotations.push(action.payload.newAnnotation);
     },
     addAnnotation: (state, action) => {
-      console.log('annotatorSlice.ts, add annotation');
+      // console.log('annotatorSlice.ts, add annotation');
       state.currentCategory?.annotations.push(action.payload.newAnnotation);
     },
     updateAnnotation: (state, action) => {

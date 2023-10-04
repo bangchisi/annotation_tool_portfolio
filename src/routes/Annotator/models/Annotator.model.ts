@@ -62,15 +62,15 @@ const initialCategories = {
 const AnnotatorModel = {
   getCategories: async (datasetId: number, imageId: number) => {
     try {
-      console.group('%cAnnotator.model.ts, getCategories()', 'color: red');
+      // console.group('%cAnnotator.model.ts, getCategories()', 'color: red');
       const response =
         process.env.NODE_ENV === 'development'
           ? initialCategories
           : await axios.get(`${baseURL}/${datasetId}/${imageId}`);
 
-      console.group('%cresponse.data', 'color: blue');
-      console.dir(response.data);
-      console.groupEnd();
+      // console.group('%cresponse.data', 'color: blue');
+      // console.dir(response.data);
+      // console.groupEnd();
       return response.data;
     } catch (error) {
       console.log('Failed to get categories');
@@ -80,7 +80,7 @@ const AnnotatorModel = {
 
       return null;
     } finally {
-      console.groupEnd();
+      // console.groupEnd();
     }
   },
 };

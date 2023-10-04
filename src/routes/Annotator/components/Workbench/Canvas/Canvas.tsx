@@ -28,14 +28,9 @@ export default function Canvas({
     (state) => state.annotator.currentAnnotation,
   );
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
-  // const annotations = useAppSelector((state) => state.annotations);
-  // console.log('Canvas, initPoint ', initPoint);
-  // const initPoint: paper.Point | null = null;
   let imgWidth: number | null = null;
   let imgHeight: number | null = null;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  // const img = new Image();
-  // img.src = 'https://placehold.it/550x550';
 
   // 캔버스 초기 설정 useEffect
   useEffect(() => {

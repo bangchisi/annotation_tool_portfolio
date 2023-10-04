@@ -28,14 +28,15 @@ export default function Annotator() {
   const currentAnnotation = useAppSelector(
     (state) => state.annotator.currentAnnotation,
   );
+  // undo 기능을 위해 prevAnnotation을 store에 undo list를 만들어 저장하는게 좋을듯
   const [prevAnnotation, setPrevAnnotation] = useState(currentAnnotation);
 
   // 처음 한번 categories 세팅
   useEffect(() => {
-    console.group(
-      '%cAnnotator.tsx, useEffect, [categories, dispatch]',
-      'color: green',
-    );
+    // console.group(
+    //   '%cAnnotator.tsx, useEffect, [categories, dispatch]',
+    //   'color: green',
+    // );
 
     // categories 가져오는 async 함수
     async function fetchCategories() {
@@ -58,15 +59,15 @@ export default function Annotator() {
       // categories가 비어있을 때만 데이터를 가져옴
       fetchCategories();
     }
-    console.groupEnd();
+    // console.groupEnd();
   }, [dispatch]);
 
   // currentCategory 세팅
   useEffect(() => {
-    console.group(
-      '%cAnnotator.tsx, useEffect, [currentCategory]',
-      'color: green',
-    );
+    // console.group(
+    //   '%cAnnotator.tsx, useEffect, [currentCategory]',
+    //   'color: green',
+    // );
     if (categories.length > 0) {
       dispatch(setCurrentCategory({ currentCategory: categories[0] }));
     }
@@ -75,28 +76,28 @@ export default function Annotator() {
 
   // currentCategory 변경 -> categories 갱신
   useEffect(() => {
-    console.group(
-      '%cAnnotator.tsx, useEffect, [currentCategory]',
-      'color: green',
-    );
+    // console.group(
+    //   '%cAnnotator.tsx, useEffect, [currentCategory]',
+    //   'color: green',
+    // );
     if (currentCategory) {
       const updatedCategories = categories.map((category) =>
         category.id === currentCategory.id ? currentCategory : category,
       );
       dispatch(setCategories(updatedCategories));
     }
-    console.groupEnd();
+    // console.groupEnd();
   }, [currentCategory, dispatch]);
 
   // currentAnnotation.path 변경 -> currentCategory 갱신
   useEffect(() => {
-    console.group(
-      '%cAnnotator.tsx, useEffect, [currentAnnotation, currentAnnotation?.path]',
-      'color: green',
-    );
+    // console.group(
+    //   '%cAnnotator.tsx, useEffect, [currentAnnotation, currentAnnotation?.path]',
+    //   'color: green',
+    // );
 
-    console.log('prevAnnotation', prevAnnotation);
-    console.log('currentAnnotation', currentAnnotation);
+    // console.log('prevAnnotation', prevAnnotation);
+    // console.log('currentAnnotation', currentAnnotation);
 
     // currentAnnotation과 이전 currentAnnotation의 id 비교
     if (prevAnnotation && prevAnnotation.id === currentAnnotation?.id) {
@@ -104,17 +105,18 @@ export default function Annotator() {
       console.log('Only path has changed.');
       // currentAnnotation의 path 변경 로직 작성
       // currentCategory.annotations 업데이트 로직 작성
-      console.log(currentAnnotation);
+      // console.log(currentAnnotation);
       dispatch(updateCurrentCategory(currentAnnotation));
     } else {
       // id가 다르면 currentAnnotation 전체를 변경
       console.log('Annotation has changed.');
-      // currentAnnotation 전체를 업데이트하는 로직 작성
+      // TODO: currentAnnotation 전체를 업데이트하는 로직 작성
+      // selection에 currentAnnotation.path를 넣어야 함
     }
 
     // 현재 currentAnnotation을 이전 currentAnnotation으로 설정
     setPrevAnnotation(currentAnnotation);
-    console.groupEnd();
+    // console.groupEnd();
   }, [currentAnnotation, dispatch]);
 
   return (

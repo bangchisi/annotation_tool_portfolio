@@ -2,6 +2,7 @@ import { AnnotationType } from 'routes/Annotator/Annotator.types';
 import { Container } from './Annotation.style';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { setCurrentAnnotation } from 'routes/Annotator/slices/annotatorSlice';
+import { useEffect } from 'react';
 
 interface AnnotationProps {
   annotation: AnnotationType;
@@ -10,6 +11,9 @@ interface AnnotationProps {
 export function Annotation({ annotation }: AnnotationProps) {
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
+  );
+  const currentAnnotation = useAppSelector(
+    (state) => state.annotator.currentAnnotation,
   );
   const dispatch = useAppDispatch();
 
@@ -28,6 +32,20 @@ export function Annotation({ annotation }: AnnotationProps) {
       dispatch(setCurrentAnnotation({ currentAnnotation: selectedAnnotation }));
     }
   };
+
+  useEffect(() => {
+    if (currentAnnotation && currentAnnotation.path) {
+      console.log(currentAnnotation.path);
+    }
+  }, []);
+
+  // useEffect(() => {
+  //   console.log('Annotation.tsx, useEffect, [currentAnnotation]');
+  //   if (currentAnnotation && currentAnnotation.path) {
+  //     console.log('currentAnnotation.path is');
+  //     console.dir(currentAnnotation.path);
+  //   }
+  // }, [currentAnnotation]);
 
   return (
     <Container
