@@ -7,7 +7,7 @@ export interface CategoryType {
 export interface AnnotationType {
   id?: number;
   categoryId?: number;
-  path?: paper.CompoundPath | paper.PathItem | null;
+  path?: paper.CompoundPath | null;
 }
 
 export type CategoriesType = CategoryType[];
