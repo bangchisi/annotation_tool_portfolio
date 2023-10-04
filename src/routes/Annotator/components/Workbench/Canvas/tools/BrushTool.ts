@@ -62,7 +62,8 @@ export const onBrushMouseUp = (dispatch: AppDispatch) => {
     brushCursor = null;
   }
 
-  dispatch(updateAnnotation({ path: JSON.parse(JSON.stringify(selection)) }));
+  // dispatch(updateAnnotation({ path: JSON.parse(JSON.stringify(selection)) }));
+  dispatch(updateAnnotation({ path: selection }));
   selection?.remove();
   selection = null;
   // console.log(paper.project.activeLayer.children);
