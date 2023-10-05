@@ -78,7 +78,7 @@ export const onBoxMouseUp = (
 
     // dispatch(updateAnnotation({ path: JSON.parse(JSON.stringify(box)) }));
     // dispatch(updateAnnotation({ path: box }));
-    dispatch(updateCurrentAnnotationPath({ path: box }));
+    dispatch(updateCurrentAnnotationPath(box));
     box.remove();
     startPoint = null;
     endPoint = null;

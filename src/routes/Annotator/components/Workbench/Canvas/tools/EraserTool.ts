@@ -15,7 +15,7 @@ export const onEraserMouseDown = (
         new paper.Path.Circle(event.point, 10),
       );
 
-      dispatch(updateCurrentAnnotationPath({ path: newSelection }));
+      dispatch(updateCurrentAnnotationPath(newSelection));
     }
   }
 };
