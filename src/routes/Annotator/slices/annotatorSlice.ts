@@ -54,20 +54,28 @@ const annotatorSlice = createSlice({
         state.currentAnnotation.path = action.payload.path;
       }
     },
-    // updateCurrentCategory: (state, action) => {
-    //   if (state.currentCategory) {
-    //     state.currentCategory.annotations =
-    //       state.currentCategory?.annotations.map((annotation) => {
-    //         if (annotation.id === action.payload.id) {
-    //           return action.payload;
-    //         } else {
-    //           return annotation;
-    //         }
-    //       });
-    //   }
-    // },
+    updateCurrentAnnotationPath: (state, action) => {
+      if (state.currentAnnotation) {
+        state.currentAnnotation.path = action.payload;
+      }
+    },
+    updateCurrentCategory: (state, action) => {
+      if (state.currentCategory) {
+        if (state.currentAnnotation?.path) {
+          state.currentCategory.annotations =
+            state.currentCategory?.annotations.map((annotation) => {
+              if (annotation.id === action.payload.id) {
+                return action.payload;
+              } else {
+                return annotation;
+              }
+            });
+        }
+      }
+    },
     updateCurrentCategoryAnnotations: (state, action) => {
       if (state.currentCategory) {
+        console.log('updateCurrentCategoryAnnotations');
         state.currentCategory.annotations = action.payload;
       }
     },
@@ -82,8 +90,9 @@ export const {
   addBoxAnnotation,
   updateAnnotation,
   addAnnotation,
-  // updateCurrentCategory,
+  updateCurrentCategory,
   updateCurrentCategoryAnnotations,
+  updateCurrentAnnotationPath,
 } = annotatorSlice.actions;
 
 export default annotatorSlice.reducer;

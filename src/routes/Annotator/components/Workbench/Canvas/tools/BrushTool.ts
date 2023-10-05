@@ -1,5 +1,8 @@
 import paper from 'paper';
-import { updateAnnotation } from 'routes/Annotator/slices/annotatorSlice';
+import {
+  updateAnnotation,
+  updateCurrentAnnotationPath,
+} from 'routes/Annotator/slices/annotatorSlice';
 import { AppDispatch } from 'store';
 
 // radius will change when preferences panel is implemented.
@@ -63,7 +66,8 @@ export const onBrushMouseUp = (dispatch: AppDispatch) => {
   }
 
   // dispatch(updateAnnotation({ path: JSON.parse(JSON.stringify(selection)) }));
-  dispatch(updateAnnotation({ path: selection }));
+  // dispatch(updateAnnotation({ path: selection }));
+  dispatch(updateCurrentAnnotationPath(selection));
   selection?.remove();
   selection = null;
   // console.log(paper.project.activeLayer.children);

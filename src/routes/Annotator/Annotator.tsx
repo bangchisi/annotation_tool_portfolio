@@ -1,4 +1,3 @@
-import paper from 'paper';
 import RightSidebar from './components/RightSidebar/RightSidebar';
 import LeftSidebar from './components/LeftSidebar/LeftSidebar';
 import { Container } from './Annotator.style';
@@ -7,12 +6,10 @@ import { useAppDispatch, useAppSelector } from 'App.hooks';
 import {
   setCategories,
   setCurrentCategory,
-  // updateCurrentCategory,
-  updateCurrentCategoryAnnotations,
+  updateCurrentCategory,
 } from './slices/annotatorSlice';
 import AnnotatorModel from './models/Annotator.model';
 import { useEffect, useState } from 'react';
-import { AnnotationType, CategoryType } from './Annotator.types';
 
 export enum Tool {
   Select,
@@ -34,23 +31,6 @@ export default function Annotator() {
   );
   // undo 기능을 위해 prevAnnotation을 store에 undo list를 만들어 저장하는게 좋을듯
   const [prevAnnotation, setPrevAnnotation] = useState(currentAnnotation);
-
-  const handlePathChange = (
-    currentCategory: CategoryType,
-    currentAnnotation: AnnotationType,
-  ) => {
-    // currentAnnotation을 prevAnnotation으로 설정
-    setPrevAnnotation(currentAnnotation);
-
-    const newAnnotations = currentCategory.annotations.map((annotation) => {
-      if (annotation.id === currentAnnotation.id) {
-        return currentAnnotation;
-      } else {
-        return annotation;
-      }
-    });
-    dispatch(updateCurrentCategoryAnnotations(newAnnotations));
-  };
 
   // 처음 한번 categories 세팅
   useEffect(() => {
@@ -124,24 +104,24 @@ export default function Annotator() {
     if (prevAnnotation && prevAnnotation.id === currentAnnotation?.id) {
       // id가 같으면 path만 변경
       console.log('Only path has changed.');
-      if (currentCategory && currentAnnotation) {
-        handlePathChange(currentCategory, currentAnnotation);
-        console.log('prevAnnotation: ');
-        console.dir(prevAnnotation);
-
-        // path 갯수 확인
-        console.dir(paper.project.activeLayer.children);
-      }
+      // currentAnnotation의 path 변경 로직 작성
+      // currentCategory.annotations 업데이트 로직 작성
+      // console.log(currentAnnotation);
+      dispatch(updateCurrentCategory(currentAnnotation));
     } else {
       // id가 다르면 currentAnnotation 전체를 변경
       console.log('Annotation has changed.');
+      // TODO: currentAnnotation 전체를 업데이트하는 로직 작성
+      // selection에 currentAnnotation.path를 넣어야 함
+
       // box tool일때만 categories까지 업데이트
       if (selectedTool === Tool.Box) {
-        if (currentCategory && currentAnnotation) {
-          handlePathChange(currentCategory, currentAnnotation);
-        }
+        dispatch(updateCurrentCategory(currentAnnotation));
       }
     }
+
+    // 현재 currentAnnotation을 이전 currentAnnotation으로 설정
+    setPrevAnnotation(currentAnnotation);
     // console.groupEnd();
   }, [currentAnnotation, dispatch]);
 
