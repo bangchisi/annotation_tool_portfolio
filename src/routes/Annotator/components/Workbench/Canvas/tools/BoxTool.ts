@@ -2,9 +2,8 @@ import paper from 'paper';
 import { CategoryType } from 'routes/Annotator/Annotator.types';
 import {
   addAnnotation,
-  addBoxAnnotation,
   setCurrentAnnotation,
-  updateAnnotation,
+  updateCurrentAnnotationPath,
 } from 'routes/Annotator/slices/annotatorSlice';
 import { AppDispatch } from 'store';
 
@@ -63,26 +62,23 @@ export const onBoxMouseUp = (
 
     dispatch(
       addAnnotation({
-        newAnnotation: {
-          id: currentCategory?.annotations.length,
-          categoryId: currentCategory?.id,
-          path: null,
-        },
+        id: currentCategory?.annotations.length,
+        categoryId: currentCategory?.id,
+        path: null,
       }),
     );
 
     dispatch(
       setCurrentAnnotation({
-        currentAnnotation: {
-          id: currentCategory?.annotations.length,
-          categoryId: currentCategory?.id,
-          path: null,
-        },
+        id: currentCategory?.annotations.length,
+        categoryId: currentCategory?.id,
+        path: null,
       }),
     );
 
     // dispatch(updateAnnotation({ path: JSON.parse(JSON.stringify(box)) }));
-    dispatch(updateAnnotation({ path: box }));
+    // dispatch(updateAnnotation({ path: box }));
+    dispatch(updateCurrentAnnotationPath({ path: box }));
     box.remove();
     startPoint = null;
     endPoint = null;

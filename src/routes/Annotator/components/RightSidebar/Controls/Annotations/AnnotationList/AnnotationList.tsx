@@ -19,21 +19,17 @@ export default function AnnotationList() {
     console.log('create annotation');
     dispatch(
       addAnnotation({
-        newAnnotation: {
-          id: currentCategory?.annotations.length,
-          categoryId: currentCategory?.id,
-          path: null,
-        },
+        id: currentCategory?.annotations.length,
+        categoryId: currentCategory?.id,
+        path: null,
       }),
     );
 
     dispatch(
       setCurrentAnnotation({
-        currentAnnotation: {
-          id: currentCategory?.annotations.length,
-          categoryId: currentCategory?.id,
-          path: null,
-        },
+        id: currentCategory?.annotations.length,
+        categoryId: currentCategory?.id,
+        path: null,
       }),
     );
   }

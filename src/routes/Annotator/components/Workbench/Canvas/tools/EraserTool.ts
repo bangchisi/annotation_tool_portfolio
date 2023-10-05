@@ -1,6 +1,6 @@
 import paper from 'paper';
 import { AnnotationType } from 'routes/Annotator/Annotator.types';
-import { updateAnnotation } from 'routes/Annotator/slices/annotatorSlice';
+import { updateCurrentAnnotationPath } from 'routes/Annotator/slices/annotatorSlice';
 import { AppDispatch } from 'store';
 
 export const onEraserMouseDown = (
@@ -15,7 +15,7 @@ export const onEraserMouseDown = (
         new paper.Path.Circle(event.point, 10),
       );
 
-      dispatch(updateAnnotation({ path: newSelection }));
+      dispatch(updateCurrentAnnotationPath({ path: newSelection }));
     }
   }
 };

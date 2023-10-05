@@ -29,7 +29,7 @@ export function Annotation({ annotation }: AnnotationProps) {
         (annotation) => annotation.id === Number(annotationId),
       );
 
-      dispatch(setCurrentAnnotation({ currentAnnotation: selectedAnnotation }));
+      dispatch(setCurrentAnnotation(selectedAnnotation));
     }
   };
 

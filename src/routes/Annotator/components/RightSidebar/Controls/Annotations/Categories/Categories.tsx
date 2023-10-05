@@ -18,7 +18,7 @@ export default function Categories() {
     console.log(selectedCategory);
 
     if (selectedCategory) {
-      dispatch(setCurrentCategory({ currentCategory: selectedCategory }));
+      dispatch(setCurrentCategory(selectedCategory));
     }
   };
 

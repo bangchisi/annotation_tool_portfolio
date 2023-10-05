@@ -27,7 +27,8 @@ const annotatorSlice = createSlice({
   reducers: {
     setTool: (state, action) => {
       // console.log('annotatorSlice.ts, set tool');
-      state.selectedTool = action.payload.selectedTool;
+      // state.selectedTool = action.payload.selectedTool;
+      state.selectedTool = action.payload;
     },
     setCategories: (state, action) => {
       // console.log('annotatorSlice.ts, set categories');
@@ -35,24 +36,18 @@ const annotatorSlice = createSlice({
     },
     setCurrentCategory: (state, action) => {
       // console.log('annotatorSlice.ts, set currentCategory');
-      state.currentCategory = action.payload.currentCategory;
+      // state.currentCategory = action.payload.currentCategory;
+      state.currentCategory = action.payload;
     },
     setCurrentAnnotation: (state, action) => {
       // console.log('annotatorSlice.ts, set currentAnnotation');
-      state.currentAnnotation = action.payload.currentAnnotation;
-    },
-    addBoxAnnotation: (state, action) => {
-      // console.log('annotatorSlice.ts, add annotation');
-      state.currentCategory?.annotations.push(action.payload.newAnnotation);
+      // state.currentAnnotation = action.payload.currentAnnotation;
+      state.currentAnnotation = action.payload;
     },
     addAnnotation: (state, action) => {
       // console.log('annotatorSlice.ts, add annotation');
-      state.currentCategory?.annotations.push(action.payload.newAnnotation);
-    },
-    updateAnnotation: (state, action) => {
-      if (state.currentAnnotation) {
-        state.currentAnnotation.path = action.payload.path;
-      }
+      // state.currentCategory?.annotations.push(action.payload.newAnnotation);
+      state.currentCategory?.annotations.push(action.payload);
     },
     updateCurrentAnnotationPath: (state, action) => {
       if (state.currentAnnotation) {
@@ -73,12 +68,6 @@ const annotatorSlice = createSlice({
         }
       }
     },
-    updateCurrentCategoryAnnotations: (state, action) => {
-      if (state.currentCategory) {
-        console.log('updateCurrentCategoryAnnotations');
-        state.currentCategory.annotations = action.payload;
-      }
-    },
   },
 });
 
@@ -87,11 +76,8 @@ export const {
   setCategories,
   setCurrentCategory,
   setCurrentAnnotation,
-  addBoxAnnotation,
-  updateAnnotation,
   addAnnotation,
   updateCurrentCategory,
-  updateCurrentCategoryAnnotations,
   updateCurrentAnnotationPath,
 } = annotatorSlice.actions;
 

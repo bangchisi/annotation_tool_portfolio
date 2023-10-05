@@ -1,8 +1,5 @@
 import paper from 'paper';
-import {
-  updateAnnotation,
-  updateCurrentAnnotationPath,
-} from 'routes/Annotator/slices/annotatorSlice';
+import { updateCurrentAnnotationPath } from 'routes/Annotator/slices/annotatorSlice';
 import { AppDispatch } from 'store';
 
 // radius will change when preferences panel is implemented.

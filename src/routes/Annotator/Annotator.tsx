@@ -49,7 +49,7 @@ export default function Annotator() {
         // 받아온 categories 내용이 있으면
         if (newCategories.length > 0) {
           // 0번째 category를 currentCategory로
-          dispatch(setCurrentCategory({ currentCategory: newCategories[0] }));
+          dispatch(setCurrentCategory(newCategories[0]));
         }
       } catch (error) {
         console.error('Error init categories:', error);
@@ -70,7 +70,7 @@ export default function Annotator() {
     //   'color: green',
     // );
     if (categories.length > 0) {
-      dispatch(setCurrentCategory({ currentCategory: categories[0] }));
+      dispatch(setCurrentCategory(categories[0]));
     }
     console.groupEnd();
   }, [dispatch]);

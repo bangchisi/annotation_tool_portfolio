@@ -30,7 +30,7 @@ export default function ToolIcon(props: {
   const { toolName, toolId, placement, iconComponent } = props;
 
   const handleClick = () => {
-    dispatch(setTool({ selectedTool: toolId }));
+    dispatch(setTool(toolId));
   };
 
   return (
