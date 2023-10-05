@@ -54,16 +54,21 @@ const annotatorSlice = createSlice({
         state.currentAnnotation.path = action.payload.path;
       }
     },
-    updateCurrentCategory: (state, action) => {
+    // updateCurrentCategory: (state, action) => {
+    //   if (state.currentCategory) {
+    //     state.currentCategory.annotations =
+    //       state.currentCategory?.annotations.map((annotation) => {
+    //         if (annotation.id === action.payload.id) {
+    //           return action.payload;
+    //         } else {
+    //           return annotation;
+    //         }
+    //       });
+    //   }
+    // },
+    updateCurrentCategoryAnnotations: (state, action) => {
       if (state.currentCategory) {
-        state.currentCategory.annotations =
-          state.currentCategory?.annotations.map((annotation) => {
-            if (annotation.id === action.payload.id) {
-              return action.payload;
-            } else {
-              return annotation;
-            }
-          });
+        state.currentCategory.annotations = action.payload;
       }
     },
   },
@@ -77,7 +82,8 @@ export const {
   addBoxAnnotation,
   updateAnnotation,
   addAnnotation,
-  updateCurrentCategory,
+  // updateCurrentCategory,
+  updateCurrentCategoryAnnotations,
 } = annotatorSlice.actions;
 
 export default annotatorSlice.reducer;

@@ -6,7 +6,8 @@ import { useAppDispatch, useAppSelector } from 'App.hooks';
 import {
   setCategories,
   setCurrentCategory,
-  updateCurrentCategory,
+  // updateCurrentCategory,
+  updateCurrentCategoryAnnotations,
 } from './slices/annotatorSlice';
 import AnnotatorModel from './models/Annotator.model';
 import { useEffect, useState } from 'react';
@@ -107,7 +108,17 @@ export default function Annotator() {
       // currentAnnotation의 path 변경 로직 작성
       // currentCategory.annotations 업데이트 로직 작성
       // console.log(currentAnnotation);
-      dispatch(updateCurrentCategory(currentAnnotation));
+      if (currentCategory && currentAnnotation) {
+        const newAnnotations = currentCategory.annotations.map((annotation) => {
+          if (annotation.id === currentAnnotation.id) {
+            return currentAnnotation;
+          } else {
+            return annotation;
+          }
+        });
+        dispatch(updateCurrentCategoryAnnotations(newAnnotations));
+      }
+      // dispatch(updateCurrentCategory(currentAnnotation));
     } else {
       // id가 다르면 currentAnnotation 전체를 변경
       console.log('Annotation has changed.');
@@ -116,7 +127,19 @@ export default function Annotator() {
 
       // box tool일때만 categories까지 업데이트
       if (selectedTool === Tool.Box) {
-        dispatch(updateCurrentCategory(currentAnnotation));
+        if (currentCategory && currentAnnotation) {
+          const newAnnotations = currentCategory.annotations.map(
+            (annotation) => {
+              if (annotation.id === currentAnnotation.id) {
+                return currentAnnotation;
+              } else {
+                return annotation;
+              }
+            },
+          );
+          dispatch(updateCurrentCategoryAnnotations(newAnnotations));
+        }
+        // dispatch(updateCurrentCategory(currentAnnotation));
       }
     }
 
