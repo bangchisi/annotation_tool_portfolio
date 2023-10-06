@@ -7,70 +7,36 @@ const initialCategories = {
     {
       id: 0,
       name: 'human',
-      annotations: [
-        {
-          id: 0,
-          categoryId: 0,
-          path: null,
-        },
-        {
-          id: 1,
-          categoryId: 0,
-          path: null,
-        },
-        {
-          id: 2,
-          categoryId: 0,
-          path: null,
-        },
-      ],
     },
     {
       id: 1,
       name: 'animal',
-      annotations: [
-        {
-          id: 0,
-          categoryId: 1,
-          path: null,
-        },
-        {
-          id: 1,
-          categoryId: 1,
-          path: null,
-        },
-        {
-          id: 2,
-          categoryId: 1,
-          path: null,
-        },
-      ],
     },
     {
       id: 2,
       name: 'building',
-      annotations: [],
     },
     {
       id: 3,
       name: 'machine',
-      annotations: [],
     },
   ],
+};
+
+const initialAnnotations = {
+  data: {
+    annotations: [],
+  },
 };
 
 const AnnotatorModel = {
   getCategories: async (datasetId: number, imageId: number) => {
     try {
-      // console.group('%cAnnotator.model.ts, getCategories()', 'color: red');
       const response =
         process.env.NODE_ENV === 'development'
           ? initialCategories
-          : await axios.get(`${baseURL}/${datasetId}/${imageId}`);
+          : await axios.get(`${baseURL}/categories/${datasetId}/${imageId}`);
 
-      // console.group('%cresponse.data', 'color: blue');
-      // console.dir(response.data);
-      // console.groupEnd();
       return response.data;
     } catch (error) {
       console.log('Failed to get categories');
@@ -79,8 +45,23 @@ const AnnotatorModel = {
       }
 
       return null;
-    } finally {
-      // console.groupEnd();
+    }
+  },
+  getAnnotations: async (datasetId: number, imageId: number) => {
+    try {
+      const response =
+        process.env.NODE_ENV === 'development'
+          ? initialAnnotations
+          : await axios.get(`${baseURL}/annotations/${datasetId}/${imageId}`);
+
+      return response.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log('Failed to get annotations');
+        console.log(error.stack);
+
+        return null;
+      }
     }
   },
 };
