@@ -63,17 +63,19 @@ export default function Annotator() {
     // console.groupEnd();
   }, [dispatch]);
 
-  // currentCategory 세팅
-  useEffect(() => {
-    // console.group(
-    //   '%cAnnotator.tsx, useEffect, [currentCategory]',
-    //   'color: green',
-    // );
-    if (categories.length > 0) {
-      dispatch(setCurrentCategory(categories[0]));
-    }
-    console.groupEnd();
-  }, [dispatch]);
+  // currentCategory 세팅 <- categories init에서 이미 하기 때문에 필요 없는 함수. 지울 예정
+  // useEffect(() => {
+  //   // console.group(
+  //   //   '%cAnnotator.tsx, useEffect, [currentCategory]',
+  //   //   'color: green',
+  //   // );
+  //   if (categories.length > 0) {
+  //     console.dir('caetgories');
+  //     console.dir(categories);
+  //     dispatch(setCurrentCategory(categories[0]));
+  //   }
+  //   console.groupEnd();
+  // }, [categories, dispatch]);
 
   // currentCategory 변경 -> categories 갱신
   useEffect(() => {

@@ -33,7 +33,7 @@ export default function Canvas({
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
   let imgWidth: number | null = null;
   let imgHeight: number | null = null;
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // 캔버스 초기 설정 useEffect
   useEffect(() => {

@@ -55,18 +55,19 @@ const annotatorSlice = createSlice({
       }
     },
     updateCurrentCategory: (state, action) => {
-      if (state.currentCategory) {
-        if (state.currentAnnotation?.path) {
-          state.currentCategory.annotations =
-            state.currentCategory?.annotations.map((annotation) => {
-              if (annotation.id === action.payload.id) {
-                return action.payload;
-              } else {
-                return annotation;
-              }
-            });
-        }
+      if (!state.currentCategory || state.currentAnnotation?.path) {
+        return state;
       }
+
+      state.currentCategory.annotations = state.currentCategory.annotations.map(
+        (annotation) => {
+          if (annotation.id === action.payload.id) {
+            return action.payload;
+          } else {
+            return annotation;
+          }
+        },
+      );
     },
   },
 });
