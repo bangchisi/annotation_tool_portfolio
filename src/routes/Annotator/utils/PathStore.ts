@@ -13,7 +13,11 @@ export default class PathStore {
     this.paths = paths;
   }
 
-  addPath(path: PathType) {
+  getAll() {
+    return this.paths;
+  }
+
+  appendPath(path: PathType) {
     this.paths.push(path);
   }
 
@@ -22,6 +26,23 @@ export default class PathStore {
       (path) =>
         path.categoryId !== categoryId && path.annotationId !== annotationId,
     );
+  }
+
+  getCategoryPath(categoryId: number): PathStore {
+    return new PathStore(
+      this.paths.filter((path) => path.categoryId === categoryId),
+    );
+  }
+
+  getLastAnnotationId(): number {
+    if (this.paths.length > 0) {
+      const maxIdObject = this.paths.reduce((max, current) => {
+        return current.annotationId > max.annotationId ? current : max;
+      });
+      return maxIdObject.annotationId;
+    }
+
+    return -1;
   }
 
   getLastAnnotationIdInCategory(categoryId: number): number {
@@ -37,5 +58,17 @@ export default class PathStore {
     });
 
     return lastId;
+  }
+
+  getSelectedPath(
+    categoryId: number,
+    annotationId: number,
+  ): PathType | undefined {
+    const selectedPath = this.paths.find(
+      (path) =>
+        path.categoryId === categoryId && path.annotationId === annotationId,
+    );
+
+    return selectedPath;
   }
 }
