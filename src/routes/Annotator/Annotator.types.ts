@@ -1,13 +1,12 @@
+export type CategoriesType = CategoryType[];
+
 export interface CategoryType {
   id: number;
   name: string;
-  annotations: AnnotationType[];
+  annotations: number[];
 }
 
 export interface AnnotationType {
-  id?: number;
-  categoryId?: number;
-  path?: paper.CompoundPath | null;
+  id: number;
+  categoryId: number;
 }
-
-export type CategoriesType = CategoryType[];
