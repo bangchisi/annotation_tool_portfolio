@@ -1,6 +1,6 @@
-type SegmentsType = [x: number, y: number][];
+export type SegmentsType = [x: number, y: number][];
 
-interface PathType {
+export interface PathType {
   categoryId: number;
   annotationId: number;
   segments: SegmentsType;
@@ -13,10 +13,6 @@ export default class PathStore {
     this.paths = paths;
   }
 
-  public get Paths() {
-    return this.paths;
-  }
-
   addPath(path: PathType) {
     this.paths.push(path);
   }
@@ -26,5 +22,20 @@ export default class PathStore {
       (path) =>
         path.categoryId !== categoryId && path.annotationId !== annotationId,
     );
+  }
+
+  getLastAnnotationIdInCategory(categoryId: number): number {
+    let lastId = -1;
+    let prevPath;
+    this.paths.forEach((path) => {
+      if (path.categoryId === categoryId) {
+        prevPath = path;
+        if (lastId === -1 || path.annotationId > prevPath.annotationId) {
+          lastId = path.annotationId;
+        }
+      }
+    });
+
+    return lastId;
   }
 }
