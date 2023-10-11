@@ -1,9 +1,9 @@
-export type SegmentsType = [x: number, y: number][];
+export type SegmentationsType = [x: number, y: number][];
 
 export interface PathType {
   categoryId: number;
   annotationId: number;
-  segments: SegmentsType;
+  segmentations: SegmentationsType;
 }
 
 export default class PathStore {

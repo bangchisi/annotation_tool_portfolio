@@ -37,7 +37,7 @@ export default function AnnotationList() {
     const newPath: PathType = {
       categoryId: currentCategory.id,
       annotationId: lastId + 1,
-      segments: [],
+      segmentations: [],
     };
 
     // new path를 paths에 push
