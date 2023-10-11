@@ -18,6 +18,7 @@ export enum Tool {
 
 // path 정보들을 저장한 배열
 export let paths: PathStore;
+fetchPaths();
 
 export default function Annotator() {
   const dispatch = useAppDispatch();
@@ -26,6 +27,7 @@ export default function Annotator() {
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
   );
+
   // init categories, paths
   useEffect(() => {
     // categories 가져오는 async 함수
@@ -74,4 +76,10 @@ export default function Annotator() {
       <RightSidebar />
     </Container>
   );
+}
+
+async function fetchPaths() {
+  const pathArray = await AnnotatorModel.getPaths();
+  paths = new PathStore(pathArray);
+  console.dir(paths);
 }

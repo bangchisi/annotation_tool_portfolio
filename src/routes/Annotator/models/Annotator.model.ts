@@ -12,7 +12,7 @@ const initialCategories = {
     {
       id: 1,
       name: 'animal',
-      annotations: [],
+      annotations: [0],
     },
     {
       id: 2,
@@ -32,6 +32,11 @@ const initialPaths = {
     {
       segmentations: [[385, 798, 385, 813, 319, 813, 319, 798, 385, 798]],
       categoryId: 0,
+      annotationId: 0,
+    },
+    {
+      segmentations: [[500, 500, 500, 700, 700, 700, 700, 500, 500, 500]],
+      categoryId: 1,
       annotationId: 0,
     },
   ],
