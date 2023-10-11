@@ -48,14 +48,16 @@ export default class PathStore {
   getLastAnnotationIdInCategory(categoryId: number): number {
     let lastId = -1;
     let prevPath: PathType;
-    this.paths.forEach((path) => {
-      if (!!prevPath && path.categoryId === categoryId) {
-        if (lastId === -1 || path.annotationId > prevPath.annotationId) {
-          lastId = path.annotationId;
+    if (this.paths.length > 0) {
+      this.paths.forEach((path) => {
+        if (!!prevPath && path.categoryId === categoryId) {
+          if (lastId === -1 || path.annotationId > prevPath.annotationId) {
+            lastId = path.annotationId;
+          }
         }
         prevPath = path;
-      }
-    });
+      });
+    }
 
     return lastId;
   }
