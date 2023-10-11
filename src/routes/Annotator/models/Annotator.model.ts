@@ -7,7 +7,7 @@ const initialCategories = {
     {
       id: 0,
       name: 'human',
-      annotations: [],
+      annotations: [0],
     },
     {
       id: 1,
@@ -28,7 +28,13 @@ const initialCategories = {
 };
 
 const initialPaths = {
-  data: [],
+  data: [
+    {
+      segmentations: [[385, 798, 385, 813, 319, 813, 319, 798, 385, 798]],
+      categoryId: 0,
+      annotationId: 0,
+    },
+  ],
 };
 
 const initialAnnotations = {
