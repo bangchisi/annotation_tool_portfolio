@@ -30,9 +30,16 @@ export default class PathStore {
   }
 
   getCategoryPath(categoryId: number): PathStore {
-    return new PathStore(
-      this.paths.filter((path) => path.categoryId === categoryId),
+    const newPathStore = new PathStore(
+      this.paths.filter((path) => {
+        if (path.categoryId === categoryId) {
+          return true;
+        }
+        return false;
+      }),
     );
+
+    return newPathStore;
   }
 
   getLastAnnotationId(): number {
@@ -100,8 +107,6 @@ export default class PathStore {
       }
     });
 
-    console.log('points');
-    console.dir(points);
     return new paper.Path({
       segments: points,
       closed: true,

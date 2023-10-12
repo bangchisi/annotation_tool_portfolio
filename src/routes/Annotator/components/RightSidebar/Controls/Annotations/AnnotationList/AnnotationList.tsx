@@ -13,7 +13,6 @@ import {
 } from 'routes/Annotator/slices/annotatorSlice';
 
 export default function AnnotationList() {
-  console.log('AnnotationList render');
   const categories = useAppSelector((state) => state.annotator.categories);
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
@@ -35,9 +34,9 @@ export default function AnnotationList() {
 
     // new path 생성
     const newPath: PathType = {
+      segmentations: [],
       categoryId: currentCategory.id,
       annotationId: lastId + 1,
-      segmentations: [],
     };
 
     // new path를 paths에 push
@@ -75,6 +74,7 @@ export default function AnnotationList() {
 
   // annotation 선택
   function selectAnnotation(categoryId: number, annotationId: number) {
+    console.log(`select annotation. (${categoryId}, ${annotationId})`);
     if (!categories) return;
 
     const selectedCategory = categories.find(
