@@ -10,7 +10,7 @@ import {
 import { onBoxMouseDown, onBoxMouseUp, onBoxMouseMove } from '../tools/BoxTool';
 import { AnnotationType, CategoryType } from 'routes/Annotator/Annotator.types';
 import { useAppDispatch } from 'App.hooks';
-import { onEraserDrag, onEraserMouseDown } from '../tools/EraserTool';
+import { onEraserMouseDrag, onEraserMouseMove } from '../tools/EraserTool';
 
 interface UseToolsProps {
   initPoint: paper.Point | null;
@@ -42,6 +42,8 @@ export const useTools = (props: UseToolsProps) => {
       onBrushMouseMove(event);
     } else if (selectedTool === Tool.Box) {
       onBoxMouseMove(event);
+    } else if (selectedTool === Tool.Eraser) {
+      onEraserMouseMove(event);
     }
   };
 
@@ -54,8 +56,6 @@ export const useTools = (props: UseToolsProps) => {
       onBrushMouseDown(event);
     } else if (selectedTool === Tool.Box) {
       onBoxMouseDown(event);
-    } else if (selectedTool === Tool.Eraser) {
-      onEraserMouseDown(event, dispatch, currentAnnotation);
     }
   };
 
@@ -79,7 +79,7 @@ export const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Brush) {
       onBrushMouseDrag(event);
     } else if (selectedTool === Tool.Eraser) {
-      onEraserDrag(event, currentAnnotation);
+      onEraserMouseDrag(event, currentAnnotation);
     }
   };
 

@@ -1,7 +1,6 @@
 import paper from 'paper';
 
 import { AnnotationType } from 'routes/Annotator/Annotator.types';
-import { tempPathToSegmentation } from '../hooks/useTools';
 import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
 import { paths } from 'routes/Annotator/Annotator';
 // radius will change when preferences panel is implemented.
