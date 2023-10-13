@@ -1,12 +1,14 @@
 import paper from 'paper';
-import { CategoryType } from 'routes/Annotator/Annotator.types';
-import {
-  addAnnotation,
-  setCurrentAnnotation,
-  updateCurrentAnnotationPath,
-} from 'routes/Annotator/slices/annotatorSlice';
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
+// import {
+//   addAnnotation,
+//   setCurrentAnnotation,
+//   updateCurrentAnnotationPath,
+// } from 'routes/Annotator/slices/annotatorSlice';
 import { AppDispatch } from 'store';
+import { paths } from 'routes/Annotator/Annotator';
 
+let tempPath: paper.CompoundPath | null;
 let currentBox: paper.Path.Rectangle | null;
 let startPoint: paper.Point | null;
 let endPoint: paper.Point | null;
@@ -44,42 +46,45 @@ export const onBoxMouseDown = (event: paper.MouseEvent) => {
 export const onBoxMouseUp = (
   event: paper.MouseEvent,
   dispatch: AppDispatch,
-  currentCategory?: CategoryType,
+  currentAnnotation?: AnnotationType,
 ) => {
   if (startPoint && endPoint) {
     // draw box
-    const box = new paper.CompoundPath(
+    tempPath = new paper.CompoundPath(
       new paper.Path.Rectangle({
         from: startPoint,
         to: event.point,
       }),
     );
 
-    box.strokeWidth = 2;
-    box.strokeColor = new paper.Color(1, 0, 0, 1);
+    tempPath.strokeWidth = 2;
+    tempPath.strokeColor = new paper.Color(1, 0, 0, 1);
 
     // append box path to annotations
-
-    dispatch(
-      addAnnotation({
-        id: currentCategory?.annotations.length,
-        categoryId: currentCategory?.id,
-        path: null,
-      }),
-    );
-
-    dispatch(
-      setCurrentAnnotation({
-        id: currentCategory?.annotations.length,
-        categoryId: currentCategory?.id,
-        path: null,
-      }),
-    );
+    // add new empty annotation
+    // FIX: currentCategory?.annotations is removed
+    // dispatch(
+    //   addAnnotation({
+    //     id: currentCategory?.annotations.length,
+    //     categoryId: currentCategory?.id,
+    //     path: null,
+    //   }),
+    // );
+    // set current annotation to new empty annotation just added
+    // FIX: currentCategory?.annotations is removed
+    // dispatch(
+    //   setCurrentAnnotation({
+    //     id: currentCategory?.annotations.length,
+    //     categoryId: currentCategory?.id,
+    //     path: null,
+    //   }),
+    // );
 
     // dispatch(updateAnnotation({ path: JSON.parse(JSON.stringify(box)) }));
     // dispatch(updateAnnotation({ path: box }));
-    dispatch(updateCurrentAnnotationPath(box));
-    box.remove();
+    console.log(currentAnnotation);
+    console.dir(tempPath);
+    tempPath = null;
     startPoint = null;
     endPoint = null;
 

@@ -9,9 +9,11 @@ export interface PathType {
 
 export default class PathStore {
   paths: PathType[] = [];
+  tempPath: paper.CompoundPath | null;
 
   constructor(paths: PathType[]) {
     this.paths = paths;
+    this.tempPath = null;
   }
 
   getAll() {

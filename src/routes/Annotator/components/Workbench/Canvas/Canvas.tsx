@@ -11,11 +11,6 @@ interface CanvasProps {
   containerWidth: number | null;
   containerHeight: number | null;
 }
-/** 커서 변경 방법
- * Canvas 위에서만 커서를 변경해야 하니 Canvas cursor css를 주기로 함.
- */
-
-export let tempPath: paper.CompoundPath;
 
 // TODO: paper init to another file?
 export default function Canvas({
@@ -90,7 +85,7 @@ export default function Canvas({
   // 기존 그림 불러오기
   useEffect(() => {
     paths.initPathsToCanvas();
-    console.dir(paper.project.activeLayer.children);
+    // console.dir(paper.project.activeLayer.children);
   }, []);
 
   const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({

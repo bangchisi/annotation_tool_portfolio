@@ -6,16 +6,17 @@ export default function Categories() {
   const dispatch = useAppDispatch();
   const categories = useAppSelector((state) => state.annotator.categories);
 
+  // 카테고리 선택 변경
   const handleCategoryChange = (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    const selectedCategoryName = event.target.value;
+    // select value
+    const selectedCategoryId = Number(event.target.value);
 
+    // 선택한 id와 같은 category 검색
     const selectedCategory = categories.find(
-      (category) => category.name === selectedCategoryName,
+      (category) => category.id === selectedCategoryId,
     );
-
-    console.log(selectedCategory);
 
     if (selectedCategory) {
       dispatch(setCurrentCategory(selectedCategory));
@@ -33,7 +34,7 @@ export default function Categories() {
         onChange={handleCategoryChange}
       >
         {categories.map((category) => (
-          <option key={category.id} value={category.name}>
+          <option key={category.id} value={category.id}>
             {category.name}
           </option>
         ))}

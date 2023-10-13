@@ -1,3 +1,4 @@
+import paper from 'paper';
 import { Container } from './AnnotationList.style';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
@@ -74,6 +75,18 @@ export default function AnnotationList() {
 
   // annotation 선택
   function selectAnnotation(categoryId: number, annotationId: number) {
+    {
+      // TODO: make paths.tempPath to selectedAnnotation path
+      const selectedPath = paper.project.activeLayer.children.find(
+        (path) =>
+          path.data.categoryId === categoryId &&
+          path.data.annotationId === annotationId,
+      ) as paper.CompoundPath;
+
+      paths.tempPath = selectedPath;
+      console.dir(selectedPath);
+    }
+
     console.log(`select annotation. (${categoryId}, ${annotationId})`);
     if (!categories) return;
 

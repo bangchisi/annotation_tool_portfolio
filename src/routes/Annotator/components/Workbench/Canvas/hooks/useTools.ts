@@ -65,9 +65,9 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       // ...
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseUp(dispatch);
+      onBrushMouseUp(currentAnnotation);
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseUp(event, dispatch, currentCategory);
+      onBoxMouseUp(event, dispatch, currentAnnotation);
     }
   };
 
@@ -85,6 +85,17 @@ export const useTools = (props: UseToolsProps) => {
 
   return { onMouseMove, onMouseDown, onMouseUp, onMouseDrag };
 };
+
+// tempPath -> segments 변환
+export function tempPathToSegmentation(segments: paper.Segment[]): number[] {
+  const segmentation: number[] = [];
+  segments.map((segment) => {
+    segmentation.push(segment.point.x);
+    segmentation.push(segment.point.y);
+  });
+
+  return segmentation;
+}
 
 // const onToolsMouseMove = (
 //   event: paper.MouseEvent,

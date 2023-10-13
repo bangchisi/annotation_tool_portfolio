@@ -1,16 +1,19 @@
 import paper from 'paper';
-import { updateCurrentAnnotationPath } from 'routes/Annotator/slices/annotatorSlice';
-import { AppDispatch } from 'store';
 
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
+import { tempPathToSegmentation } from '../hooks/useTools';
+import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
+import { paths } from 'routes/Annotator/Annotator';
 // radius will change when preferences panel is implemented.
-let selection: paper.CompoundPath | null = null;
+// let tempPath: paper.CompoundPath | null = null;
+// let tempPath = paths.tempPath;
 let brushCursor: paper.Path.Circle | null = null;
 const radius = 20;
 const fillColor = new paper.Color(1, 1, 1, 0.2);
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
-// 최종 selection을 annotation의 path로 추가하면 됨
+// 최종 tempPath를 annotation의 path로 추가하면 됨
 
 export const onBrushMouseMove = (event: paper.MouseEvent) => {
   // brush cursor 이미 있으면 제거
@@ -25,9 +28,10 @@ export const onBrushMouseMove = (event: paper.MouseEvent) => {
 
 export const onBrushMouseDown = (event: paper.MouseEvent) => {
   console.group('%cbrush down', 'color: red');
-  // selection이 없을때만 selection을 현재 위치 원으로 생성
-  if (!selection) {
-    selection = new paper.CompoundPath(
+  // tempPath 없을때만 tempPath를 현재 위치 원으로 생성
+
+  if (!paths.tempPath) {
+    paths.tempPath = new paper.CompoundPath(
       new paper.Path.Circle({
         center: event.point,
         radius,
@@ -36,38 +40,40 @@ export const onBrushMouseDown = (event: paper.MouseEvent) => {
         strokeWidth,
       }),
     );
-    selection.fillColor = fillColor;
-    selection.strokeColor = strokeColor;
-    selection.strokeWidth = strokeWidth;
+    paths.tempPath.fillColor = fillColor;
+    paths.tempPath.strokeColor = strokeColor;
+    paths.tempPath.strokeWidth = strokeWidth;
   }
   console.groupEnd();
 };
 
 // 마우스 버튼 뗌
-export const onBrushMouseUp = (dispatch: AppDispatch) => {
+export const onBrushMouseUp = (currentAnnotation?: AnnotationType) => {
   console.group('%cbrush up', 'color: red');
-  // selection이 있으면 path에 mouse event 할당
-  if (selection) {
-    selection.onMouseEnter = () => {
-      if (selection) selection.selected = true;
-    };
+  // tempPath가 있으면 path에 mouse event 할당
+  if (!paths.tempPath) return;
 
-    selection.onMouseLeave = () => {
-      if (selection) selection.selected = false;
-    };
-  }
+  if (!currentAnnotation) return;
+  setAnnotationDataToCompoundPath(
+    paths.tempPath,
+    currentAnnotation.categoryId,
+    currentAnnotation.id,
+  );
+
   // brush cursor 제거
   if (brushCursor) {
     brushCursor.remove();
     brushCursor = null;
   }
 
-  // dispatch(updateAnnotation({ path: JSON.parse(JSON.stringify(selection)) }));
-  // dispatch(updateAnnotation({ path: selection }));
-  dispatch(updateCurrentAnnotationPath(selection));
-  selection?.remove();
-  selection = null;
-  // console.log(paper.project.activeLayer.children);
+  // const s1: paper.Path = tempPath.children[0].clone() as paper.Path;
+  // const tempSegmentation = tempPathToSegmentation(s1.segments);
+
+  // tempPath.data.annotationId = currentAnnotation?.id;
+  // tempPath.data.categoryId = currentAnnotation?.categoryId;
+  // tempPath = null;
+  // tempPath?.remove();
+  console.log(paper.project.activeLayer.children);
   console.groupEnd();
 };
 
@@ -81,8 +87,8 @@ export const onBrushMouseDrag = (event: paper.MouseEvent) => {
   // brush cursor 생성
   brushCursor = createBrush(event.point, radius);
 
-  // selection이 있을때만
-  if (selection) {
+  // tempPath가 있을때만
+  if (paths.tempPath) {
     const c1 = new paper.CompoundPath(
       new paper.Path.Circle({
         center: event.point,
@@ -91,15 +97,14 @@ export const onBrushMouseDrag = (event: paper.MouseEvent) => {
     );
 
     // 새로운 brush를 unite
-    const newSelection = new paper.CompoundPath(selection.unite(c1));
-    // const newSelection = selection.unite(c1);
+    const newSelection = new paper.CompoundPath(paths.tempPath.unite(c1));
     newSelection.fillColor = fillColor;
     newSelection.strokeColor = strokeColor;
     newSelection.strokeWidth = strokeWidth;
 
     c1.remove();
-    selection.remove();
-    selection = newSelection;
+    paths.tempPath.remove();
+    paths.tempPath = newSelection;
   }
 };
 

@@ -30,15 +30,25 @@ const initialCategories = {
 const initialPaths = {
   data: [
     {
-      segmentations: [[385, 798, 385, 813, 319, 813, 319, 798, 385, 798]],
+      segmentations: [],
       categoryId: 0,
       annotationId: 0,
     },
     {
-      segmentations: [[500, 500, 500, 700, 700, 700, 700, 500, 500, 500]],
+      segmentations: [],
       categoryId: 1,
       annotationId: 0,
     },
+    // {
+    //   segmentations: [[385, 798, 385, 813, 319, 813, 319, 798, 385, 798]],
+    //   categoryId: 0,
+    //   annotationId: 0,
+    // },
+    // {
+    //   segmentations: [[500, 500, 500, 700, 700, 700, 700, 500, 500, 500]],
+    //   categoryId: 1,
+    //   annotationId: 0,
+    // },
   ],
 };
 
