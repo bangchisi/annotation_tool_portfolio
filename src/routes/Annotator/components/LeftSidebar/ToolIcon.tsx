@@ -24,7 +24,11 @@ export default function ToolIcon(props: {
   isFunction?: boolean;
 }) {
   const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
+  const currentAnnotation = useAppSelector(
+    (state) => state.annotator.currentAnnotation,
+  );
   const dispatch = useAppDispatch();
+  console.dir(currentAnnotation);
 
   // Box, brush, eraser, sam
   const { toolName, toolId, placement, iconComponent } = props;
@@ -35,13 +39,16 @@ export default function ToolIcon(props: {
 
   return (
     <Tooltip title={toolName} placement={placement || 'right'}>
-      <IconButton
-        key={props.toolName}
-        onClick={handleClick}
-        color={selectedTool === toolId ? 'primary' : 'default'}
-      >
-        {iconComponent}
-      </IconButton>
+      <span>
+        <IconButton
+          disabled={!currentAnnotation}
+          key={props.toolName}
+          onClick={handleClick}
+          color={selectedTool === toolId ? 'primary' : 'default'}
+        >
+          {iconComponent}
+        </IconButton>
+      </span>
     </Tooltip>
   );
 }
