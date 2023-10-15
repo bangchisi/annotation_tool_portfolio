@@ -7,11 +7,18 @@ import { AnnotationType } from 'routes/Annotator/Annotator.types';
 // } from 'routes/Annotator/slices/annotatorSlice';
 import { AppDispatch } from 'store';
 import { paths } from 'routes/Annotator/Annotator';
+import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
 
-let tempPath: paper.CompoundPath | null;
+// let tempPath: paper.CompoundPath | null;
+let tempBox: paper.CompoundPath | null;
 let currentBox: paper.Path.Rectangle | null;
 let startPoint: paper.Point | null;
 let endPoint: paper.Point | null;
+
+// this should follow category color
+const fillColor = new paper.Color(1, 1, 1, 0.2);
+const strokeColor = new paper.Color(1, 1, 1, 1);
+const strokeWidth = 2;
 
 export const onBoxMouseMove = (event: paper.MouseEvent) => {
   if (!startPoint) return;
@@ -45,46 +52,38 @@ export const onBoxMouseDown = (event: paper.MouseEvent) => {
 
 export const onBoxMouseUp = (
   event: paper.MouseEvent,
-  dispatch: AppDispatch,
   currentAnnotation?: AnnotationType,
 ) => {
   if (startPoint && endPoint) {
-    // draw box
-    tempPath = new paper.CompoundPath(
+    tempBox = new paper.CompoundPath(
       new paper.Path.Rectangle({
         from: startPoint,
         to: event.point,
       }),
     );
 
-    tempPath.strokeWidth = 2;
-    tempPath.strokeColor = new paper.Color(1, 0, 0, 1);
+    tempBox.fillColor = fillColor;
+    tempBox.strokeColor = strokeColor;
+    tempBox.strokeWidth = strokeWidth;
 
-    // append box path to annotations
-    // add new empty annotation
-    // FIX: currentCategory?.annotations is removed
-    // dispatch(
-    //   addAnnotation({
-    //     id: currentCategory?.annotations.length,
-    //     categoryId: currentCategory?.id,
-    //     path: null,
-    //   }),
-    // );
-    // set current annotation to new empty annotation just added
-    // FIX: currentCategory?.annotations is removed
-    // dispatch(
-    //   setCurrentAnnotation({
-    //     id: currentCategory?.annotations.length,
-    //     categoryId: currentCategory?.id,
-    //     path: null,
-    //   }),
-    // );
+    console.dir(paths.tempPath);
+    if (!paths.tempPath) {
+      console.log('no paths, make first box');
+      paths.tempPath = tempBox;
+    } else {
+      console.log('paths, unite box!');
+      const newPath = paths.tempPath?.unite(tempBox) as paper.CompoundPath;
+      paths.tempPath?.remove();
+      paths.tempPath = newPath;
+      tempBox.remove();
+    }
 
-    // dispatch(updateAnnotation({ path: JSON.parse(JSON.stringify(box)) }));
-    // dispatch(updateAnnotation({ path: box }));
-    console.log(currentAnnotation);
-    console.dir(tempPath);
-    tempPath = null;
+    if (!currentAnnotation) return;
+    setAnnotationDataToCompoundPath(
+      paths.tempPath,
+      currentAnnotation.categoryId,
+      currentAnnotation.id,
+    );
     startPoint = null;
     endPoint = null;
 
@@ -93,6 +92,6 @@ export const onBoxMouseUp = (
       currentBox.remove();
       currentBox = null;
     }
-    // console.dir(paper.project.activeLayer.children);
+    console.dir(paper.project.activeLayer.children);
   }
 };

@@ -67,7 +67,7 @@ export const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Brush) {
       onBrushMouseUp(currentAnnotation);
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseUp(event, dispatch, currentAnnotation);
+      onBoxMouseUp(event, currentAnnotation);
     }
   };
 
