@@ -9,7 +9,7 @@ import {
 } from '../tools/BrushTool';
 import { onBoxMouseDown, onBoxMouseUp, onBoxMouseMove } from '../tools/BoxTool';
 import { AnnotationType, CategoryType } from 'routes/Annotator/Annotator.types';
-import { useAppDispatch } from 'App.hooks';
+// import { useAppDispatch } from 'App.hooks';
 import { onEraserMouseDrag, onEraserMouseMove } from '../tools/EraserTool';
 
 interface UseToolsProps {
@@ -28,12 +28,12 @@ export const useTools = (props: UseToolsProps) => {
     onChangePoint,
     initPoint,
     currentAnnotation,
-    currentCategory,
+    // currentCategory,
     // containerWidth,
     // containerHeight,
   } = props;
 
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   // 마우스 커서 움직임
   const onMouseMove = (event: paper.MouseEvent) => {
     if (selectedTool === Tool.Select) {

@@ -5,7 +5,7 @@ import { AnnotationType } from 'routes/Annotator/Annotator.types';
 //   setCurrentAnnotation,
 //   updateCurrentAnnotationPath,
 // } from 'routes/Annotator/slices/annotatorSlice';
-import { AppDispatch } from 'store';
+// import { AppDispatch } from 'store';
 import { paths } from 'routes/Annotator/Annotator';
 import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
 

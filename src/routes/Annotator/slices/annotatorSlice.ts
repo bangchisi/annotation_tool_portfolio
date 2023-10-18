@@ -45,32 +45,32 @@ const annotatorSlice = createSlice({
       // console.log('annotatorSlice.ts, set currentAnnotation');
       state.currentAnnotation = action.payload;
     },
-    addAnnotation: (state, action) => {
-      // console.log('annotatorSlice.ts, add annotation');
-      // state.currentCategory?.annotations.push(action.payload);
-    },
-    updateCurrentAnnotationPath: (state, action) => {
-      if (state.currentAnnotation) {
-        // FIX: currentAnnotation.path is removed
-        // state.currentAnnotation.path = action.payload;
-      }
-    },
-    updateCurrentCategory: (state, action) => {
-      // FIX: currentAnnotation.path is removed
-      // if (!state.currentCategory || state.currentAnnotation?.path) {
-      //   return state;
-      // }
-      // FIX: currentCategory.annotations is removed
-      // state.currentCategory.annotations = state.currentCategory.annotations.map(
-      //   (annotation) => {
-      //     if (annotation.id === action.payload.id) {
-      //       return action.payload;
-      //     } else {
-      //       return annotation;
-      //     }
-      //   },
-      // );
-    },
+    // addAnnotation: (state, action) => {
+    //   // console.log('annotatorSlice.ts, add annotation');
+    //   // state.currentCategory?.annotations.push(action.payload);
+    // },
+    // updateCurrentAnnotationPath: (state, action) => {
+    //   if (state.currentAnnotation) {
+    //     // FIX: currentAnnotation.path is removed
+    //     // state.currentAnnotation.path = action.payload;
+    //   }
+    // },
+    // updateCurrentCategory: (state, action) => {
+    //   // FIX: currentAnnotation.path is removed
+    //   // if (!state.currentCategory || state.currentAnnotation?.path) {
+    //   //   return state;
+    //   // }
+    //   // FIX: currentCategory.annotations is removed
+    //   // state.currentCategory.annotations = state.currentCategory.annotations.map(
+    //   //   (annotation) => {
+    //   //     if (annotation.id === action.payload.id) {
+    //   //       return action.payload;
+    //   //     } else {
+    //   //       return annotation;
+    //   //     }
+    //   //   },
+    //   // );
+    // },
   },
 });
 
@@ -79,9 +79,9 @@ export const {
   setCategories,
   setCurrentCategory,
   setCurrentAnnotation,
-  addAnnotation,
-  updateCurrentCategory,
-  updateCurrentAnnotationPath,
+  // addAnnotation,
+  // updateCurrentCategory,
+  // updateCurrentAnnotationPath,
 } = annotatorSlice.actions;
 
 export default annotatorSlice.reducer;

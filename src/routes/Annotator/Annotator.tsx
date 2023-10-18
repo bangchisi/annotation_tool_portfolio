@@ -22,7 +22,7 @@ fetchPaths();
 
 export default function Annotator() {
   const dispatch = useAppDispatch();
-  const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
+  // const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
   const categories = useAppSelector((state) => state.annotator.categories);
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
