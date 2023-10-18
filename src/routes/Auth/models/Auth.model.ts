@@ -29,6 +29,17 @@ const AuthModel = {
       password: password,
     });
   },
+  // 로그아웃
+  logout: (userId: string) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/user/logout`
+        : `${SERVER_URL}/user/logout`;
+
+    return axios.post(url, {
+      user_id: userId,
+    });
+  },
 };
 
 export default AuthModel;
