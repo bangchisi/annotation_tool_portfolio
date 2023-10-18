@@ -6,7 +6,7 @@ import AuthModel from 'routes/Auth/models/Auth.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { AxiosError } from 'axios';
 import { useAppDispatch } from 'App.hooks';
-import { setIsAuthenticated } from 'routes/Auth/slices/authSlice';
+import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
 // temp end
 
 export default function LoginForm() {
@@ -43,7 +43,15 @@ export default function LoginForm() {
       console.log('onLogin, response: ');
       console.dir(response);
       if (response.status === 200) {
-        dispatch(setIsAuthenticated(true));
+        dispatch(setIsAuthenticated(response.data.is_online));
+        // user 정보를 redux에 넣음
+        dispatch(
+          setUser({
+            userId: response.data.user_id,
+            username: response.data.username,
+            isOnline: response.data.is_online,
+          }),
+        );
         routeChange('/datasets');
       } else {
         dispatch(setIsAuthenticated(false));
