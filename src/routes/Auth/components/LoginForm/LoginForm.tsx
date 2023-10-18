@@ -60,16 +60,16 @@ export default function LoginForm() {
   return (
     <FormContainer>
       <div className="mb-3">
-        <label htmlFor="username" className="form-label">
+        <label htmlFor="userId" className="form-label">
           ID
         </label>
         <input
-          id="username"
+          id="userId"
           className="form-control form-control-lg"
-          name="username"
+          name="userId"
           type="text"
           value={userId}
-          placeholder="username"
+          placeholder="ID"
           onChange={handleUserIdChange}
         />
         <label htmlFor="password" className="form-label">
