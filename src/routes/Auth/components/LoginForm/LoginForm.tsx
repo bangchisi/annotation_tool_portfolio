@@ -33,6 +33,11 @@ export default function LoginForm() {
   ) => {
     event.preventDefault();
     console.log('userId: ', userId, 'password: ', password);
+    if (userId === '' || password === '') {
+      alert('아이디와 비밀번호를 입력해주세요.');
+      return;
+    }
+
     try {
       const response = await AuthModel.login(userId, password);
       console.log('onLogin, response: ');
