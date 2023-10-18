@@ -1,0 +1,15 @@
+version: "3"
+networks:
+  annotatorweb:
+    external: false
+
+services:
+  frontend:
+    container_name: new_annotator_web_dev
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "60143:60143"
+    networks:
+      - annotatorweb

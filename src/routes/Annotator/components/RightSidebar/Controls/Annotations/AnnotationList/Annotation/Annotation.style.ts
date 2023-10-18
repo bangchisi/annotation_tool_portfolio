@@ -8,5 +8,6 @@ export const Container = styled(Box)(() => {
     backgroundColor: 'rgba(50, 50, 195, 0.5)',
     justifyContent: 'flex-start',
     alignItems: 'center',
+    cursor: 'pointer',
   };
 });

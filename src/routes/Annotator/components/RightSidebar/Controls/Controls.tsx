@@ -14,7 +14,6 @@ import { useState } from 'react';
  */
 
 /** state
- * 어
  */
 
 export default function Controls() {

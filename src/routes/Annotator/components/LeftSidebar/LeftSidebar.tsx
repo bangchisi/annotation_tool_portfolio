@@ -9,6 +9,7 @@ import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import { Container } from './LeftSidebar.style';
 import { Tool } from 'routes/Annotator/Annotator';
+import FunctionIcon from './FunctionIcon';
 
 /** 기능
  * 툴을 선택해서 <Annotator />의 state인 selectedTool을 변경
@@ -19,13 +20,11 @@ import { Tool } from 'routes/Annotator/Annotator';
  * onChangeTool(tool: Tool): void
  */
 
-interface LeftSidebarProps {
-  onChangeTool: (tool: Tool) => void;
-}
+// interface LeftSidebarProps {
+//   onChangeTool: (tool: Tool) => void;
+// }
 
-export default function LeftSidebar(props: LeftSidebarProps) {
-  const { onChangeTool } = props;
-
+export default function LeftSidebar() {
   return (
     <Container id="annotator-left-sidebar">
       <Toolbar />
@@ -33,33 +32,38 @@ export default function LeftSidebar(props: LeftSidebarProps) {
         <List>
           <ToolIcon
             toolName="Select"
+            toolId={Tool.Select}
             iconComponent={<BackHandOutlinedIcon />}
-            onClick={() => onChangeTool(Tool.Select)}
           />
           <ToolIcon
             toolName="Box"
+            toolId={Tool.Box}
             iconComponent={<RectangleOutlinedIcon />}
-            onClick={() => onChangeTool(Tool.Box)}
           />
           <ToolIcon
             toolName="Brush"
+            toolId={Tool.Brush}
             iconComponent={<BrushOutlinedIcon />}
-            onClick={() => onChangeTool(Tool.Brush)}
           />
           <ToolIcon
             toolName="Eraser"
+            toolId={Tool.Eraser}
             iconComponent={<AutoFixOffOutlinedIcon />}
-            onClick={() => onChangeTool(Tool.Eraser)}
           />
           <ToolIcon
             toolName="SAM"
+            toolId={Tool.SAM}
             iconComponent={<FacebookOutlinedIcon />}
-            onClick={() => onChangeTool(Tool.SAM)}
           />
         </List>
         <Divider />
         <List>
-          <ToolIcon toolName="Save" iconComponent={<SaveIcon />} />
+          <FunctionIcon
+            functionName="Save"
+            iconComponent={<SaveIcon />}
+            handleClick={() => console.log('save button')}
+            isFunction={true}
+          />
         </List>
       </Box>
     </Container>

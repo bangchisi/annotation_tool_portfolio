@@ -2,32 +2,34 @@ import paper from 'paper';
 import { useEffect, useRef, useState } from 'react';
 import { fetchImage, onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
-import { Tool } from 'routes/Annotator/Annotator';
+import { useTools } from './hooks/useTools';
+import { useAppSelector } from 'App.hooks';
+import { paths } from 'routes/Annotator/Annotator';
 
 interface CanvasProps {
-  selectedTool: Tool;
+  // selectedTool: Tool;
   containerWidth: number | null;
   containerHeight: number | null;
 }
 
 // TODO: paper init to another file?
 export default function Canvas({
-  selectedTool,
+  // selectedTool,
   containerWidth,
   containerHeight,
 }: CanvasProps) {
-  // if (selectedTool == Tool.Select) {
-  //   console.log('Go Select');
-  // } else if (selectedTool == Tool.Polygon) {
-  //   PolygonTool();
-  // }
+  // console.log('rendering Canvas.tsx');
+  const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
+  const currentAnnotation = useAppSelector(
+    (state) => state.annotator.currentAnnotation,
+  );
+  const currentCategory = useAppSelector(
+    (state) => state.annotator.currentCategory,
+  );
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
-  // const initPoint: paper.Point | null = null;
   let imgWidth: number | null = null;
   let imgHeight: number | null = null;
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  // const img = new Image();
-  // img.src = 'https://placehold.it/550x550';
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // 캔버스 초기 설정 useEffect
   useEffect(() => {
@@ -55,9 +57,11 @@ export default function Canvas({
           img.onload = () => {
             raster.source = response.src;
             raster.position = paper.view.center;
+            // console.log('raster resolution', raster.resolution);
+            // console.log('raster image', raster.image);
             imgWidth = raster.image.width;
             imgHeight = raster.image.height;
-            console.log(imgWidth, imgHeight);
+            // console.log(imgWidth, imgHeight);
             // raster.sendToBack();
 
             if (tempCtx) {
@@ -69,7 +73,8 @@ export default function Canvas({
         }
       });
 
-      // canvas.onwheel = onCanvasWheel;
+      // 줌, 스크롤은 항상 적용
+      canvas.onwheel = onCanvasWheel;
 
       return () => {
         raster.remove();
@@ -77,23 +82,36 @@ export default function Canvas({
     }
   }, []);
 
-  // 툴 변경 시 useEffect
+  // 기존 그림 불러오기
   useEffect(() => {
-    if (selectedTool == Tool.Select) {
-      console.log('Select Tool ON');
-      // SelectTool(initPoint);
-    } else if (selectedTool == Tool.Brush) {
-      console.log('Go Brush');
-      // BrushTool();
-    }
+    paths.initPathsToCanvas();
+    // console.dir(paper.project.activeLayer.children);
+  }, []);
 
-    // selectedTool이 변경되기 전에 mouse event 비활성화
+  const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({
+    initPoint,
+    selectedTool,
+    onChangePoint: setInitPoint,
+    currentAnnotation,
+    currentCategory,
+    // containerWidth,
+    // containerHeight,
+    // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임
+  });
+
+  useEffect(() => {
+    paper.view.onMouseDown = onMouseDown;
+    paper.view.onMouseUp = onMouseUp;
+    paper.view.onMouseMove = onMouseMove;
+    paper.view.onMouseDrag = onMouseDrag;
+
     return () => {
       paper.view.onMouseDown = null;
+      paper.view.onMouseUp = null;
       paper.view.onMouseMove = null;
       paper.view.onMouseDrag = null;
     };
-  }, [selectedTool]);
+  }, [selectedTool, onMouseMove, onMouseDown, onMouseDrag]);
 
   // window 리사이즈 시 useEffect
   useEffect(() => {
@@ -102,5 +120,50 @@ export default function Canvas({
     }
   }, [containerWidth, containerHeight]);
 
-  return <Editor ref={canvasRef} id="canvas"></Editor>;
+  return (
+    <Editor ref={canvasRef} id="canvas" selectedTool={selectedTool}></Editor>
+  );
 }
+
+// function canvasTestFunction(): void {
+//   const p1 = new paper.Path.Circle({
+//     center: [330, 330],
+//     radius: 20,
+//   });
+//   const p2 = new paper.Path.Circle({
+//     center: [350, 350],
+//     radius: 20,
+//   });
+//   const p3 = new paper.Path.Circle({
+//     center: [370, 370],
+//     radius: 20,
+//   });
+
+//   const p4 = new paper.Path({
+//     segments: [
+//       [350, 300],
+//       [350, 500],
+//       [550, 500],
+//       [550, 300],
+//     ],
+//     closed: true,
+//   });
+
+//   const arr1 = [p1, p2, p3, p4];
+//   const unitedPath = arr1.reduce((result: paper.PathItem | null, path) => {
+//     if (!result) return path.clone();
+
+//     result = result.unite(path);
+//     return result;
+//   }, null);
+
+//   const c1 = new paper.CompoundPath({
+//     children: [unitedPath],
+//     strokeWidth: 2,
+//     strokeColor: new paper.Color('red'),
+//   });
+
+//   c1.selected = true;
+
+//   console.dir(paper.project.activeLayer.children);
+// }

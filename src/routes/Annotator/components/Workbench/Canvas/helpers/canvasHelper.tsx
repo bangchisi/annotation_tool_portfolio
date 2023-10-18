@@ -173,3 +173,66 @@ export function getViewBounds(imageWidth: number, imageHeight: number) {
     imageRightBottomCoord,
   };
 }
+
+export function compoundPathToSegmentations(
+  compoundPath: paper.CompoundPath,
+): number[][] {
+  const segmentations = [[0, 0]];
+  return segmentations;
+}
+
+export function segmentationsToCompoundPath(
+  segmentations: number[][],
+): paper.CompoundPath {
+  const compoundPath = new paper.CompoundPath({});
+
+  return compoundPath;
+}
+
+export function segmentationToPath(segmentation: number[]): paper.Path {
+  const points: number[][] = [];
+
+  segmentation.forEach((point, index) => {
+    if (index % 2 === 0) {
+      const x = point;
+      const y = segmentation[index + 1];
+      points.push([x, y]);
+    }
+  });
+
+  const path = new paper.Path({
+    segments: points,
+    closed: true,
+  });
+
+  return path;
+}
+
+export function setAnnotationDataToCompoundPath(
+  compoundPath: paper.CompoundPath,
+  categoryId: number,
+  annotationId: number,
+) {
+  // ...
+  const data = {
+    annotationId,
+    categoryId,
+  };
+
+  compoundPath.data = {
+    ...data,
+  };
+
+  compoundPath.onMouseEnter = () => {
+    compoundPath.selected = true;
+  };
+
+  compoundPath.onMouseLeave = () => {
+    compoundPath.selected = false;
+  };
+
+  compoundPath.onMouseDown = () => {
+    // TODO: set current category, annotation with categoryId, annotationId
+    console.log('select path!');
+  };
+}

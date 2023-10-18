@@ -1,14 +1,12 @@
 import { Container } from './Workbench.style';
 import Canvas from './Canvas/Canvas';
 import { useEffect, useRef, useState } from 'react';
-import { Tool } from 'routes/Annotator/Annotator';
-// import { Color, Path, Event } from 'paper';
 
-interface WorkbenchProps {
-  selectedTool: Tool;
-}
+// interface WorkbenchProps {
+//   selectedTool: Tool;
+// }
 
-export default function Workbench({ selectedTool }: WorkbenchProps) {
+export default function Workbench() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
@@ -38,7 +36,7 @@ export default function Workbench({ selectedTool }: WorkbenchProps) {
   return (
     <Container ref={containerRef}>
       <Canvas
-        selectedTool={selectedTool}
+        // selectedTool={selectedTool}
         containerWidth={containerWidth}
         containerHeight={containerHeight}
       />

@@ -1,46 +1,118 @@
 import paper from 'paper';
 
-export const BrushTool = () => {
-  let myPath: paper.Path | null = null;
-  const strokeColor = new paper.Color('black');
+import { AnnotationType } from 'routes/Annotator/Annotator.types';
+import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
+import { paths } from 'routes/Annotator/Annotator';
+// radius will change when preferences panel is implemented.
+// let tempPath: paper.CompoundPath | null = null;
+// let tempPath = paths.tempPath;
+let brushCursor: paper.Path.Circle | null = null;
+const radius = 20;
+const fillColor = new paper.Color(1, 1, 1, 0.2);
+const strokeColor = new paper.Color(1, 1, 1, 1);
+const strokeWidth = 2;
 
-  let brush_path: paper.Path.Circle | null = null;
-  const createBrush = (center?: paper.Point) => {
-    center = center || new paper.Point(0, 0);
-    brush_path = new paper.Path.Circle({
-      center: center,
-      strokeColor: strokeColor,
-      strokeWidth: 30,
-      radius: 10,
-    });
-  };
+// 최종 tempPath를 annotation의 path로 추가하면 됨
 
-  const createSelection = () => {
-    // do nothing
-  };
+export const onBrushMouseMove = (event: paper.MouseEvent) => {
+  // brush cursor 이미 있으면 제거
+  if (brushCursor !== null) {
+    brushCursor.remove();
+    brushCursor = null;
+  }
 
-  paper.view.onMouseDown = (event: paper.ToolEvent) => {
-    console.log('Polygon Mouse Down', event);
-    myPath = new paper.Path();
-    myPath.strokeColor = new paper.Color('black');
-  };
+  // brush cursor 생성
+  brushCursor = createBrush(event.point, radius);
+};
 
-  paper.view.onMouseDrag = (event: paper.ToolEvent) => {
-    console.log('Polygon Mouse Drag', event);
-    const circle = new paper.Path.Circle({
-      center: event.middlePoint,
-      radius: event.delta.length / 2,
-    });
-    circle.fillColor = new paper.Color('white');
-  };
+export const onBrushMouseDown = (event: paper.MouseEvent) => {
+  console.group('%cbrush down', 'color: red');
+  // tempPath 없을때만 tempPath를 현재 위치 원으로 생성
 
-  paper.view.onMouseUp = (event: paper.ToolEvent) => {
-    console.log('Polygon Mouse Up', event);
-    const myCircle = new paper.Path.Circle({
-      center: event.point,
-      radius: 10,
-    });
-    myCircle.strokeColor = new paper.Color('black');
-    myCircle.fillColor = new paper.Color('white');
-  };
+  if (!paths.tempPath) {
+    paths.tempPath = new paper.CompoundPath(
+      new paper.Path.Circle({
+        center: event.point,
+        radius,
+        fillColor,
+        strokeColor,
+        strokeWidth,
+      }),
+    );
+    paths.tempPath.fillColor = fillColor;
+    paths.tempPath.strokeColor = strokeColor;
+    paths.tempPath.strokeWidth = strokeWidth;
+  }
+  console.groupEnd();
+};
+
+// 마우스 버튼 뗌
+export const onBrushMouseUp = (currentAnnotation?: AnnotationType) => {
+  console.group('%cbrush up', 'color: red');
+  // tempPath가 있으면 path에 mouse event 할당
+  if (!paths.tempPath) return;
+
+  if (!currentAnnotation) return;
+  setAnnotationDataToCompoundPath(
+    paths.tempPath,
+    currentAnnotation.categoryId,
+    currentAnnotation.id,
+  );
+
+  // brush cursor 제거
+  if (brushCursor) {
+    brushCursor.remove();
+    brushCursor = null;
+  }
+
+  // const s1: paper.Path = tempPath.children[0].clone() as paper.Path;
+  // const tempSegmentation = tempPathToSegmentation(s1.segments);
+
+  // tempPath.data.annotationId = currentAnnotation?.id;
+  // tempPath.data.categoryId = currentAnnotation?.categoryId;
+  // tempPath = null;
+  // tempPath?.remove();
+  console.log(paper.project.activeLayer.children);
+  console.groupEnd();
+};
+
+export const onBrushMouseDrag = (event: paper.MouseEvent) => {
+  // brush cursor 이미 있으면 제거
+  if (brushCursor !== null) {
+    brushCursor.remove();
+    brushCursor = null;
+  }
+
+  // brush cursor 생성
+  brushCursor = createBrush(event.point, radius);
+
+  // tempPath가 있을때만
+  if (paths.tempPath) {
+    const c1 = new paper.CompoundPath(
+      new paper.Path.Circle({
+        center: event.point,
+        radius,
+      }),
+    );
+
+    // 새로운 brush를 unite
+    const newSelection = new paper.CompoundPath(paths.tempPath.unite(c1));
+    newSelection.fillColor = fillColor;
+    newSelection.strokeColor = strokeColor;
+    newSelection.strokeWidth = strokeWidth;
+
+    c1.remove();
+    paths.tempPath.remove();
+    paths.tempPath = newSelection;
+  }
+};
+
+const createBrush = (point: paper.Point, radius: number) => {
+  return new paper.Path.Circle({
+    center: point,
+    radius,
+    strokeColor,
+    strokeWidth,
+    guide: true,
+  });
 };

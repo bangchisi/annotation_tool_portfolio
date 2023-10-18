@@ -1,14 +1,32 @@
 import { styled } from '@mui/material';
 
-export const Editor = styled('canvas')(({}) => {
-  // FIX: width and heigth into flexible values
+interface EditorProps {
+  selectedTool: Tool;
+}
+
+enum Tool {
+  Select,
+  Box,
+  Brush,
+  Eraser,
+  SAM,
+}
+
+const CursorTypes = {
+  [Tool.Select]: 'pointer',
+  [Tool.Box]: 'crosshair',
+  [Tool.Brush]: 'none',
+  [Tool.Eraser]: 'default',
+  [Tool.SAM]: 'crosshair',
+};
+
+// export const Editor = styled('canvas')<EditorProps>(() => {
+export const Editor = styled('canvas')<EditorProps>(({ selectedTool }) => {
   return {
-    // display: 'block',
-    // width: '700px',
-    // height: '700px',
     width: '100%',
     height: 'auto',
-    // maxHeight: '100%',
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(215, 215, 215, 1.0)',
+    // backgroundColor: 'white',
+    cursor: CursorTypes[selectedTool] ?? 'default',
   };
 });
