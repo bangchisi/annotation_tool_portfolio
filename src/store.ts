@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import annotatorReducer from 'routes/Annotator/slices/annotatorSlice';
+import authReducer from 'routes/Auth/slices/authSlice';
 
 const store = configureStore({
   reducer: {

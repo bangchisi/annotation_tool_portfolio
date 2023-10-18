@@ -16,7 +16,7 @@ const initialState = {
 };
 
 const authSlice = createSlice({
-  name: 'annotator',
+  name: 'auth',
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<UserType>) => {
