@@ -22,6 +22,9 @@ import {
   RouterProvider,
   Navigate,
 } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from 'store';
+import { useAppSelector } from 'App.hooks';
 
 /**
  * 서버 정보?, 로그인 정보
@@ -63,7 +66,8 @@ interface AuthenticatedProps {
 }
 const Authenticated = (props: AuthenticatedProps) => {
   // TODO: 로그인 했는지 확인 하기
-  const isAuthenticated = true;
+  // const isAuthenticated = true;
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   if (isAuthenticated) {
     return <Fragment {...props}></Fragment>;
@@ -130,7 +134,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>,
 );
 
