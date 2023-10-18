@@ -1,4 +1,4 @@
-import React, { Fragment, ReactNode } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import '@fontsource/roboto/300.css';
@@ -24,6 +24,7 @@ import {
 } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from 'store';
+import Authenticated from 'components/Authenticated';
 
 /**
  * 서버 정보?, 로그인 정보
@@ -59,23 +60,6 @@ import store from 'store';
 /**store에 저장할 정보
  * 서버정보와 로그인 정보는 모든 페이지에서 쓰니까 store에 저장
  */
-
-interface AuthenticatedProps {
-  children: ReactNode;
-}
-const Authenticated = (props: AuthenticatedProps) => {
-  // TODO: 로그인 했는지 확인 하기
-  const isAuthenticated = true;
-
-  if (isAuthenticated) {
-    return <Fragment {...props}></Fragment>;
-  } else {
-    // 로그인하지 않은 사용자는 로그인 페이지로 이동
-    Navigate({ to: '/auth' });
-
-    return <Fragment />;
-  }
-};
 
 const router = createBrowserRouter([
   {

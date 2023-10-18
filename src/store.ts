@@ -4,6 +4,7 @@ import annotatorReducer from 'routes/Annotator/slices/annotatorSlice';
 const store = configureStore({
   reducer: {
     annotator: annotatorReducer,
+    auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
