@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import './App.css';
 import Navigator from 'components/Navigator';
+import { useAppSelector } from 'App.hooks';
 
 export default function App() {
   const [currentMode, setCurrentMode] = useState<string | null>(null);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   const handleCurrentMode = (nextMode: string): void => {
     setCurrentMode(nextMode);
@@ -13,7 +15,7 @@ export default function App() {
   return (
     <div id="app">
       {/* TODO: should change true to currentMode !== 'auth' or something else */}
-      {true && (
+      {isAuthenticated && (
         <Navigator
           currentMode={currentMode}
           handleCurrentMode={handleCurrentMode}

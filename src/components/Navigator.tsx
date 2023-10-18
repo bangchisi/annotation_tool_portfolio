@@ -1,10 +1,32 @@
+import { useAppDispatch, useAppSelector } from 'App.hooks';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import AuthModel from 'routes/Auth/models/Auth.model';
+import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
 
 export default function Navigator(props: {
   currentMode: string | null;
   handleCurrentMode: (nextmode: string) => void;
 }) {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
+  console.log('nav, user');
+  console.dir(user);
+
+  const onLogout = async () => {
+    if (!user.userId) return;
+    const response = await AuthModel.logout(user.userId);
+    console.log('dispatch setUser');
+    dispatch(setIsAuthenticated(response.data.is_online));
+    dispatch(
+      setUser({
+        userId: '',
+        username: '',
+        isOnline: response.data.is_online,
+      }),
+    );
+  };
+
   return (
     <nav
       id="nav"
@@ -94,7 +116,9 @@ export default function Navigator(props: {
                 <hr className="dropdown-divider" />
               </li>
               <li>
-                <a className="dropdown-item">Logout</a>
+                <a className="dropdown-item" onClick={onLogout}>
+                  Logout
+                </a>
               </li>
             </ul>
           </div>
