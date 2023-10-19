@@ -1,3 +1,4 @@
+import { Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { Link } from 'react-router-dom';
 import AuthModel from 'routes/Auth/models/Auth.model';
@@ -32,9 +33,12 @@ export default function Navigator(props: {
       className="navbar navbar-expand-lg bg-body-tertiary p-2 pe-3 border-bottom"
     >
       <div className="container-fluid">
-        <a className="navbar-brand" href="#">
+        {/* <a className="navbar-brand" href="/datasets">
           Annotator
-        </a>
+        </a> */}
+        <Link to="/datasets" className="nav-link">
+          <Typography variant="h6">Annotator</Typography>
+        </Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -74,7 +78,7 @@ export default function Navigator(props: {
                 Models
               </Link>
             </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <Link
                 className="nav-link"
                 to="/annotator/1"
@@ -96,7 +100,7 @@ export default function Navigator(props: {
               >
                 Auth_temp
               </Link>
-            </li>
+            </li> */}
           </ul>
           <div className="nav-item dropstart">
             <a
