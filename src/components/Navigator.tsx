@@ -1,5 +1,4 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
-import React from 'react';
 import { Link } from 'react-router-dom';
 import AuthModel from 'routes/Auth/models/Auth.model';
 import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
@@ -21,7 +20,7 @@ export default function Navigator(props: {
     dispatch(
       setUser({
         userId: '',
-        username: '',
+        userName: '',
         isOnline: response.data.isOnline,
       }),
     );

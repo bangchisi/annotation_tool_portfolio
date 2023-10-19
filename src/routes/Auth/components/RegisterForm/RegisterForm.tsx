@@ -7,13 +7,13 @@ import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [username, setUsername] = useState('admin');
+  const [userName, setUserName] = useState('admin');
   const [userId, setUserId] = useState('admin');
   const [password, setPassword] = useState('admin');
   const [confirmPassword, setConfirmPassword] = useState('admin');
 
-  const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setUsername(event?.target?.value);
+  const handleUserNameChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setUserName(event?.target?.value);
   };
 
   const handleUserIdChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -36,8 +36,8 @@ export default function RegisterForm() {
     event.preventDefault();
 
     console.log(
-      'username: ',
-      username,
+      'userName: ',
+      userName,
       'userId: ',
       userId,
       'password: ',
@@ -47,7 +47,7 @@ export default function RegisterForm() {
     );
 
     // null check
-    const isEmpty = [username, userId, password, confirmPassword].filter(
+    const isEmpty = [userName, userId, password, confirmPassword].filter(
       (e) => e === '',
     ).length;
 
@@ -62,14 +62,14 @@ export default function RegisterForm() {
       return;
     }
 
-    if (username.length < 4 || userId.length < 4) {
+    if (userName.length < 4 || userId.length < 4) {
       alert('유저이름과 ID는 최소 4글자로 입력해주세요.');
       return;
     }
 
     try {
       setIsLoading(true);
-      const response = await AuthModel.register(userId, password, username);
+      const response = await AuthModel.register(userId, password, userName);
       console.log('onRegister, response: ');
       console.log('response.status: ', response.status);
       console.dir(response);
@@ -104,10 +104,10 @@ export default function RegisterForm() {
           id="username"
           className="form-control form-control-lg"
           name="username"
-          value={username}
+          value={userName}
           type="text"
           placeholder="User Name"
-          onChange={handleUsernameChange}
+          onChange={handleUserNameChange}
         />
         <label htmlFor="username" className="form-label">
           ID (4글자 이상)

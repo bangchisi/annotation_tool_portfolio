@@ -51,7 +51,7 @@ export default function LoginForm() {
         dispatch(
           setUser({
             userId: response.data.userId,
-            username: response.data.username,
+            userName: response.data.userName,
             isOnline: response.data.isOnline,
           }),
         );

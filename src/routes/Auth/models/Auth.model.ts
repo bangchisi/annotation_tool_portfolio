@@ -5,7 +5,7 @@ const SERVER_URL = `${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 
 const AuthModel = {
   // 회원가입
-  register: (userId: string, password: string, username: string) => {
+  register: (userId: string, password: string, userName: string) => {
     const url =
       process.env.NODE_ENV === 'development'
         ? `${DEV_URL}/user/register`
@@ -14,7 +14,7 @@ const AuthModel = {
     return axios.post(url, {
       user_id: userId,
       password: password,
-      username: username,
+      username: userName,
     });
   },
   // 로그인
