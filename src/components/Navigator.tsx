@@ -17,12 +17,12 @@ export default function Navigator(props: {
     if (!user.userId) return;
     const response = await AuthModel.logout(user.userId);
     console.log('dispatch setUser');
-    dispatch(setIsAuthenticated(response.data.is_online));
+    dispatch(setIsAuthenticated(response.data.isOnline));
     dispatch(
       setUser({
         userId: '',
         username: '',
-        isOnline: response.data.is_online,
+        isOnline: response.data.isOnline,
       }),
     );
   };

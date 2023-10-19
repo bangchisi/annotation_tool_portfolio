@@ -43,13 +43,13 @@ export default function LoginForm() {
       console.log('onLogin, response: ');
       console.dir(response);
       if (response.status === 200) {
-        dispatch(setIsAuthenticated(response.data.is_online));
+        dispatch(setIsAuthenticated(response.data.isOnline));
         // user 정보를 redux에 넣음
         dispatch(
           setUser({
-            userId: response.data.user_id,
+            userId: response.data.userId,
             username: response.data.username,
-            isOnline: response.data.is_online,
+            isOnline: response.data.isOnline,
           }),
         );
         routeChange('/datasets');
