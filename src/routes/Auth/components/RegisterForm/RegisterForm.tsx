@@ -3,8 +3,10 @@ import { FormContainer } from './RegisterForm.style';
 import AuthModel from 'routes/Auth/models/Auth.model';
 import { AxiosError } from 'axios';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 export default function RegisterForm() {
+  const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState('admin');
   const [userId, setUserId] = useState('admin');
   const [password, setPassword] = useState('admin');
@@ -66,6 +68,7 @@ export default function RegisterForm() {
     }
 
     try {
+      setIsLoading(true);
       const response = await AuthModel.register(userId, password, username);
       console.log('onRegister, response: ');
       console.log('response.status: ', response.status);
@@ -86,6 +89,8 @@ export default function RegisterForm() {
       alert(
         '알 수 없는 에러로 회원 등록이 불가능합니다. 담당자에게 연략 바랍니다.',
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -144,6 +149,7 @@ export default function RegisterForm() {
           Register
         </button>
       </div>
+      {isLoading && <LoadingSpinner />}
     </FormContainer>
   );
 }

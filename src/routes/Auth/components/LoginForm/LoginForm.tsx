@@ -7,9 +7,11 @@ import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { AxiosError } from 'axios';
 import { useAppDispatch } from 'App.hooks';
 import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 // temp end
 
 export default function LoginForm() {
+  const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
@@ -39,6 +41,7 @@ export default function LoginForm() {
     }
 
     try {
+      setIsLoading(true);
       const response = await AuthModel.login(userId, password);
       console.log('onLogin, response: ');
       console.dir(response);
@@ -67,6 +70,8 @@ export default function LoginForm() {
       alert(
         '알 수 없는 에러로 로그인이 불가능합니다. 담당자에게 연략 바랍니다.',
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -101,6 +106,7 @@ export default function LoginForm() {
           Login
         </button>
       </div>
+      {isLoading && <LoadingSpinner />}
     </FormContainer>
   );
 }
