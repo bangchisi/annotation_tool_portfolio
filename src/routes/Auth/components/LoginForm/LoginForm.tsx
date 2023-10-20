@@ -1,4 +1,3 @@
-// temp
 import { ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FormContainer } from './LoginForm.style';
@@ -8,7 +7,7 @@ import { AxiosError } from 'axios';
 import { useAppDispatch } from 'App.hooks';
 import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-// temp end
+import { useCookies } from 'react-cookie';
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +29,8 @@ export default function LoginForm() {
     setPassword(event?.target?.value);
   };
 
+  const [cookies, setCookie] = useCookies(['userId']);
+
   const onLogin = async (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
@@ -46,6 +47,11 @@ export default function LoginForm() {
       console.log('onLogin, response: ');
       console.dir(response);
       if (response.status === 200) {
+        setCookie('userId', response.data.userId, {
+          path: '/',
+          maxAge: 1000 * 60 * 60,
+        });
+        console.dir(cookies.userId);
         dispatch(setIsAuthenticated(response.data.isOnline));
         // user 정보를 redux에 넣음
         dispatch(
