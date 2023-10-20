@@ -14,18 +14,18 @@ import DatasetsModel from '../models/Datasets.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import axios from 'axios';
 
-// interface CategoryType {
-//   name: string;
-//   color: string;
-// }
+interface CreateDatasetModalProps {
+  setDatasetList: (userId: string) => Promise<void>;
+}
 
-export default function CreateDatasetModal() {
+export default function CreateDatasetModal(props: CreateDatasetModalProps) {
   const user = useAppSelector((state) => state.auth.user);
+  const { setDatasetList } = props;
+
   const [open, setOpen] = useState(false);
   const [datasetName, setDatasetName] = useState<string>('');
   const [addCategoryName, setAddCategoryName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  // const [categories, setCategories] = useState<CategoryType[]>([]);
   const [categories, setCategories] = useState<string[][]>([]);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -76,10 +76,13 @@ export default function CreateDatasetModal() {
         description,
       );
 
+      handleClose();
       console.dir(response);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to create dataset');
       alert('Dataset 생성 실패.');
+    } finally {
+      setDatasetList(user.userId);
     }
   };
 

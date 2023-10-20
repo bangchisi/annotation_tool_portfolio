@@ -1,29 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import DatasetCard from '../DatasetCard/DatasetCard';
 import { Container } from './DatasetList.style';
-import DatasetsModel from '../models/Datasets.model';
 import { useAppSelector } from 'App.hooks';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { DatasetType } from '../Datasets';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
-export default function DatasetList() {
-  const [isLoading, setIsLoading] = useState(false);
+interface DatasetListProps {
+  datasets: DatasetType[];
+  setDatasetList: (userId: string) => Promise<void>;
+}
+
+export default function DatasetList(props: DatasetListProps) {
   const user = useAppSelector((state) => state.auth.user);
-  const [datasets, setDatasets] = useState<DatasetType[]>([]);
 
-  const setDatasetList = async (userId: string) => {
-    try {
-      setIsLoading(true);
-      const response = await DatasetsModel.getDatasetsByUserId(userId);
-      const datasetList = response.data.data;
-      setDatasets([...datasetList]);
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to get datasets');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { datasets, setDatasetList } = props;
 
   useEffect(() => {
     setDatasetList(user.userId);
@@ -34,7 +23,6 @@ export default function DatasetList() {
       {datasets.map((dataset) => {
         return <DatasetCard key={dataset.datasetId} {...dataset} />;
       })}
-      {isLoading && <LoadingSpinner />}
     </Container>
   );
 }

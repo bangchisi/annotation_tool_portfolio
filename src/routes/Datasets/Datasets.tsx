@@ -2,6 +2,10 @@ import 'assets/css/datasets.css';
 
 import CreateDatasetModal from './CreateDatasetModal/CreateDatasetModal';
 import DatasetList from './DatasetList/DatasetList';
+import { useState } from 'react';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import DatasetsModel from './models/Datasets.model';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 export interface DatasetType {
   datasetId: number; // Dataset 고유 ID
@@ -22,6 +26,25 @@ export interface DatasetType {
 }
 
 export default function Datasets() {
+  const [datasets, setDatasets] = useState<DatasetType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const setDatasetList = async (userId: string) => {
+    try {
+      setIsLoading(true);
+      const response = await DatasetsModel.getDatasetsByUserId(userId);
+      const datasetList = response.data.data;
+      setDatasets([...datasetList]);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to get datasets');
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+      // setIsLoading(false);
+    }
+  };
+
   // TODO: style dataset-search
   return (
     <div id="datasets" className="pe-5 ps-5">
@@ -39,9 +62,10 @@ export default function Datasets() {
             </button>
           </form>
         </div>
-        <CreateDatasetModal />
+        <CreateDatasetModal setDatasetList={setDatasetList} />
       </div>
-      <DatasetList />
+      <DatasetList datasets={datasets} setDatasetList={setDatasetList} />
+      {isLoading && <LoadingSpinner />}
     </div>
   );
 }
