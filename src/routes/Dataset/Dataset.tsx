@@ -1,24 +1,76 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { Container } from './Dataset.style';
+import ImageList from './ImageList/ImageList';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import DatasetModel from './models/Dataset.model';
+import { useEffect, useState } from 'react';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import Information from './Information/Information';
+import Controls from './Controls/Controls';
+
+export interface DatasetType {
+  datasetId: number;
+  datasetName: string;
+  lastUpdate: string;
+  created: string;
+  description: string;
+  directory: string;
+  categories: CategoryType[];
+  numImages: number;
+  numPages: number;
+  imageIds: number[][];
+}
+
+interface CategoryType {
+  categoryId: number;
+  name: string;
+  color: string;
+  superCategory: string;
+}
 
 export default function Dataset() {
+  const [dataset, setDataset] = useState<DatasetType>();
+  const [isLoading, setIsLoading] = useState(false);
+  const datasetId = useParams().datasetId;
+
+  const getDataset = async (datasetId: number | undefined) => {
+    try {
+      setIsLoading(true);
+      const response = await DatasetModel.getDatasetById(datasetId);
+      const dataset = response.data.data;
+      console.log('Dataset.tsx, dataset: ');
+      console.dir(dataset);
+      setDataset(dataset);
+      return dataset;
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to get dataset information.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!datasetId) return;
+    getDataset(Number(datasetId));
+  }, []);
+
+  // TODO: dataset 정보를 Information 전달
+  // TODO: dataset.imageIds를 ImageList에 전달
+  // TODO: descripttion에서 category 편집 가능하게
+
   return (
-    <div id="dataset">
-      <div id="controls">controls</div>
-      <div id="information">
-        <div id="description">description</div>
-        <div id="categories">categories</div>
-      </div>
+    <Container>
+      <Controls />
+      {dataset && <Information {...dataset} />}
       <div id="contents">
-        <div id="pagination">pagination</div>
-        <div id="dataset-list">
+        <div className="pagination">pagination</div>
+        {dataset?.imageIds && <ImageList imageIds={dataset.imageIds} />}
+        <div className="pagination">pagination</div>
+        {/* <div id="dataset-list">
           <Link to="/annotator/1">Image 1</Link>
-          <Link to="/annotator/2">Image 2</Link>
-          <Link to="/annotator/3">Image 3</Link>
-          <Link to="/annotator/4">Image 4</Link>
-          <Link to="/annotator/5">Image 5</Link>
-        </div>
+        </div> */}
       </div>
-    </div>
+      {isLoading && <LoadingSpinner />}
+    </Container>
   );
 }
