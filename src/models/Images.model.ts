@@ -12,6 +12,18 @@ const ImagesModel = {
 
     return axios.get(url);
   },
+  uploadImages: (datasetId: number, images: FormData) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/image?dataset_id=${datasetId}`
+        : `${SERVER_URL}/image?dataset_id=${datasetId}`;
+
+    console.log('ImagesModel.uploadImages, images: ');
+    console.dir(images);
+    return axios.post(url, {
+      images: images.getAll('images'),
+    });
+  },
 };
 
 export default ImagesModel;
