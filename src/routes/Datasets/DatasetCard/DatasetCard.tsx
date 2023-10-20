@@ -73,7 +73,9 @@ export default function DatasetCard(props: DatasetCardProps) {
         </Link>
       </ImageContainer>
       <TitleContainer>
-        <Typography variant="h5">{datasetName}</Typography>
+        <Link to={'/dataset/' + datasetId}>
+          <Typography variant="h5">{datasetName}</Typography>
+        </Link>
         <div>created by {user.userName}</div>
         <div>{created}</div>
         <div>update: {lastUpdate}</div>
