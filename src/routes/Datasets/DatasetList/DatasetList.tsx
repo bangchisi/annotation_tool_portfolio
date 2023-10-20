@@ -21,7 +21,13 @@ export default function DatasetList(props: DatasetListProps) {
   return (
     <Container>
       {datasets.map((dataset) => {
-        return <DatasetCard key={dataset.datasetId} {...dataset} />;
+        return (
+          <DatasetCard
+            key={dataset.datasetId}
+            {...dataset}
+            setDatasetList={setDatasetList}
+          />
+        );
       })}
     </Container>
   );

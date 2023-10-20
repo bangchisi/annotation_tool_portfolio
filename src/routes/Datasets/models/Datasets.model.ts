@@ -29,6 +29,14 @@ const DatasetsModel = {
       description,
     });
   },
+  deleteDataset: (datasetId: number) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/dataset/${datasetId}`
+        : `${SERVER_URL}/dataset/${datasetId}`;
+
+    return axios.delete(url);
+  },
 };
 
 export default DatasetsModel;

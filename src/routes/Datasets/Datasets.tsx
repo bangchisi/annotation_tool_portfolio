@@ -38,10 +38,7 @@ export default function Datasets() {
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get datasets');
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
-      // setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
