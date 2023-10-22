@@ -1,12 +1,13 @@
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Container } from './Dataset.style';
 import ImageList from './ImageList/ImageList';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import DatasetModel from './models/Dataset.model';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import Information from './Information/Information';
 import Controls from './Controls/Controls';
+import PaginationPanel from 'components/PaginationPanel/PaginationPanel';
 
 export interface DatasetType {
   datasetId: number;
@@ -31,6 +32,7 @@ interface CategoryType {
 export default function Dataset() {
   const [dataset, setDataset] = useState<DatasetType>();
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const datasetId = useParams().datasetId;
 
   const getDataset = async (datasetId: number | undefined) => {
@@ -49,6 +51,13 @@ export default function Dataset() {
     }
   };
 
+  const onCurrentpageChange = (
+    event: React.ChangeEvent<unknown>,
+    page: number,
+  ) => {
+    setCurrentPage(page);
+  };
+
   useEffect(() => {
     if (!datasetId) return;
     getDataset(Number(datasetId));
@@ -61,15 +70,19 @@ export default function Dataset() {
   return (
     <Container>
       <Controls />
-      {dataset && <Information {...dataset} />}
-      <div id="contents">
-        <div className="pagination">pagination</div>
-        {dataset?.imageIds && <ImageList imageIds={dataset.imageIds} />}
-        <div className="pagination">pagination</div>
-        {/* <div id="dataset-list">
-          <Link to="/annotator/1">Image 1</Link>
-        </div> */}
-      </div>
+      {dataset && (
+        <Fragment>
+          <Information {...dataset} />
+          <div id="contents">
+            <PaginationPanel
+              onCurrentPageChange={onCurrentpageChange}
+              currentPage={currentPage}
+              lastPage={dataset.imageIds.length}
+            />
+            <ImageList imageIds={dataset.imageIds[currentPage - 1]} />
+          </div>
+        </Fragment>
+      )}
       {isLoading && <LoadingSpinner />}
     </Container>
   );
