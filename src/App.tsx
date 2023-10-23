@@ -1,17 +1,22 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import './App.css';
-import Navigator from 'components/Navigator';
+import Navigator from 'components/Navigator/Navigator';
 import { useAppSelector } from 'App.hooks';
 import { CookiesProvider } from 'react-cookie';
 
+export enum RouteMode {
+  DATASET,
+  MODELS,
+}
+
 export default function App() {
-  const [currentMode, setCurrentMode] = useState<string | null>(null);
+  const [currentMode, setCurrentMode] = useState(RouteMode.DATASET);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  const handleCurrentMode = (nextMode: string): void => {
-    setCurrentMode(nextMode);
-  };
+  // const handleCurrentMode = (nextMode: string): void => {
+  //   setCurrentMode(nextMode);
+  // };
 
   return (
     <CookiesProvider defaultSetOptions={{ path: '/' }}>
@@ -19,7 +24,7 @@ export default function App() {
         {isAuthenticated && (
           <Navigator
             currentMode={currentMode}
-            handleCurrentMode={handleCurrentMode}
+            setCurrentMode={setCurrentMode}
           />
         )}
         <div id="main">
