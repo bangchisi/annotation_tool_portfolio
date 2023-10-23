@@ -20,10 +20,10 @@ export default function Controls() {
     if (!images) return;
 
     try {
+      setIsLoading(true);
       const response = await ImagesModel.uploadImages(datasetId, images);
       console.log('Dataset.tsx Controls.tsx, upload image response: ');
       console.dir(response);
-      setIsLoading(true);
     } catch (error) {
       axiosErrorHandler('error', 'Failed to upload images');
     } finally {
@@ -67,7 +67,9 @@ export default function Controls() {
           UPLOAD IMAGE
         </Button>
       </form>
-      {isLoading && <LoadingSpinner />}
+      {isLoading && (
+        <LoadingSpinner message="이미지 업로드 중입니다. 잠시만 기다려주세요." />
+      )}
     </Container>
   );
 }

@@ -83,7 +83,9 @@ export default function Dataset() {
           </div>
         </Fragment>
       )}
-      {isLoading && <LoadingSpinner />}
+      {isLoading && (
+        <LoadingSpinner message="Dataset 정보를 불러오는 중입니다. 잠시만 기다려주세요." />
+      )}
     </Container>
   );
 }
