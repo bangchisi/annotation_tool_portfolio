@@ -1,4 +1,3 @@
-// temp
 import { ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FormContainer } from './LoginForm.style';
@@ -7,9 +6,11 @@ import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { AxiosError } from 'axios';
 import { useAppDispatch } from 'App.hooks';
 import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
-// temp end
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { useCookies } from 'react-cookie';
 
 export default function LoginForm() {
+  const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
@@ -28,6 +29,8 @@ export default function LoginForm() {
     setPassword(event?.target?.value);
   };
 
+  const [cookies, setCookie] = useCookies(['userId']);
+
   const onLogin = async (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
@@ -39,17 +42,23 @@ export default function LoginForm() {
     }
 
     try {
+      setIsLoading(true);
       const response = await AuthModel.login(userId, password);
       console.log('onLogin, response: ');
       console.dir(response);
       if (response.status === 200) {
-        dispatch(setIsAuthenticated(response.data.is_online));
+        setCookie('userId', response.data.userId, {
+          path: '/',
+          maxAge: 1000 * 60 * 60,
+        });
+        console.dir(cookies.userId);
+        dispatch(setIsAuthenticated(response.data.isOnline));
         // user 정보를 redux에 넣음
         dispatch(
           setUser({
-            userId: response.data.user_id,
-            username: response.data.username,
-            isOnline: response.data.is_online,
+            userId: response.data.userId,
+            userName: response.data.userName,
+            isOnline: response.data.isOnline,
           }),
         );
         routeChange('/datasets');
@@ -67,6 +76,8 @@ export default function LoginForm() {
       alert(
         '알 수 없는 에러로 로그인이 불가능합니다. 담당자에게 연략 바랍니다.',
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -101,6 +112,7 @@ export default function LoginForm() {
           Login
         </button>
       </div>
+      {isLoading && <LoadingSpinner />}
     </FormContainer>
   );
 }

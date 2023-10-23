@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import './App.css';
 import Navigator from 'components/Navigator';
 import { useAppSelector } from 'App.hooks';
+import { CookiesProvider } from 'react-cookie';
 
 export default function App() {
   const [currentMode, setCurrentMode] = useState<string | null>(null);
@@ -13,17 +14,18 @@ export default function App() {
   };
 
   return (
-    <div id="app">
-      {/* TODO: should change true to currentMode !== 'auth' or something else */}
-      {isAuthenticated && (
-        <Navigator
-          currentMode={currentMode}
-          handleCurrentMode={handleCurrentMode}
-        />
-      )}
-      <div id="main">
-        <Outlet />
+    <CookiesProvider defaultSetOptions={{ path: '/' }}>
+      <div id="app">
+        {isAuthenticated && (
+          <Navigator
+            currentMode={currentMode}
+            handleCurrentMode={handleCurrentMode}
+          />
+        )}
+        <div id="main">
+          <Outlet />
+        </div>
       </div>
-    </div>
+    </CookiesProvider>
   );
 }

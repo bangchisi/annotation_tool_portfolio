@@ -2,14 +2,14 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 interface UserType {
   userId: string;
-  username: string;
+  userName: string;
   isOnline: boolean;
 }
 
 const initialState = {
   user: {
     userId: '',
-    username: '',
+    userName: '',
     isOnline: false,
   },
   isAuthenticated: false,

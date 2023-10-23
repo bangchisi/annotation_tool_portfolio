@@ -1,17 +1,17 @@
 FROM node:18
 
-WORKDIR /
+WORKDIR /workspace
 
 COPY package.json ./
 COPY package-lock.json ./
 
-RUN npm install -g npm@10.2.0 --quiet
+RUN npm install -g npm@10.2.1
 
-RUN npm install --quiet
-
-ENV NODE_PATH=/node_modules
+RUN npm install
 
 COPY . .
+
+ENV NODE_PATH=/node_modules
 
 EXPOSE 60143
 CMD ["npm", "run", "start"]
