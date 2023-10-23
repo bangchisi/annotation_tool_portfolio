@@ -86,7 +86,6 @@ export default function RegisterForm() {
       }
     } catch (error) {
       axiosErrorHandler(error, 'Failed to register');
-      console.dir(error);
       if (error instanceof AxiosError && error.code === 'ERR_BAD_REQUEST') {
         alert('중복된 ID입니다. 다른 ID를 입력해주세요.');
         return;
@@ -134,7 +133,9 @@ export default function RegisterForm() {
       <RegisterButton onClick={onRegister} type="submit">
         REGISTER
       </RegisterButton>
-      {isLoading && <LoadingSpinner />}
+      {isLoading && (
+        <LoadingSpinner message="회원가입 진행중입니다. 잠시만 기다려주세요." />
+      )}
     </FormContainer>
   );
 }

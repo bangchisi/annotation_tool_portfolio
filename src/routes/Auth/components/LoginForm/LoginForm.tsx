@@ -102,7 +102,9 @@ export default function LoginForm() {
       <LoginButton onClick={onLogin} type="submit">
         LOGIN
       </LoginButton>
-      {isLoading && <LoadingSpinner />}
+      {isLoading && (
+        <LoadingSpinner message="로그인 중입니다. 잠시만 기다려주세요." />
+      )}
     </FormContainer>
   );
 }
