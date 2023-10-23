@@ -5,11 +5,10 @@ networks:
 
 services:
   frontend:
-    container_name: new_annotator_web_dev
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: annotator-frontend-client
     ports:
       - "60143:60143"
+    volumes:
+      - "./:/workspace"
     networks:
       - annotatorweb
