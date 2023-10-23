@@ -1,9 +1,14 @@
 import { Container, Spinner } from './LoadingSpinner.style';
 
-export default function LoadingSpinner() {
+interface LoadingSpinnerProps {
+  message: string;
+}
+
+export default function LoadingSpinner(props: LoadingSpinnerProps) {
+  const { message } = props;
   return (
     <Container>
-      <Spinner>Loading</Spinner>
+      <Spinner>{message}</Spinner>
     </Container>
   );
 }
