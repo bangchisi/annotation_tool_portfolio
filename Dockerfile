@@ -11,5 +11,7 @@ RUN npm install
 
 COPY . .
 
+ENV NODE_PATH=/node_modules
+
 EXPOSE 60143
 CMD ["npm", "run", "start"]

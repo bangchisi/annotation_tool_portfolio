@@ -11,9 +11,10 @@ export default function ImageList(props: ImageListProps) {
   console.dir(imageIds);
   return (
     <Container>
-      {imageIds.map((imageId) => {
-        return <ImageCard key={imageId} imageId={imageId} />;
-      })}
+      {imageIds &&
+        imageIds.map((imageId) => {
+          return <ImageCard key={imageId} imageId={imageId} />;
+        })}
     </Container>
   );
 }

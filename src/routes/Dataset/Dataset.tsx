@@ -79,7 +79,7 @@ export default function Dataset() {
               currentPage={currentPage}
               lastPage={dataset.imageIds.length}
             />
-            <ImageList imageIds={dataset.imageIds[currentPage - 1]} />
+            <ImageList imageIds={dataset.imageIds[currentPage - 1]} />)
           </div>
         </Fragment>
       )}
