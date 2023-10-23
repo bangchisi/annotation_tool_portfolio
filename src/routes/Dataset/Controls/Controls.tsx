@@ -1,7 +1,7 @@
 import { Button } from '@mui/material';
 import { Container } from './Controls.style';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import ImagesModel from 'models/Images.model';
 import { useParams } from 'react-router-dom';
@@ -9,6 +9,7 @@ import { useParams } from 'react-router-dom';
 export default function Controls() {
   const datasetId = useParams().datasetId;
   const [isLoading, setIsLoading] = useState(false);
+  const filesInput = useRef<HTMLInputElement>(null);
   const formData = new FormData();
 
   const uploadImages = async (
@@ -33,15 +34,9 @@ export default function Controls() {
   const filesToFormData = (files: FileList): void => {
     if (files.length <= 0) return;
 
-    console.log('files');
-    console.dir(files);
-
     for (let idx = 0; idx < files.length; idx++) {
       formData.append('images', files[idx]);
     }
-
-    console.log('formData');
-    console.dir(formData.getAll('images'));
   };
 
   const onFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +48,13 @@ export default function Controls() {
   return (
     <Container>
       <form>
-        <input type="file" multiple onChange={onFilesChange} />
+        <input
+          ref={filesInput}
+          name="images"
+          type="file"
+          multiple
+          onChange={onFilesChange}
+        />
         <Button
           type="submit"
           onClick={(event) => {

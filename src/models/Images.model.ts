@@ -18,11 +18,17 @@ const ImagesModel = {
         ? `${DEV_URL}/image?dataset_id=${datasetId}`
         : `${SERVER_URL}/image?dataset_id=${datasetId}`;
 
-    console.log('ImagesModel.uploadImages, images: ');
-    console.dir(images);
-    return axios.post(url, {
-      images: images.getAll('images'),
-    });
+    return axios.post(
+      url,
+      images,
+      // multipart headers
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
   },
 };
 
