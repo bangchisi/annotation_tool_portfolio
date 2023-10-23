@@ -8,7 +8,7 @@ import { useAppDispatch } from 'App.hooks';
 import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { useCookies } from 'react-cookie';
-import { Button, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -96,6 +96,7 @@ export default function LoginForm() {
         name="password"
         value={password}
         onChange={handlePasswordChange}
+        type="password"
         placeholder="Password"
       />
       <LoginButton onClick={onLogin} type="submit">
