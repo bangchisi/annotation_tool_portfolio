@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FormContainer } from './LoginForm.style';
+import { FormContainer, InputField, LoginButton } from './LoginForm.style';
 import AuthModel from 'routes/Auth/models/Auth.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { AxiosError } from 'axios';
@@ -8,6 +8,7 @@ import { useAppDispatch } from 'App.hooks';
 import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { useCookies } from 'react-cookie';
+import { Button, Typography } from '@mui/material';
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -83,35 +84,23 @@ export default function LoginForm() {
 
   return (
     <FormContainer>
-      <div className="mb-3">
-        <label htmlFor="userId" className="form-label">
-          ID
-        </label>
-        <input
-          id="userId"
-          className="form-control form-control-lg"
-          name="userId"
-          type="text"
-          value={userId}
-          placeholder="ID"
-          onChange={handleUserIdChange}
-        />
-        <label htmlFor="password" className="form-label">
-          Password
-        </label>
-        <input
-          id="password"
-          className="form-control form-control-lg"
-          name="password"
-          type="password"
-          value={password}
-          placeholder="password"
-          onChange={handlePasswordChange}
-        />
-        <button className="btn btn-primary" onClick={onLogin} type="submit">
-          Login
-        </button>
-      </div>
+      <Typography variant="subtitle1">ID</Typography>
+      <InputField
+        name="userId"
+        value={userId}
+        onChange={handleUserIdChange}
+        placeholder="ID"
+      />
+      <Typography variant="subtitle1">Password</Typography>
+      <InputField
+        name="password"
+        value={password}
+        onChange={handlePasswordChange}
+        placeholder="Password"
+      />
+      <LoginButton onClick={onLogin} type="submit">
+        LOGIN
+      </LoginButton>
       {isLoading && <LoadingSpinner />}
     </FormContainer>
   );

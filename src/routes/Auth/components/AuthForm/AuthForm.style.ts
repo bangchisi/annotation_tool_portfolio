@@ -1,5 +1,9 @@
 import { styled } from '@mui/material';
 
+interface AuthButtonProps {
+  'data-selected': boolean;
+}
+
 export const Container = styled('div')(() => {
   return {
     flexGrow: 1,
@@ -18,11 +22,14 @@ export const AuthTabs = styled('div')(() => {
   };
 });
 
-export const AuthButton = styled('button')(() => {
+export const AuthButton = styled('button')<AuthButtonProps>((props) => {
+  const selected = props['data-selected'];
+
   return {
     outline: 'none',
-    border: 'none',
-    backGround: 'none',
+    border: selected ? '2px solid rgba(0, 0, 0, 0.1)' : 'none',
+    borderBottom: 'none',
+    background: selected ? 'white' : 'none',
     padding: '5px 20px 5px 20px',
   };
 });

@@ -1,9 +1,14 @@
 import { ChangeEvent, useState } from 'react';
-import { FormContainer } from './RegisterForm.style';
+import {
+  FormContainer,
+  InputField,
+  RegisterButton,
+} from './RegisterForm.style';
 import AuthModel from 'routes/Auth/models/Auth.model';
 import { AxiosError } from 'axios';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { Typography } from '@mui/material';
 
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -96,59 +101,39 @@ export default function RegisterForm() {
 
   return (
     <FormContainer>
-      <div className="mb-3">
-        <label htmlFor="fullname" className="form-label">
-          User Name (4글자 이상)
-        </label>
-        <input
-          id="username"
-          className="form-control form-control-lg"
-          name="username"
-          value={userName}
-          type="text"
-          placeholder="User Name"
-          onChange={handleUserNameChange}
-        />
-        <label htmlFor="username" className="form-label">
-          ID (4글자 이상)
-        </label>
-        <input
-          id="userId"
-          className="form-control form-control-lg"
-          name="userId"
-          value={userId}
-          type="text"
-          placeholder="ID"
-          onChange={handleUserIdChange}
-        />
-        <label htmlFor="password" className="form-label">
-          Password
-        </label>
-        <input
-          id="password"
-          className="form-control form-control-lg"
-          name="password"
-          value={password}
-          type="password"
-          placeholder="Password"
-          onChange={handlePasswordChange}
-        />
-        <label htmlFor="confirm-password" className="form-label">
-          Confirm Password
-        </label>
-        <input
-          id="confirm-password"
-          className="form-control form-control-lg"
-          name="confirm-password"
-          value={confirmPassword}
-          type="password"
-          placeholder="Confirm Password"
-          onChange={handleConfirmPasswordChange}
-        />
-        <button className="btn btn-primary" type="submit" onClick={onRegister}>
-          Register
-        </button>
-      </div>
+      <Typography variant="subtitle1">User Name (4글자 이상)</Typography>
+      <InputField
+        name="username"
+        value={userName}
+        onChange={handleUserNameChange}
+        placeholder="User Name"
+      />
+      <Typography variant="subtitle1">ID (4글자 이상)</Typography>
+      <InputField
+        name="userId"
+        value={userId}
+        onChange={handleUserIdChange}
+        placeholder="ID"
+      />
+      <Typography variant="subtitle1">Password</Typography>
+      <InputField
+        name="password"
+        type="password"
+        value={password}
+        onChange={handlePasswordChange}
+        placeholder="Password"
+      />
+      <Typography variant="subtitle1">Confirm Password</Typography>
+      <InputField
+        name="confirm-password"
+        type="password"
+        value={confirmPassword}
+        onChange={handleConfirmPasswordChange}
+        placeholder="Confirm Password"
+      />
+      <RegisterButton onClick={onRegister} type="submit">
+        REGISTER
+      </RegisterButton>
       {isLoading && <LoadingSpinner />}
     </FormContainer>
   );

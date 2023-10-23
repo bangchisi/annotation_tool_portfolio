@@ -3,21 +3,27 @@ import LoginForm from '../LoginForm/LoginForm';
 import RegisterForm from '../RegisterForm/RegisterForm';
 import { AuthButton, AuthTabs, Container } from './AuthForm.style';
 
-export default function AuthForm() {
-  enum mode {
-    LOGIN,
-    REGISTER,
-  }
+export enum mode {
+  LOGIN,
+  REGISTER,
+}
 
+export default function AuthForm() {
   const [currentMode, setCurrentMode] = useState<mode>(mode.LOGIN);
 
   return (
     <Container>
       <AuthTabs>
-        <AuthButton onClick={() => setCurrentMode(mode.LOGIN)}>
+        <AuthButton
+          data-selected={currentMode === mode.LOGIN}
+          onClick={() => setCurrentMode(mode.LOGIN)}
+        >
           Login
         </AuthButton>
-        <AuthButton onClick={() => setCurrentMode(mode.REGISTER)}>
+        <AuthButton
+          data-selected={currentMode === mode.REGISTER}
+          onClick={() => setCurrentMode(mode.REGISTER)}
+        >
           Register
         </AuthButton>
       </AuthTabs>
