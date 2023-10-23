@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { DatasetType } from '../Datasets';
 import {
   Container,
   TitleContainer,
@@ -14,7 +13,9 @@ import { Button, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
 import { Link } from 'react-router-dom';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import DatasetsModel from '../models/Datasets.model';
+import DatasetsModel from '../../models/Datasets.model';
+import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
+import CategoryTag from 'components/CategoryTag/CategoryTag';
 
 interface DatasetCardProps {
   datasetId: number; // Dataset 고유 ID
@@ -48,10 +49,10 @@ export default function DatasetCard(props: DatasetCardProps) {
   } = props;
   const [imgPath, setImgPath] = useState('');
 
-  const deleteDataset = async (datasetId: number) => {
+  const deleteDataset = async (userId: string, datasetId: number) => {
     try {
-      const response = await DatasetsModel.deleteDataset(datasetId);
-      setDatasetList(user.userId);
+      await DatasetsModel.deleteDataset(datasetId);
+      setDatasetList(userId);
     } catch (error) {
       axiosErrorHandler(error, `Failed to delete dataset (id: ${datasetId})`);
     }
@@ -82,18 +83,29 @@ export default function DatasetCard(props: DatasetCardProps) {
       </TitleContainer>
       <StatusContainer>
         <CategoriesContainer>
-          {categories.map((category) => (
-            <button key={category.categoryId}>{category.name}</button>
-          ))}
+          {categories.map((category) => {
+            const textcolor = getTextColor(category.color);
+            return (
+              <CategoryTag
+                key={category.categoryId + category.name}
+                categoryName={category.name}
+                categorycolor={category.color}
+                textcolor={textcolor}
+              />
+            );
+          })}
         </CategoriesContainer>
         <ProgressContainer>{progress}</ProgressContainer>
       </StatusContainer>
       <MenuButtonContainer>
-        <Button variant="text">...</Button>
+        <Button variant="text" size="small">
+          ...
+        </Button>
         <Button
           variant="text"
           color="warning"
-          onClick={() => deleteDataset(datasetId)}
+          size="small"
+          onClick={() => deleteDataset(user.userId, datasetId)}
         >
           Delete
         </Button>

@@ -1,12 +1,14 @@
 import { Button, styled } from '@mui/material';
 
-interface CategoryTagProps {
-  categorycolor: string;
-  textcolor: string;
-}
+// interface CategoryTagProps {
+//   categorycolor: string;
+//   textcolor: string;
+// }
 
 export const Container = styled('div')(() => {
-  return {};
+  return {
+    marginLeft: 'auto',
+  };
 });
 
 export const CreateButton = styled(Button)(() => {
@@ -52,15 +54,15 @@ export const ModalFooter = styled('div')(() => {
   };
 });
 
-export const CategoryTag = styled('button')<CategoryTagProps>(({
-  categorycolor,
-  textcolor,
-}) => {
-  return {
-    backgroundColor: categorycolor,
-    color: textcolor,
-    border: 'none',
-    borderRadius: 10,
-    margin: '2px 5px',
-  };
-});
+// export const CategoryTag = styled('button')<CategoryTagProps>(({
+//   categorycolor,
+//   textcolor,
+// }) => {
+//   return {
+//     backgroundColor: categorycolor,
+//     color: textcolor,
+//     border: 'none',
+//     borderRadius: 10,
+//     margin: '2px 5px',
+//   };
+// });

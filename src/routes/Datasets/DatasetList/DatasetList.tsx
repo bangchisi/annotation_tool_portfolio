@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import DatasetCard from '../DatasetCard/DatasetCard';
+import DatasetCard from './DatasetCard/DatasetCard';
 import { Container } from './DatasetList.style';
 import { useAppSelector } from 'App.hooks';
 import { DatasetType } from '../Datasets';

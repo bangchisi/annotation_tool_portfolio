@@ -6,13 +6,17 @@ import {
   ModalHeader,
   ModalContent,
   ModalFooter,
-  CategoryTag,
 } from './CreateDatasetModal.style';
 import { Button, Modal, TextField, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
-import DatasetsModel from '../models/Datasets.model';
+import DatasetsModel from '../../models/Datasets.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import axios from 'axios';
+import {
+  getRandomHexColor,
+  getTextColor,
+} from 'components/CategoryTag/helpers/CategoryTagHelpers';
+import CategoryTag from 'components/CategoryTag/CategoryTag';
 
 interface CreateDatasetModalProps {
   setDatasetList: (userId: string) => Promise<void>;
@@ -29,32 +33,6 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
   const [categories, setCategories] = useState<string[][]>([]);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
-  const getRandomHexColor = (): string => {
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
-
-    const hexColor = `#${r.toString(16).padStart(2, '0')}${g
-      .toString(16)
-      .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-
-    return hexColor;
-  };
-
-  const getTextColor = (hexColor: string): string => {
-    const r = parseInt(hexColor.slice(1, 3), 16);
-    const g = parseInt(hexColor.slice(3, 5), 16);
-    const b = parseInt(hexColor.slice(5, 7), 16);
-
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-
-    if (brightness > 128) {
-      return '#000000';
-    } else {
-      return '#ffffff';
-    }
-  };
 
   const addCategory = (categoryName: string): void => {
     const color = getRandomHexColor();
@@ -82,7 +60,7 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
       axiosErrorHandler(error, 'Failed to create dataset');
       alert('Dataset 생성 실패.');
     } finally {
-      setDatasetList(user.userId);
+      setDatasetList(userId);
     }
   };
 
@@ -138,11 +116,10 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
                 return (
                   <CategoryTag
                     key={category[0] + category[1]}
+                    categoryName={category[0]}
                     categorycolor={category[1]}
                     textcolor={textcolor}
-                  >
-                    {category[0]}
-                  </CategoryTag>
+                  />
                 );
               })}
             </div>

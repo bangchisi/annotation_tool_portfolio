@@ -1,11 +1,12 @@
 import 'assets/css/datasets.css';
 
-import CreateDatasetModal from './CreateDatasetModal/CreateDatasetModal';
 import DatasetList from './DatasetList/DatasetList';
 import { useState } from 'react';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import DatasetsModel from './models/Datasets.model';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { Container } from './Datasets.style';
+import Controls from './Controls/Controls';
 
 export interface DatasetType {
   datasetId: number; // Dataset 고유 ID
@@ -44,25 +45,12 @@ export default function Datasets() {
 
   // TODO: style dataset-search
   return (
-    <div id="datasets" className="pe-5 ps-5">
-      <div id="datasets-controls" className="mb-4">
-        <div id="datasets-search">
-          <button className="btn btn-secondary">Sort by</button>
-          <form id="datasets-search-form">
-            <input
-              type="text"
-              className="form-control ms-2 me-2"
-              placeholder="Search.."
-            />
-            <button type="submit" className="btn btn-primary">
-              Search
-            </button>
-          </form>
-        </div>
-        <CreateDatasetModal setDatasetList={setDatasetList} />
-      </div>
+    <Container>
+      <Controls setDatasetList={setDatasetList} />
       <DatasetList datasets={datasets} setDatasetList={setDatasetList} />
-      {isLoading && <LoadingSpinner />}
-    </div>
+      {isLoading && (
+        <LoadingSpinner message="Dataset 목록을 불러오는 중입니다. 잠시만 기다려주세요." />
+      )}
+    </Container>
   );
 }
