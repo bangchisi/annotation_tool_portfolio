@@ -17,7 +17,7 @@ export default function PaginationPanel(props: PaginationProps) {
       <Pagination
         onChange={onCurrentPageChange}
         defaultPage={1}
-        count={Math.ceil(lastPage / 10)}
+        count={lastPage}
         page={currentPage}
         renderItem={(item) => <PaginationItem {...item} />}
       />
