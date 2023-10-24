@@ -107,9 +107,13 @@ export default function DatasetCard(props: DatasetCardProps) {
           })}
         </CategoriesContainer>
         <ProgressContainer>
-          <LinearProgress variant="determinate" value={progress} />
+          <LinearProgress
+            sx={{ my: 1 }}
+            variant="determinate"
+            value={progress}
+          />
           <Typography variant="subtitle2" display="inline">
-            {progress}%
+            {progress}% done
           </Typography>
         </ProgressContainer>
       </StatusContainer>

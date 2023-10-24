@@ -8,6 +8,7 @@ export const Container = styled('div')(() => {
     border: '1px solid rgba(0, 0, 0, 0.7)',
     padding: '20px 0px',
     marginBottom: '20px',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
   };
 });
 
@@ -42,7 +43,9 @@ export const StatusContainer = styled('div')(() => {
 });
 
 export const CategoriesContainer = styled('div')(() => {
-  return {};
+  return {
+    marginBottom: 10,
+  };
 });
 
 export const ProgressContainer = styled('div')(() => {
