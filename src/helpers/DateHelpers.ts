@@ -12,3 +12,23 @@ export function getFormattedDate(dateString: string) {
 
   return formattedDate;
 }
+
+export function getDifferenceDate(dateString: string) {
+  const now = new Date();
+  const targetDate = new Date(dateString);
+
+  const timeDifference = now.getTime() - targetDate.getTime();
+
+  if (timeDifference >= 24 * 60 * 60 * 1000) {
+    const days = Math.floor(timeDifference / (24 * 60 * 60 * 1000));
+    return `${days} days ago`;
+  } else if (timeDifference >= 60 * 60 * 1000) {
+    const hours = Math.floor(timeDifference / (60 * 60 * 1000));
+    return `${hours} hours ago`;
+  } else if (timeDifference >= 60 * 1000) {
+    const minutes = Math.floor(timeDifference / (60 * 1000));
+    return `${minutes} minutes ago`;
+  } else {
+    return 'now';
+  }
+}
