@@ -6,7 +6,7 @@ export const Container = styled('div')(() => {
     height: 'auto',
     display: 'flex',
     border: '1px solid rgba(0, 0, 0, 0.7)',
-    padding: '20px 0px',
+    padding: '20px 10px',
     marginBottom: '20px',
     backgroundColor: 'rgba(255, 255, 255, 1)',
   };
