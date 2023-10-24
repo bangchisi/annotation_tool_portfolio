@@ -90,6 +90,7 @@ export default function LoginForm() {
         value={userId}
         onChange={handleUserIdChange}
         placeholder="ID"
+        size="small"
       />
       <Typography variant="subtitle1">Password</Typography>
       <InputField
@@ -98,6 +99,7 @@ export default function LoginForm() {
         onChange={handlePasswordChange}
         type="password"
         placeholder="Password"
+        size="small"
       />
       <LoginButton onClick={onLogin} type="submit">
         LOGIN

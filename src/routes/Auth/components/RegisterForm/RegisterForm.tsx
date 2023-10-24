@@ -106,6 +106,7 @@ export default function RegisterForm() {
         value={userName}
         onChange={handleUserNameChange}
         placeholder="User Name"
+        size="small"
       />
       <Typography variant="subtitle1">ID (4글자 이상)</Typography>
       <InputField
@@ -113,6 +114,7 @@ export default function RegisterForm() {
         value={userId}
         onChange={handleUserIdChange}
         placeholder="ID"
+        size="small"
       />
       <Typography variant="subtitle1">Password</Typography>
       <InputField
@@ -121,6 +123,7 @@ export default function RegisterForm() {
         value={password}
         onChange={handlePasswordChange}
         placeholder="Password"
+        size="small"
       />
       <Typography variant="subtitle1">Confirm Password</Typography>
       <InputField
@@ -129,6 +132,7 @@ export default function RegisterForm() {
         value={confirmPassword}
         onChange={handleConfirmPasswordChange}
         placeholder="Confirm Password"
+        size="small"
       />
       <RegisterButton onClick={onRegister} type="submit">
         REGISTER
