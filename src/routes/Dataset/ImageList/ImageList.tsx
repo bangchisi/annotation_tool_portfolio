@@ -8,7 +8,6 @@ interface ImageListProps {
 
 export default function ImageList(props: ImageListProps) {
   const { imageIds } = props;
-  console.dir(imageIds);
   return (
     <Container>
       {imageIds &&

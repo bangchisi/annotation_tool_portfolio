@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { Container } from './Dataset.style';
+import { Container, Content } from './Dataset.style';
 import ImageList from './ImageList/ImageList';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import DatasetModel from './models/Dataset.model';
@@ -22,7 +22,7 @@ export interface DatasetType {
   imageIds: number[][];
 }
 
-interface CategoryType {
+export interface CategoryType {
   categoryId: number;
   name: string;
   color: string;
@@ -73,14 +73,19 @@ export default function Dataset() {
       {dataset && (
         <Fragment>
           <Information {...dataset} />
-          <div id="contents">
+          <Content>
             <PaginationPanel
               onCurrentPageChange={onCurrentpageChange}
               currentPage={currentPage}
               lastPage={dataset.imageIds.length}
             />
-            <ImageList imageIds={dataset.imageIds[currentPage - 1]} />)
-          </div>
+            <ImageList imageIds={dataset.imageIds[currentPage - 1]} />
+            <PaginationPanel
+              onCurrentPageChange={onCurrentpageChange}
+              currentPage={currentPage}
+              lastPage={dataset.imageIds.length}
+            />
+          </Content>
         </Fragment>
       )}
       {isLoading && (

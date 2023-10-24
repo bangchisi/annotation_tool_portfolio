@@ -1,9 +1,16 @@
 import { styled } from '@mui/material';
 
 export const Container = styled('div')(() => {
-  return {};
+  return {
+    margin: 20,
+    // padding: '50px 5%',
+    // margin: '0 18%',
+    // backgroundColor: 'rgba(255, 255, 255, 1)',
+  };
 });
 
-export const DatasetInformationContainer = styled('div')(() => {
-  return {};
+export const Content = styled('div')(() => {
+  return {
+    // width: '100%',
+  };
 });
