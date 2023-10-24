@@ -38,7 +38,9 @@ export default function Navigator(props: NavigatorProps) {
     >
       <div className="container-fluid">
         <Link to="/datasets" className="nav-link">
-          <Typography variant="h6">Annotator</Typography>
+          <Typography sx={{ marginRight: '10px' }} variant="h6">
+            Annotator
+          </Typography>
         </Link>
         <button
           className="navbar-toggler"
@@ -93,7 +95,9 @@ export default function Navigator(props: NavigatorProps) {
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              user_1
+              <Typography display="inline" variant="button">
+                {user.userId}
+              </Typography>
             </a>
             <ul className="dropdown-menu">
               <li>
