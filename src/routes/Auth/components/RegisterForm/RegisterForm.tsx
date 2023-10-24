@@ -12,10 +12,10 @@ import { Typography } from '@mui/material';
 
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [userName, setUserName] = useState('admin');
-  const [userId, setUserId] = useState('admin');
-  const [password, setPassword] = useState('admin');
-  const [confirmPassword, setConfirmPassword] = useState('admin');
+  const [userName, setUserName] = useState('');
+  const [userId, setUserId] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleUserNameChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setUserName(event?.target?.value);
