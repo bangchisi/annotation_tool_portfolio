@@ -1,11 +1,8 @@
 #app {
     display: flex;
     flex-direction: column;
-    background-color: rgba(248, 249, 250, 1.0);
-    height: 100%;
 }
 
 #main {
     flex-grow: 1;
-    overflow: hidden;
 }

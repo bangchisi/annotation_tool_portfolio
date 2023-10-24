@@ -1,4 +1,4 @@
-import { Button, styled } from '@mui/material';
+import { Button, TextField, styled } from '@mui/material';
 
 // interface CategoryTagProps {
 //   categorycolor: string;
@@ -19,7 +19,6 @@ export const ModalBody = styled('div')(() => {
   return {
     backgroundColor: 'rgba(215, 215, 215, 1)',
     width: '400px',
-    height: 'auto',
     borderRadius: 3,
     position: 'absolute',
     top: '50%',
@@ -42,8 +41,9 @@ export const ModalContent = styled('div')(() => {
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: 'rgba(255, 255, 255, 1)',
-    padding: 5,
+    padding: 15,
     borderRadius: 3,
+    justifyContent: 'space-between',
   };
 });
 
@@ -51,6 +51,12 @@ export const ModalFooter = styled('div')(() => {
   return {
     display: 'flex',
     justifyContent: 'flex-end',
+  };
+});
+
+export const InputField = styled(TextField)(() => {
+  return {
+    marginBottom: 15,
   };
 });
 

@@ -5,17 +5,19 @@ import {
   ImageContainer,
   StatusContainer,
   CategoriesContainer,
-  ProgressContainer,
   MenuButtonContainer,
+  ProgressContainer,
 } from './DatasetCard.style';
-import { getThumbnail } from 'helpers/ImagesHelpers';
-import { Button, Typography } from '@mui/material';
+import { getThumbnailPath } from 'helpers/ImagesHelpers';
+import { LinearProgress, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
 import { Link } from 'react-router-dom';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import DatasetsModel from '../../models/Datasets.model';
 import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import CategoryTag from 'components/CategoryTag/CategoryTag';
+import { getDifferenceDate } from 'helpers/DateHelpers';
+import DatasetMenu from './DatasetMenu/DatasetMenu';
 
 interface DatasetCardProps {
   datasetId: number; // Dataset 고유 ID
@@ -41,7 +43,7 @@ export default function DatasetCard(props: DatasetCardProps) {
   const {
     datasetId,
     datasetName,
-    created,
+    // created,
     lastUpdate,
     categories,
     progress,
@@ -59,12 +61,11 @@ export default function DatasetCard(props: DatasetCardProps) {
   };
 
   useEffect(() => {
-    // setThumbnail(datasetId, 200);
-    getThumbnail(datasetId, 200).then((response) => {
+    getThumbnailPath(datasetId, 100).then((response) => {
       if (!response) return;
       setImgPath(response);
     });
-  }, [datasetId]);
+  }, []);
 
   return (
     <Container>
@@ -74,12 +75,22 @@ export default function DatasetCard(props: DatasetCardProps) {
         </Link>
       </ImageContainer>
       <TitleContainer>
-        <Link to={'/dataset/' + datasetId}>
+        <Link
+          to={'/dataset/' + datasetId}
+          style={{ textDecoration: 'none', color: 'black' }}
+        >
           <Typography variant="h5">{datasetName}</Typography>
         </Link>
-        <div>created by {user.userName}</div>
-        <div>{created}</div>
-        <div>update: {lastUpdate}</div>
+        <div>
+          created by{' '}
+          <Typography variant="subtitle2" display="inline">
+            {user.userName}
+          </Typography>
+        </div>
+        {/* <Typography variant="subtitle1">{getFormattedDate(created)}</Typography> */}
+        <Typography variant="subtitle2" display="inline" color="gray">
+          update : {getDifferenceDate(lastUpdate)}
+        </Typography>
       </TitleContainer>
       <StatusContainer>
         <CategoriesContainer>
@@ -95,20 +106,19 @@ export default function DatasetCard(props: DatasetCardProps) {
             );
           })}
         </CategoriesContainer>
-        <ProgressContainer>{progress}</ProgressContainer>
+        <ProgressContainer>
+          <LinearProgress variant="determinate" value={progress} />
+          <Typography variant="subtitle2" display="inline">
+            {progress}%
+          </Typography>
+        </ProgressContainer>
       </StatusContainer>
       <MenuButtonContainer>
-        <Button variant="text" size="small">
-          ...
-        </Button>
-        <Button
-          variant="text"
-          color="warning"
-          size="small"
-          onClick={() => deleteDataset(user.userId, datasetId)}
-        >
-          Delete
-        </Button>
+        <DatasetMenu
+          userId={user.userId}
+          datasetId={datasetId}
+          deleteDataset={deleteDataset}
+        />
       </MenuButtonContainer>
     </Container>
   );

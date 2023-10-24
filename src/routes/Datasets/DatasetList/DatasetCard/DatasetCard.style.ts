@@ -6,7 +6,7 @@ export const Container = styled('div')(() => {
     height: 'auto',
     display: 'flex',
     border: '1px solid rgba(0, 0, 0, 0.7)',
-    padding: '15px 20px',
+    padding: '20px 0px',
     marginBottom: '20px',
   };
 });
@@ -16,12 +16,18 @@ export const ImageContainer = styled('div')(() => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    // width: '100px',
+    // height: '100px',
+    overflow: 'hidden',
+    flex: 1,
   };
 });
 
 export const TitleContainer = styled('div')(() => {
   return {
     padding: '0 25px',
+    // width: '200px',
+    flex: 1,
   };
 });
 
@@ -30,7 +36,8 @@ export const StatusContainer = styled('div')(() => {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    padding: '15px 0',
+    padding: '15px 30px',
+    flex: 5,
   };
 });
 
@@ -48,5 +55,6 @@ export const MenuButtonContainer = styled('div')(() => {
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 'auto',
+    flex: 1,
   };
 });

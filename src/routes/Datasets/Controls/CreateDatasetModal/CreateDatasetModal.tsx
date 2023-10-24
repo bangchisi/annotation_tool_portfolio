@@ -6,6 +6,7 @@ import {
   ModalHeader,
   ModalContent,
   ModalFooter,
+  InputField,
 } from './CreateDatasetModal.style';
 import { Button, Modal, TextField, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
@@ -32,12 +33,17 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
   const [description, setDescription] = useState<string>('');
   const [categories, setCategories] = useState<string[][]>([]);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    resetForm();
+    setOpen(false);
+  };
 
   const addCategory = (categoryName: string): void => {
+    if (!categoryName) return;
     const color = getRandomHexColor();
     const newCategory = [categoryName, color];
     setCategories((prevCategories) => [...prevCategories, newCategory]);
+    setAddCategoryName('');
   };
 
   const createDataset = async (
@@ -64,6 +70,13 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
     }
   };
 
+  const resetForm = () => {
+    setDatasetName('');
+    setAddCategoryName('');
+    setDescription('');
+    setCategories([]);
+  };
+
   return (
     <Container>
       <CreateButton onClick={handleOpen}>Create Dataset</CreateButton>
@@ -78,31 +91,34 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
             <Typography variant="h5">Create Dataset</Typography>
           </ModalHeader>
           <ModalContent>
-            <TextField
+            <InputField
               label="Dataset Name"
               variant="outlined"
+              size="small"
               onChange={(e) => {
                 setDatasetName(e.target.value);
               }}
               required
             />
-            <TextField
+            <InputField
               label="description"
               variant="outlined"
               onChange={(e) => {
                 setDescription(e.target.value);
               }}
+              size="small"
               multiline
             />
             <div>
-              <TextField
+              <InputField
                 label="add category"
                 variant="outlined"
                 value={addCategoryName}
+                size="small"
                 onChange={(e) => {
                   setAddCategoryName(e.target.value);
                 }}
-              ></TextField>
+              ></InputField>
               <Button
                 onClick={() => addCategory(addCategoryName)}
                 color="primary"
@@ -124,21 +140,9 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
               })}
             </div>
             <ModalFooter>
-              <button
-                color="info"
-                onClick={async () => {
-                  // datasets 확인용
-                  const datasets = await axios.get(
-                    `http://143.248.249.11:60133/dataset/${user.userId}/datasets`,
-                  );
-
-                  console.log('dataset list');
-                  console.dir(datasets.data.data);
-                }}
-              >
-                check Dataset list
-              </button>
-              <Button color="warning">Cancel</Button>
+              <Button color="warning" onClick={handleClose}>
+                Cancel
+              </Button>
               <Button
                 onClick={async () => {
                   console.dir(user.userId);
@@ -146,6 +150,10 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
                   console.log('categories: ');
                   console.dir(categories);
                   console.log('description: ', description);
+                  if (!datasetName) {
+                    alert('Dataset 이름은 필수입니다.');
+                    return;
+                  }
                   createDataset(
                     user.userId,
                     datasetName,
