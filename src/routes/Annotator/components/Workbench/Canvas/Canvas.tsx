@@ -5,6 +5,9 @@ import { Editor } from './Canvas.style';
 import { useTools } from './hooks/useTools';
 import { useAppSelector } from 'App.hooks';
 import { paths } from 'routes/Annotator/Annotator';
+import { stat } from 'fs';
+import { getImagePath } from 'helpers/ImagesHelpers';
+import { useParams } from 'react-router-dom';
 
 interface CanvasProps {
   // selectedTool: Tool;
@@ -19,6 +22,8 @@ export default function Canvas({
   containerHeight,
 }: CanvasProps) {
   // console.log('rendering Canvas.tsx');
+  const datasetId = useAppSelector((state) => state.annotator.datasetId);
+  const imageId = Number(useParams().imageId);
   const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
   const currentAnnotation = useAppSelector(
     (state) => state.annotator.currentAnnotation,
@@ -26,7 +31,11 @@ export default function Canvas({
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
   );
+  const image = useAppSelector((state) => state.annotator.image);
+
+  console.dir(image);
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
+  // const { width: imageWidth, height: imageHeight } = image;
   let imgWidth: number | null = null;
   let imgHeight: number | null = null;
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -49,29 +58,22 @@ export default function Canvas({
 
       const raster = new paper.Raster();
 
-      fetchImage({ datasetId: -1, imageId: -1 }).then((response) => {
-        if (response) {
-          const tempCtx = document.createElement('canvas').getContext('2d');
-          const img = new Image();
-          img.src = response.src;
-          img.onload = () => {
-            raster.source = response.src;
-            raster.position = paper.view.center;
-            // console.log('raster resolution', raster.resolution);
-            // console.log('raster image', raster.image);
-            imgWidth = raster.image.width;
-            imgHeight = raster.image.height;
-            // console.log(imgWidth, imgHeight);
-            // raster.sendToBack();
+      const tempCtx = document.createElement('canvas').getContext('2d');
+      const img = new Image();
+      const imgPath = getImagePath(imageId, image?.width);
+      img.src = imgPath;
+      img.onload = () => {
+        raster.source = imgPath;
+        raster.position = paper.view.center;
+        imgWidth = raster.image.width;
+        imgHeight = raster.image.height;
 
-            if (tempCtx) {
-              tempCtx.canvas.width = img.width;
-              tempCtx.canvas.height = img.height;
-              tempCtx.drawImage(raster.image, 0, 0);
-            }
-          };
+        if (tempCtx) {
+          tempCtx.canvas.width = img.width;
+          tempCtx.canvas.height = img.height;
+          tempCtx.drawImage(raster.image, 0, 0);
         }
-      });
+      };
 
       // 줌, 스크롤은 항상 적용
       canvas.onwheel = onCanvasWheel;
@@ -83,10 +85,10 @@ export default function Canvas({
   }, []);
 
   // 기존 그림 불러오기
-  useEffect(() => {
-    paths.initPathsToCanvas();
-    // console.dir(paper.project.activeLayer.children);
-  }, []);
+  // useEffect(() => {
+  //   paths.initPathsToCanvas();
+  //   // console.dir(paper.project.activeLayer.children);
+  // }, []);
 
   const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({
     initPoint,
@@ -124,46 +126,3 @@ export default function Canvas({
     <Editor ref={canvasRef} id="canvas" selectedTool={selectedTool}></Editor>
   );
 }
-
-// function canvasTestFunction(): void {
-//   const p1 = new paper.Path.Circle({
-//     center: [330, 330],
-//     radius: 20,
-//   });
-//   const p2 = new paper.Path.Circle({
-//     center: [350, 350],
-//     radius: 20,
-//   });
-//   const p3 = new paper.Path.Circle({
-//     center: [370, 370],
-//     radius: 20,
-//   });
-
-//   const p4 = new paper.Path({
-//     segments: [
-//       [350, 300],
-//       [350, 500],
-//       [550, 500],
-//       [550, 300],
-//     ],
-//     closed: true,
-//   });
-
-//   const arr1 = [p1, p2, p3, p4];
-//   const unitedPath = arr1.reduce((result: paper.PathItem | null, path) => {
-//     if (!result) return path.clone();
-
-//     result = result.unite(path);
-//     return result;
-//   }, null);
-
-//   const c1 = new paper.CompoundPath({
-//     children: [unitedPath],
-//     strokeWidth: 2,
-//     strokeColor: new paper.Color('red'),
-//   });
-
-//   c1.selected = true;
-
-//   console.dir(paper.project.activeLayer.children);
-// }
