@@ -1,4 +1,8 @@
-import { AnnotationType, CategoryType } from '../Annotator.types';
+import {
+  AnnotationType,
+  CategoryType,
+  CurrentCategoryType,
+} from '../Annotator.types';
 
 export function setCategory(
   id: number,
@@ -28,4 +32,22 @@ export function setAnnotation(
 
   // for serializing
   return JSON.parse(JSON.stringify(annotation));
+}
+
+export function annotationsToIds(annotations: AnnotationType[]): number[] {
+  if (annotations.length <= 0) return [];
+  const ids = annotations.map((annotation) => annotation.annotationId);
+
+  return ids;
+}
+
+export function toCurrentCategory(category: CategoryType): CurrentCategoryType {
+  const currentCategory = {
+    id: category.categoryId,
+    name: category.name,
+    color: category.color,
+    annotations: annotationsToIds(category.annotations),
+  };
+
+  return currentCategory;
 }
