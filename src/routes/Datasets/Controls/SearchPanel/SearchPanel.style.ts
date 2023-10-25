@@ -4,11 +4,12 @@ export const FormContainer = styled('form')(() => {
   return {
     display: 'flex',
     padding: '0 10px',
+    alignItems: 'center',
   };
 });
 
 export const SearchButton = styled(Button)(() => {
   return {
-    marginLeft: '5px',
+    marginLeft: '10px',
   };
 });
