@@ -2,13 +2,15 @@ import { styled } from '@mui/material';
 
 export const Container = styled('div')(() => {
   return {
-    width: '100%',
+    width: '90%',
     height: 'auto',
     display: 'flex',
-    border: '1px solid rgba(0, 0, 0, 0.7)',
-    padding: '20px 10px',
-    marginBottom: '20px',
+    border: '2px solid rgba(0, 0, 0, 0.3)',
+    padding: '10px 10px',
+    margin: '0 auto',
+    marginBottom: '15px',
     backgroundColor: 'rgba(255, 255, 255, 1)',
+    borderRadius: 3,
   };
 });
 
