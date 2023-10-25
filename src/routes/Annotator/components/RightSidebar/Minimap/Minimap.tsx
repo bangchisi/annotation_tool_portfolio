@@ -1,4 +1,7 @@
+import { useAppSelector } from 'App.hooks';
 import { Container } from './Minimap.style';
+import Canvas from '../../Workbench/Canvas/Canvas';
+import { getImagePath } from 'helpers/ImagesHelpers';
 
 /** 기능
  * 캔버스에서 실제로 보고 있는 부분을 빨간 네모로 표시
@@ -31,13 +34,17 @@ interface MinimapProps {
 }
 
 export default function Minimap(props: MinimapProps) {
+  const image = useAppSelector((state) => state.annotator.image);
+
   return (
     <Container>
-      <img
-        src={props.image?.src || '/test.png'}
-        width={props.image?.width || '200'}
-        height={props.image?.height || '200'}
-      />
+      {image && (
+        <img
+          src={getImagePath(image.imageId)}
+          width={image.width}
+          height={image?.height}
+        />
+      )}
     </Container>
   );
 }

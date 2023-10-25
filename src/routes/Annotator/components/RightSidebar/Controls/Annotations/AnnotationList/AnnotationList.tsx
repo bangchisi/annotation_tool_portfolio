@@ -1,5 +1,5 @@
 import paper from 'paper';
-import { Container } from './AnnotationList.style';
+import { AddButton, Container } from './AnnotationList.style';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import FunctionIcon from 'routes/Annotator/components/LeftSidebar/FunctionIcon';
@@ -12,6 +12,7 @@ import {
   setCurrentAnnotation,
   setCurrentCategory,
 } from 'routes/Annotator/slices/annotatorSlice';
+import { Fragment } from 'react';
 
 export default function AnnotationList() {
   const categories = useAppSelector((state) => state.annotator.categories);
@@ -21,105 +22,121 @@ export default function AnnotationList() {
   const dispatch = useAppDispatch();
 
   // 새 empty annotation 생성
-  function createNewAnnotation() {
-    // currentCategory 없으면 return
-    if (!currentCategory) return;
+  // function createNewAnnotation() {
+  //   // currentCategory 없으면 return
+  //   if (!currentCategory) return;
 
-    let lastId = -1;
-    // TODO: 해당하는 categories.category에 annotationId를 append
-    console.log('create annotation');
-    // paths에 새 path를 push하고 categories를 업데이트 하는 함수 작성
-    // paths에서 currentCategory.id인 path 찾음
-    const currentPaths = paths.getCategoryPath(currentCategory.id);
-    lastId = currentPaths.getLastAnnotationId();
+  //   let lastId = -1;
+  //   // TODO: 해당하는 categories.category에 annotationId를 append
+  //   console.log('create annotation');
+  //   // paths에 새 path를 push하고 categories를 업데이트 하는 함수 작성
+  //   // paths에서 currentCategory.id인 path 찾음
+  //   const currentPaths = paths.getCategoryPath(currentCategory.id);
+  //   lastId = currentPaths.getLastAnnotationId();
 
-    // new path 생성
-    const newPath: PathType = {
-      segmentations: [],
-      categoryId: currentCategory.id,
-      annotationId: lastId + 1,
-    };
+  //   // new path 생성
+  //   const newPath: PathType = {
+  //     segmentations: [],
+  //     categoryId: currentCategory.id,
+  //     annotationId: lastId + 1,
+  //   };
 
-    // new path를 paths에 push
-    paths.appendPath(newPath);
+  //   // new path를 paths에 push
+  //   paths.appendPath(newPath);
 
-    // categories 업데이트
-    const newCategories: CategoryType[] = JSON.parse(
-      JSON.stringify(categories),
-    );
-    // categories에서 currentCategory에 해당하는 category 찾음
-    const categoryToUpdate = newCategories.find(
-      (category) => category.id === currentCategory.id,
-    );
+  //   // categories 업데이트
+  //   const newCategories: CategoryType[] = JSON.parse(
+  //     JSON.stringify(categories),
+  //   );
+  //   // categories에서 currentCategory에 해당하는 category 찾음
+  //   const categoryToUpdate = newCategories.find(
+  //     (category) => category.id === currentCategory.id,
+  //   );
 
-    // 해당하는 category 없으면 return
-    if (!categoryToUpdate) return;
+  //   // 해당하는 category 없으면 return
+  //   if (!categoryToUpdate) return;
 
-    // 해당 category.annotations에 annotationId를 push
-    if (categoryToUpdate) {
-      categoryToUpdate.annotations.push(newPath.annotationId);
-    }
+  //   // 해당 category.annotations에 annotationId를 push
+  //   if (categoryToUpdate) {
+  //     categoryToUpdate.annotations.push(newPath.annotationId);
+  //   }
 
-    // cateogories 업데이트
-    dispatch(setCategories(newCategories));
-    // currentCategory 업데이트
-    dispatch(setCurrentCategory(categoryToUpdate));
-    // currentAnnotation 업데이트, 새로 생성한 annotation으로
-    dispatch(
-      setCurrentAnnotation({
-        categoryId: newPath.categoryId,
-        id: newPath.annotationId,
-      }),
-    );
-  }
+  //   // cateogories 업데이트
+  //   dispatch(setCategories(newCategories));
+  //   // currentCategory 업데이트
+  //   dispatch(setCurrentCategory(categoryToUpdate));
+  //   // currentAnnotation 업데이트, 새로 생성한 annotation으로
+  //   dispatch(
+  //     setCurrentAnnotation({
+  //       categoryId: newPath.categoryId,
+  //       id: newPath.annotationId,
+  //     }),
+  //   );
+  // }
 
   // annotation 선택
-  function selectAnnotation(categoryId: number, annotationId: number) {
-    {
-      // TODO: make paths.tempPath to selectedAnnotation path
-      const selectedPath = paper.project.activeLayer.children.find(
-        (path) =>
-          path.data.categoryId === categoryId &&
-          path.data.annotationId === annotationId,
-      ) as paper.CompoundPath;
+  // function selectAnnotation(categoryId: number, annotationId: number) {
+  //   {
+  //     // TODO: make paths.tempPath to selectedAnnotation path
+  //     const selectedPath = paper.project.activeLayer.children.find(
+  //       (path) =>
+  //         path.data.categoryId === categoryId &&
+  //         path.data.annotationId === annotationId,
+  //     ) as paper.CompoundPath;
 
-      paths.tempPath = selectedPath;
-      console.dir(selectedPath);
-    }
+  //     paths.tempPath = selectedPath;
+  //     console.dir(selectedPath);
+  //   }
 
-    console.log(`select annotation. (${categoryId}, ${annotationId})`);
-    if (!categories) return;
+  //   console.log(`select annotation. (${categoryId}, ${annotationId})`);
+  //   if (!categories) return;
 
-    const selectedCategory = categories.find(
-      (category) => category.id === categoryId,
-    );
-    if (!selectedCategory) return;
-    dispatch(setCurrentCategory(selectedCategory));
+  //   const selectedCategory = categories.find(
+  //     (category) => category.id === categoryId,
+  //   );
+  //   if (!selectedCategory) return;
+  //   dispatch(setCurrentCategory(selectedCategory));
 
-    const selectedAnnotation: AnnotationType = {
-      categoryId: selectedCategory.id,
-      id: annotationId,
-    };
-    dispatch(setCurrentAnnotation(selectedAnnotation));
-  }
+  //   const selectedAnnotation: AnnotationType = {
+  //     categoryId: selectedCategory.id,
+  //     id: annotationId,
+  //   };
+  //   dispatch(setCurrentAnnotation(selectedAnnotation));
+  // }
 
   return (
     <Container>
-      <FunctionIcon
+      <AddButton
         functionName="Add annotation"
         iconComponent={<AddCircleOutlineOutlinedIcon />}
-        handleClick={createNewAnnotation}
+        handleClick={() => console.log('create new annotation')}
         placement="left"
         isFunction={true}
       />
-      {currentCategory?.annotations.map((annotation) => (
+      {currentCategory && (
+        <Fragment>
+          <Annotation
+            categoryId={121}
+            categoryColor={currentCategory.color}
+            annotationId={0}
+            onClick={() => console.log('annotation selected')}
+          />
+          <Annotation
+            categoryId={121}
+            categoryColor={currentCategory.color}
+            annotationId={1}
+            onClick={() => console.log('annotation selected')}
+          />
+        </Fragment>
+      )}
+      {/* {currentCategory?.annotations.map((annotation) => (
         <Annotation
           key={`${currentCategory.id}+${annotation}`}
           categoryId={currentCategory.id}
           annotationId={annotation}
-          onClick={selectAnnotation}
+          onClick={() => console.log('annotation selected.')}
         />
-      ))}
+      ))} */}
     </Container>
   );
 }

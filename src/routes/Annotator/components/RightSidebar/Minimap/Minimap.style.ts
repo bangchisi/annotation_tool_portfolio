@@ -7,5 +7,6 @@ export const Container = styled('div')(() => {
     alignItems: 'center',
     minHeight: '25%',
     maxHeight: '25%',
+    overflow: 'hidden',
   };
 });
