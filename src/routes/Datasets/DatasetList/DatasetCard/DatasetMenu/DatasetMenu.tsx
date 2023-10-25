@@ -1,4 +1,4 @@
-import { Button, Menu, MenuItem } from '@mui/material';
+import { Button, Menu, MenuItem, Typography } from '@mui/material';
 import { Container } from './DatasetMenu.style';
 import { useState } from 'react';
 
@@ -24,7 +24,7 @@ export default function DatasetMenu(props: DatasetMenuProps) {
   return (
     <Container>
       <Button variant="text" size="small" onClick={onClick}>
-        ...
+        <Typography variant="h6">...</Typography>
       </Button>
       <Menu anchorEl={anchorEl} open={open} onClose={onClose}>
         <MenuItem onClick={onClose}>
