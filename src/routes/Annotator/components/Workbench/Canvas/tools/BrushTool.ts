@@ -1,11 +1,11 @@
 import paper from 'paper';
 
-import { AnnotationType } from 'routes/Annotator/Annotator.types';
+import {
+  CurrentAnnotationType,
+  CurrentCategoryType,
+} from 'routes/Annotator/Annotator.types';
 import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
 import { paths } from 'routes/Annotator/Annotator';
-// radius will change when preferences panel is implemented.
-// let tempPath: paper.CompoundPath | null = null;
-// let tempPath = paths.tempPath;
 let brushCursor: paper.Path.Circle | null = null;
 const radius = 20;
 const fillColor = new paper.Color(1, 1, 1, 0.2);
@@ -47,15 +47,18 @@ export const onBrushMouseDown = (event: paper.MouseEvent) => {
 };
 
 // 마우스 버튼 뗌
-export const onBrushMouseUp = (currentAnnotation?: AnnotationType) => {
+export const onBrushMouseUp = (
+  currentCategory?: CurrentCategoryType,
+  currentAnnotation?: CurrentAnnotationType,
+) => {
   console.group('%cbrush up', 'color: red');
   // tempPath가 있으면 path에 mouse event 할당
   if (!paths.tempPath) return;
 
-  if (!currentAnnotation) return;
+  if (!currentCategory || !currentAnnotation) return;
   setAnnotationDataToCompoundPath(
     paths.tempPath,
-    currentAnnotation.categoryId,
+    currentCategory.id,
     currentAnnotation.id,
   );
 
@@ -65,13 +68,6 @@ export const onBrushMouseUp = (currentAnnotation?: AnnotationType) => {
     brushCursor = null;
   }
 
-  // const s1: paper.Path = tempPath.children[0].clone() as paper.Path;
-  // const tempSegmentation = tempPathToSegmentation(s1.segments);
-
-  // tempPath.data.annotationId = currentAnnotation?.id;
-  // tempPath.data.categoryId = currentAnnotation?.categoryId;
-  // tempPath = null;
-  // tempPath?.remove();
   console.log(paper.project.activeLayer.children);
   console.groupEnd();
 };

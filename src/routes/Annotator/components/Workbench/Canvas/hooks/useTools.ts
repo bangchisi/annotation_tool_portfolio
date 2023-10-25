@@ -8,7 +8,10 @@ import {
   onBrushMouseUp,
 } from '../tools/BrushTool';
 import { onBoxMouseDown, onBoxMouseUp, onBoxMouseMove } from '../tools/BoxTool';
-import { AnnotationType, CategoryType } from 'routes/Annotator/Annotator.types';
+import {
+  CurrentCategoryType,
+  CurrentAnnotationType,
+} from 'routes/Annotator/Annotator.types';
 // import { useAppDispatch } from 'App.hooks';
 import { onEraserMouseDrag, onEraserMouseMove } from '../tools/EraserTool';
 
@@ -16,8 +19,8 @@ interface UseToolsProps {
   initPoint: paper.Point | null;
   selectedTool: Tool;
   onChangePoint: (point: paper.Point) => void;
-  currentAnnotation?: AnnotationType;
-  currentCategory?: CategoryType;
+  currentAnnotation?: CurrentAnnotationType;
+  currentCategory?: CurrentCategoryType;
   // containerWidth: number | null;
   // containerHeight: number | null;
 }
@@ -28,7 +31,7 @@ export const useTools = (props: UseToolsProps) => {
     onChangePoint,
     initPoint,
     currentAnnotation,
-    // currentCategory,
+    currentCategory,
     // containerWidth,
     // containerHeight,
   } = props;
@@ -65,9 +68,9 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       // ...
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseUp(currentAnnotation);
+      onBrushMouseUp(currentCategory, currentAnnotation);
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseUp(event, currentAnnotation);
+      onBoxMouseUp(event, currentCategory, currentAnnotation);
     }
   };
 
@@ -79,7 +82,7 @@ export const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Brush) {
       onBrushMouseDrag(event);
     } else if (selectedTool === Tool.Eraser) {
-      onEraserMouseDrag(event, currentAnnotation);
+      onEraserMouseDrag(event, currentCategory, currentAnnotation);
     }
   };
 

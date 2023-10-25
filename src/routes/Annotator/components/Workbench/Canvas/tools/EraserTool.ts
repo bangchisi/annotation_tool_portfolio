@@ -1,6 +1,9 @@
 import paper from 'paper';
 
-import { AnnotationType } from 'routes/Annotator/Annotator.types';
+import {
+  CurrentAnnotationType,
+  CurrentCategoryType,
+} from 'routes/Annotator/Annotator.types';
 import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
 import { paths } from 'routes/Annotator/Annotator';
 // radius will change when preferences panel is implemented.
@@ -22,7 +25,8 @@ export const onEraserMouseMove = (event: paper.MouseEvent) => {
 
 export const onEraserMouseDrag = (
   event: paper.MouseEvent,
-  currentAnnotation?: AnnotationType,
+  currentCategory?: CurrentCategoryType,
+  currentAnnotation?: CurrentAnnotationType,
 ) => {
   // brush cursor 이미 있으면 제거
   if (brushCursor !== null) {
@@ -33,7 +37,7 @@ export const onEraserMouseDrag = (
   // brush cursor 생성
   brushCursor = createBrush(event.point, radius);
 
-  if (!currentAnnotation) return;
+  if (!currentCategory || !currentAnnotation) return;
 
   // tempPath가 있을때만
   if (paths.tempPath) {
@@ -50,7 +54,7 @@ export const onEraserMouseDrag = (
     paths.tempPath = deletedPath;
     setAnnotationDataToCompoundPath(
       paths.tempPath,
-      currentAnnotation.categoryId,
+      currentCategory.id,
       currentAnnotation.id,
     );
   }

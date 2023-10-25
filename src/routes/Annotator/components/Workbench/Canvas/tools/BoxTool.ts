@@ -1,15 +1,11 @@
 import paper from 'paper';
-import { AnnotationType } from 'routes/Annotator/Annotator.types';
-// import {
-//   addAnnotation,
-//   setCurrentAnnotation,
-//   updateCurrentAnnotationPath,
-// } from 'routes/Annotator/slices/annotatorSlice';
-// import { AppDispatch } from 'store';
+import {
+  CurrentAnnotationType,
+  CurrentCategoryType,
+} from 'routes/Annotator/Annotator.types';
 import { paths } from 'routes/Annotator/Annotator';
 import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
 
-// let tempPath: paper.CompoundPath | null;
 let tempBox: paper.CompoundPath | null;
 let currentBox: paper.Path.Rectangle | null;
 let startPoint: paper.Point | null;
@@ -52,7 +48,8 @@ export const onBoxMouseDown = (event: paper.MouseEvent) => {
 
 export const onBoxMouseUp = (
   event: paper.MouseEvent,
-  currentAnnotation?: AnnotationType,
+  currentCategory?: CurrentCategoryType,
+  currentAnnotation?: CurrentAnnotationType,
 ) => {
   if (startPoint && endPoint) {
     tempBox = new paper.CompoundPath(
@@ -78,10 +75,10 @@ export const onBoxMouseUp = (
       tempBox.remove();
     }
 
-    if (!currentAnnotation) return;
+    if (!currentCategory || !currentAnnotation) return;
     setAnnotationDataToCompoundPath(
       paths.tempPath,
-      currentAnnotation.categoryId,
+      currentCategory.id,
       currentAnnotation.id,
     );
     startPoint = null;
