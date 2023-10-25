@@ -1,10 +1,10 @@
 import paper from 'paper';
-export type SegmentationsType = number[][];
+export type SegmentationType = number[][];
 
 export interface PathType {
   categoryId: number;
   annotationId: number;
-  segmentations: SegmentationsType;
+  segmentations: SegmentationType;
 }
 
 export default class PathStore {
