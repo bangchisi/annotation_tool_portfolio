@@ -8,11 +8,11 @@ import {
   ModalFooter,
   InputField,
 } from './CreateDatasetModal.style';
-import { Button, Modal, TextField, Typography } from '@mui/material';
+import { Button, Modal, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
 import DatasetsModel from '../../models/Datasets.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import axios from 'axios';
+
 import {
   getRandomHexColor,
   getTextColor,
@@ -95,6 +95,7 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
               label="Dataset Name"
               variant="outlined"
               size="small"
+              value={datasetName}
               onChange={(e) => {
                 setDatasetName(e.target.value);
               }}
@@ -103,11 +104,18 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
             <InputField
               label="description"
               variant="outlined"
+              value={description}
               onChange={(e) => {
                 setDescription(e.target.value);
               }}
               size="small"
               multiline
+            />
+            <InputField
+              variant="outlined"
+              value={`/datasets/${datasetName}`}
+              disabled
+              size="small"
             />
             <div>
               <InputField
