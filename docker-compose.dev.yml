@@ -5,10 +5,8 @@ networks:
 
 services:
   frontend:
-    image: annotator-frontend-client
+    image: annotator-frontend-client:dev
     ports:
       - "60143:60143"
-    volumes:
-      - "./:/workspace"
     networks:
       - annotatorweb
