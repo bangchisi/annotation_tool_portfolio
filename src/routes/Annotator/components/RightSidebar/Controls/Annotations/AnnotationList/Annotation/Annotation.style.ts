@@ -3,17 +3,17 @@ import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers'
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 
 interface AnnotationProps {
-  categoryColor: string;
+  categorycolor: string;
 }
 
-export const Container = styled(Box)<AnnotationProps>(({ categoryColor }) => {
-  const textColor = getTextColor(categoryColor);
+export const Container = styled(Box)<AnnotationProps>(({ categorycolor }) => {
+  const textColor = getTextColor(categorycolor);
 
   return {
     borderBottom: 1,
     display: 'flex',
     height: 45,
-    backgroundColor: categoryColor,
+    backgroundColor: categorycolor,
     font: textColor,
     color: textColor,
     justifyContent: 'flex-start',
@@ -36,8 +36,8 @@ export const SelectPanel = styled('select')(() => {
 });
 
 export const DeleteButton = styled(DeleteForeverOutlinedIcon)<AnnotationProps>(
-  ({ categoryColor }) => {
-    const textColor = getTextColor(categoryColor);
+  ({ categorycolor }) => {
+    const textColor = getTextColor(categorycolor);
 
     return {
       color: textColor,

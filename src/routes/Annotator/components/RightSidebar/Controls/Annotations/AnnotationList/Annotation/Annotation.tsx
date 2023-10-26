@@ -16,7 +16,7 @@ export function Annotation({
 }: AnnotationProps) {
   return (
     <Container
-      categoryColor={categoryColor}
+      categorycolor={categoryColor}
       onClick={() => onClick(categoryId, annotationId)}
     >
       {categoryId >= 0 && (
@@ -29,7 +29,7 @@ export function Annotation({
         <option>dog</option>
         <option>animal</option>
       </SelectPanel>
-      <DeleteButton categoryColor={categoryColor} />
+      <DeleteButton categorycolor={categoryColor} />
     </Container>
   );
 }
