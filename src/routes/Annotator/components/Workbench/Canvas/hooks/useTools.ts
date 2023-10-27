@@ -56,7 +56,7 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       onSelectMouseDown(event);
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseDown(event);
+      onBrushMouseDown(event, currentCategory);
     } else if (selectedTool === Tool.Box) {
       onBoxMouseDown(event);
     }
@@ -80,7 +80,7 @@ export const useTools = (props: UseToolsProps) => {
       // 이미지 드래그해서 옮기기
       onSelectMouseDrag(event, initPoint);
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseDrag(event);
+      onBrushMouseDrag(event, currentCategory);
     } else if (selectedTool === Tool.Eraser) {
       onEraserMouseDrag(event, currentCategory, currentAnnotation);
     }

@@ -8,11 +8,11 @@ export interface PathType {
 }
 
 export default class PathStore {
-  paths: PathType[] = [];
+  paths: PathType[] | null;
   tempPath: paper.CompoundPath | null;
 
-  constructor(paths: PathType[]) {
-    this.paths = paths;
+  constructor() {
+    this.paths = null;
     this.tempPath = null;
   }
 
@@ -20,31 +20,40 @@ export default class PathStore {
     return this.paths;
   }
 
+  setPaths(paths: PathType[]) {
+    this.paths = paths;
+  }
+
   appendPath(path: PathType) {
+    if (!this.paths) return;
     this.paths.push(path);
   }
 
   removePath(categoryId: number, annotationId: number) {
+    if (!this.paths) return;
+
     this.paths = this.paths.filter(
       (path) =>
         path.categoryId !== categoryId && path.annotationId !== annotationId,
     );
   }
 
-  getCategoryPath(categoryId: number): PathStore {
-    const newPathStore = new PathStore(
-      this.paths.filter((path) => {
-        if (path.categoryId === categoryId) {
-          return true;
-        }
-        return false;
-      }),
-    );
+  getCategoryPath(categoryId: number) {
+    if (!this.paths) return;
 
-    return newPathStore;
+    const categoryPaths = this.paths.filter((path) => {
+      if (path.categoryId === categoryId) {
+        return true;
+      }
+      return false;
+    });
+
+    return categoryPaths;
   }
 
-  getLastAnnotationId(): number {
+  getLastAnnotationId() {
+    if (!this.paths) return;
+
     if (this.paths.length > 0) {
       const maxIdObject = this.paths.reduce((max, current) => {
         return current.annotationId > max.annotationId ? current : max;
@@ -55,7 +64,9 @@ export default class PathStore {
     return -1;
   }
 
-  getLastAnnotationIdInCategory(categoryId: number): number {
+  getLastAnnotationIdInCategory(categoryId: number) {
+    if (!this.paths) return;
+
     let lastId = -1;
     let prevPath: PathType;
     if (this.paths.length > 0) {
@@ -72,10 +83,9 @@ export default class PathStore {
     return lastId;
   }
 
-  getSelectedPath(
-    categoryId: number,
-    annotationId: number,
-  ): PathType | undefined {
+  getSelectedPath(categoryId: number, annotationId: number) {
+    if (!this.paths) return;
+
     const selectedPath = this.paths.find(
       (path) =>
         path.categoryId === categoryId && path.annotationId === annotationId,
@@ -85,6 +95,8 @@ export default class PathStore {
   }
 
   async initPathsToCanvas() {
+    if (!this.paths) return;
+
     this.paths.forEach((path) => {
       const polygons = this.segmentationsToPolygons(path.segmentations);
       const unitedPolygon = this.unitePolygons(polygons);

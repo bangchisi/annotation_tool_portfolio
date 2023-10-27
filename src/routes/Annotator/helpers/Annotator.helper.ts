@@ -51,3 +51,16 @@ export function toCurrentCategory(category: CategoryType): CurrentCategoryType {
 
   return currentCategory;
 }
+
+export function getLastAnnotationIdByCategoryId(
+  category: CategoryType,
+): number {
+  if (category.annotations.length > 0) {
+    const maxIdObject = category.annotations.reduce((max, current) => {
+      return current.annotationId > max.annotationId ? current : max;
+    });
+    return maxIdObject.annotationId;
+  }
+
+  return -1;
+}

@@ -25,7 +25,12 @@ export const onBrushMouseMove = (event: paper.MouseEvent) => {
   brushCursor = createBrush(event.point, radius);
 };
 
-export const onBrushMouseDown = (event: paper.MouseEvent) => {
+export const onBrushMouseDown = (
+  event: paper.MouseEvent,
+  currentCategory?: CurrentCategoryType,
+) => {
+  if (!currentCategory) return;
+
   console.group('%cbrush down', 'color: red');
   // tempPath 없을때만 tempPath를 현재 위치 원으로 생성
 
@@ -39,9 +44,10 @@ export const onBrushMouseDown = (event: paper.MouseEvent) => {
         strokeWidth,
       }),
     );
-    paths.tempPath.fillColor = fillColor;
-    paths.tempPath.strokeColor = strokeColor;
+    paths.tempPath.fillColor = new paper.Color(currentCategory.color);
+    paths.tempPath.strokeColor = new paper.Color(1, 1, 1, 1);
     paths.tempPath.strokeWidth = strokeWidth;
+    paths.tempPath.opacity = 0.5;
   }
   console.groupEnd();
 };
@@ -72,7 +78,12 @@ export const onBrushMouseUp = (
   console.groupEnd();
 };
 
-export const onBrushMouseDrag = (event: paper.MouseEvent) => {
+export const onBrushMouseDrag = (
+  event: paper.MouseEvent,
+  currentCategory?: CurrentCategoryType,
+) => {
+  if (!currentCategory) return;
+
   // brush cursor 이미 있으면 제거
   if (brushCursor !== null) {
     brushCursor.remove();
@@ -93,9 +104,10 @@ export const onBrushMouseDrag = (event: paper.MouseEvent) => {
 
     // 새로운 brush를 unite
     const newSelection = new paper.CompoundPath(paths.tempPath.unite(c1));
-    newSelection.fillColor = fillColor;
-    newSelection.strokeColor = strokeColor;
+    newSelection.fillColor = new paper.Color(currentCategory.color);
+    newSelection.strokeColor = new paper.Color(1, 1, 1, 1);
     newSelection.strokeWidth = strokeWidth;
+    newSelection.opacity = 0.5;
 
     c1.remove();
     paths.tempPath.remove();

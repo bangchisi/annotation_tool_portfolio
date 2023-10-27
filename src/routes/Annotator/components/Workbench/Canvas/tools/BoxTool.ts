@@ -51,6 +51,8 @@ export const onBoxMouseUp = (
   currentCategory?: CurrentCategoryType,
   currentAnnotation?: CurrentAnnotationType,
 ) => {
+  if (!currentCategory) return;
+
   if (startPoint && endPoint) {
     tempBox = new paper.CompoundPath(
       new paper.Path.Rectangle({
@@ -59,9 +61,9 @@ export const onBoxMouseUp = (
       }),
     );
 
-    tempBox.fillColor = fillColor;
-    tempBox.strokeColor = strokeColor;
-    tempBox.strokeWidth = strokeWidth;
+    // tempBox.fillColor = new paper.Color(currentCategory.color);
+    // tempBox.strokeColor = new paper.Color(1, 1, 1, 1);
+    // tempBox.strokeWidth = strokeWidth;
 
     console.dir(paths.tempPath);
     if (!paths.tempPath) {
@@ -72,6 +74,11 @@ export const onBoxMouseUp = (
       const newPath = paths.tempPath?.unite(tempBox) as paper.CompoundPath;
       paths.tempPath?.remove();
       paths.tempPath = newPath;
+
+      paths.tempPath.fillColor = new paper.Color(currentCategory.color);
+      paths.tempPath.strokeColor = new paper.Color(1, 1, 1, 1);
+      paths.tempPath.strokeWidth = strokeWidth;
+      paths.tempPath.opacity = 0.5;
       tempBox.remove();
     }
 
