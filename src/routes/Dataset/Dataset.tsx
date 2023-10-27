@@ -39,7 +39,7 @@ export default function Dataset() {
     try {
       setIsLoading(true);
       const response = await DatasetModel.getDatasetById(datasetId);
-      const dataset = response.data.data;
+      const dataset = response.data;
       console.log('Dataset.tsx, dataset: ');
       console.dir(dataset);
       setDataset(dataset);

@@ -34,7 +34,7 @@ export default function Datasets() {
     try {
       setIsLoading(true);
       const response = await DatasetsModel.getDatasetsByUserId(userId);
-      const datasetList = response.data.data;
+      const datasetList = response.data;
       setDatasets([...datasetList]);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get datasets');
