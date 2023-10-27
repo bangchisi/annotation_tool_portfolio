@@ -44,7 +44,7 @@ export default function Annotator() {
     try {
       setIsLoading(true);
       const response = await AnnotatorModel.getData(imageId);
-      const data = response.data.data;
+      const data = response.data;
       const { datasetId, image, categories } = data;
 
       if (!datasetId || !image) return;
