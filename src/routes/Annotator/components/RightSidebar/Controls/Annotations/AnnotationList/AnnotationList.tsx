@@ -9,6 +9,7 @@ import { PathType } from 'routes/Annotator/utils/PathStore';
 import {
   AnnotationType,
   CategoryType,
+  CurrentAnnotationType,
   CurrentCategoryType,
 } from 'routes/Annotator/Annotator.types';
 import {
@@ -16,6 +17,7 @@ import {
   setCurrentAnnotation,
   setCurrentCategory,
 } from 'routes/Annotator/slices/annotatorSlice';
+import { annotationsToIds } from 'routes/Annotator/helpers/Annotator.helper';
 
 export default function AnnotationList() {
   const categories = useAppSelector((state) => state.annotator.categories);
@@ -121,34 +123,42 @@ export default function AnnotationList() {
   }
 
   // annotation 선택
-  // function selectAnnotation(categoryId: number, annotationId: number) {
-  //   {
-  //     // TODO: make paths.tempPath to selectedAnnotation path
-  //     const selectedPath = paper.project.activeLayer.children.find(
-  //       (path) =>
-  //         path.data.categoryId === categoryId &&
-  //         path.data.annotationId === annotationId,
-  //     ) as paper.CompoundPath;
+  function selectAnnotation(categoryId: number, annotationId: number) {
+    {
+      // TODO: make paths.tempPath to selectedAnnotation path
+      const selectedPath = paper.project.activeLayer.children.find(
+        (path) =>
+          path.data.categoryId === categoryId &&
+          path.data.annotationId === annotationId,
+      ) as paper.CompoundPath;
 
-  //     paths.tempPath = selectedPath;
-  //     console.dir(selectedPath);
-  //   }
+      paths.tempPath = selectedPath;
+      console.dir(selectedPath);
+    }
 
-  //   console.log(`select annotation. (${categoryId}, ${annotationId})`);
-  //   if (!categories) return;
+    console.log(`select annotation. (${categoryId}, ${annotationId})`);
+    if (!categories) return;
 
-  //   const selectedCategory = categories.find(
-  //     (category) => category.id === categoryId,
-  //   );
-  //   if (!selectedCategory) return;
-  //   dispatch(setCurrentCategory(selectedCategory));
+    const selectedCategory = categories.find(
+      (category) => category.categoryId === categoryId,
+    );
 
-  //   const selectedAnnotation: AnnotationType = {
-  //     categoryId: selectedCategory.id,
-  //     id: annotationId,
-  //   };
-  //   dispatch(setCurrentAnnotation(selectedAnnotation));
-  // }
+    if (!selectedCategory) return;
+
+    const selectedCurrentCategory = {
+      id: selectedCategory.categoryId,
+      name: selectedCategory.name,
+      color: selectedCategory.color,
+      annotations: annotationsToIds(selectedCategory.annotations),
+    };
+    dispatch(setCurrentCategory(selectedCurrentCategory));
+
+    const selectedCurrentAnnotation: CurrentAnnotationType = {
+      categoryId: selectedCategory.categoryId,
+      id: annotationId,
+    };
+    dispatch(setCurrentAnnotation(selectedCurrentAnnotation));
+  }
 
   return (
     <Container>
@@ -165,7 +175,7 @@ export default function AnnotationList() {
           categoryId={currentCategory.id}
           categoryColor={currentCategory.color}
           annotationId={annotationId}
-          onClick={() => console.log('annotation selected')}
+          onClick={selectAnnotation}
         />
       ))}
     </Container>
