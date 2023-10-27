@@ -27,8 +27,8 @@ export enum Tool {
 }
 
 // path 정보들을 저장한 배열
-export let paths: PathStore;
-// fetchPaths();
+// export let paths: PathStore;
+export const paths = new PathStore();
 
 export default function Annotator() {
   const dispatch = useAppDispatch();
@@ -69,6 +69,7 @@ export default function Annotator() {
         };
       });
     });
+
     return paths;
   };
 
@@ -134,9 +135,3 @@ export default function Annotator() {
     </Container>
   );
 }
-
-// async function fetchPaths() {
-//   const pathArray = await AnnotatorModel.getPaths();
-//   paths = new PathStore(pathArray);
-//   console.dir(paths);
-// }
