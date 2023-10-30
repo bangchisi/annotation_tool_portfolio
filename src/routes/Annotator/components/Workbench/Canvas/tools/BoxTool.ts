@@ -97,5 +97,7 @@ export const onBoxMouseUp = (
       currentBox = null;
     }
     console.dir(paper.project.activeLayer.children);
+
+    return paths.tempPath;
   }
 };

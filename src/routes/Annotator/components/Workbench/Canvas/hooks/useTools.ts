@@ -1,5 +1,5 @@
 import paper from 'paper';
-import { Tool } from 'routes/Annotator/Annotator';
+import { Tool, paths } from 'routes/Annotator/Annotator';
 import { onSelectMouseDown, onSelectMouseDrag } from '../tools/SelectTool';
 import {
   onBrushMouseDown,
@@ -14,6 +14,7 @@ import {
 } from 'routes/Annotator/Annotator.types';
 // import { useAppDispatch } from 'App.hooks';
 import { onEraserMouseDrag, onEraserMouseMove } from '../tools/EraserTool';
+import PathStore from 'routes/Annotator/utils/PathStore';
 
 interface UseToolsProps {
   initPoint: paper.Point | null;
@@ -35,6 +36,8 @@ export const useTools = (props: UseToolsProps) => {
     // containerWidth,
     // containerHeight,
   } = props;
+
+  let pathToAdd;
 
   // const dispatch = useAppDispatch();
   // 마우스 커서 움직임
@@ -68,9 +71,38 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       // ...
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseUp(currentCategory, currentAnnotation);
+      pathToAdd = onBrushMouseUp(currentCategory, currentAnnotation);
+
+      console.log('pathToAdd: ');
+      console.dir(pathToAdd);
+      if (pathToAdd) {
+        const segmentations = PathStore.compoundPathToSegmentation(pathToAdd);
+        if (!currentCategory || !currentAnnotation || !segmentations) return;
+
+        // paths.appendPath를 그냥 push가 아니라 categoryId, annotationId 조회해서 있으면 업데이트, 없으면 추가 해야함
+        // 이걸 위해서는 key가 존재하면 덮어쓰고 없으면 새로 넣는 map 형식이 좋을듯?
+        paths.appendPath({
+          categoryId: currentCategory?.id,
+          annotationId: currentAnnotation?.id,
+          segmentations: segmentations,
+        });
+        console.dir(paths.paths);
+      }
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseUp(event, currentCategory, currentAnnotation);
+      pathToAdd = onBoxMouseUp(event, currentCategory, currentAnnotation);
+
+      console.log('pathToAdd: ');
+      console.dir(pathToAdd);
+      if (pathToAdd) {
+        const segmentations = PathStore.compoundPathToSegmentation(pathToAdd);
+        if (!currentCategory || !currentAnnotation || !segmentations) return;
+        paths.appendPath({
+          categoryId: currentCategory?.id,
+          annotationId: currentAnnotation?.id,
+          segmentations: segmentations,
+        });
+        console.dir(paths.paths);
+      }
     }
   };
 

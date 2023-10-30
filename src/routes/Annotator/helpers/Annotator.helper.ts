@@ -64,3 +64,42 @@ export function getLastAnnotationIdByCategoryId(
 
   return -1;
 }
+
+// set data in compoundPath
+function getCompoundPathWithData(
+  segmentation: number[][],
+  categoryId: number,
+  annotationId: number,
+) {
+  const compoundPath = segmentationToCompoundPath(segmentation);
+  compoundPath.data = { categoryId, annotationId };
+
+  return compoundPath;
+}
+
+// segmentation -> paper.CompoundPath
+function segmentationToCompoundPath(segmentation: number[][]) {
+  const compoundPath = new paper.CompoundPath({});
+
+  segmentation.map((points: number[]) => {
+    compoundPath.addChild(pointsToPath(points));
+  });
+
+  return compoundPath;
+}
+
+// points: number[] -> paper.Path
+function pointsToPath(points: number[]) {
+  // number[] -> [number, number][]
+  const path = points.map((point: number, idx) => {
+    if (idx % 2 === 0) {
+      return [point, points[idx + 1]];
+    }
+  });
+
+  // path를 segments로 하는 pape.Path를 만들어 return
+  return new paper.Path({
+    segments: path,
+    closed: true,
+  });
+}

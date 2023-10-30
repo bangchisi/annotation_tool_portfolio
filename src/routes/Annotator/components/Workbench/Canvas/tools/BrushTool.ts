@@ -74,7 +74,7 @@ export const onBrushMouseUp = (
     brushCursor = null;
   }
 
-  console.log(paper.project.activeLayer.children);
+  return paths.tempPath;
   console.groupEnd();
 };
 

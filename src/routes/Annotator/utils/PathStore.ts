@@ -12,7 +12,7 @@ export default class PathStore {
   tempPath: paper.CompoundPath | null;
 
   constructor() {
-    this.paths = null;
+    this.paths = [];
     this.tempPath = null;
   }
 
@@ -132,6 +132,25 @@ export default class PathStore {
     return segmentations.map((segmentation) =>
       this.segmentationToPath(segmentation),
     );
+  }
+
+  static compoundPathToSegmentation(compoundPath: paper.CompoundPath) {
+    if (compoundPath.children.length <= 0) return;
+    const segmentations: number[][] = [];
+    const segmentation: number[] = [];
+    compoundPath.children.map((e) => {
+      const path = e as paper.Path;
+
+      const segments = path.segments;
+
+      segments.map((segment) => {
+        segmentation.push(segment.point.x);
+        segmentation.push(segment.point.y);
+      });
+    });
+
+    segmentations.push(segmentation);
+    return segmentations;
   }
 
   // polygons를 unite하는 함수

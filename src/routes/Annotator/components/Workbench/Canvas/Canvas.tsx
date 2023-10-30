@@ -33,7 +33,6 @@ export default function Canvas({
   );
   const image = useAppSelector((state) => state.annotator.image);
 
-  console.dir(image);
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
   // const { width: imageWidth, height: imageHeight } = image;
   let imgWidth: number | null = null;
@@ -86,8 +85,7 @@ export default function Canvas({
 
   // 기존 그림 불러오기
   // useEffect(() => {
-  //   paths.initPathsToCanvas();
-  //   // console.dir(paper.project.activeLayer.children);
+  //   console.dir(paper.project.activeLayer.children);
   // }, []);
 
   const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({
