@@ -1,5 +1,6 @@
 import { Toolbar, Box, List, Divider } from '@mui/material';
 import ToolIcon from './ToolIcon';
+import paper from 'paper';
 
 import BackHandOutlinedIcon from '@mui/icons-material/BackHandOutlined';
 import RectangleOutlinedIcon from '@mui/icons-material/RectangleOutlined';
@@ -10,21 +11,58 @@ import SaveIcon from '@mui/icons-material/Save';
 import { Container } from './LeftSidebar.style';
 import { Tool } from 'routes/Annotator/Annotator';
 import FunctionIcon from './FunctionIcon';
-
-/** 기능
- * 툴을 선택해서 <Annotator />의 state인 selectedTool을 변경
- * selectedTool에 따라 paper.view에 적용할 마우스 이벤트가 달라진다
- */
-
-/** props
- * onChangeTool(tool: Tool): void
- */
-
-// interface LeftSidebarProps {
-//   onChangeTool: (tool: Tool) => void;
-// }
+import { getConvertedAnnotation } from 'routes/Annotator/helpers/Annotator.helper';
+import { useAppSelector } from 'App.hooks';
+import { useParams } from 'react-router-dom';
+import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
 
 export default function LeftSidebar() {
+  const imageId = Number(useParams().imageId);
+  const categories = useAppSelector((state) => state.annotator.categories);
+  const datasetId = useAppSelector((state) => state.annotator.datasetId);
+
+  async function saveData(datasetId: number | undefined, imageId: number) {
+    if (!datasetId || !imageId) return;
+
+    try {
+      const categoriesToUpdate = createCategoriesToUpdate();
+      const response = await AnnotatorModel.saveData(
+        datasetId,
+        imageId,
+        categoriesToUpdate,
+      );
+      console.dir('response');
+      console.dir(response);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to save annotator data');
+    }
+  }
+
+  function createCategoriesToUpdate() {
+    const children = paper.project.activeLayer.children;
+    const categoriesToUpdate = JSON.parse(JSON.stringify(categories));
+
+    children.map((child) => {
+      if (child instanceof paper.CompoundPath) {
+        const { categoryId, annotationId } = child.data;
+        const convertedAnnotation = getConvertedAnnotation(child);
+
+        categoriesToUpdate[categoryId].annotations[annotationId] =
+          convertedAnnotation;
+      }
+    });
+
+    // 속성 이름 kebab_case로 맞춤
+    Object.entries(categoriesToUpdate).map(([categoryId]) => {
+      categoriesToUpdate[categoryId]['category_id'] = categoryId;
+      delete categoriesToUpdate[categoryId].categoryId;
+      delete categoriesToUpdate[categoryId].name;
+    });
+
+    return categoriesToUpdate;
+  }
+
   return (
     <Container id="annotator-left-sidebar">
       <Toolbar />
@@ -61,7 +99,7 @@ export default function LeftSidebar() {
           <FunctionIcon
             functionName="Save"
             iconComponent={<SaveIcon />}
-            handleClick={() => console.log('save button')}
+            handleClick={() => saveData(datasetId, imageId)}
             isFunction={true}
           />
         </List>

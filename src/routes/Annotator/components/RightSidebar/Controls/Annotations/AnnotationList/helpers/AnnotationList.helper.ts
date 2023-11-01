@@ -1,6 +1,6 @@
 import { useAppDispatch } from 'App.hooks';
 import paper from 'paper';
-import { paths } from 'routes/Annotator/Annotator';
+// import { paths } from 'routes/Annotator/Annotator';
 import { AnnotationType, CategoryType } from 'routes/Annotator/Annotator.types';
 import {
   setCurrentAnnotation,

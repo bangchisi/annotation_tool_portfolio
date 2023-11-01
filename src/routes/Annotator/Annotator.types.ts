@@ -1,5 +1,13 @@
 // export type CategoriesType = CategoryType[];
 
+export interface CategoriesType {
+  [key: number]: CategoryType;
+}
+
+export interface AnnotationsType {
+  [key: number]: AnnotationType;
+}
+
 export interface CurrentCategoryType {
   id: number;
   name: string;
@@ -16,7 +24,7 @@ export interface CategoryType {
   categoryId: number;
   name: string;
   color: string;
-  annotations: AnnotationType[];
+  annotations: { [key: number]: AnnotationType };
 }
 
 export interface AnnotationType {

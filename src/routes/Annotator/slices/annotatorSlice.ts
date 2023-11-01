@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {
+  CategoriesType,
   CategoryType,
   CurrentAnnotationType,
   CurrentCategoryType,
@@ -18,14 +19,14 @@ interface initialStateType {
   selectedTool: Tool;
   datasetId?: number;
   image?: ImageType;
-  categories: CategoryType[];
+  categories: CategoriesType;
   currentCategory?: CurrentCategoryType;
   currentAnnotation?: CurrentAnnotationType;
 }
 
 const initialState: initialStateType = {
   selectedTool: Tool.Select,
-  categories: [],
+  categories: {},
 };
 
 const annotatorSlice = createSlice({
@@ -42,7 +43,7 @@ const annotatorSlice = createSlice({
     setImage: (state, action: PayloadAction<ImageType>) => {
       state.image = action.payload;
     },
-    setCategories: (state, action: PayloadAction<CategoryType[]>) => {
+    setCategories: (state, action: PayloadAction<CategoriesType>) => {
       // console.log('annotatorSlice.ts, set categories');
       state.categories = action.payload;
     },
@@ -57,6 +58,10 @@ const annotatorSlice = createSlice({
       // console.log('annotatorSlice.ts, set currentAnnotation');
       state.currentAnnotation = action.payload;
     },
+    updateCategories: (state, action: PayloadAction<CategoryType>) => {
+      // state.categories.set(action.payload.categoryId, action.payload);
+      state.categories[`${action.payload.categoryId}`] = action.payload;
+    },
   },
 });
 
@@ -67,6 +72,7 @@ export const {
   setCategories,
   setCurrentCategory,
   setCurrentAnnotation,
+  updateCategories,
 } = annotatorSlice.actions;
 
 export default annotatorSlice.reducer;

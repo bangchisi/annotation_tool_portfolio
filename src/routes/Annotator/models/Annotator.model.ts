@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { CategoriesType } from '../Annotator.types';
 
 const DEV_URL = 'http://143.248.249.11:60133';
 const SERVER_URL = `${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
@@ -11,6 +12,22 @@ const AnnotatorModel = {
         : `${SERVER_URL}/annotator/data/${imageId}`;
 
     return axios.get(url);
+  },
+  saveData: (
+    datasetId: number,
+    imageId: number,
+    categories: CategoriesType,
+  ) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/annotator/data`
+        : `${SERVER_URL}/annotator/data`;
+
+    return axios.post(url, {
+      image_id: imageId,
+      dataset_id: datasetId,
+      categories,
+    });
   },
 };
 
