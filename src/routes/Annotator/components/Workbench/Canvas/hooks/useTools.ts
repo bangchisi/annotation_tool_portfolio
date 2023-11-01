@@ -13,7 +13,12 @@ import {
   CurrentAnnotationType,
 } from 'routes/Annotator/Annotator.types';
 // import { useAppDispatch } from 'App.hooks';
-import { onEraserMouseDrag, onEraserMouseMove } from '../tools/EraserTool';
+import {
+  onEraserMouseDown,
+  onEraserMouseDrag,
+  onEraserMouseMove,
+  onEraserMouseUp,
+} from '../tools/EraserTool';
 import PathStore from 'routes/Annotator/utils/PathStore';
 
 interface UseToolsProps {
@@ -65,6 +70,8 @@ export const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Box) {
       onBoxMouseDown(event, canvasChildren, currentAnnotation);
       // onBoxMouseDown(event);
+    } else if (selectedTool === Tool.Eraser) {
+      onEraserMouseDown(canvasChildren, currentAnnotation);
     }
   };
 
@@ -109,6 +116,8 @@ export const useTools = (props: UseToolsProps) => {
       //   });
       //   console.dir(paths.paths);
       // }
+    } else if (selectedTool === Tool.Eraser) {
+      onEraserMouseUp();
     }
   };
 
@@ -120,7 +129,7 @@ export const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Brush) {
       onBrushMouseDrag(event);
     } else if (selectedTool === Tool.Eraser) {
-      onEraserMouseDrag(event, currentCategory, currentAnnotation);
+      onEraserMouseDrag(event);
     }
   };
 
