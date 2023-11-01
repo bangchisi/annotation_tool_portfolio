@@ -1,18 +1,14 @@
 import paper from 'paper';
 
-import {
-  CurrentAnnotationType,
-  CurrentCategoryType,
-} from 'routes/Annotator/Annotator.types';
-import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
-import { paths } from 'routes/Annotator/Annotator';
+import { CurrentAnnotationType } from 'routes/Annotator/Annotator.types';
 let brushCursor: paper.Path.Circle | null = null;
-const radius = 20;
-const fillColor = new paper.Color(1, 1, 1, 0.2);
+const radius = 20; // brush 크기는 preferece에서 받아올 것.
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
-// 최종 tempPath를 annotation의 path로 추가하면 됨
+// 최종 tempPath를 paper..children에 추가
+let tempPath: paper.CompoundPath | null;
+let tempData: { categoryId: number; annotationId: number; color: string };
 
 export const onBrushMouseMove = (event: paper.MouseEvent) => {
   // brush cursor 이미 있으면 제거
@@ -25,94 +21,66 @@ export const onBrushMouseMove = (event: paper.MouseEvent) => {
   brushCursor = createBrush(event.point, radius);
 };
 
+// 마우스 클릭
 export const onBrushMouseDown = (
-  event: paper.MouseEvent,
-  currentCategory?: CurrentCategoryType,
-) => {
-  if (!currentCategory) return;
-
-  console.group('%cbrush down', 'color: red');
-  // tempPath 없을때만 tempPath를 현재 위치 원으로 생성
-
-  if (!paths.tempPath) {
-    paths.tempPath = new paper.CompoundPath(
-      new paper.Path.Circle({
-        center: event.point,
-        radius,
-        fillColor,
-        strokeColor,
-        strokeWidth,
-      }),
-    );
-    paths.tempPath.fillColor = new paper.Color(currentCategory.color);
-    paths.tempPath.strokeColor = new paper.Color(1, 1, 1, 1);
-    paths.tempPath.strokeWidth = strokeWidth;
-    paths.tempPath.opacity = 0.5;
-  }
-  console.groupEnd();
-};
-
-// 마우스 버튼 뗌
-export const onBrushMouseUp = (
-  currentCategory?: CurrentCategoryType,
+  compounds: paper.Item[], // paper.project.activeLayer.children
   currentAnnotation?: CurrentAnnotationType,
 ) => {
-  console.group('%cbrush up', 'color: red');
-  // tempPath가 있으면 path에 mouse event 할당
-  if (!paths.tempPath) return;
+  if (!currentAnnotation) return;
 
-  if (!currentCategory || !currentAnnotation) return;
-  setAnnotationDataToCompoundPath(
-    paths.tempPath,
-    currentCategory.id,
-    currentAnnotation.id,
-  );
+  const { id: currentAnnotationId, categoryId: currentCategoryId } =
+    currentAnnotation;
 
-  // brush cursor 제거
-  if (brushCursor) {
-    brushCursor.remove();
-    brushCursor = null;
-  }
-
-  return paths.tempPath;
-  console.groupEnd();
+  // tempPath를 현재 compound로 선택
+  tempPath = compounds.find((compound) => {
+    const { categoryId, annotationId } = compound.data;
+    if (
+      categoryId === currentCategoryId &&
+      annotationId === currentAnnotationId
+    ) {
+      // data를 넣어줌
+      tempData = compound.data;
+      return compound;
+    }
+  }) as paper.CompoundPath;
 };
 
-export const onBrushMouseDrag = (
-  event: paper.MouseEvent,
-  currentCategory?: CurrentCategoryType,
-) => {
-  if (!currentCategory) return;
+// 마우스 드래그
+export const onBrushMouseDrag = (event: paper.MouseEvent) => {
+  if (!tempPath) return;
 
-  // brush cursor 이미 있으면 제거
+  // // brush cursor 이미 있으면 제거
   if (brushCursor !== null) {
     brushCursor.remove();
     brushCursor = null;
   }
-
   // brush cursor 생성
   brushCursor = createBrush(event.point, radius);
 
-  // tempPath가 있을때만
-  if (paths.tempPath) {
-    const c1 = new paper.CompoundPath(
-      new paper.Path.Circle({
-        center: event.point,
-        radius,
-      }),
-    );
+  let brush: paper.Path | null = new paper.Path.Circle({
+    center: event.point,
+    radius,
+  });
 
-    // 새로운 brush를 unite
-    const newSelection = new paper.CompoundPath(paths.tempPath.unite(c1));
-    newSelection.fillColor = new paper.Color(currentCategory.color);
-    newSelection.strokeColor = new paper.Color(1, 1, 1, 1);
-    newSelection.strokeWidth = strokeWidth;
-    newSelection.opacity = 0.5;
+  // 바꿔치기 할 children 생성
+  const pathToSwitch = new paper.CompoundPath(
+    tempPath.unite(brush) as paper.CompoundPath,
+  );
 
-    c1.remove();
-    paths.tempPath.remove();
-    paths.tempPath = newSelection;
-  }
+  // children 바꿔치기고 pathToSwitch 삭제
+  tempPath.children = pathToSwitch.children;
+  pathToSwitch.remove();
+  // 임시 원 삭제
+  brush.remove();
+  brush = null;
+};
+
+// 마우스 버튼 뗌
+export const onBrushMouseUp = () => {
+  tempPath = null;
+  console.log(tempData);
+  console.log('activeLayer');
+  console.dir(paper.project.activeLayer.children);
 };
 
 const createBrush = (point: paper.Point, radius: number) => {
