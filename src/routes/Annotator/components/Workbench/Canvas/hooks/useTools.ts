@@ -1,5 +1,5 @@
 import paper from 'paper';
-import { Tool, paths } from 'routes/Annotator/Annotator';
+import { Tool } from 'routes/Annotator/Annotator';
 import { onSelectMouseDown, onSelectMouseDrag } from '../tools/SelectTool';
 import {
   onBrushMouseDown,
@@ -20,6 +20,7 @@ interface UseToolsProps {
   initPoint: paper.Point | null;
   selectedTool: Tool;
   onChangePoint: (point: paper.Point) => void;
+  canvasChildren: paper.Item[];
   currentAnnotation?: CurrentAnnotationType;
   currentCategory?: CurrentCategoryType;
   // containerWidth: number | null;
@@ -31,13 +32,14 @@ export const useTools = (props: UseToolsProps) => {
     selectedTool,
     onChangePoint,
     initPoint,
+    canvasChildren,
     currentAnnotation,
     currentCategory,
     // containerWidth,
     // containerHeight,
   } = props;
 
-  let pathToAdd;
+  // let pathToAdd;
 
   // const dispatch = useAppDispatch();
   // 마우스 커서 움직임
@@ -59,7 +61,7 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       onSelectMouseDown(event);
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseDown(event, currentCategory);
+      onBrushMouseDown(canvasChildren, currentAnnotation);
     } else if (selectedTool === Tool.Box) {
       onBoxMouseDown(event);
     }
@@ -71,38 +73,40 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       // ...
     } else if (selectedTool === Tool.Brush) {
-      pathToAdd = onBrushMouseUp(currentCategory, currentAnnotation);
+      onBrushMouseUp();
+      // onBrushMouseUp(event, currentCategory, currentAnnotation);
+      // pathToAdd = onBrushMouseUp(currentCategory, currentAnnotation);
 
-      console.log('pathToAdd: ');
-      console.dir(pathToAdd);
-      if (pathToAdd) {
-        const segmentations = PathStore.compoundPathToSegmentation(pathToAdd);
-        if (!currentCategory || !currentAnnotation || !segmentations) return;
+      // console.log('pathToAdd: ');
+      // console.dir(pathToAdd);
+      // if (pathToAdd) {
+      //   const segmentations = PathStore.compoundPathToSegmentation(pathToAdd);
+      //   if (!currentCategory || !currentAnnotation || !segmentations) return;
 
-        // paths.appendPath를 그냥 push가 아니라 categoryId, annotationId 조회해서 있으면 업데이트, 없으면 추가 해야함
-        // 이걸 위해서는 key가 존재하면 덮어쓰고 없으면 새로 넣는 map 형식이 좋을듯?
-        paths.appendPath({
-          categoryId: currentCategory?.id,
-          annotationId: currentAnnotation?.id,
-          segmentations: segmentations,
-        });
-        console.dir(paths.paths);
-      }
+      //   // paths.appendPath를 그냥 push가 아니라 categoryId, annotationId 조회해서 있으면 업데이트, 없으면 추가 해야함
+      //   // 이걸 위해서는 key가 존재하면 덮어쓰고 없으면 새로 넣는 map 형식이 좋을듯?
+      //   paths.appendPath({
+      //     categoryId: currentCategory?.id,
+      //     annotationId: currentAnnotation?.id,
+      //     segmentations: segmentations,
+      //   });
+      //   console.dir(paths.paths);
+      // }
     } else if (selectedTool === Tool.Box) {
-      pathToAdd = onBoxMouseUp(event, currentCategory, currentAnnotation);
+      onBoxMouseUp(event, currentCategory, currentAnnotation);
 
-      console.log('pathToAdd: ');
-      console.dir(pathToAdd);
-      if (pathToAdd) {
-        const segmentations = PathStore.compoundPathToSegmentation(pathToAdd);
-        if (!currentCategory || !currentAnnotation || !segmentations) return;
-        paths.appendPath({
-          categoryId: currentCategory?.id,
-          annotationId: currentAnnotation?.id,
-          segmentations: segmentations,
-        });
-        console.dir(paths.paths);
-      }
+      // console.log('pathToAdd: ');
+      // console.dir(pathToAdd);
+      // if (pathToAdd) {
+      //   const segmentations = PathStore.compoundPathToSegmentation(pathToAdd);
+      //   if (!currentCategory || !currentAnnotation || !segmentations) return;
+      //   paths.appendPath({
+      //     categoryId: currentCategory?.id,
+      //     annotationId: currentAnnotation?.id,
+      //     segmentations: segmentations,
+      //   });
+      //   console.dir(paths.paths);
+      // }
     }
   };
 
@@ -112,7 +116,7 @@ export const useTools = (props: UseToolsProps) => {
       // 이미지 드래그해서 옮기기
       onSelectMouseDrag(event, initPoint);
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseDrag(event, currentCategory);
+      onBrushMouseDrag(event);
     } else if (selectedTool === Tool.Eraser) {
       onEraserMouseDrag(event, currentCategory, currentAnnotation);
     }

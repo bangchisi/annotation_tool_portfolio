@@ -3,7 +3,7 @@ import {
   CurrentAnnotationType,
   CurrentCategoryType,
 } from 'routes/Annotator/Annotator.types';
-import { paths } from 'routes/Annotator/Annotator';
+// import { paths } from 'routes/Annotator/Annotator';
 import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
 
 let tempBox: paper.CompoundPath | null;
@@ -65,39 +65,39 @@ export const onBoxMouseUp = (
     // tempBox.strokeColor = new paper.Color(1, 1, 1, 1);
     // tempBox.strokeWidth = strokeWidth;
 
-    console.dir(paths.tempPath);
-    if (!paths.tempPath) {
-      console.log('no paths, make first box');
-      paths.tempPath = tempBox;
-    } else {
-      console.log('paths, unite box!');
-      const newPath = paths.tempPath?.unite(tempBox) as paper.CompoundPath;
-      paths.tempPath?.remove();
-      paths.tempPath = newPath;
+    // console.dir(paths.tempPath);
+    // if (!paths.tempPath) {
+    //   console.log('no paths, make first box');
+    //   paths.tempPath = tempBox;
+    // } else {
+    //   console.log('paths, unite box!');
+    //   const newPath = paths.tempPath?.unite(tempBox) as paper.CompoundPath;
+    //   paths.tempPath?.remove();
+    //   paths.tempPath = newPath;
 
-      paths.tempPath.fillColor = new paper.Color(currentCategory.color);
-      paths.tempPath.strokeColor = new paper.Color(1, 1, 1, 1);
-      paths.tempPath.strokeWidth = strokeWidth;
-      paths.tempPath.opacity = 0.5;
-      tempBox.remove();
-    }
+    //   paths.tempPath.fillColor = new paper.Color(currentCategory.color);
+    //   paths.tempPath.strokeColor = new paper.Color(1, 1, 1, 1);
+    //   paths.tempPath.strokeWidth = strokeWidth;
+    //   paths.tempPath.opacity = 0.5;
+    //   tempBox.remove();
+    // }
 
-    if (!currentCategory || !currentAnnotation) return;
-    setAnnotationDataToCompoundPath(
-      paths.tempPath,
-      currentCategory.id,
-      currentAnnotation.id,
-    );
-    startPoint = null;
-    endPoint = null;
+    // if (!currentCategory || !currentAnnotation) return;
+    // setAnnotationDataToCompoundPath(
+    //   paths.tempPath,
+    //   currentCategory.id,
+    //   currentAnnotation.id,
+    // );
+    // startPoint = null;
+    // endPoint = null;
 
-    if (currentBox) {
-      // remove current box
-      currentBox.remove();
-      currentBox = null;
-    }
-    console.dir(paper.project.activeLayer.children);
+    // if (currentBox) {
+    //   // remove current box
+    //   currentBox.remove();
+    //   currentBox = null;
+    // }
+    // console.dir(paper.project.activeLayer.children);
 
-    return paths.tempPath;
+    // return paths.tempPath;
   }
 };
