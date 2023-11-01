@@ -63,7 +63,8 @@ export const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Brush) {
       onBrushMouseDown(canvasChildren, currentAnnotation);
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseDown(event);
+      onBoxMouseDown(event, canvasChildren, currentAnnotation);
+      // onBoxMouseDown(event);
     }
   };
 
@@ -93,7 +94,8 @@ export const useTools = (props: UseToolsProps) => {
       //   console.dir(paths.paths);
       // }
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseUp(event, currentCategory, currentAnnotation);
+      onBoxMouseUp();
+      // onBoxMouseUp(event, currentCategory, currentAnnotation);
 
       // console.log('pathToAdd: ');
       // console.dir(pathToAdd);

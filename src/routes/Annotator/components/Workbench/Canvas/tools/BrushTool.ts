@@ -8,7 +8,7 @@ const strokeWidth = 2;
 
 // 최종 tempPath를 paper..children에 추가
 let tempPath: paper.CompoundPath | null;
-let tempData: { categoryId: number; annotationId: number; color: string };
+// let tempData: { categoryId: number; annotationId: number; color: string };
 
 export const onBrushMouseMove = (event: paper.MouseEvent) => {
   // brush cursor 이미 있으면 제거
@@ -39,7 +39,7 @@ export const onBrushMouseDown = (
       annotationId === currentAnnotationId
     ) {
       // data를 넣어줌
-      tempData = compound.data;
+      // tempData = compound.data;
       return compound;
     }
   }) as paper.CompoundPath;
@@ -78,7 +78,7 @@ export const onBrushMouseDrag = (event: paper.MouseEvent) => {
 // 마우스 버튼 뗌
 export const onBrushMouseUp = () => {
   tempPath = null;
-  console.log(tempData);
+  // console.log(tempData);
   console.log('activeLayer');
   console.dir(paper.project.activeLayer.children);
 };

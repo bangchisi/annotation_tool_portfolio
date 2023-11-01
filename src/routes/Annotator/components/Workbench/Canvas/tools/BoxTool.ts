@@ -1,42 +1,39 @@
 import paper from 'paper';
-import {
-  CurrentAnnotationType,
-  CurrentCategoryType,
-} from 'routes/Annotator/Annotator.types';
-// import { paths } from 'routes/Annotator/Annotator';
-import { setAnnotationDataToCompoundPath } from '../helpers/canvasHelper';
+import { CurrentAnnotationType } from 'routes/Annotator/Annotator.types';
 
-let tempBox: paper.CompoundPath | null;
-let currentBox: paper.Path.Rectangle | null;
-let startPoint: paper.Point | null;
-let endPoint: paper.Point | null;
-
-// this should follow category color
-const fillColor = new paper.Color(1, 1, 1, 0.2);
+// preferece에서 가져올 값인가?
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
-export const onBoxMouseMove = (event: paper.MouseEvent) => {
-  if (!startPoint) return;
+let tempPath: paper.CompoundPath | null;
+// let tempData: { categoryId: number; annotationId: number; color: string };
+let startPoint: paper.Point | null;
+let endPoint: paper.Point | null;
+let guideBox: paper.Path.Rectangle | null;
 
-  if (startPoint) {
-    if (currentBox) {
-      // remove current box
-      currentBox.remove();
-      currentBox = null;
+export const onBoxMouseDown = (
+  event: paper.MouseEvent,
+  compounds: paper.Item[], // paper.project.activeLayer.children
+  currentAnnotation?: CurrentAnnotationType,
+) => {
+  if (!currentAnnotation) return;
+
+  const { id: currentAnnotationId, categoryId: currentCategoryId } =
+    currentAnnotation;
+
+  // tempPath를 현재 compound로 선택
+  tempPath = compounds.find((compound) => {
+    const { categoryId, annotationId } = compound.data;
+    if (
+      categoryId === currentCategoryId &&
+      annotationId === currentAnnotationId
+    ) {
+      // data를 넣어줌
+      // tempData = compound.data;
+      return compound;
     }
+  }) as paper.CompoundPath;
 
-    // create current box again
-    currentBox = new paper.Path.Rectangle({
-      from: startPoint,
-      to: event.point,
-      strokeWidth: 2,
-      strokeColor: new paper.Color(1, 1, 1, 1),
-    });
-  }
-};
-
-export const onBoxMouseDown = (event: paper.MouseEvent) => {
   if (!startPoint) {
     // set start point
     startPoint = event.point;
@@ -46,58 +43,44 @@ export const onBoxMouseDown = (event: paper.MouseEvent) => {
   }
 };
 
-export const onBoxMouseUp = (
-  event: paper.MouseEvent,
-  currentCategory?: CurrentCategoryType,
-  currentAnnotation?: CurrentAnnotationType,
-) => {
-  if (!currentCategory) return;
+export const onBoxMouseMove = (event: paper.MouseEvent) => {
+  if (!startPoint) return;
 
-  if (startPoint && endPoint) {
-    tempBox = new paper.CompoundPath(
-      new paper.Path.Rectangle({
-        from: startPoint,
-        to: event.point,
-      }),
-    );
-
-    // tempBox.fillColor = new paper.Color(currentCategory.color);
-    // tempBox.strokeColor = new paper.Color(1, 1, 1, 1);
-    // tempBox.strokeWidth = strokeWidth;
-
-    // console.dir(paths.tempPath);
-    // if (!paths.tempPath) {
-    //   console.log('no paths, make first box');
-    //   paths.tempPath = tempBox;
-    // } else {
-    //   console.log('paths, unite box!');
-    //   const newPath = paths.tempPath?.unite(tempBox) as paper.CompoundPath;
-    //   paths.tempPath?.remove();
-    //   paths.tempPath = newPath;
-
-    //   paths.tempPath.fillColor = new paper.Color(currentCategory.color);
-    //   paths.tempPath.strokeColor = new paper.Color(1, 1, 1, 1);
-    //   paths.tempPath.strokeWidth = strokeWidth;
-    //   paths.tempPath.opacity = 0.5;
-    //   tempBox.remove();
-    // }
-
-    // if (!currentCategory || !currentAnnotation) return;
-    // setAnnotationDataToCompoundPath(
-    //   paths.tempPath,
-    //   currentCategory.id,
-    //   currentAnnotation.id,
-    // );
-    // startPoint = null;
-    // endPoint = null;
-
-    // if (currentBox) {
-    //   // remove current box
-    //   currentBox.remove();
-    //   currentBox = null;
-    // }
-    // console.dir(paper.project.activeLayer.children);
-
-    // return paths.tempPath;
+  if (guideBox) {
+    // remove guide box
+    guideBox.remove();
   }
+
+  // create guide box again
+  guideBox = new paper.Path.Rectangle({
+    from: startPoint,
+    to: event.point,
+    strokeWidth,
+    strokeColor,
+  });
+};
+
+export const onBoxMouseUp = () => {
+  if (!tempPath) return;
+
+  // 두 번째 점이 없으면 무시
+  if (!endPoint || !guideBox) return;
+
+  // 바꿔치기 할 children 생성
+  const pathToSwitch = new paper.CompoundPath(
+    tempPath.unite(guideBox) as paper.CompoundPath,
+  );
+
+  // guide box 삭제
+  guideBox.remove();
+  guideBox = null;
+
+  startPoint = null;
+  endPoint = null;
+
+  // children 바꿔치기고 pathToSwitch 삭제
+  tempPath.children = pathToSwitch.children;
+  pathToSwitch.remove();
+
+  tempPath = null;
 };
