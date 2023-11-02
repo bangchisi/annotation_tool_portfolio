@@ -21,6 +21,7 @@ import {
 import {
   annotationsToIds,
   toCurrentCategory,
+  toCurrentCategoryAnnotations,
 } from 'routes/Annotator/helpers/Annotator.helper';
 import { getRandomHexColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import { canvasData } from 'routes/Annotator/components/Workbench/Canvas/Canvas';
@@ -170,7 +171,8 @@ export default function AnnotationList() {
       id: selectedCategory.categoryId,
       name: selectedCategory.name,
       color: selectedCategory.color,
-      annotations: annotationsToIds(selectedCategory.annotations),
+      annotations: toCurrentCategoryAnnotations(selectedCategory.annotations),
+      // annotations: annotationsToIds(selectedCategory.annotations),
     };
     dispatch(setCurrentCategory(selectedCurrentCategory));
 
@@ -190,7 +192,18 @@ export default function AnnotationList() {
         placement="left"
         isFunction={true}
       />
-      {currentCategory?.annotations.map((annotationId) => (
+      {currentCategory &&
+        currentCategory.annotations.map((annotation) => (
+          <Annotation
+            key={annotation.annotationId}
+            categoryId={currentCategory.id}
+            categoryColor={currentCategory.color}
+            annotationId={annotation.annotationId}
+            annotationColor={annotation.annotationColor}
+            onClick={selectAnnotation}
+          />
+        ))}
+      {/* {currentCategory?.annotations.map((annotationId) => (
         <Annotation
           key={annotationId}
           categoryId={currentCategory.id}
@@ -198,7 +211,15 @@ export default function AnnotationList() {
           annotationId={annotationId}
           onClick={selectAnnotation}
         />
-      ))}
+      ))} */}
+      <Annotation
+        key={1}
+        categoryId={0}
+        categoryColor={'#ff120f'}
+        annotationColor={'#9fa9c1'}
+        annotationId={0}
+        onClick={selectAnnotation}
+      />
     </Container>
   );
 }

@@ -47,12 +47,26 @@ export function annotationsToIds(annotations: AnnotationsType): number[] {
   return ids;
 }
 
+export function toCurrentCategoryAnnotations(annotations: AnnotationsType) {
+  const annotationList: { annotationId: number; annotationColor: string }[] =
+    [];
+  Object.entries(annotations).map(([annotationId, annotation]) => {
+    annotationList.push({
+      annotationId: Number(annotationId),
+      annotationColor: annotation.color,
+    });
+  });
+
+  return annotationList;
+}
+
 export function toCurrentCategory(category: CategoryType): CurrentCategoryType {
   const currentCategory = {
     id: category.categoryId,
     name: category.name,
     color: category.color,
-    annotations: annotationsToIds(category.annotations),
+    annotations: toCurrentCategoryAnnotations(category.annotations),
+    // annotations: annotationsToIds(category.annotations),
   };
 
   return currentCategory;

@@ -12,7 +12,8 @@ export interface CurrentCategoryType {
   id: number;
   name: string;
   color: string;
-  annotations: number[];
+  annotations: { annotationId: number; annotationColor: string }[];
+  // annotations: number[];
 }
 
 export interface CurrentAnnotationType {

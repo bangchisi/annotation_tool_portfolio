@@ -4,16 +4,17 @@ import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined
 
 interface AnnotationProps {
   categorycolor: string;
+  annotationcolor: string;
 }
 
-export const Container = styled(Box)<AnnotationProps>(({ categorycolor }) => {
-  const textColor = getTextColor(categorycolor);
+export const Container = styled(Box)<AnnotationProps>(({ annotationcolor }) => {
+  const textColor = getTextColor(annotationcolor);
 
   return {
     borderBottom: 1,
     display: 'flex',
     height: 45,
-    backgroundColor: categorycolor,
+    backgroundColor: annotationcolor,
     font: textColor,
     color: textColor,
     justifyContent: 'flex-start',
@@ -36,8 +37,8 @@ export const SelectPanel = styled('select')(() => {
 });
 
 export const DeleteButton = styled(DeleteForeverOutlinedIcon)<AnnotationProps>(
-  ({ categorycolor }) => {
-    const textColor = getTextColor(categorycolor);
+  ({ annotationcolor }) => {
+    const textColor = getTextColor(annotationcolor);
 
     return {
       color: textColor,
