@@ -8,106 +8,106 @@ export interface PathType {
 }
 
 export default class PathStore {
-  paths: PathType[] | null;
+  children: paper.Item[];
   tempPath: paper.CompoundPath | null;
 
-  constructor() {
-    this.paths = [];
+  constructor(children: paper.Item[]) {
+    this.children = children;
     this.tempPath = null;
   }
 
-  getAll() {
-    return this.paths;
-  }
+  // getAll() {
+  //   return this.paths;
+  // }
 
-  setPaths(paths: PathType[]) {
-    this.paths = paths;
-  }
+  // setPaths(paths: PathType[]) {
+  //   this.paths = paths;
+  // }
 
-  appendPath(path: PathType) {
-    if (!this.paths) return;
-    this.paths.push(path);
-  }
+  // appendPath(path: PathType) {
+  //   if (!this.paths) return;
+  //   this.paths.push(path);
+  // }
 
-  removePath(categoryId: number, annotationId: number) {
-    if (!this.paths) return;
+  // removePath(categoryId: number, annotationId: number) {
+  //   if (!this.paths) return;
 
-    this.paths = this.paths.filter(
-      (path) =>
-        path.categoryId !== categoryId && path.annotationId !== annotationId,
-    );
-  }
+  //   this.paths = this.paths.filter(
+  //     (path) =>
+  //       path.categoryId !== categoryId && path.annotationId !== annotationId,
+  //   );
+  // }
 
-  getCategoryPath(categoryId: number) {
-    if (!this.paths) return;
+  // getCategoryPath(categoryId: number) {
+  //   if (!this.paths) return;
 
-    const categoryPaths = this.paths.filter((path) => {
-      if (path.categoryId === categoryId) {
-        return true;
-      }
-      return false;
-    });
+  //   const categoryPaths = this.paths.filter((path) => {
+  //     if (path.categoryId === categoryId) {
+  //       return true;
+  //     }
+  //     return false;
+  //   });
 
-    return categoryPaths;
-  }
+  //   return categoryPaths;
+  // }
 
-  getLastAnnotationId() {
-    if (!this.paths) return;
+  // getLastAnnotationId() {
+  //   if (!this.paths) return;
 
-    if (this.paths.length > 0) {
-      const maxIdObject = this.paths.reduce((max, current) => {
-        return current.annotationId > max.annotationId ? current : max;
-      });
-      return maxIdObject.annotationId;
-    }
+  //   if (this.paths.length > 0) {
+  //     const maxIdObject = this.paths.reduce((max, current) => {
+  //       return current.annotationId > max.annotationId ? current : max;
+  //     });
+  //     return maxIdObject.annotationId;
+  //   }
 
-    return -1;
-  }
+  //   return -1;
+  // }
 
-  getLastAnnotationIdInCategory(categoryId: number) {
-    if (!this.paths) return;
+  // getLastAnnotationIdInCategory(categoryId: number) {
+  //   if (!this.paths) return;
 
-    let lastId = -1;
-    let prevPath: PathType;
-    if (this.paths.length > 0) {
-      this.paths.forEach((path) => {
-        if (!!prevPath && path.categoryId === categoryId) {
-          if (lastId === -1 || path.annotationId > prevPath.annotationId) {
-            lastId = path.annotationId;
-          }
-        }
-        prevPath = path;
-      });
-    }
+  //   let lastId = -1;
+  //   let prevPath: PathType;
+  //   if (this.paths.length > 0) {
+  //     this.paths.forEach((path) => {
+  //       if (!!prevPath && path.categoryId === categoryId) {
+  //         if (lastId === -1 || path.annotationId > prevPath.annotationId) {
+  //           lastId = path.annotationId;
+  //         }
+  //       }
+  //       prevPath = path;
+  //     });
+  //   }
 
-    return lastId;
-  }
+  //   return lastId;
+  // }
 
-  getSelectedPath(categoryId: number, annotationId: number) {
-    if (!this.paths) return;
+  // getSelectedPath(categoryId: number, annotationId: number) {
+  //   if (!this.paths) return;
 
-    const selectedPath = this.paths.find(
-      (path) =>
-        path.categoryId === categoryId && path.annotationId === annotationId,
-    );
+  //   const selectedPath = this.paths.find(
+  //     (path) =>
+  //       path.categoryId === categoryId && path.annotationId === annotationId,
+  //   );
 
-    return selectedPath;
-  }
+  //   return selectedPath;
+  // }
 
-  async initPathsToCanvas() {
-    if (!this.paths) return;
+  // async initPathsToCanvas() {
+  //   if (!this.paths) return;
 
-    this.paths.forEach((path) => {
-      const polygons = this.segmentationsToPolygons(path.segmentations);
-      const unitedPolygon = this.unitePolygons(polygons);
-      new paper.CompoundPath({
-        children: [unitedPolygon],
-        strokeWidth: 1,
-        strokeColor: new paper.Color(0, 1, 0, 1),
-        fillColor: new paper.Color(1, 1, 1, 0.7),
-      });
-    });
-  }
+  //   this.paths.forEach((path) => {
+  //     const polygons = this.segmentationsToPolygons(path.segmentations);
+  //     const unitedPolygon = this.unitePolygons(polygons);
+  //     new paper.CompoundPath({
+  //       children: [unitedPolygon],
+  //       strokeWidth: 1,
+  //       strokeColor: new paper.Color(0, 1, 0, 1),
+  //       fillColor: new paper.Color(1, 1, 1, 0.7),
+  //     });
+  //   });
+  // }
 
   // segmentation -> paper.Path
   segmentationToPath(segmentation: number[]) {
