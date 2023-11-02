@@ -1,19 +1,21 @@
 import paper from 'paper';
 import { useEffect, useRef, useState } from 'react';
-import { fetchImage, onCanvasWheel } from './helpers/canvasHelper';
+import { onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { useTools } from './hooks/useTools';
 import { useAppSelector } from 'App.hooks';
-import { paths } from 'routes/Annotator/Annotator';
-import { stat } from 'fs';
 import { getImagePath } from 'helpers/ImagesHelpers';
 import { useParams } from 'react-router-dom';
+import PathStore from 'routes/Annotator/utils/PathStore';
 
 interface CanvasProps {
   // selectedTool: Tool;
   containerWidth: number | null;
   containerHeight: number | null;
 }
+
+export let canvasData: PathStore;
+let canvasChildren: paper.Item[];
 
 // TODO: paper init to another file?
 export default function Canvas({
@@ -54,6 +56,8 @@ export default function Canvas({
         );
       }
       paper.activate();
+      canvasData = new PathStore(paper.project.activeLayer.children);
+      canvasChildren = paper.project.activeLayer.children;
 
       const raster = new paper.Raster();
 
@@ -92,6 +96,7 @@ export default function Canvas({
     initPoint,
     selectedTool,
     onChangePoint: setInitPoint,
+    canvasChildren,
     currentAnnotation,
     currentCategory,
     // containerWidth,
