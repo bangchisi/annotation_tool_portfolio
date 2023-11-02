@@ -11,12 +11,12 @@ import {
 } from './slices/annotatorSlice';
 import AnnotatorModel from './models/Annotator.model';
 import { useEffect, useState } from 'react';
-import PathStore, { PathType } from './utils/PathStore';
+import PathStore from './utils/PathStore';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useParams } from 'react-router-dom';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { CategoriesType, CategoryType } from './Annotator.types';
 import { toCurrentCategory } from './helpers/Annotator.helper';
-import { CategoryType } from './Annotator.types';
 
 export enum Tool {
   Select,
@@ -28,7 +28,7 @@ export enum Tool {
 
 // path 정보들을 저장한 배열
 // export let paths: PathStore;
-export const paths = new PathStore();
+// export const paths = new PathStore();
 
 export default function Annotator() {
   const dispatch = useAppDispatch();
@@ -40,18 +40,22 @@ export default function Annotator() {
   //   (state) => state.annotator.currentCategory,
   // );
 
+  // data 받아오기
   const initData = async (imageId: number) => {
     try {
       setIsLoading(true);
       const response = await AnnotatorModel.getData(imageId);
       const data = response.data;
-      const { datasetId, image, categories } = data;
+      const { datasetId, image: imageData, categories: categoriesData } = data;
 
-      if (!datasetId || !image) return;
+      if (!datasetId || !imageData) return;
 
       dispatch(setDatasetId(datasetId));
-      dispatch(setImage(image));
-      dispatch(setCategories(categories));
+      dispatch(setImage(imageData));
+      dispatch(setCategories(categoriesData));
+
+      selectFirstCategory(categoriesData);
+      // initPaths(categories);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get annotator data');
     } finally {
@@ -59,70 +63,40 @@ export default function Annotator() {
     }
   };
 
-  const initPaths = (categories: CategoryType[]) => {
-    const paths = categories.map((category) => {
-      category.annotations.map((annotation) => {
-        return {
-          categoryId: category.categoryId,
-          annotationId: annotation.annotationId,
-          segmentations: annotation.segmentation || [],
-        };
-      });
-    });
+  const selectFirstCategory = (categories: CategoriesType) => {
+    const keys = Object.keys(categories);
+    if (keys.length <= 0) return;
 
-    return paths;
+    const firstCategory = categories[Number(keys[0])];
+
+    const currentCategory = toCurrentCategory(firstCategory);
+
+    dispatch(setCurrentCategory(currentCategory));
   };
+
+  // 기존 그림 불러오기
+  // const initPaths = (categories: Map<number, CategoryType>) => {
+  //   // TODO: get categories -> convert to compoundPaths -> add to canvas
+  //   const paths = [];
+  //   for (const category of categories.values()) {
+  //     for (const annotation of category.annotations.values()) {
+  //       const pathToPush = {
+  //         categoryId: category.categoryId,
+  //         annotationId: annotation.annotationId,
+  //         segmentations: annotation.segmentation || [],
+  //       };
+
+  //       paths.push(pathToPush);
+  //     }
+  //   }
+
+  //   return paths;
+  // };
 
   // init data
   useEffect(() => {
     initData(imageId);
   }, [dispatch]);
-
-  // update current category, when categories changed.
-  useEffect(() => {
-    if (categories.length <= 0) return;
-
-    const currentCategory = toCurrentCategory(categories[0]);
-
-    dispatch(setCurrentCategory(currentCategory));
-
-    initPaths(categories);
-  }, [categories]);
-
-  // init paths
-  // useEffect(() => {
-  //   // categories 가져오는 async 함수
-  //   async function fetchCategories() {
-  //     try {
-  //       const newCategories = await AnnotatorModel.getCategories(0, 0);
-  //       // 받아온 정보로 categories init
-  //       dispatch(setCategories(newCategories));
-
-  //       // 받아온 categories 내용이 있으면
-  //       if (newCategories.length > 0) {
-  //         // 0번째 category를 currentCategory로
-  //         dispatch(setCurrentCategory(newCategories[0]));
-  //       }
-  //     } catch (error) {
-  //       console.error('Error init categories:', error);
-  //     }
-  //   }
-
-  //   async function fetchPaths() {
-  //     const pathArray = await AnnotatorModel.getPaths();
-  //     paths = new PathStore(pathArray);
-  //   }
-
-  //   if (categories.length === 0) {
-  //     // categories가 비어있을 때만 데이터를 가져옴
-  //     fetchCategories();
-  //     fetchPaths();
-  //   }
-  // }, [dispatch]);
-
-  // // currentCategory 변경 -> categories 갱신
-  // useEffect(() => {
-  // }, [currentCategory, dispatch]);
 
   return (
     <Container>
