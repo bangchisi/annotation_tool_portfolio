@@ -4,10 +4,10 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import FunctionIcon from 'routes/Annotator/components/LeftSidebar/FunctionIcon';
 import { Annotation } from './Annotation/Annotation';
-import { paths } from 'routes/Annotator/Annotator';
 import { PathType } from 'routes/Annotator/utils/PathStore';
 import {
   AnnotationType,
+  CategoriesType,
   CategoryType,
   CurrentAnnotationType,
   CurrentCategoryType,
@@ -16,8 +16,14 @@ import {
   setCategories,
   setCurrentAnnotation,
   setCurrentCategory,
+  updateCategories,
 } from 'routes/Annotator/slices/annotatorSlice';
-import { annotationsToIds } from 'routes/Annotator/helpers/Annotator.helper';
+import {
+  annotationsToIds,
+  toCurrentCategory,
+} from 'routes/Annotator/helpers/Annotator.helper';
+import { getRandomHexColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
+import { canvasData } from 'routes/Annotator/components/Workbench/Canvas/Canvas';
 
 export default function AnnotationList() {
   const categories = useAppSelector((state) => state.annotator.categories);
@@ -30,26 +36,33 @@ export default function AnnotationList() {
   function createEmptyAnnotation() {
     // 항목 2. categories 업데이트
     if (!categories || !currentCategory) return;
+
     const category = getCurrentCategoryData(categories, currentCategory);
+    // console.dir('category');
+    // console.dir(category);
 
     if (!category) return;
     // 새로 생성할 annotation id
-    const nextId = getLastAnnotaionIdByCategory(category) + 1;
+    const nextId = getLastAnnotationIdByCategory(category) + 1;
 
-    const categoriesToUpdate = createCategoriesToUpdate(
-      categories,
-      currentCategory.id,
-      nextId,
-    );
-    if (!categoriesToUpdate) return;
-    dispatch(setCategories(categoriesToUpdate));
+    // categories 업데이트. 특정 category 바꿔치기.
+    updateSelectedCategory(category, nextId);
 
     // 항목 1. paper 업데이트
     const compoundPathToAdd = new paper.CompoundPath({});
+    const annotationColor = getRandomHexColor();
+    // console.log(annotationColor);
+    compoundPathToAdd.fillColor = new paper.Color(annotationColor);
+    compoundPathToAdd.strokeColor = new paper.Color(1, 1, 1, 1);
+    compoundPathToAdd.opacity = 0.5;
+
     const dataToAdd = {
       categoryId: currentCategory.id,
       annotationId: nextId,
+      annotationColor: annotationColor,
     };
+    // console.dir('dataToAdd');
+    // console.dir(dataToAdd);
     compoundPathToAdd.data = dataToAdd;
 
     // 항목 3. currentAnnotation 업데이트
@@ -61,12 +74,19 @@ export default function AnnotationList() {
   }
 
   // last annotationId를 구하는 함수
-  function getLastAnnotaionIdByCategory(category: CategoryType): number {
-    if (category.annotations.length > 0) {
-      const maxIdObject = category.annotations.reduce((max, current) => {
-        return current.annotationId > max.annotationId ? current : max;
+  function getLastAnnotationIdByCategory(category: CategoryType): number {
+    const annotations = category.annotations;
+    if (Object.keys(annotations).length > 0) {
+      let maxId = -1;
+
+      Object.entries(annotations).map(([annotationId]) => {
+        const id = Number(annotationId);
+        if (id > maxId) {
+          maxId = id;
+        }
       });
-      return maxIdObject.annotationId;
+
+      return maxId;
     }
 
     return -1;
@@ -74,28 +94,26 @@ export default function AnnotationList() {
 
   // categoryId를 이용해 나머지 정보를 가져오는 함수
   function getCurrentCategoryData(
-    categories: CategoryType[],
+    categories: CategoriesType,
     currentCategory: CurrentCategoryType,
   ) {
-    const category = categories.find(
-      (category) => category.categoryId === currentCategory.id,
-    );
+    const category = categories[currentCategory.id];
 
     return category;
   }
 
   // categoriesToUpdate 생성하는 함수
-  function createCategoriesToUpdate(
-    categories: CategoryType[],
-    currentCategoryId: number,
+  function updateSelectedCategory(
+    category: CategoryType,
     newAnnotationId: number,
   ) {
-    const categoryToUpdate = copyObject(
-      categories.find((category) => category.categoryId === currentCategoryId),
-    );
-
+    // 업데이트할 category 가져옴. 복사.
+    const categoryToUpdate = copyObject(category);
+    // console.log('before');
+    // console.dir(categoryToUpdate);
     if (!categoryToUpdate) return;
 
+    // 새 annotation 객체 생성
     const newAnnotation = {
       annotationId: newAnnotationId,
       isCrowd: false,
@@ -105,17 +123,19 @@ export default function AnnotationList() {
       area: 0,
       bbox: [],
     };
-    categoryToUpdate.annotations.push(newAnnotation);
 
-    const categoriesToUpdate = categories.map((category) => {
-      if (category.categoryId === currentCategoryId) {
-        return categoryToUpdate;
-      }
+    // category에 새 annotation 추가
+    // categoryToUpdate.annotations.set(newAnnotationId, newAnnotation);
+    categoryToUpdate.annotations[newAnnotationId] = newAnnotation;
 
-      return category;
-    }) as CategoryType[];
+    // console.log('after push');
+    // console.dir(categoryToUpdate);
 
-    return categoriesToUpdate;
+    // categories에 category 반영
+    dispatch(updateCategories(categoryToUpdate));
+
+    // currentCategory에 반영
+    dispatch(setCurrentCategory(toCurrentCategory(categoryToUpdate)));
   }
 
   function copyObject(object: unknown) {
@@ -132,16 +152,17 @@ export default function AnnotationList() {
           path.data.annotationId === annotationId,
       ) as paper.CompoundPath;
 
-      paths.tempPath = selectedPath;
-      console.dir(selectedPath);
+      canvasData.tempPath = selectedPath;
+      // console.dir(selectedPath);
     }
 
-    console.log(`select annotation. (${categoryId}, ${annotationId})`);
+    // console.log(`select annotation. (${categoryId}, ${annotationId})`);
     if (!categories) return;
 
-    const selectedCategory = categories.find(
-      (category) => category.categoryId === categoryId,
-    );
+    const selectedCategory = categories[categoryId];
+    // categories.find(
+    //   (category) => category.categoryId === categoryId,
+    // );
 
     if (!selectedCategory) return;
 

@@ -78,8 +78,8 @@ export const onEraserMouseDrag = (event: paper.MouseEvent) => {
 export const onEraserMouseUp = () => {
   tempPath = null;
   // console.log(tempData);
-  console.log('activeLayer');
-  console.dir(paper.project.activeLayer.children);
+  // console.log('activeLayer');
+  // console.dir(paper.project.activeLayer.children);
 };
 
 const createEraser = (point: paper.Point, radius: number) => {

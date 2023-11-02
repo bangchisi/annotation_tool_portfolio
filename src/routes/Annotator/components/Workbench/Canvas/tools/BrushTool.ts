@@ -79,8 +79,8 @@ export const onBrushMouseDrag = (event: paper.MouseEvent) => {
 export const onBrushMouseUp = () => {
   tempPath = null;
   // console.log(tempData);
-  console.log('activeLayer');
-  console.dir(paper.project.activeLayer.children);
+  // console.log('activeLayer');
+  // console.dir(paper.project.activeLayer.children);
 };
 
 const createBrush = (point: paper.Point, radius: number) => {
