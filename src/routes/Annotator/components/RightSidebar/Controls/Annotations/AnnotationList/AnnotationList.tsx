@@ -46,12 +46,12 @@ export default function AnnotationList() {
     // 새로 생성할 annotation id
     const nextId = getLastAnnotationIdByCategory(category) + 1;
 
+    const annotationColor = getRandomHexColor();
     // categories 업데이트. 특정 category 바꿔치기.
-    updateSelectedCategory(category, nextId);
+    updateSelectedCategory(category, nextId, annotationColor);
 
     // 항목 1. paper 업데이트
     const compoundPathToAdd = new paper.CompoundPath({});
-    const annotationColor = getRandomHexColor();
     // console.log(annotationColor);
     compoundPathToAdd.fillColor = new paper.Color(annotationColor);
     compoundPathToAdd.strokeColor = new paper.Color(1, 1, 1, 1);
@@ -72,6 +72,7 @@ export default function AnnotationList() {
       categoryId: currentCategory.id,
     };
     dispatch(setCurrentAnnotation(currentAnnotationToUpdate));
+    console.dir(paper.project.activeLayer.children);
   }
 
   // last annotationId를 구하는 함수
@@ -107,6 +108,7 @@ export default function AnnotationList() {
   function updateSelectedCategory(
     category: CategoryType,
     newAnnotationId: number,
+    annotationColor: string,
   ) {
     // 업데이트할 category 가져옴. 복사.
     const categoryToUpdate = copyObject(category);
@@ -119,7 +121,8 @@ export default function AnnotationList() {
       annotationId: newAnnotationId,
       isCrowd: false,
       isBbox: false,
-      color: categoryToUpdate.color,
+      // color: categoryToUpdate.color,
+      color: annotationColor,
       segmentation: [],
       area: 0,
       bbox: [],
@@ -203,23 +206,6 @@ export default function AnnotationList() {
             onClick={selectAnnotation}
           />
         ))}
-      {/* {currentCategory?.annotations.map((annotationId) => (
-        <Annotation
-          key={annotationId}
-          categoryId={currentCategory.id}
-          categoryColor={currentCategory.color}
-          annotationId={annotationId}
-          onClick={selectAnnotation}
-        />
-      ))} */}
-      <Annotation
-        key={1}
-        categoryId={0}
-        categoryColor={'#ff120f'}
-        annotationColor={'#9fa9c1'}
-        annotationId={0}
-        onClick={selectAnnotation}
-      />
     </Container>
   );
 }
