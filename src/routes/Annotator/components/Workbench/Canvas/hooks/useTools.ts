@@ -66,12 +66,12 @@ export const useTools = (props: UseToolsProps) => {
     if (selectedTool === Tool.Select) {
       onSelectMouseDown(event);
     } else if (selectedTool === Tool.Brush) {
-      onBrushMouseDown(canvasChildren, currentAnnotation);
+      onBrushMouseDown(canvasChildren, currentCategory, currentAnnotation);
     } else if (selectedTool === Tool.Box) {
-      onBoxMouseDown(event, canvasChildren, currentAnnotation);
+      onBoxMouseDown(event, canvasChildren, currentCategory, currentAnnotation);
       // onBoxMouseDown(event);
     } else if (selectedTool === Tool.Eraser) {
-      onEraserMouseDown(canvasChildren, currentAnnotation);
+      onEraserMouseDown(canvasChildren, currentCategory, currentAnnotation);
     }
   };
 

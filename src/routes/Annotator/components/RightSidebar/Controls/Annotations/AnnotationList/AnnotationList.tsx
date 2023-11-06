@@ -2,113 +2,126 @@ import paper from 'paper';
 import { AddButton, Container } from './AnnotationList.style';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
-import FunctionIcon from 'routes/Annotator/components/LeftSidebar/FunctionIcon';
 import { Annotation } from './Annotation/Annotation';
-import { PathType } from 'routes/Annotator/utils/PathStore';
 import {
   AnnotationType,
-  CategoriesType,
   CategoryType,
   CurrentAnnotationType,
-  CurrentCategoryType,
 } from 'routes/Annotator/Annotator.types';
 import {
-  setCategories,
   setCurrentAnnotation,
   setCurrentCategory,
   updateCategories,
 } from 'routes/Annotator/slices/annotatorSlice';
-import {
-  annotationsToIds,
-  toCurrentCategory,
-  toCurrentCategoryAnnotations,
-} from 'routes/Annotator/helpers/Annotator.helper';
 import { getRandomHexColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import { canvasData } from 'routes/Annotator/components/Workbench/Canvas/Canvas';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
+import { useParams } from 'react-router-dom';
+import { useState } from 'react';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 export default function AnnotationList() {
+  const [isLoading, setIsLoading] = useState(false);
   const categories = useAppSelector((state) => state.annotator.categories);
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
   );
   const dispatch = useAppDispatch();
+  const imageId = Number(useParams().imageId);
+  const datasetId = useAppSelector((state) => state.annotator.datasetId);
 
   // empty annotation 생성
-  function createEmptyAnnotation() {
+  async function createEmptyAnnotation() {
     // 항목 2. categories 업데이트
-    if (!categories || !currentCategory) return;
+    if (!imageId || !datasetId || !categories || !currentCategory) return;
 
-    const category = getCurrentCategoryData(categories, currentCategory);
-    // console.dir('category');
-    // console.dir(category);
-
-    if (!category) return;
-    // 새로 생성할 annotation id
-    const nextId = getLastAnnotationIdByCategory(category) + 1;
-
+    // 랜덤 색상 생성
     const annotationColor = getRandomHexColor();
-    // categories 업데이트. 특정 category 바꿔치기.
-    updateSelectedCategory(category, nextId, annotationColor);
 
-    // 항목 1. paper 업데이트
-    const compoundPathToAdd = new paper.CompoundPath({});
-    // console.log(annotationColor);
-    compoundPathToAdd.fillColor = new paper.Color(annotationColor);
-    compoundPathToAdd.strokeColor = new paper.Color(1, 1, 1, 1);
-    compoundPathToAdd.opacity = 0.5;
+    setIsLoading(true);
+    try {
+      // 빈 annotation 껍데기 생성 요청
+      const response = await AnnotatorModel.createAnnotation(
+        imageId,
+        datasetId,
+        currentCategory.categoryId,
+        annotationColor,
+      );
 
-    const dataToAdd = {
-      categoryId: currentCategory.id,
-      annotationId: nextId,
-      annotationColor: annotationColor,
-    };
-    // console.dir('dataToAdd');
-    // console.dir(dataToAdd);
-    compoundPathToAdd.data = dataToAdd;
+      // 서버에서 생성한 마지막 annotation id
+      const nextAnnotationId = response.data.annotationId;
 
-    // 항목 3. currentAnnotation 업데이트
-    const currentAnnotationToUpdate = {
-      id: nextId,
-      categoryId: currentCategory.id,
-    };
-    dispatch(setCurrentAnnotation(currentAnnotationToUpdate));
-    console.dir(paper.project.activeLayer.children);
+      // 새 annotation 생성, default 값들임.
+      const newAnnotation = {
+        annotationId: nextAnnotationId,
+        isCrowd: false,
+        isBbox: false,
+        color: annotationColor,
+        segmentation: [],
+        area: 0,
+        bbox: [0, 0, 0, 0],
+      };
+
+      // categories 업데이트. 특정 category 바꿔치기.
+      updateSelectedCategory(currentCategory, newAnnotation);
+
+      // 항목 1. paper 업데이트
+      const compoundPathToAdd = new paper.CompoundPath({});
+      compoundPathToAdd.fillColor = new paper.Color(annotationColor);
+      compoundPathToAdd.strokeColor = new paper.Color(1, 1, 1, 1);
+      compoundPathToAdd.opacity = 0.5;
+      const dataToAdd = {
+        categoryId: currentCategory.categoryId,
+        annotationId: nextAnnotationId,
+        annotationColor: annotationColor,
+      };
+      compoundPathToAdd.data = dataToAdd;
+
+      // 항목 3. currentAnnotation 업데이트
+      dispatch(setCurrentAnnotation(newAnnotation));
+      console.dir(paper.project.activeLayer.children);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to create annotation');
+      alert('annotation 생성에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   // last annotationId를 구하는 함수
-  function getLastAnnotationIdByCategory(category: CategoryType): number {
-    const annotations = category.annotations;
-    if (Object.keys(annotations).length > 0) {
-      let maxId = -1;
+  // function getLastAnnotationIdByCategory(category: CategoryType): number {
+  //   const annotations = category.annotations;
+  //   if (Object.keys(annotations).length > 0) {
+  //     let maxId = -1;
 
-      Object.entries(annotations).map(([annotationId]) => {
-        const id = Number(annotationId);
-        if (id > maxId) {
-          maxId = id;
-        }
-      });
+  //     Object.entries(annotations).map(([annotationId]) => {
+  //       const id = Number(annotationId);
+  //       if (id > maxId) {
+  //         maxId = id;
+  //       }
+  //     });
 
-      return maxId;
-    }
+  //     return maxId;
+  //   }
 
-    return -1;
-  }
+  //   return -1;
+  // }
 
   // categoryId를 이용해 나머지 정보를 가져오는 함수
-  function getCurrentCategoryData(
-    categories: CategoriesType,
-    currentCategory: CurrentCategoryType,
-  ) {
-    const category = categories[currentCategory.id];
+  // function getCurrentCategoryData(
+  //   categories: CategoriesType,
+  //   currentCategory: CurrentCategoryType,
+  // ) {
+  //   const category = categories[currentCategory.id];
 
-    return category;
-  }
+  //   return category;
+  // }
 
   // categoriesToUpdate 생성하는 함수
   function updateSelectedCategory(
     category: CategoryType,
-    newAnnotationId: number,
-    annotationColor: string,
+    newAnnotation: AnnotationType,
   ) {
     // 업데이트할 category 가져옴. 복사.
     const categoryToUpdate = copyObject(category);
@@ -116,30 +129,14 @@ export default function AnnotationList() {
     // console.dir(categoryToUpdate);
     if (!categoryToUpdate) return;
 
-    // 새 annotation 객체 생성
-    const newAnnotation = {
-      annotationId: newAnnotationId,
-      isCrowd: false,
-      isBbox: false,
-      // color: categoryToUpdate.color,
-      color: annotationColor,
-      segmentation: [],
-      area: 0,
-      bbox: [],
-    };
-
     // category에 새 annotation 추가
-    // categoryToUpdate.annotations.set(newAnnotationId, newAnnotation);
-    categoryToUpdate.annotations[newAnnotationId] = newAnnotation;
-
-    // console.log('after push');
-    // console.dir(categoryToUpdate);
+    categoryToUpdate.annotations[newAnnotation.annotationId] = newAnnotation;
 
     // categories에 category 반영
     dispatch(updateCategories(categoryToUpdate));
 
     // currentCategory에 반영
-    dispatch(setCurrentCategory(toCurrentCategory(categoryToUpdate)));
+    dispatch(setCurrentCategory(categoryToUpdate));
   }
 
   function copyObject(object: unknown) {
@@ -170,24 +167,16 @@ export default function AnnotationList() {
 
     if (!selectedCategory) return;
 
-    const selectedCurrentCategory = {
-      id: selectedCategory.categoryId,
-      name: selectedCategory.name,
-      color: selectedCategory.color,
-      annotations: toCurrentCategoryAnnotations(selectedCategory.annotations),
-      // annotations: annotationsToIds(selectedCategory.annotations),
-    };
-    dispatch(setCurrentCategory(selectedCurrentCategory));
+    dispatch(setCurrentCategory(selectedCategory));
 
-    const selectedCurrentAnnotation: CurrentAnnotationType = {
-      categoryId: selectedCategory.categoryId,
-      id: annotationId,
-    };
+    const selectedCurrentAnnotation: CurrentAnnotationType =
+      selectedCategory.annotations[annotationId];
     dispatch(setCurrentAnnotation(selectedCurrentAnnotation));
   }
 
   return (
     <Container>
+      {isLoading && <LoadingSpinner message="annotation 목록 갱신 중입니다." />}
       <AddButton
         functionName="Add annotation"
         iconComponent={<AddCircleOutlineOutlinedIcon />}
@@ -196,16 +185,19 @@ export default function AnnotationList() {
         isFunction={true}
       />
       {currentCategory &&
-        currentCategory.annotations.map((annotation) => (
-          <Annotation
-            key={annotation.annotationId}
-            categoryId={currentCategory.id}
-            categoryColor={currentCategory.color}
-            annotationId={annotation.annotationId}
-            annotationColor={annotation.annotationColor}
-            onClick={selectAnnotation}
-          />
-        ))}
+        Object.entries(currentCategory.annotations).map(
+          ([annotationId, annotation]) => (
+            <Annotation
+              key={annotation.annotationId}
+              categoryId={currentCategory.categoryId}
+              categoryColor={currentCategory.color}
+              annotationId={Number(annotationId)}
+              annotationColor={annotation.color}
+              onClick={selectAnnotation}
+              setIsLoading={setIsLoading}
+            />
+          ),
+        )}
     </Container>
   );
 }

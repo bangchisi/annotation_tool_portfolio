@@ -1,26 +1,3 @@
-// export type CategoriesType = CategoryType[];
-
-export interface CategoriesType {
-  [key: number]: CategoryType;
-}
-
-export interface AnnotationsType {
-  [key: number]: AnnotationType;
-}
-
-export interface CurrentCategoryType {
-  id: number;
-  name: string;
-  color: string;
-  annotations: { annotationId: number; annotationColor: string }[];
-  // annotations: number[];
-}
-
-export interface CurrentAnnotationType {
-  id: number;
-  categoryId: number;
-}
-
 export interface CategoryType {
   categoryId: number;
   name: string;
@@ -52,3 +29,25 @@ export interface DataType {
   image: ImageType;
   categories: CategoryType[];
 }
+
+export interface CategoriesType {
+  [key: number]: CategoryType;
+}
+
+export interface AnnotationsType {
+  [key: number]: AnnotationType;
+}
+
+export type CurrentCategoryType = CategoryType;
+// export interface CurrentCategoryType {
+//   id: number;
+//   name: string;
+//   color: string;
+//   annotations: { annotationId: number; annotationColor: string }[];
+// }
+
+export type CurrentAnnotationType = AnnotationType;
+// export interface CurrentAnnotationType {
+//   id: number;
+//   categoryId: number;
+// }

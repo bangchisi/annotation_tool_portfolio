@@ -1,5 +1,8 @@
 import paper from 'paper';
-import { CurrentAnnotationType } from 'routes/Annotator/Annotator.types';
+import {
+  CurrentAnnotationType,
+  CurrentCategoryType,
+} from 'routes/Annotator/Annotator.types';
 
 // preferece에서 가져올 값인가?
 const strokeColor = new paper.Color(1, 1, 1, 1);
@@ -14,12 +17,13 @@ let guideBox: paper.Path.Rectangle | null;
 export const onBoxMouseDown = (
   event: paper.MouseEvent,
   compounds: paper.Item[], // paper.project.activeLayer.children
+  currentCategory?: CurrentCategoryType,
   currentAnnotation?: CurrentAnnotationType,
 ) => {
-  if (!currentAnnotation) return;
+  if (!currentCategory || !currentAnnotation) return;
 
-  const { id: currentAnnotationId, categoryId: currentCategoryId } =
-    currentAnnotation;
+  const { annotationId: currentAnnotationId } = currentAnnotation;
+  const { categoryId: currentCategoryId } = currentCategory;
 
   // tempPath를 현재 compound로 선택
   tempPath = compounds.find((compound) => {

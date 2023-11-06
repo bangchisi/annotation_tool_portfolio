@@ -1,6 +1,9 @@
 import paper from 'paper';
 
-import { CurrentAnnotationType } from 'routes/Annotator/Annotator.types';
+import {
+  CurrentAnnotationType,
+  CurrentCategoryType,
+} from 'routes/Annotator/Annotator.types';
 let eraserCursor: paper.Path.Circle | null = null;
 const radius = 20; // eraser 크기는 preferece에서 받아올 것.
 const strokeColor = new paper.Color(1, 1, 1, 1);
@@ -23,12 +26,13 @@ export const onEraserMouseMove = (event: paper.MouseEvent) => {
 // 마우스 클릭
 export const onEraserMouseDown = (
   compounds: paper.Item[], // paper.project.activeLayer.children
+  currentCategory?: CurrentCategoryType,
   currentAnnotation?: CurrentAnnotationType,
 ) => {
-  if (!currentAnnotation) return;
+  if (!currentCategory || !currentAnnotation) return;
 
-  const { id: currentAnnotationId, categoryId: currentCategoryId } =
-    currentAnnotation;
+  const { annotationId: currentAnnotationId } = currentAnnotation;
+  const { categoryId: currentCategoryId } = currentCategory;
 
   // tempPath를 현재 compound로 선택
   tempPath = compounds.find((compound) => {

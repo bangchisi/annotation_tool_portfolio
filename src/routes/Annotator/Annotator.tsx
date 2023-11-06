@@ -16,7 +16,6 @@ import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useParams } from 'react-router-dom';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { CategoriesType, CategoryType } from './Annotator.types';
-import { toCurrentCategory } from './helpers/Annotator.helper';
 
 export enum Tool {
   Select,
@@ -36,9 +35,12 @@ export default function Annotator() {
   const imageId = Number(useParams().imageId);
   // // const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
   const categories = useAppSelector((state) => state.annotator.categories);
-  // const currentCategory = useAppSelector(
-  //   (state) => state.annotator.currentCategory,
-  // );
+  const currentCategory = useAppSelector(
+    (state) => state.annotator.currentCategory,
+  );
+  const currentAnnotation = useAppSelector(
+    (state) => state.annotator.currentAnnotation,
+  );
 
   // data 받아오기
   const initData = async (imageId: number) => {
@@ -69,9 +71,9 @@ export default function Annotator() {
 
     const firstCategory = categories[Number(keys[0])];
 
-    const currentCategory = toCurrentCategory(firstCategory);
+    // const currentCategory = toCurrentCategory(firstCategory);
 
-    dispatch(setCurrentCategory(currentCategory));
+    dispatch(setCurrentCategory(firstCategory));
   };
 
   // 기존 그림 불러오기
@@ -97,6 +99,10 @@ export default function Annotator() {
   useEffect(() => {
     initData(imageId);
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!currentAnnotation || !currentCategory) return;
+  }, [categories]);
 
   return (
     <Container>

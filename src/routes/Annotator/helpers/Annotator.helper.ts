@@ -60,17 +60,17 @@ export function toCurrentCategoryAnnotations(annotations: AnnotationsType) {
   return annotationList;
 }
 
-export function toCurrentCategory(category: CategoryType): CurrentCategoryType {
-  const currentCategory = {
-    id: category.categoryId,
-    name: category.name,
-    color: category.color,
-    annotations: toCurrentCategoryAnnotations(category.annotations),
-    // annotations: annotationsToIds(category.annotations),
-  };
+// export function toCurrentCategory(category: CategoryType): CurrentCategoryType {
+//   const currentCategory = {
+//     id: category.categoryId,
+//     name: category.name,
+//     color: category.color,
+//     annotations: toCurrentCategoryAnnotations(category.annotations),
+//     // annotations: annotationsToIds(category.annotations),
+//   };
 
-  return currentCategory;
-}
+//   return currentCategory;
+// }
 
 // export function getLastAnnotationIdByCategoryId(
 //   category: CategoryType,
