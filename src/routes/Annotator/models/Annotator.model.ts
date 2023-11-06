@@ -30,6 +30,32 @@ const AnnotatorModel = {
       categories,
     });
   },
+  createAnnotation: (
+    imageId: number,
+    datasetId: number,
+    categoryId: number,
+    color: string,
+  ) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/annotation`
+        : `${SERVER_URL}/annotation`;
+
+    return axios.post(url, {
+      image_id: imageId,
+      dataset_id: datasetId,
+      category_id: categoryId,
+      color: color,
+    });
+  },
+  deleteAnnotation: (annotationId: number) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/annotation/${annotationId}`
+        : `${SERVER_URL}/annotation/${annotationId}`;
+
+    return axios.delete(url);
+  },
 };
 
 export default AnnotatorModel;
