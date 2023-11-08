@@ -1,6 +1,6 @@
-import { Tooltip, Typography } from '@mui/material';
+import paper from 'paper';
+import { Typography } from '@mui/material';
 import { Container, DeleteButton, SelectPanel } from './Annotation.style';
-import { useState } from 'react';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
 
@@ -11,6 +11,7 @@ interface AnnotationProps {
   categoryColor: string;
   onClick: (categoryId: number, annotationId: number) => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  deleteAnnotationInCategories: (annotationId: number) => void;
 }
 
 export function Annotation({
@@ -20,16 +21,24 @@ export function Annotation({
   categoryColor,
   onClick,
   setIsLoading,
+  deleteAnnotationInCategories,
 }: AnnotationProps) {
-  const [open, setOpen] = useState(false);
-
-  async function onClickDeleteButton(annotationId: number) {
+  async function onClickDeleteButton(categoryId: number, annotationId: number) {
     setIsLoading(true);
     try {
       const response = await AnnotatorModel.deleteAnnotation(annotationId);
       console.log('response', response);
 
-      // TODO: reload annotation list, currentCategory, currentAnnotation, categories
+      // TODO 1:
+      // canvas에 있는 해당 compound 삭제
+      deleteCompound(categoryId, annotationId);
+
+      // TODO 2:
+      // 1. delete `deleted annotation` in categories,
+      // 2. currentCategory and currentAnnotation will be reloaded if categories changed
+      // 3. reload annotation list. currentCategory changes -> annotation list reload
+      // 결국 categories만 바꾸면 됨
+      deleteAnnotationInCategories(annotationId);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to delete annotation');
       alert('annotation 삭제 실패. 다시 시도 해주세요.');
@@ -38,26 +47,28 @@ export function Annotation({
     }
   }
 
+  function deleteCompound(categoryId: number, annotationId: number) {
+    const children = paper.project.activeLayer.children;
+
+    children.map((child) => {
+      if (
+        child.data.categoryId === categoryId &&
+        child.data.annotationId === annotationId
+      ) {
+        child.remove();
+      }
+    });
+  }
+
   return (
     <Container
       categorycolor={categoryColor}
       annotationcolor={annotationColor}
       onClick={() => onClick(categoryId, annotationId)}
     >
-      {categoryId >= 0 && (
-        <Tooltip
-          title="annotation name"
-          onClick={() => setOpen((prev) => !prev)}
-          open={open}
-          disableHoverListener
-          disableFocusListener
-          disableTouchListener
-        >
-          <Typography variant="button" display="inline">
-            (id: {annotationId})
-          </Typography>
-        </Tooltip>
-      )}
+      <Typography variant="button" display="inline">
+        (id: {annotationId})
+      </Typography>
       <SelectPanel>
         <option>cat</option>
         <option>dog</option>
@@ -66,7 +77,7 @@ export function Annotation({
       <DeleteButton
         categorycolor={categoryColor}
         annotationcolor={annotationColor}
-        onClick={() => onClickDeleteButton(annotationId)}
+        onClick={() => onClickDeleteButton(categoryId, annotationId)}
       />
     </Container>
   );

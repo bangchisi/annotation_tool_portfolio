@@ -9,6 +9,7 @@ import {
   CurrentAnnotationType,
 } from 'routes/Annotator/Annotator.types';
 import {
+  setCategories,
   setCurrentAnnotation,
   setCurrentCategory,
   updateCategories,
@@ -89,35 +90,6 @@ export default function AnnotationList() {
     }
   }
 
-  // last annotationId를 구하는 함수
-  // function getLastAnnotationIdByCategory(category: CategoryType): number {
-  //   const annotations = category.annotations;
-  //   if (Object.keys(annotations).length > 0) {
-  //     let maxId = -1;
-
-  //     Object.entries(annotations).map(([annotationId]) => {
-  //       const id = Number(annotationId);
-  //       if (id > maxId) {
-  //         maxId = id;
-  //       }
-  //     });
-
-  //     return maxId;
-  //   }
-
-  //   return -1;
-  // }
-
-  // categoryId를 이용해 나머지 정보를 가져오는 함수
-  // function getCurrentCategoryData(
-  //   categories: CategoriesType,
-  //   currentCategory: CurrentCategoryType,
-  // ) {
-  //   const category = categories[currentCategory.id];
-
-  //   return category;
-  // }
-
   // categoriesToUpdate 생성하는 함수
   function updateSelectedCategory(
     category: CategoryType,
@@ -174,6 +146,18 @@ export default function AnnotationList() {
     dispatch(setCurrentAnnotation(selectedCurrentAnnotation));
   }
 
+  function deleteAnnotationInCategories(annotationId: number) {
+    if (!categories || !currentCategory) return;
+
+    const categoriesToUpdate = JSON.parse(JSON.stringify(categories));
+
+    delete categoriesToUpdate[`${currentCategory.categoryId}`]['annotations'][
+      `${annotationId}`
+    ];
+
+    dispatch(setCategories(categoriesToUpdate));
+  }
+
   return (
     <Container>
       {isLoading && <LoadingSpinner message="annotation 목록 갱신 중입니다." />}
@@ -195,6 +179,7 @@ export default function AnnotationList() {
               annotationColor={annotation.color}
               onClick={selectAnnotation}
               setIsLoading={setIsLoading}
+              deleteAnnotationInCategories={deleteAnnotationInCategories}
             />
           ),
         )}
