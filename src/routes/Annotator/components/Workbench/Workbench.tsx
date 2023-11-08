@@ -14,7 +14,8 @@ export default function Workbench() {
   const handleResize = () => {
     if (containerRef.current) {
       setContainerWidth(containerRef.current.clientWidth);
-      setContainerHeight(containerRef.current.clientHeight);
+      setContainerHeight(window.innerHeight);
+      // setContainerHeight(containerRef.current.clientHeight);
     }
   };
 
@@ -29,7 +30,8 @@ export default function Workbench() {
   useEffect(() => {
     if (containerRef.current) {
       setContainerWidth(containerRef.current.clientWidth);
-      setContainerHeight(containerRef.current.clientHeight);
+      setContainerHeight(window.innerHeight);
+      // setContainerHeight(containerRef.current.clientHeight);
     }
   }, []);
 

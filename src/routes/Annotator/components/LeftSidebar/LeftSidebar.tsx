@@ -65,8 +65,12 @@ export default function LeftSidebar() {
 
   return (
     <Container id="annotator-left-sidebar">
-      <Toolbar />
-      <Box sx={{ pl: 0.5 }}>
+      <Box
+        sx={{
+          pl: 0.5,
+          paddingTop: 3,
+        }}
+      >
         <List>
           <ToolIcon
             toolName="Select"

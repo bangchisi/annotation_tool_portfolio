@@ -5,6 +5,6 @@ export const Container = styled('div')(() => {
     display: 'flex',
     width: '100%',
     height: '100%',
-    maxHeight: '100vh - 40px',
+    // maxHeight: '100vh - 50%',
   };
 });
