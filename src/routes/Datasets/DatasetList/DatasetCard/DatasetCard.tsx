@@ -36,6 +36,8 @@ interface DatasetCardProps {
     },
   ];
   setDatasetList: (userId: string) => Promise<void>;
+  setExportId: React.Dispatch<React.SetStateAction<number | undefined>>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function DatasetCard(props: DatasetCardProps) {
@@ -48,6 +50,8 @@ export default function DatasetCard(props: DatasetCardProps) {
     categories,
     progress,
     setDatasetList,
+    setExportId,
+    setOpen,
   } = props;
   const [imgPath, setImgPath] = useState('');
 
@@ -122,6 +126,8 @@ export default function DatasetCard(props: DatasetCardProps) {
           userId={user.userId}
           datasetId={datasetId}
           deleteDataset={deleteDataset}
+          setExportId={setExportId}
+          setOpen={setOpen}
         />
       </MenuButtonContainer>
     </Container>
