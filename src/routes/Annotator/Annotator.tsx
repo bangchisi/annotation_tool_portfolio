@@ -1,3 +1,4 @@
+import paper from 'paper';
 import RightSidebar from './components/RightSidebar/RightSidebar';
 import LeftSidebar from './components/LeftSidebar/LeftSidebar';
 import { Container } from './Annotator.style';
@@ -5,17 +6,18 @@ import Workbench from './components/Workbench/Workbench';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import {
   setCategories,
+  setCurrentAnnotation,
   setCurrentCategory,
   setDatasetId,
   setImage,
 } from './slices/annotatorSlice';
 import AnnotatorModel from './models/Annotator.model';
 import { useEffect, useState } from 'react';
-import PathStore from './utils/PathStore';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useParams } from 'react-router-dom';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { CategoriesType, CategoryType } from './Annotator.types';
+import { AnnotationType, CategoriesType } from './Annotator.types';
+import { getCompoundPathWithData } from './helpers/Annotator.helper';
 
 export enum Tool {
   Select,
@@ -25,15 +27,11 @@ export enum Tool {
   SAM,
 }
 
-// path 정보들을 저장한 배열
-// export let paths: PathStore;
-// export const paths = new PathStore();
-
 export default function Annotator() {
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const imageId = Number(useParams().imageId);
-  // // const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
+  // const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
   const categories = useAppSelector((state) => state.annotator.categories);
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
@@ -57,7 +55,8 @@ export default function Annotator() {
       dispatch(setCategories(categoriesData));
 
       selectFirstCategory(categoriesData);
-      // initPaths(categories);
+
+      initPaths(categories);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get annotator data');
     } finally {
@@ -71,29 +70,43 @@ export default function Annotator() {
 
     const firstCategory = categories[Number(keys[0])];
 
-    // const currentCategory = toCurrentCategory(firstCategory);
-
     dispatch(setCurrentCategory(firstCategory));
   };
 
   // 기존 그림 불러오기
-  // const initPaths = (categories: Map<number, CategoryType>) => {
-  //   // TODO: get categories -> convert to compoundPaths -> add to canvas
-  //   const paths = [];
-  //   for (const category of categories.values()) {
-  //     for (const annotation of category.annotations.values()) {
-  //       const pathToPush = {
-  //         categoryId: category.categoryId,
-  //         annotationId: annotation.annotationId,
-  //         segmentations: annotation.segmentation || [],
-  //       };
+  function initPaths(categories: CategoriesType) {
+    // TODO: get categories -> convert to compoundPaths -> add to canvas
+    Object.entries(categories).map(([categoryId, category]) => {
+      const annotations = category.annotations as {
+        [key: number]: AnnotationType;
+      };
 
-  //       paths.push(pathToPush);
-  //     }
-  //   }
+      Object.entries(annotations).map(([annotationId, annotation]) => {
+        // {
+        //   "annotationId": 1371,
+        //   "isCrowd": true,
+        //   "isBbox": true,
+        //   "color": "#801054",
+        //   "segmentation": [],
+        //   "area": 7598,
+        //   "bbox": []
+        // }
+        const compound = getCompoundPathWithData(annotation.segmentation);
+        compound.fillColor = new paper.Color(annotation.color);
+        compound.strokeColor = new paper.Color(1, 1, 1, 1);
+        compound.opacity = 0.5;
+        const dataToAdd = {
+          categoryId: categoryId,
+          annotationId: annotationId,
+          annotationColor: annotation.color,
+        };
+        compound.data = dataToAdd;
+      });
+    });
 
-  //   return paths;
-  // };
+    console.dir('canvas compounds');
+    console.dir(paper.project.activeLayer.children);
+  }
 
   // init data
   useEffect(() => {
@@ -101,7 +114,14 @@ export default function Annotator() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!currentAnnotation || !currentCategory) return;
+    if (!currentCategory || !currentAnnotation) return;
+    const currentCategoryToUpdate = categories[currentCategory.categoryId];
+    if (!currentCategoryToUpdate) return;
+    const currentAnnotationToUpdate =
+      currentCategoryToUpdate.annotations[currentAnnotation.annotationId];
+
+    dispatch(setCurrentCategory(currentCategoryToUpdate));
+    dispatch(setCurrentAnnotation(currentAnnotationToUpdate));
   }, [categories]);
 
   return (

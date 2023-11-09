@@ -89,11 +89,11 @@ export function toCurrentCategoryAnnotations(annotations: AnnotationsType) {
 // set data in compoundPath
 export function getCompoundPathWithData(
   segmentation: number[][],
-  categoryId: number,
-  annotationId: number,
+  // categoryId: number,
+  // annotationId: number,
 ) {
   const compoundPath = segmentationToCompoundPath(segmentation);
-  compoundPath.data = { categoryId, annotationId };
+  // compoundPath.data = { categoryId, annotationId };
 
   return compoundPath;
 }
