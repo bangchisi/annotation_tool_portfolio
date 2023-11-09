@@ -5,10 +5,12 @@ export const Container = styled('div')(() => {
 
   return {
     display: 'grid',
-    gridTemplateColumns: matches ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)',
-    gap: '10px 0px',
+    gridTemplateColumns: matches
+      ? 'repeat(auto-fill, minmax(20%, 20%))'
+      : 'repeat(auto-fill, minmax(33%, 33%))',
+    gap: '10px',
+    justifyContent: 'center', // 수평 가운데 정렬
     alignItems: 'center', // 수직 가운데 정렬
-    justifyItems: 'center', // 수평 가운데 정렬
     padding: '0 100px',
   };
 });

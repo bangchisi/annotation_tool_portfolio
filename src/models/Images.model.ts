@@ -31,6 +31,14 @@ const ImagesModel = {
       },
     );
   },
+  deleteImage: (imageId: number) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/image/${imageId}`
+        : `${SERVER_URL}/image/${imageId}`;
+
+    return axios.delete(url);
+  },
 };
 
 export default ImagesModel;

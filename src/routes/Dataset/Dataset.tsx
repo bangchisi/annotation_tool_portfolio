@@ -8,6 +8,7 @@ import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import Information from './Information/Information';
 import Controls from './Controls/Controls';
 import PaginationPanel from 'components/PaginationPanel/PaginationPanel';
+import ImagesModel from 'models/Images.model';
 
 export interface DatasetType {
   datasetId: number;
@@ -33,7 +34,7 @@ export default function Dataset() {
   const [dataset, setDataset] = useState<DatasetType>();
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const datasetId = useParams().datasetId;
+  const datasetId = Number(useParams().datasetId);
 
   const getDataset = async (datasetId: number | undefined) => {
     try {
@@ -50,6 +51,16 @@ export default function Dataset() {
       setIsLoading(false);
     }
   };
+
+  async function deleteImage(imageId: number) {
+    try {
+      const response = await ImagesModel.deleteImage(imageId);
+      console.log('response', response);
+      getDataset(datasetId);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to delete image');
+    }
+  }
 
   const onCurrentpageChange = (
     event: React.ChangeEvent<unknown>,
@@ -79,7 +90,10 @@ export default function Dataset() {
               currentPage={currentPage}
               lastPage={dataset.imageIds.length}
             />
-            <ImageList imageIds={dataset.imageIds[currentPage - 1]} />
+            <ImageList
+              imageIds={dataset.imageIds[currentPage - 1]}
+              deleteImage={deleteImage}
+            />
             <PaginationPanel
               onCurrentPageChange={onCurrentpageChange}
               currentPage={currentPage}
