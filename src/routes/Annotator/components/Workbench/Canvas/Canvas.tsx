@@ -1,6 +1,6 @@
 import paper from 'paper';
 import { useEffect, useRef, useState } from 'react';
-import { onCanvasWheel } from './helpers/canvasHelper';
+import { getViewBounds, onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { useTools } from './hooks/useTools';
 import { useAppSelector } from 'App.hooks';
@@ -70,6 +70,38 @@ export default function Canvas({
         raster.position = paper.view.center;
         imgWidth = raster.image.width;
         imgHeight = raster.image.height;
+        const { resultTopLeft, resultBottomRight } = getViewBounds(
+          imgWidth,
+          imgHeight,
+        );
+
+        console.dir('result view bounds');
+        console.log(resultTopLeft.x, resultTopLeft.y);
+        console.log(resultBottomRight.x, resultBottomRight.y);
+        new paper.Path.Circle({
+          center: resultTopLeft,
+          strokeColor: new paper.Color('red'),
+          strokeWidth: 5,
+          radius: 30,
+        });
+        new paper.Path.Circle({
+          center: resultBottomRight,
+          strokeColor: new paper.Color('green'),
+          strokeWidth: 5,
+          radius: 30,
+        });
+        // new paper.Path.Circle({
+        //   center: imageLeftTopCoord,
+        //   strokeColor: new paper.Color('blue'),
+        //   strokeWidth: 5,
+        //   radius: 30,
+        // });
+        // new paper.Path.Circle({
+        //   center: imageRightBottomCoord,
+        //   strokeColor: new paper.Color('yellow'),
+        //   strokeWidth: 5,
+        //   radius: 30,
+        // });
 
         if (tempCtx) {
           tempCtx.canvas.width = img.width;
