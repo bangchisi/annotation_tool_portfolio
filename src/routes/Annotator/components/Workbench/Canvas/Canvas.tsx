@@ -1,12 +1,17 @@
 import paper from 'paper';
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { getViewBounds, onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { useTools } from './hooks/useTools';
-import { useAppSelector } from 'App.hooks';
+import { useAppSelector, useAppDispatch } from 'App.hooks';
 import { getImagePath } from 'helpers/ImagesHelpers';
 import { useParams } from 'react-router-dom';
 import PathStore from 'routes/Annotator/utils/PathStore';
+import { Tool } from 'routes/Annotator/Annotator';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import SAMModel from 'routes/Annotator/models/SAM.model';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { setIsSAMLoaded } from 'routes/Annotator/slices/annotatorSlice';
 
 interface CanvasProps {
   // selectedTool: Tool;
@@ -24,6 +29,8 @@ export default function Canvas({
   containerHeight,
 }: CanvasProps) {
   // console.log('rendering Canvas.tsx');
+  const dispatch = useAppDispatch();
+  const [isSAMLoading, setIsSAMLoading] = useState(false);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
   const imageId = Number(useParams().imageId);
   const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
@@ -34,12 +41,35 @@ export default function Canvas({
     (state) => state.annotator.currentCategory,
   );
   const image = useAppSelector((state) => state.annotator.image);
+  const isSAMLoaded = useAppSelector((state) => state.annotator.isSAMLoaded);
 
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
   // const { width: imageWidth, height: imageHeight } = image;
   let imgWidth: number | null = null;
   let imgHeight: number | null = null;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // SAM model 로드
+  async function loadSAM(modelType?: string) {
+    setIsSAMLoading(true);
+    try {
+      const response = await SAMModel.loadModel(
+        modelType ? modelType : 'vit_h',
+      );
+      console.log('response');
+      console.dir(response);
+      dispatch(setIsSAMLoaded(true));
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to load SAM');
+      // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
+      dispatch(setIsSAMLoaded(false));
+      alert(
+        'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
+      );
+    } finally {
+      setIsSAMLoading(false);
+    }
+  }
 
   // 캔버스 초기 설정 useEffect
   useEffect(() => {
@@ -70,38 +100,6 @@ export default function Canvas({
         raster.position = paper.view.center;
         imgWidth = raster.image.width;
         imgHeight = raster.image.height;
-        const { resultTopLeft, resultBottomRight } = getViewBounds(
-          imgWidth,
-          imgHeight,
-        );
-
-        console.dir('result view bounds');
-        console.log(resultTopLeft.x, resultTopLeft.y);
-        console.log(resultBottomRight.x, resultBottomRight.y);
-        new paper.Path.Circle({
-          center: resultTopLeft,
-          strokeColor: new paper.Color('red'),
-          strokeWidth: 5,
-          radius: 30,
-        });
-        new paper.Path.Circle({
-          center: resultBottomRight,
-          strokeColor: new paper.Color('green'),
-          strokeWidth: 5,
-          radius: 30,
-        });
-        // new paper.Path.Circle({
-        //   center: imageLeftTopCoord,
-        //   strokeColor: new paper.Color('blue'),
-        //   strokeWidth: 5,
-        //   radius: 30,
-        // });
-        // new paper.Path.Circle({
-        //   center: imageRightBottomCoord,
-        //   strokeColor: new paper.Color('yellow'),
-        //   strokeWidth: 5,
-        //   radius: 30,
-        // });
 
         if (tempCtx) {
           tempCtx.canvas.width = img.width;
@@ -150,6 +148,14 @@ export default function Canvas({
     };
   }, [selectedTool, onMouseMove, onMouseDown, onMouseDrag]);
 
+  // SAM 로딩 했는지 검사
+  useEffect(() => {
+    if (selectedTool === Tool.SAM) {
+      if (isSAMLoaded) return;
+      loadSAM();
+    }
+  }, [selectedTool]);
+
   // window 리사이즈 시 useEffect
   useEffect(() => {
     if (containerWidth && containerHeight) {
@@ -158,6 +164,11 @@ export default function Canvas({
   }, [containerWidth, containerHeight]);
 
   return (
-    <Editor ref={canvasRef} id="canvas" selectedTool={selectedTool}></Editor>
+    <Fragment>
+      {isSAMLoading && (
+        <LoadingSpinner message="SAM을 불러오는 중입니다. 조금만 기다려주세요." />
+      )}
+      <Editor ref={canvasRef} id="canvas" selectedTool={selectedTool}></Editor>
+    </Fragment>
   );
 }
