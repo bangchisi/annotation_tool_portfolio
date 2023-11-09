@@ -7,6 +7,8 @@ import DatasetsModel from './models/Datasets.model';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { Container } from './Datasets.style';
 import Controls from './Controls/Controls';
+import Reload from './Reload/Reload';
+import { useAppSelector } from 'App.hooks';
 
 export interface DatasetType {
   datasetId: number; // Dataset 고유 ID
@@ -29,6 +31,8 @@ export interface DatasetType {
 export default function Datasets() {
   const [datasets, setDatasets] = useState<DatasetType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const user = useAppSelector((state) => state.auth.user);
 
   const setDatasetList = async (userId: string) => {
     try {
@@ -36,7 +40,9 @@ export default function Datasets() {
       const response = await DatasetsModel.getDatasetsByUserId(userId);
       const datasetList = response.data;
       setDatasets([...datasetList]);
+      setIsError(false);
     } catch (error) {
+      setIsError(true);
       axiosErrorHandler(error, 'Failed to get datasets');
     } finally {
       setIsLoading(false);
@@ -47,7 +53,12 @@ export default function Datasets() {
   return (
     <Container>
       <Controls setDatasetList={setDatasetList} />
-      <DatasetList datasets={datasets} setDatasetList={setDatasetList} />
+      {!isError && (
+        <DatasetList datasets={datasets} setDatasetList={setDatasetList} />
+      )}
+      {isError && (
+        <Reload setDatasetList={setDatasetList} userId={user.userId} />
+      )}
       {isLoading && (
         <LoadingSpinner message="Dataset 목록을 불러오는 중입니다. 잠시만 기다려주세요." />
       )}
