@@ -56,7 +56,7 @@ export default function Annotator() {
 
       selectFirstCategory(categoriesData);
 
-      initPaths(categories);
+      drawPaths(categories);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get annotator data');
     } finally {
@@ -74,43 +74,89 @@ export default function Annotator() {
   };
 
   // 기존 그림 불러오기
-  function initPaths(categories: CategoriesType) {
-    // TODO: get categories -> convert to compoundPaths -> add to canvas
-    Object.entries(categories).map(([categoryId, category]) => {
-      const annotations = category.annotations as {
-        [key: number]: AnnotationType;
-      };
+  function drawPaths(categories: CategoriesType) {
+    Object.entries(categories).map(([id, category]) => {
+      const categoryId = Number(id);
+      console.log('categoryId: ', categoryId);
 
-      Object.entries(annotations).map(([annotationId, annotation]) => {
-        // {
-        //   "annotationId": 1371,
-        //   "isCrowd": true,
-        //   "isBbox": true,
-        //   "color": "#801054",
-        //   "segmentation": [],
-        //   "area": 7598,
-        //   "bbox": []
-        // }
-        const compound = getCompoundPathWithData(annotation.segmentation);
-        compound.fillColor = new paper.Color(annotation.color);
-        compound.strokeColor = new paper.Color(1, 1, 1, 1);
-        compound.opacity = 0.5;
-        const dataToAdd = {
-          categoryId: categoryId,
-          annotationId: annotationId,
-          annotationColor: annotation.color,
-        };
-        compound.data = dataToAdd;
+      const annotations = Object.entries(category.annotations) as [
+        string,
+        AnnotationType,
+      ][];
+
+      annotations.map(([id, annotation]) => {
+        const annotationId = Number(id);
+
+        paper.project.activeLayer.children.find((child) => {
+          if (
+            child.data.categoryId === categoryId &&
+            child.data.annotationId === annotationId
+          ) {
+            child.remove();
+          }
+        });
+
+        const compound = getCompoundPathWithData(
+          annotation.segmentation,
+          categoryId,
+          annotationId,
+          annotation.color,
+        );
+
+        console.log(compound);
       });
     });
-
-    console.dir('canvas compounds');
-    console.dir(paper.project.activeLayer.children);
   }
+
+  // // 기존 그림 불러오기
+  // function initPaths(categories: CategoriesType) {
+  //   // TODO: get categories -> convert to compoundPaths -> add to canvas
+  //   console.log('initPaths');
+  //   Object.entries(categories).map(([categoryId, category]) => {
+  //     const annotations = category.annotations as {
+  //       [key: number]: AnnotationType;
+  //     };
+
+  //     Object.entries(annotations).map(([annotationId, annotation]) => {
+  //       // {
+  //       //   "annotationId": 1371,
+  //       //   "isCrowd": true,
+  //       //   "isBbox": true,
+  //       //   "color": "#801054",
+  //       //   "segmentation": [],
+  //       //   "area": 7598,
+  //       //   "bbox": []
+  //       // }
+  //       console.log(1);
+  //       const compound = getCompoundPathWithData(
+  //         annotation.segmentation,
+  //         Number(categoryId),
+  //         Number(annotationId),
+  //         annotation.color,
+  //       );
+  //       compound.fillColor = new paper.Color(annotation.color);
+  //       compound.strokeColor = new paper.Color(1, 1, 1, 1);
+  //       compound.opacity = 0.5;
+  //       const dataToAdd = {
+  //         categoryId: categoryId,
+  //         annotationId: annotationId,
+  //         annotationColor: annotation.color,
+  //       };
+  //       compound.data = dataToAdd;
+  //       paper.project.activeLayer.addChild(compound);
+  //       console.dir(compound);
+  //     });
+  //   });
+
+  //   console.dir('canvas compounds');
+  //   console.dir(paper.project.activeLayer.children);
+  // }
 
   // init data
   useEffect(() => {
     initData(imageId);
+
+    console.dir(paper.project.activeLayer.children);
   }, [dispatch]);
 
   useEffect(() => {

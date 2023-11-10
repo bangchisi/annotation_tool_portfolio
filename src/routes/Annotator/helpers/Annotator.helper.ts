@@ -89,11 +89,15 @@ export function toCurrentCategoryAnnotations(annotations: AnnotationsType) {
 // set data in compoundPath
 export function getCompoundPathWithData(
   segmentation: number[][],
-  // categoryId: number,
-  // annotationId: number,
+  categoryId: number,
+  annotationId: number,
+  annotationColor: string,
 ) {
   const compoundPath = segmentationToCompoundPath(segmentation);
-  // compoundPath.data = { categoryId, annotationId };
+  compoundPath.data = { categoryId, annotationId, annotationColor };
+  compoundPath.fillColor = new paper.Color(annotationColor);
+  compoundPath.strokeColor = new paper.Color(1, 1, 1, 1);
+  compoundPath.opacity = 0.5;
 
   return compoundPath;
 }
@@ -112,11 +116,13 @@ export function segmentationToCompoundPath(segmentation: number[][]) {
 // points: number[] -> paper.Path
 export function pointsToPath(points: number[]) {
   // number[] -> [number, number][]
-  const path = points.map((point: number, idx) => {
-    if (idx % 2 === 0) {
-      return [point, points[idx + 1]];
-    }
-  });
+  const path = points
+    .map((point: number, idx) => {
+      if (idx % 2 === 0) {
+        return [point, points[idx + 1]];
+      }
+    })
+    .filter((point) => point !== undefined);
 
   // path를 segments로 하는 pape.Path를 만들어 return
   return new paper.Path({
