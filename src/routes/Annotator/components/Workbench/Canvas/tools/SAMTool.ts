@@ -2,7 +2,19 @@ import paper from 'paper';
 
 let tempRect: paper.Path.Rectangle;
 
-export function onSAMMouseDown() {
+export function onSAMMouseDown(
+  everything: (
+    imageId: number,
+    categoryId: number,
+    topLeft: paper.Point,
+    bottomRight: paper.Point,
+    params: {
+      predIOUThresh: number;
+      boxNmsThresh: number;
+      pointsPerSide: number;
+    },
+  ) => Promise<void>,
+) {
   console.log('SAM mouse down');
   const viewBounds = paper.view.bounds;
   const raster = paper.project.activeLayer.children.find(
@@ -30,9 +42,22 @@ export function onSAMMouseDown() {
   });
 
   // prompt, everything api 요청
-  const [a, b] = getConvertedCoordinate(topLeft, bottomRight, raster);
+  const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
+    topLeft,
+    bottomRight,
+    raster,
+  );
+
+  console.log(calculatedTopLeft);
+  console.log(calculatedBottomRight);
 
   // everything test
+  // FIX: 불러온 그림들이 raster subtract 만큼 왼쪽 위로 표시됨
+  everything(4671, 159, calculatedTopLeft, calculatedBottomRight, {
+    predIOUThresh: 0.88,
+    boxNmsThresh: 0.7,
+    pointsPerSide: 32,
+  });
 }
 
 // view.bounds와 raster.bounds의 교차점을 구함

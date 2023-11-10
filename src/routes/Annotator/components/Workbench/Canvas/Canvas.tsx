@@ -35,6 +35,7 @@ export default function Canvas({
   const dispatch = useAppDispatch();
   const [isSAMModelLoading, setIsSAMModelLoading] = useState(false);
   const [isEmbeddingLoading, setIsEmbeddingLoading] = useState(false);
+  const [isEverythingLoading, setIsEverythingLoading] = useState(false);
   // const [isSAMLoading, setIsSAMLoading] = useState(false);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
   const imageId = Number(useParams().imageId);
@@ -83,7 +84,6 @@ export default function Canvas({
 
   async function embedImage(imageId: number) {
     // embed image, 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
-    // prompt와 everything을 나중에 구현하면 좌표를 인자로 받아야함
     if (!image) return;
     setIsEmbeddingLoading(true);
     try {
@@ -101,6 +101,39 @@ export default function Canvas({
       dispatch(setEmbeddedImageId(undefined));
     } finally {
       setIsEmbeddingLoading(false);
+    }
+  }
+
+  async function everything(
+    imageId: number,
+    categoryId: number,
+    topLeft: paper.Point,
+    bottomRight: paper.Point,
+    params: {
+      predIOUThresh: number;
+      boxNmsThresh: number;
+      pointsPerSide: number;
+    },
+  ) {
+    if (!isSAMModelLoaded) return;
+    if (!embeddedImageId || embeddedImageId !== imageId) return;
+    setIsEverythingLoading(true);
+    try {
+      const response = SAMModel.everything(
+        imageId,
+        categoryId,
+        topLeft,
+        bottomRight,
+        params,
+      );
+
+      console.log('everything, response');
+      console.log(response);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to SAM Everything');
+      alert('everything 모드 실패, 다시 시도해주세요.');
+    } finally {
+      setIsEverythingLoading(false);
     }
   }
 
@@ -165,6 +198,7 @@ export default function Canvas({
     // containerWidth,
     // containerHeight,
     // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임
+    everything,
   });
 
   useEffect(() => {
@@ -213,6 +247,9 @@ export default function Canvas({
       )}
       {isEmbeddingLoading && (
         <LoadingSpinner message="image embedding을 불러오는 중입니다. 조금만 기다려주세요." />
+      )}
+      {isEverythingLoading && (
+        <LoadingSpinner message="Everything 생성 중. 조금만 기다려주세요." />
       )}
       <Editor ref={canvasRef} id="canvas" selectedTool={selectedTool}></Editor>
     </Fragment>

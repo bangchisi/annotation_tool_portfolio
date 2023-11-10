@@ -29,6 +29,34 @@ const SAMModel = {
       image_right_bottom_coord: [bottomRight.x, bottomRight.y],
     });
   },
+  everything: (
+    imageId: number,
+    categoryId: number,
+    topLeft: paper.Point,
+    bottomRight: paper.Point,
+    params: {
+      predIOUThresh: number;
+      boxNmsThresh: number;
+      pointsPerSide: number;
+    },
+  ) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/sam/everything`
+        : `${SERVER_URL}/sam/everything`;
+
+    axios.post(url, {
+      image_id: imageId,
+      category_id: categoryId,
+      image_left_top_coord: [topLeft.x, topLeft.y],
+      image_right_bottom_coord: [bottomRight.x, bottomRight.y],
+      params: {
+        pred_iou_thresh: params.predIOUThresh,
+        box_nms_thresh: params.boxNmsThresh,
+        points_per_side: params.pointsPerSide,
+      },
+    });
+  },
 };
 
 export default SAMModel;

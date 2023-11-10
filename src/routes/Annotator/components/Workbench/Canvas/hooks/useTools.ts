@@ -29,6 +29,17 @@ interface UseToolsProps {
   canvasChildren: paper.Item[];
   currentAnnotation?: CurrentAnnotationType;
   currentCategory?: CurrentCategoryType;
+  everything: (
+    imageId: number,
+    categoryId: number,
+    topLeft: paper.Point,
+    bottomRight: paper.Point,
+    params: {
+      predIOUThresh: number;
+      boxNmsThresh: number;
+      pointsPerSide: number;
+    },
+  ) => Promise<void>;
   // containerWidth: number | null;
   // containerHeight: number | null;
 }
@@ -41,6 +52,7 @@ export const useTools = (props: UseToolsProps) => {
     canvasChildren,
     currentAnnotation,
     currentCategory,
+    everything,
     // containerWidth,
     // containerHeight,
   } = props;
@@ -74,7 +86,7 @@ export const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Eraser) {
       onEraserMouseDown(canvasChildren, currentCategory, currentAnnotation);
     } else if (selectedTool === Tool.SAM) {
-      onSAMMouseDown();
+      onSAMMouseDown(everything);
     }
   };
 
