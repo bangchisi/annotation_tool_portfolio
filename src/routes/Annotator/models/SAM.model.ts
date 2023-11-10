@@ -13,6 +13,22 @@ const SAMModel = {
 
     return axios.get(url);
   },
+  embedImage: (
+    imageId: number,
+    topLeft: paper.Point,
+    bottomRight: paper.Point,
+  ) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/sam/embed`
+        : `${SERVER_URL}/sam/embed`;
+
+    return axios.post(url, {
+      image_id: imageId,
+      image_left_top_coord: [topLeft.x, topLeft.y],
+      image_right_bottom_coord: [bottomRight.x, bottomRight.y],
+    });
+  },
 };
 
 export default SAMModel;

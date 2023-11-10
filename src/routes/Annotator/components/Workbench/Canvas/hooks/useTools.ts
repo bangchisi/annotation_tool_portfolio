@@ -20,6 +20,7 @@ import {
   onEraserMouseUp,
 } from '../tools/EraserTool';
 import PathStore from 'routes/Annotator/utils/PathStore';
+import { onSAMMouseDown } from '../tools/SAMTool';
 
 interface UseToolsProps {
   initPoint: paper.Point | null;
@@ -72,6 +73,8 @@ export const useTools = (props: UseToolsProps) => {
       // onBoxMouseDown(event);
     } else if (selectedTool === Tool.Eraser) {
       onEraserMouseDown(canvasChildren, currentCategory, currentAnnotation);
+    } else if (selectedTool === Tool.SAM) {
+      onSAMMouseDown();
     }
   };
 

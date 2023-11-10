@@ -17,7 +17,8 @@ enum Tool {
 
 interface initialStateType {
   selectedTool: Tool;
-  isSAMLoaded: boolean;
+  isSAMModelLoaded: boolean;
+  embeddedImageId?: number;
   datasetId?: number;
   image?: ImageType;
   categories: CategoriesType;
@@ -27,7 +28,7 @@ interface initialStateType {
 
 const initialState: initialStateType = {
   selectedTool: Tool.Select,
-  isSAMLoaded: false,
+  isSAMModelLoaded: false,
   categories: {},
 };
 
@@ -60,8 +61,11 @@ const annotatorSlice = createSlice({
       // console.log('annotatorSlice.ts, set currentAnnotation');
       state.currentAnnotation = action.payload;
     },
-    setIsSAMLoaded: (state, action: PayloadAction<boolean>) => {
-      state.isSAMLoaded = action.payload;
+    setIsSAMModelLoaded: (state, action: PayloadAction<boolean>) => {
+      state.isSAMModelLoaded = action.payload;
+    },
+    setEmbeddedImageId: (state, action: PayloadAction<number | undefined>) => {
+      state.embeddedImageId = action.payload;
     },
     updateCategories: (state, action: PayloadAction<CategoryType>) => {
       // state.categories.set(action.payload.categoryId, action.payload);
@@ -77,7 +81,8 @@ export const {
   setCategories,
   setCurrentCategory,
   setCurrentAnnotation,
-  setIsSAMLoaded,
+  setIsSAMModelLoaded,
+  setEmbeddedImageId,
   updateCategories,
 } = annotatorSlice.actions;
 

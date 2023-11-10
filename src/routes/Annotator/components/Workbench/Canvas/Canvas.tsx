@@ -11,7 +11,10 @@ import { Tool } from 'routes/Annotator/Annotator';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { setIsSAMLoaded } from 'routes/Annotator/slices/annotatorSlice';
+import {
+  setEmbeddedImageId,
+  setIsSAMModelLoaded,
+} from 'routes/Annotator/slices/annotatorSlice';
 
 interface CanvasProps {
   // selectedTool: Tool;
@@ -30,7 +33,9 @@ export default function Canvas({
 }: CanvasProps) {
   // console.log('rendering Canvas.tsx');
   const dispatch = useAppDispatch();
-  const [isSAMLoading, setIsSAMLoading] = useState(false);
+  const [isSAMModelLoading, setIsSAMModelLoading] = useState(false);
+  const [isEmbeddingLoading, setIsEmbeddingLoading] = useState(false);
+  // const [isSAMLoading, setIsSAMLoading] = useState(false);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
   const imageId = Number(useParams().imageId);
   const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
@@ -41,7 +46,12 @@ export default function Canvas({
     (state) => state.annotator.currentCategory,
   );
   const image = useAppSelector((state) => state.annotator.image);
-  const isSAMLoaded = useAppSelector((state) => state.annotator.isSAMLoaded);
+  const isSAMModelLoaded = useAppSelector(
+    (state) => state.annotator.isSAMModelLoaded,
+  );
+  const embeddedImageId = useAppSelector(
+    (state) => state.annotator.embeddedImageId,
+  );
 
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
   // const { width: imageWidth, height: imageHeight } = image;
@@ -51,23 +61,46 @@ export default function Canvas({
 
   // SAM model 로드
   async function loadSAM(modelType?: string) {
-    setIsSAMLoading(true);
+    setIsSAMModelLoading(true);
     try {
       const response = await SAMModel.loadModel(
         modelType ? modelType : 'vit_h',
       );
       console.log('response');
       console.dir(response);
-      dispatch(setIsSAMLoaded(true));
+      dispatch(setIsSAMModelLoaded(true));
     } catch (error) {
       axiosErrorHandler(error, 'Failed to load SAM');
       // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
-      dispatch(setIsSAMLoaded(false));
+      dispatch(setIsSAMModelLoaded(false));
       alert(
         'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
       );
     } finally {
-      setIsSAMLoading(false);
+      setIsSAMModelLoading(false);
+    }
+  }
+
+  async function embedImage(imageId: number) {
+    // embed image, 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
+    // prompt와 everything을 나중에 구현하면 좌표를 인자로 받아야함
+    if (!image) return;
+    setIsEmbeddingLoading(true);
+    try {
+      const response = await SAMModel.embedImage(
+        imageId,
+        new paper.Point(0, 0),
+        new paper.Point(image.width, image.height),
+      );
+      dispatch(setEmbeddedImageId(imageId));
+
+      console.log('image embedding response');
+      console.log(response);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to get image embedding');
+      dispatch(setEmbeddedImageId(undefined));
+    } finally {
+      setIsEmbeddingLoading(false);
     }
   }
 
@@ -151,8 +184,18 @@ export default function Canvas({
   // SAM 로딩 했는지 검사
   useEffect(() => {
     if (selectedTool === Tool.SAM) {
-      if (isSAMLoaded) return;
-      loadSAM();
+      // SAM은 로드 했지만 다른 이미지 embedding을 생성해야 할때
+      if (isSAMModelLoaded) {
+        if (embeddedImageId === imageId) return;
+        embedImage(imageId);
+        return;
+      }
+
+      // SAM 로드 안했을때.
+      loadSAM().then(() => {
+        if (embeddedImageId === imageId) return;
+        embedImage(imageId);
+      });
     }
   }, [selectedTool]);
 
@@ -165,8 +208,11 @@ export default function Canvas({
 
   return (
     <Fragment>
-      {isSAMLoading && (
+      {isSAMModelLoading && (
         <LoadingSpinner message="SAM을 불러오는 중입니다. 조금만 기다려주세요." />
+      )}
+      {isEmbeddingLoading && (
+        <LoadingSpinner message="image embedding을 불러오는 중입니다. 조금만 기다려주세요." />
       )}
       <Editor ref={canvasRef} id="canvas" selectedTool={selectedTool}></Editor>
     </Fragment>
