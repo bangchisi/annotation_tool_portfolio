@@ -9,6 +9,9 @@ import Information from './Information/Information';
 import Controls from './Controls/Controls';
 import PaginationPanel from 'components/PaginationPanel/PaginationPanel';
 import ImagesModel from 'models/Images.model';
+import { useAppDispatch, useAppSelector } from 'App.hooks';
+import { setTool } from 'routes/Annotator/slices/annotatorSlice';
+import { Tool } from 'routes/Annotator/Annotator';
 
 export interface DatasetType {
   datasetId: number;
@@ -35,6 +38,8 @@ export default function Dataset() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const datasetId = Number(useParams().datasetId);
+  const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
+  const dispatch = useAppDispatch();
 
   const getDataset = async (datasetId: number | undefined) => {
     try {
@@ -71,6 +76,7 @@ export default function Dataset() {
 
   useEffect(() => {
     if (!datasetId) return;
+    dispatch(setTool(Tool.Select));
     getDataset(Number(datasetId));
   }, []);
 
