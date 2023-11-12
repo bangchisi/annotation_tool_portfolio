@@ -46,8 +46,8 @@ export default function Dataset() {
       setIsLoading(true);
       const response = await DatasetModel.getDatasetById(datasetId);
       const dataset = response.data;
-      console.log('Dataset.tsx, dataset: ');
-      console.dir(dataset);
+      // console.log('Dataset.tsx, dataset: ');
+      // console.dir(dataset);
       setDataset(dataset);
       return dataset;
     } catch (error) {
@@ -60,7 +60,7 @@ export default function Dataset() {
   async function deleteImage(imageId: number) {
     try {
       const response = await ImagesModel.deleteImage(imageId);
-      console.log('response', response);
+      // console.log('response', response);
       getDataset(datasetId);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to delete image');

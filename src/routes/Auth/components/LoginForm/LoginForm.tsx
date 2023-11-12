@@ -36,7 +36,7 @@ export default function LoginForm() {
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     event.preventDefault();
-    console.log('userId: ', userId, 'password: ', password);
+    // console.log('userId: ', userId, 'password: ', password);
     if (userId === '' || password === '') {
       alert('아이디와 비밀번호를 입력해주세요.');
       return;
@@ -45,14 +45,14 @@ export default function LoginForm() {
     try {
       setIsLoading(true);
       const response = await AuthModel.login(userId, password);
-      console.log('onLogin, response: ');
-      console.dir(response);
+      // console.log('onLogin, response: ');
+      // console.dir(response);
       if (response.status === 200) {
         setCookie('userId', response.data.userId, {
           path: '/',
           maxAge: 1000 * 60 * 60,
         });
-        console.dir(cookies.userId);
+        // console.dir(cookies.userId);
         dispatch(setIsAuthenticated(response.data.isOnline));
         // user 정보를 redux에 넣음
         dispatch(

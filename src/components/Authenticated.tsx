@@ -9,7 +9,6 @@ export default function Authenticated(props: AuthenticatedProps) {
   // TODO: 로그인 했는지 확인 하기
   // const isAuthenticated = true;
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  console.log('<Authenticated, isAuthenticated: ', isAuthenticated);
   if (isAuthenticated) {
     return <Fragment {...props}></Fragment>;
   } else {

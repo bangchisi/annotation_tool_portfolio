@@ -14,13 +14,13 @@ export default function Navigator(props: NavigatorProps) {
   // const { currentMode, setCurrentMode } = props;
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
-  console.log('nav, user');
-  console.dir(user);
+  // console.log('nav, user');
+  // console.dir(user);
 
   const onLogout = async (userId: string) => {
     if (!user.userId) return;
     const response = await AuthModel.logout(userId);
-    console.log('dispatch setUser');
+    // console.log('dispatch setUser');
     dispatch(setIsAuthenticated(response.data.isOnline));
     dispatch(
       setUser({
