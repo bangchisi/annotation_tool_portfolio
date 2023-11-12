@@ -28,3 +28,12 @@ export const getImagePath = (imageId: number, length = 100): string => {
 
   return url;
 };
+
+export function getCanvasImage(imageId: number): string {
+  const url =
+    process.env.NODE_ENV === 'development'
+      ? `${DEV_URL}/image/${imageId}`
+      : `${SERVER_URL}/image/${imageId}`;
+
+  return url;
+}
