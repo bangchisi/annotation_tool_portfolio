@@ -40,6 +40,8 @@ interface UseToolsProps {
       pointsPerSide: number;
     },
   ) => Promise<void>;
+  datasetId?: number;
+  imageId?: number;
   // containerWidth: number | null;
   // containerHeight: number | null;
 }
@@ -53,6 +55,7 @@ export const useTools = (props: UseToolsProps) => {
     currentAnnotation,
     currentCategory,
     everything,
+    imageId,
     // containerWidth,
     // containerHeight,
   } = props;
@@ -86,7 +89,7 @@ export const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Eraser) {
       onEraserMouseDown(canvasChildren, currentCategory, currentAnnotation);
     } else if (selectedTool === Tool.SAM) {
-      onSAMMouseDown(everything);
+      onSAMMouseDown(everything, currentCategory?.categoryId, imageId);
     }
   };
 

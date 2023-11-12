@@ -14,6 +14,8 @@ export function onSAMMouseDown(
       pointsPerSide: number;
     },
   ) => Promise<void>,
+  categoryId?: number,
+  imageId?: number,
 ) {
   console.log('SAM mouse down');
   const viewBounds = paper.view.bounds;
@@ -53,7 +55,8 @@ export function onSAMMouseDown(
 
   // everything test
   // FIX: 불러온 그림들이 raster subtract 만큼 왼쪽 위로 표시됨
-  everything(4671, 159, calculatedTopLeft, calculatedBottomRight, {
+  if (!categoryId || !imageId) return;
+  everything(imageId, categoryId, calculatedTopLeft, calculatedBottomRight, {
     predIOUThresh: 0.88,
     boxNmsThresh: 0.7,
     pointsPerSide: 32,
