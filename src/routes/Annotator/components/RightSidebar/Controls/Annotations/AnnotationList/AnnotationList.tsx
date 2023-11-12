@@ -59,7 +59,7 @@ export default function AnnotationList() {
         isCrowd: false,
         isBbox: false,
         color: annotationColor,
-        segmentation: [],
+        segmentation: [[]],
         area: 0,
         bbox: [0, 0, 0, 0],
       };

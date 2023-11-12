@@ -21,7 +21,7 @@ interface initialStateType {
   embeddedImageId?: number;
   datasetId?: number;
   image?: ImageType;
-  categories: CategoriesType;
+  categories?: CategoriesType;
   currentCategory?: CurrentCategoryType;
   currentAnnotation?: CurrentAnnotationType;
 }
@@ -29,7 +29,6 @@ interface initialStateType {
 const initialState: initialStateType = {
   selectedTool: Tool.Select,
   isSAMModelLoaded: false,
-  categories: {},
 };
 
 const annotatorSlice = createSlice({
@@ -69,6 +68,7 @@ const annotatorSlice = createSlice({
     },
     updateCategories: (state, action: PayloadAction<CategoryType>) => {
       // state.categories.set(action.payload.categoryId, action.payload);
+      if (!state.categories) return;
       state.categories[`${action.payload.categoryId}`] = action.payload;
     },
   },

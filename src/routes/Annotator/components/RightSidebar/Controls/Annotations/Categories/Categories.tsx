@@ -10,6 +10,7 @@ export default function Categories() {
   const handleCategoryChange = (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
+    if (!categories) return;
     // select value
     const selectedCategoryId = Number(event.target.value);
 
@@ -23,20 +24,22 @@ export default function Categories() {
 
   return (
     <Container id="category-dropdown" fullWidth>
-      <Select
-        defaultValue={'thing'}
-        inputProps={{
-          name: 'category',
-          id: 'uncontrolled-native',
-        }}
-        onChange={handleCategoryChange}
-      >
-        {Object.entries(categories).map(([categoryId, category]) => (
-          <option key={categoryId} value={categoryId}>
-            {category.name}
-          </option>
-        ))}
-      </Select>
+      {categories && (
+        <Select
+          defaultValue={'thing'}
+          inputProps={{
+            name: 'category',
+            id: 'uncontrolled-native',
+          }}
+          onChange={handleCategoryChange}
+        >
+          {Object.entries(categories).map(([categoryId, category]) => (
+            <option key={categoryId} value={categoryId}>
+              {category.name}
+            </option>
+          ))}
+        </Select>
+      )}
     </Container>
   );
 }

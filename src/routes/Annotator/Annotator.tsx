@@ -14,7 +14,7 @@ import {
 import AnnotatorModel from './models/Annotator.model';
 import { useEffect, useState } from 'react';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { AnnotationType, CategoriesType } from './Annotator.types';
 import { getCompoundPathWithData } from './helpers/Annotator.helper';
@@ -42,21 +42,20 @@ export default function Annotator() {
 
   // data 받아오기
   const initData = async (imageId: number) => {
+    console.log('%cinitData', 'color: red');
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const response = await AnnotatorModel.getData(imageId);
       const data = response.data;
       const { datasetId, image: imageData, categories: categoriesData } = data;
 
-      if (!datasetId || !imageData) return;
+      if (!datasetId || !imageData || !categoriesData) return;
 
-      dispatch(setDatasetId(datasetId));
-      dispatch(setImage(imageData));
       dispatch(setCategories(categoriesData));
+      dispatch(setImage(imageData));
+      dispatch(setDatasetId(datasetId));
 
       selectFirstCategory(categoriesData);
-
-      drawPaths(categories);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get annotator data');
     } finally {
@@ -75,9 +74,9 @@ export default function Annotator() {
 
   // 기존 그림 불러오기
   function drawPaths(categories: CategoriesType) {
+    console.dir(JSON.parse(JSON.stringify(categories)));
     Object.entries(categories).map(([id, category]) => {
       const categoryId = Number(id);
-      console.log('categoryId: ', categoryId);
 
       const annotations = Object.entries(category.annotations) as [
         string,
@@ -87,14 +86,15 @@ export default function Annotator() {
       annotations.map(([id, annotation]) => {
         const annotationId = Number(id);
 
-        paper.project.activeLayer.children.find((child) => {
-          if (
-            child.data.categoryId === categoryId &&
-            child.data.annotationId === annotationId
-          ) {
-            child.remove();
-          }
-        });
+        // paper.project.activeLayer.children.find((child) => {
+        //   console.log(child.data);
+        //   if (
+        //     child.data.categoryId === categoryId &&
+        //     child.data.annotationId === annotationId
+        //   ) {
+        //     child.remove();
+        //   }
+        // });
 
         const compound = getCompoundPathWithData(
           annotation.segmentation,
@@ -102,64 +102,23 @@ export default function Annotator() {
           annotationId,
           annotation.color,
         );
-
-        console.log(compound);
       });
     });
+
+    console.dir(paper.project.activeLayer.children);
   }
-
-  // // 기존 그림 불러오기
-  // function initPaths(categories: CategoriesType) {
-  //   // TODO: get categories -> convert to compoundPaths -> add to canvas
-  //   console.log('initPaths');
-  //   Object.entries(categories).map(([categoryId, category]) => {
-  //     const annotations = category.annotations as {
-  //       [key: number]: AnnotationType;
-  //     };
-
-  //     Object.entries(annotations).map(([annotationId, annotation]) => {
-  //       // {
-  //       //   "annotationId": 1371,
-  //       //   "isCrowd": true,
-  //       //   "isBbox": true,
-  //       //   "color": "#801054",
-  //       //   "segmentation": [],
-  //       //   "area": 7598,
-  //       //   "bbox": []
-  //       // }
-  //       console.log(1);
-  //       const compound = getCompoundPathWithData(
-  //         annotation.segmentation,
-  //         Number(categoryId),
-  //         Number(annotationId),
-  //         annotation.color,
-  //       );
-  //       compound.fillColor = new paper.Color(annotation.color);
-  //       compound.strokeColor = new paper.Color(1, 1, 1, 1);
-  //       compound.opacity = 0.5;
-  //       const dataToAdd = {
-  //         categoryId: categoryId,
-  //         annotationId: annotationId,
-  //         annotationColor: annotation.color,
-  //       };
-  //       compound.data = dataToAdd;
-  //       paper.project.activeLayer.addChild(compound);
-  //       console.dir(compound);
-  //     });
-  //   });
-
-  //   console.dir('canvas compounds');
-  //   console.dir(paper.project.activeLayer.children);
-  // }
 
   // init data
   useEffect(() => {
     initData(imageId);
 
-    console.dir(paper.project.activeLayer.children);
+    return () => {
+      dispatch(setCategories({}));
+    };
   }, [dispatch]);
 
   useEffect(() => {
+    if (!categories) return;
     if (!currentCategory || !currentAnnotation) return;
     const currentCategoryToUpdate = categories[currentCategory.categoryId];
     if (!currentCategoryToUpdate) return;
@@ -173,7 +132,7 @@ export default function Annotator() {
   return (
     <Container>
       <LeftSidebar />
-      <Workbench />
+      <Workbench drawPaths={drawPaths} />
       <RightSidebar />
       {isLoading && (
         <LoadingSpinner message="이미지 정보를 불러오는 중입니다. 잠시만 기다려주세요." />

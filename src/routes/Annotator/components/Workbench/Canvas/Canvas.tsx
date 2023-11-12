@@ -1,10 +1,10 @@
 import paper from 'paper';
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { getViewBounds, onCanvasWheel } from './helpers/canvasHelper';
+import { onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { useTools } from './hooks/useTools';
 import { useAppSelector, useAppDispatch } from 'App.hooks';
-import { getImagePath } from 'helpers/ImagesHelpers';
+import { getCanvasImage, getImagePath } from 'helpers/ImagesHelpers';
 import { useParams } from 'react-router-dom';
 import PathStore from 'routes/Annotator/utils/PathStore';
 import { Tool } from 'routes/Annotator/Annotator';
@@ -15,22 +15,20 @@ import {
   setEmbeddedImageId,
   setIsSAMModelLoaded,
 } from 'routes/Annotator/slices/annotatorSlice';
-
-interface CanvasProps {
-  // selectedTool: Tool;
-  containerWidth: number | null;
-  containerHeight: number | null;
-}
+import { CategoriesType } from 'routes/Annotator/Annotator.types';
 
 export let canvasData: PathStore;
 let canvasChildren: paper.Item[];
 
+interface CanvasProps {
+  drawPaths: (categories: CategoriesType) => void;
+  width?: number;
+  height?: number;
+}
+
 // TODO: paper init to another file?
-export default function Canvas({
-  // selectedTool,
-  containerWidth,
-  containerHeight,
-}: CanvasProps) {
+export default function Canvas(props: CanvasProps) {
+  const { drawPaths, width, height } = props;
   // console.log('rendering Canvas.tsx');
   const dispatch = useAppDispatch();
   const [isSAMModelLoading, setIsSAMModelLoading] = useState(false);
@@ -40,6 +38,7 @@ export default function Canvas({
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
   const imageId = Number(useParams().imageId);
   const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
+  const categories = useAppSelector((state) => state.annotator.categories);
   const currentAnnotation = useAppSelector(
     (state) => state.annotator.currentAnnotation,
   );
@@ -56,8 +55,8 @@ export default function Canvas({
 
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
   // const { width: imageWidth, height: imageHeight } = image;
-  let imgWidth: number | null = null;
-  let imgHeight: number | null = null;
+  const imgWidth: number | null = null;
+  const imgHeight: number | null = null;
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // SAM model 로드
@@ -143,50 +142,32 @@ export default function Canvas({
     if (canvas) {
       // paper.install(window);
       paper.setup(canvas);
-      // FIX: (700, 700) into flexible value
-      if (containerWidth && containerHeight) {
-        paper.view.viewSize = new paper.Size(containerWidth, containerHeight);
-        paper.view.center = new paper.Point(
-          containerWidth / 2,
-          containerHeight / 2,
-        );
-      }
       paper.activate();
+
       canvasData = new PathStore(paper.project.activeLayer.children);
       canvasChildren = paper.project.activeLayer.children;
-
-      const raster = new paper.Raster();
-
-      const tempCtx = document.createElement('canvas').getContext('2d');
-      const img = new Image();
-      const imgPath = getImagePath(imageId, image?.width);
-      img.src = imgPath;
-      img.onload = () => {
-        raster.source = imgPath;
-        raster.position = paper.view.center;
-        imgWidth = raster.image.width;
-        imgHeight = raster.image.height;
-
-        if (tempCtx) {
-          tempCtx.canvas.width = img.width;
-          tempCtx.canvas.height = img.height;
-          tempCtx.drawImage(raster.image, 0, 0);
-        }
-      };
 
       // 줌, 스크롤은 항상 적용
       canvas.onwheel = onCanvasWheel;
 
-      return () => {
-        raster.remove();
-      };
+      const raster = new paper.Raster();
+      const imagePath = getCanvasImage(imageId);
+      raster.source = imagePath;
+      raster.position = paper.view.center;
     }
   }, []);
 
-  // 기존 그림 불러오기
-  // useEffect(() => {
-  //   console.dir(paper.project.activeLayer.children);
-  // }, []);
+  useEffect(() => {
+    if (width && height) {
+      paper.view.viewSize = new paper.Size(width, height);
+      paper.view.center = new paper.Point(width / 2, height / 2);
+    }
+  }, [width, height]);
+
+  useEffect(() => {
+    if (!categories) return;
+    drawPaths(categories);
+  }, [categories]);
 
   const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({
     initPoint,
@@ -199,6 +180,7 @@ export default function Canvas({
     // containerHeight,
     // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임
     everything,
+    imageId,
   });
 
   useEffect(() => {
@@ -232,13 +214,6 @@ export default function Canvas({
       });
     }
   }, [selectedTool]);
-
-  // window 리사이즈 시 useEffect
-  useEffect(() => {
-    if (containerWidth && containerHeight) {
-      paper.view.viewSize = new paper.Size(containerWidth, containerHeight);
-    }
-  }, [containerWidth, containerHeight]);
 
   return (
     <Fragment>
