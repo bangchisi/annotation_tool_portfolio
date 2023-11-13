@@ -24,14 +24,6 @@ const FinetuneModel = {
       vit_model_type: modelType,
     });
   },
-  getAnnotatedImagesCount: (datasetId: number) => {
-    const url =
-      process.env.NODE_ENV === 'development'
-        ? `${DEV_URL}/finetune/annotated/${datasetId}`
-        : `${SERVER_URL}/finetune/annotated/${datasetId}`;
-
-    return axios.get(url);
-  },
 };
 
 export default FinetuneModel;

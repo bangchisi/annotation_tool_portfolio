@@ -28,6 +28,14 @@ const DatasetModel = {
 
     return axios.get(url);
   },
+  getAnnotatedImagesCount: (datasetId: number) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/finetune/annotated/${datasetId}`
+        : `${SERVER_URL}/finetune/annotated/${datasetId}`;
+
+    return axios.get(url);
+  },
 };
 
 export default DatasetModel;
