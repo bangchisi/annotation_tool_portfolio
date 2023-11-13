@@ -48,8 +48,11 @@ const SAMModel = {
     axios.post(url, {
       image_id: imageId,
       category_id: categoryId,
-      image_left_top_coord: [topLeft.x, topLeft.y],
-      image_right_bottom_coord: [bottomRight.x, bottomRight.y],
+      image_left_top_coord: [Math.floor(topLeft.x), Math.floor(topLeft.y)],
+      image_right_bottom_coord: [
+        Math.floor(bottomRight.x),
+        Math.floor(bottomRight.y),
+      ],
       params: {
         pred_iou_thresh: params.predIOUThresh,
         box_nms_thresh: params.boxNmsThresh,
