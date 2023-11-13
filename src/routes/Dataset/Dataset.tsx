@@ -12,6 +12,7 @@ import ImagesModel from 'models/Images.model';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { setTool } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'routes/Annotator/Annotator';
+import FinetuneModel from 'models/Finetune.model';
 
 export interface DatasetType {
   datasetId: number;
@@ -35,6 +36,9 @@ export interface CategoryType {
 
 export default function Dataset() {
   const [dataset, setDataset] = useState<DatasetType>();
+  const [availableDevices, setAvailableDevices] = useState<{
+    [key: string]: boolean;
+  }>();
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const datasetId = Number(useParams().datasetId);
@@ -67,6 +71,20 @@ export default function Dataset() {
     }
   }
 
+  async function setDeviceStatus() {
+    try {
+      const response = await FinetuneModel.checkAvailableDevice();
+      console.log(response.data);
+      setAvailableDevices(response.data);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to check device status');
+    }
+  }
+
+  useEffect(() => {
+    setDeviceStatus();
+  }, []);
+
   const onCurrentpageChange = (
     event: React.ChangeEvent<unknown>,
     page: number,
@@ -86,7 +104,10 @@ export default function Dataset() {
 
   return (
     <Container>
-      <Controls />
+      <Controls
+        setDeviceStatus={setDeviceStatus}
+        availableDevices={availableDevices}
+      />
       {dataset && (
         <Fragment>
           <Information {...dataset} />

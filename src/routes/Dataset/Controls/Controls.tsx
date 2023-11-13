@@ -1,13 +1,19 @@
 import { Button } from '@mui/material';
 import { Container } from './Controls.style';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import ImagesModel from 'models/Images.model';
 import { useParams } from 'react-router-dom';
 
-export default function Controls() {
-  const datasetId = useParams().datasetId;
+interface ControlsProps {
+  setDeviceStatus: () => Promise<void>;
+  availableDevices?: { [key: number]: boolean };
+}
+
+export default function Controls(props: ControlsProps) {
+  const { setDeviceStatus, availableDevices } = props;
+  const datasetId = Number(useParams().datasetId);
   const [isLoading, setIsLoading] = useState(false);
   const filesInput = useRef<HTMLInputElement>(null);
   const formData = new FormData();
@@ -45,8 +51,64 @@ export default function Controls() {
     filesToFormData(files);
   };
 
+  const onTrainStart = async (
+    datasetId: number,
+    deviceId: number,
+    modelType: string,
+  ) => {
+    // TODO: change dummy image count validation -> function with FinetuneModel.getAnnotatedImagesCount
+    if (!isEnoughSamples(datasetId)) return;
+
+    try {
+      // TODO: change dummyStart -> FinetuneModel.start
+      const response = await dummyStart(datasetId, deviceId, modelType);
+      console.log(response);
+      console.log('start fine tuning');
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to start train');
+    } finally {
+      setDeviceStatus();
+    }
+  };
+
+  // dummy validation (annotated image count)
+  // change this name to isEnoughSamples
+  // annotatedImagesCount should be result of FinetuneModel.getAnnotatedImagesCount
+  async function isEnoughSamples(datasetId: number) {
+    const criteria = 2;
+    const annotatedImagesCount = 10; // -> FinetuneModel.getAnnotatedImagesCount
+    const result = annotatedImagesCount >= criteria;
+    if (!result)
+      alert(`${criteria}개 이상 이미지가 annotated 상태여야 합니다.`);
+    return result;
+  }
+
+  // dummy start not to finetune for dev
+  function dummyStart(datasetId: number, deviceId: number, modelType: string) {
+    console.log(datasetId, deviceId, modelType);
+    setTimeout(() => {
+      return true;
+    });
+  }
+
   return (
     <Container>
+      {availableDevices && (
+        <Fragment>
+          {Object.entries(availableDevices).map(([id, device]) => {
+            const deviceId = Number(id);
+            return (
+              <Button
+                key={deviceId}
+                disabled={!device}
+                onClick={() => onTrainStart(datasetId, deviceId, 'vit_h')}
+              >
+                {device ? `TRAIN (device ${deviceId})` : 'BUSY'}
+              </Button>
+            );
+          })}
+        </Fragment>
+      )}
       <form>
         <input
           ref={filesInput}
