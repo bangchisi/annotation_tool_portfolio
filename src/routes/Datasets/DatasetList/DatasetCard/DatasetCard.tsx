@@ -114,10 +114,10 @@ export default function DatasetCard(props: DatasetCardProps) {
           <LinearProgress
             sx={{ my: 1 }}
             variant="determinate"
-            value={progress}
+            value={progress * 100}
           />
           <Typography variant="subtitle2" display="inline">
-            {progress}% done
+            {progress * 100}% done
           </Typography>
         </ProgressContainer>
       </StatusContainer>
