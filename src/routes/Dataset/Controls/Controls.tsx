@@ -5,6 +5,7 @@ import { Fragment, useRef, useState } from 'react';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import ImagesModel from 'models/Images.model';
 import { useParams } from 'react-router-dom';
+import DatasetModel from '../models/Dataset.model';
 
 interface ControlsProps {
   setDeviceStatus: () => Promise<void>;
@@ -56,7 +57,6 @@ export default function Controls(props: ControlsProps) {
     deviceId: number,
     modelType: string,
   ) => {
-    // TODO: change dummy image count validation -> function with FinetuneModel.getAnnotatedImagesCount
     if (!isEnoughSamples(datasetId)) return;
 
     try {
@@ -71,13 +71,17 @@ export default function Controls(props: ControlsProps) {
     }
   };
 
-  // dummy validation (annotated image count)
-  // change this name to isEnoughSamples
-  // annotatedImagesCount should be result of FinetuneModel.getAnnotatedImagesCount
+  // validation (annotated image count)
   async function isEnoughSamples(datasetId: number) {
     const criteria = 2;
-    const annotatedImagesCount = 10; // -> FinetuneModel.getAnnotatedImagesCount
-    const result = annotatedImagesCount >= criteria;
+    const response = await DatasetModel.getAnnotatedImagesCount(datasetId);
+    if (!response) return false;
+
+    const { num_annotated_images } = response.data; // { num_total_images, num_annotated_images }
+
+    console.log('annotated: ', num_annotated_images);
+
+    const result = num_annotated_images >= criteria;
     if (!result)
       alert(`${criteria}개 이상 이미지가 annotated 상태여야 합니다.`);
     return result;
