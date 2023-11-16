@@ -18,6 +18,12 @@ enum Tool {
 interface initialStateType {
   selectedTool: Tool;
   isSAMModelLoaded: boolean;
+  isSAMModelLaoding: boolean;
+  isEmbeddingLoading: boolean;
+  isEverythingLoading: boolean;
+  SAM: {
+    [key: string]: unknown;
+  };
   embeddedImageId?: number;
   datasetId?: number;
   image?: ImageType;
@@ -29,6 +35,19 @@ interface initialStateType {
 const initialState: initialStateType = {
   selectedTool: Tool.Select,
   isSAMModelLoaded: false,
+  isSAMModelLaoding: false,
+  isEmbeddingLoading: false,
+  isEverythingLoading: false,
+  SAM: {
+    model: null,
+    modelLoading: false,
+    modelLoaded: false,
+    embeddingLoading: false,
+    embeddingLoaded: false,
+    embeddingId: null,
+    everythingLoading: false,
+    clickLoading: false,
+  },
 };
 
 const annotatorSlice = createSlice({
@@ -66,10 +85,28 @@ const annotatorSlice = createSlice({
     setEmbeddedImageId: (state, action: PayloadAction<number | undefined>) => {
       state.embeddedImageId = action.payload;
     },
+    setIsSAMModelLoading: (state, action: PayloadAction<boolean>) => {
+      state.isSAMModelLaoding = action.payload;
+    },
+    setIsEmbeddingLoading: (state, action: PayloadAction<boolean>) => {
+      state.isSAMModelLaoding = action.payload;
+    },
+    setIsEverythingLoading: (state, action: PayloadAction<boolean>) => {
+      state.isSAMModelLaoding = action.payload;
+    },
     updateCategories: (state, action: PayloadAction<CategoryType>) => {
       // state.categories.set(action.payload.categoryId, action.payload);
       if (!state.categories) return;
       state.categories[`${action.payload.categoryId}`] = action.payload;
+    },
+    setSAMModel: (state, action: PayloadAction<string>) => {
+      state.SAM.model = action.payload;
+    },
+    setSAMModelLoading: (state, action: PayloadAction<boolean>) => {
+      state.SAM.modelLoading = action.payload;
+    },
+    setSAMEverythingLoading: (state, action: PayloadAction<boolean>) => {
+      state.SAM.everythingLoading = action.payload;
     },
   },
 });
@@ -83,7 +120,14 @@ export const {
   setCurrentAnnotation,
   setIsSAMModelLoaded,
   setEmbeddedImageId,
+  setIsSAMModelLoading,
+  setIsEmbeddingLoading,
+  setIsEverythingLoading,
   updateCategories,
+  // SAM 관련
+  setSAMModel,
+  setSAMModelLoading,
+  setSAMEverythingLoading,
 } = annotatorSlice.actions;
 
 export default annotatorSlice.reducer;
