@@ -5,7 +5,7 @@ const DEV_URL = `http://${process.env.REACT_APP_DEV_IP}:${process.env.REACT_APP_
 const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 
 const SAMModel = {
-  loadModel: (modelType?: string) => {
+  loadModel: (modelType: string) => {
     const url =
       process.env.NODE_ENV === 'development'
         ? `${DEV_URL}/sam/load/${modelType}`
