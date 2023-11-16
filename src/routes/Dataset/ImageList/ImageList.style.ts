@@ -9,8 +9,6 @@ export const Container = styled('div')(() => {
       ? 'repeat(auto-fill, minmax(20%, 20%))'
       : 'repeat(auto-fill, minmax(33%, 33%))',
     gap: '10px',
-    justifyContent: 'center', // 수평 가운데 정렬
     alignItems: 'center', // 수직 가운데 정렬
-    padding: '0 100px',
   };
 });
