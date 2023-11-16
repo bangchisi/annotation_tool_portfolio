@@ -1,7 +1,7 @@
 import { Button } from '@mui/material';
-import { Container } from './Controls.style';
+import { Container, TrainContainer } from './Controls.style';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { Fragment, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import ImagesModel from 'models/Images.model';
 import { useParams } from 'react-router-dom';
@@ -83,7 +83,10 @@ export default function Controls(props: ControlsProps) {
 
     const result = num_annotated_images >= criteria;
     if (!result)
-      alert(`${criteria}개 이상 이미지가 annotated 상태여야 합니다.`);
+      alert(
+        `최소 2개 이미지가 annotated 상태여야 합니다.
+        현재 annotated 이미지 (${num_annotated_images}개)`,
+      );
     return result;
   }
 
@@ -98,7 +101,7 @@ export default function Controls(props: ControlsProps) {
   return (
     <Container>
       {availableDevices && (
-        <Fragment>
+        <TrainContainer>
           {Object.entries(availableDevices).map(([id, device]) => {
             const deviceId = Number(id);
             return (
@@ -111,7 +114,7 @@ export default function Controls(props: ControlsProps) {
               </Button>
             );
           })}
-        </Fragment>
+        </TrainContainer>
       )}
       <form>
         <input
