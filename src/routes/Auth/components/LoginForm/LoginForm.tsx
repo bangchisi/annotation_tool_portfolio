@@ -5,7 +5,11 @@ import AuthModel from 'routes/Auth/models/Auth.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { AxiosError } from 'axios';
 import { useAppDispatch } from 'App.hooks';
-import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
+import {
+  setIsAuthenticated,
+  setPreference,
+  setUser,
+} from 'routes/Auth/slices/authSlice';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { useCookies } from 'react-cookie';
 import { Typography } from '@mui/material';
@@ -62,6 +66,8 @@ export default function LoginForm() {
             isOnline: response.data.isOnline,
           }),
         );
+        // preference redux에 넣음
+        dispatch(setPreference(response.data.preference));
         routeChange('/datasets');
       } else {
         dispatch(setIsAuthenticated(false));
