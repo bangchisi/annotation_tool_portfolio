@@ -7,6 +7,9 @@ import {
 } from './ModelCard.style';
 
 interface ModelCardProps {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setDeleteModelName: React.Dispatch<React.SetStateAction<string>>;
+  setFinetuneId: React.Dispatch<React.SetStateAction<number[]>>;
   onDelete: (finetuneIds: number[]) => Promise<void>;
   getLogs: () => Promise<void>;
   log: {
@@ -53,7 +56,8 @@ interface ModelCardProps {
 }
 
 export default function ModelCard(props: ModelCardProps) {
-  const { onDelete, getLogs, log } = props;
+  const { setOpen, setDeleteModelName, setFinetuneId, onDelete, getLogs, log } =
+    props;
 
   return (
     <Container>
@@ -90,11 +94,11 @@ export default function ModelCard(props: ModelCardProps) {
       <DeleteButton
         variant="contained"
         color="warning"
+        disabled={log.status === 'getting ready to train1'}
         onClick={() => {
-          const finetuneId = [log.finetuneId];
-          onDelete(finetuneId).then(() => {
-            getLogs();
-          });
+          setFinetuneId([log.finetuneId]);
+          setOpen(true);
+          setDeleteModelName(log.finetuneName);
         }}
       >
         DELETE

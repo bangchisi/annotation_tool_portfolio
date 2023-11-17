@@ -6,6 +6,7 @@ import FinetuneModel from 'models/Finetune.model';
 import { useAppSelector } from 'App.hooks';
 import { Typography } from '@mui/material';
 import ModelCard from './ModelCard/ModelCard';
+import ModelDeleteModal from './ModelDeleteModal/ModelDeleteModal';
 
 interface LogType {
   finetuneId: number;
@@ -54,6 +55,11 @@ export default function Models() {
   const [isLogsLoading, setIsLogsLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [logs, setLogs] = useState<LogType[]>();
+  const [deleteModelName, setDeleteModelName] = useState('');
+  const [finetuneId, setFinetuneId] = useState<number[]>([]);
+
+  // modal state
+  const [open, setOpen] = useState(false);
 
   async function getLogs(userId: string) {
     setIsLogsLoading(true);
@@ -95,6 +101,9 @@ export default function Models() {
                 log={log}
                 getLogs={() => getLogs(userId)}
                 onDelete={onDelete}
+                setOpen={setOpen}
+                setDeleteModelName={setDeleteModelName}
+                setFinetuneId={setFinetuneId}
               />
             ))}
         <Typography variant="h3">vit_l</Typography>
@@ -107,6 +116,9 @@ export default function Models() {
                 log={log}
                 getLogs={() => getLogs(userId)}
                 onDelete={onDelete}
+                setOpen={setOpen}
+                setDeleteModelName={setDeleteModelName}
+                setFinetuneId={setFinetuneId}
               />
             ))}
         <Typography variant="h3">vit_b</Typography>
@@ -119,9 +131,20 @@ export default function Models() {
                 log={log}
                 getLogs={() => getLogs(userId)}
                 onDelete={onDelete}
+                setOpen={setOpen}
+                setDeleteModelName={setDeleteModelName}
+                setFinetuneId={setFinetuneId}
               />
             ))}
       </div>
+      <ModelDeleteModal
+        open={open}
+        setOpen={setOpen}
+        deleteModelName={deleteModelName}
+        getLogs={() => getLogs(userId)}
+        onDelete={onDelete}
+        finetuneId={finetuneId}
+      />
       {isLogsLoading && (
         <LoadingSpinner message="모델 리스트를 불러오는 중입니다..." />
       )}
