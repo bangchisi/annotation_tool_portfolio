@@ -12,14 +12,12 @@ import {
   CurrentCategoryType,
   CurrentAnnotationType,
 } from 'routes/Annotator/Annotator.types';
-// import { useAppDispatch } from 'App.hooks';
 import {
   onEraserMouseDown,
   onEraserMouseDrag,
   onEraserMouseMove,
   onEraserMouseUp,
 } from '../tools/EraserTool';
-import PathStore from 'routes/Annotator/utils/PathStore';
 import { onSAMMouseDown } from '../tools/SAMTool';
 
 interface UseToolsProps {
@@ -27,21 +25,13 @@ interface UseToolsProps {
   selectedTool: Tool;
   onChangePoint: (point: paper.Point) => void;
   canvasChildren: paper.Item[];
+  isSAMModelLoaded: boolean;
+  setIsEverythingLoading: React.Dispatch<React.SetStateAction<boolean>>;
   currentAnnotation?: CurrentAnnotationType;
   currentCategory?: CurrentCategoryType;
-  everything: (
-    imageId: number,
-    categoryId: number,
-    topLeft: paper.Point,
-    bottomRight: paper.Point,
-    params: {
-      predIOUThresh: number;
-      boxNmsThresh: number;
-      pointsPerSide: number;
-    },
-  ) => Promise<void>;
   datasetId?: number;
   imageId?: number;
+  embeddedImageId?: number;
   // containerWidth: number | null;
   // containerHeight: number | null;
 }
@@ -52,17 +42,16 @@ export const useTools = (props: UseToolsProps) => {
     onChangePoint,
     initPoint,
     canvasChildren,
+    isSAMModelLoaded,
+    setIsEverythingLoading,
     currentAnnotation,
     currentCategory,
-    everything,
     imageId,
+    embeddedImageId,
     // containerWidth,
     // containerHeight,
   } = props;
 
-  // let pathToAdd;
-
-  // const dispatch = useAppDispatch();
   // 마우스 커서 움직임
   const onMouseMove = (event: paper.MouseEvent) => {
     if (selectedTool === Tool.Select) {
@@ -85,55 +74,28 @@ export const useTools = (props: UseToolsProps) => {
       onBrushMouseDown(canvasChildren, currentCategory, currentAnnotation);
     } else if (selectedTool === Tool.Box) {
       onBoxMouseDown(event, canvasChildren, currentCategory, currentAnnotation);
-      // onBoxMouseDown(event);
     } else if (selectedTool === Tool.Eraser) {
       onEraserMouseDown(canvasChildren, currentCategory, currentAnnotation);
     } else if (selectedTool === Tool.SAM) {
-      onSAMMouseDown(everything, currentCategory?.categoryId, imageId);
+      onSAMMouseDown(
+        isSAMModelLoaded,
+        setIsEverythingLoading,
+        embeddedImageId,
+        currentCategory?.categoryId,
+        imageId,
+      );
     }
   };
 
   // 마우스 클릭 해제
-  const onMouseUp = (event: paper.MouseEvent) => {
+  const onMouseUp = () => {
     // console.log(event);
     if (selectedTool === Tool.Select) {
       // ...
     } else if (selectedTool === Tool.Brush) {
       onBrushMouseUp();
-      // onBrushMouseUp(event, currentCategory, currentAnnotation);
-      // pathToAdd = onBrushMouseUp(currentCategory, currentAnnotation);
-
-      // console.log('pathToAdd: ');
-      // console.dir(pathToAdd);
-      // if (pathToAdd) {
-      //   const segmentations = PathStore.compoundPathToSegmentation(pathToAdd);
-      //   if (!currentCategory || !currentAnnotation || !segmentations) return;
-
-      //   // paths.appendPath를 그냥 push가 아니라 categoryId, annotationId 조회해서 있으면 업데이트, 없으면 추가 해야함
-      //   // 이걸 위해서는 key가 존재하면 덮어쓰고 없으면 새로 넣는 map 형식이 좋을듯?
-      //   paths.appendPath({
-      //     categoryId: currentCategory?.id,
-      //     annotationId: currentAnnotation?.id,
-      //     segmentations: segmentations,
-      //   });
-      //   console.dir(paths.paths);
-      // }
     } else if (selectedTool === Tool.Box) {
       onBoxMouseUp();
-      // onBoxMouseUp(event, currentCategory, currentAnnotation);
-
-      // console.log('pathToAdd: ');
-      // console.dir(pathToAdd);
-      // if (pathToAdd) {
-      //   const segmentations = PathStore.compoundPathToSegmentation(pathToAdd);
-      //   if (!currentCategory || !currentAnnotation || !segmentations) return;
-      //   paths.appendPath({
-      //     categoryId: currentCategory?.id,
-      //     annotationId: currentAnnotation?.id,
-      //     segmentations: segmentations,
-      //   });
-      //   console.dir(paths.paths);
-      // }
     } else if (selectedTool === Tool.Eraser) {
       onEraserMouseUp();
     }
