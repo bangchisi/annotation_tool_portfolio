@@ -94,7 +94,7 @@ export default function ModelCard(props: ModelCardProps) {
       <DeleteButton
         variant="contained"
         color="warning"
-        disabled={log.status === 'getting ready to train1'}
+        disabled={log.status === 'getting ready to train'}
         onClick={() => {
           setFinetuneId([log.finetuneId]);
           setOpen(true);
