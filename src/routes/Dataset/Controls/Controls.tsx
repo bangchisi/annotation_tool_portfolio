@@ -1,11 +1,13 @@
 import { Button } from '@mui/material';
-import { Container, TrainContainer } from './Controls.style';
+import { Container } from './Controls.style';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useRef, useState } from 'react';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import ImagesModel from 'models/Images.model';
 import { useParams } from 'react-router-dom';
 import DatasetModel from '../models/Dataset.model';
+import FinetuneModel from 'models/Finetune.model';
+import TrainStartModal from './TrainStartModal/TrainStartModal';
 
 interface ControlsProps {
   setDeviceStatus: () => Promise<void>;
@@ -18,6 +20,8 @@ export default function Controls(props: ControlsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const filesInput = useRef<HTMLInputElement>(null);
   const formData = new FormData();
+  const [finetuneName, setFinetuneName] = useState('');
+  const [baseModelName, setBaseModelName] = useState('');
 
   const uploadImages = async (
     datasetId: number | undefined,
@@ -56,12 +60,17 @@ export default function Controls(props: ControlsProps) {
     datasetId: number,
     deviceId: number,
     modelType: string,
+    finetuneName: string,
   ) => {
     if (!isEnoughSamples(datasetId)) return;
 
     try {
-      // TODO: change dummyStart -> FinetuneModel.start
-      const response = await dummyStart(datasetId, deviceId, modelType);
+      const response = await FinetuneModel.start(
+        datasetId,
+        deviceId,
+        modelType,
+        finetuneName,
+      );
       console.log(response);
       console.log('start fine tuning');
     } catch (error) {
@@ -90,32 +99,17 @@ export default function Controls(props: ControlsProps) {
     return result;
   }
 
-  // dummy start not to finetune for dev
-  function dummyStart(datasetId: number, deviceId: number, modelType: string) {
-    console.log(datasetId, deviceId, modelType);
-    setTimeout(() => {
-      return true;
-    });
-  }
-
   return (
     <Container>
-      {availableDevices && (
-        <TrainContainer>
-          {Object.entries(availableDevices).map(([id, device]) => {
-            const deviceId = Number(id);
-            return (
-              <Button
-                key={deviceId}
-                disabled={!device}
-                onClick={() => onTrainStart(datasetId, deviceId, 'vit_h')}
-              >
-                {device ? `TRAIN (device ${deviceId})` : 'BUSY'}
-              </Button>
-            );
-          })}
-        </TrainContainer>
-      )}
+      <TrainStartModal
+        availableDevices={availableDevices}
+        onTrainStart={onTrainStart}
+        baseModelName={baseModelName}
+        setBaseModelName={setBaseModelName}
+        finetuneName={finetuneName}
+        setFinetuneName={setFinetuneName}
+        datasetId={datasetId}
+      />
       <form>
         <input
           ref={filesInput}

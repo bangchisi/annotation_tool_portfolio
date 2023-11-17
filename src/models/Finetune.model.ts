@@ -12,7 +12,12 @@ const FinetuneModel = {
 
     return axios.get(url);
   },
-  start: (datasetId: number, deviceId: number, modelType: string) => {
+  start: (
+    datasetId: number,
+    deviceId: number,
+    modelType: string,
+    finetuneName: string,
+  ) => {
     const url =
       process.env.NODE_ENV === 'development'
         ? `${DEV_URL}/finetune`
@@ -22,6 +27,9 @@ const FinetuneModel = {
       dataset_id: datasetId,
       device_id: deviceId,
       vit_model_type: modelType,
+      finetune_name: finetuneName,
+      // 개발용 속성. epoch를 임의로 1로 해서 빠르게 끝내기 위함
+      num_epochs: 1,
     });
   },
 };
