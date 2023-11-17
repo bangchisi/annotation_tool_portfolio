@@ -5,7 +5,10 @@ networks:
 
 services:
   frontend:
-    image: annotator-frontend-client:dev
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: annotator-frontend-client-dev
     ports:
       - "60143:60143"
     networks:
