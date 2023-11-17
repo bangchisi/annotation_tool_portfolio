@@ -32,6 +32,26 @@ const FinetuneModel = {
       num_epochs: 1,
     });
   },
+  getLogs: (userId: string) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/finetune/${userId}`
+        : `${SERVER_URL}/finetune/${userId}`;
+
+    return axios.get(url);
+  },
+  deleteLogs: (finetuneIds: number[]) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/finetune`
+        : `${SERVER_URL}/finetune`;
+
+    return axios.delete(url, {
+      data: {
+        finetune_ids: finetuneIds,
+      },
+    });
+  },
 };
 
 export default FinetuneModel;
