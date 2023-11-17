@@ -1,19 +1,18 @@
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import paper from 'paper';
+import SAMModel from 'routes/Annotator/models/SAM.model';
+import {
+  setSAMEverythingLoading,
+  setSAMModelLoading,
+} from 'routes/Annotator/slices/annotatorSlice';
+import store from 'store';
 
 let tempRect: paper.Path.Rectangle;
 
 export function onSAMMouseDown(
-  everything: (
-    imageId: number,
-    categoryId: number,
-    topLeft: paper.Point,
-    bottomRight: paper.Point,
-    params: {
-      predIOUThresh: number;
-      boxNmsThresh: number;
-      pointsPerSide: number;
-    },
-  ) => Promise<void>,
+  isSAMModelLoaded: boolean,
+  setIsEverythingLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  embeddedImageId?: number,
   categoryId?: number,
   imageId?: number,
 ) {
@@ -56,11 +55,20 @@ export function onSAMMouseDown(
   // everything test
   // FIX: 불러온 그림들이 raster subtract 만큼 왼쪽 위로 표시됨
   if (!categoryId || !imageId) return;
-  everything(imageId, categoryId, calculatedTopLeft, calculatedBottomRight, {
-    predIOUThresh: 0.88,
-    boxNmsThresh: 0.7,
-    pointsPerSide: 32,
-  });
+  everything(
+    imageId,
+    categoryId,
+    calculatedTopLeft,
+    calculatedBottomRight,
+    {
+      predIOUThresh: 0.88,
+      boxNmsThresh: 0.7,
+      pointsPerSide: 32,
+    },
+    isSAMModelLoaded,
+    setIsEverythingLoading,
+    embeddedImageId,
+  );
 }
 
 // view.bounds와 raster.bounds의 교차점을 구함
@@ -139,4 +147,64 @@ export function getViewBounds(imageWidth: number, imageHeight: number) {
     imageLeftTopCoord,
     imageRightBottomCoord,
   };
+}
+
+async function everything(
+  imageId: number,
+  categoryId: number,
+  topLeft: paper.Point,
+  bottomRight: paper.Point,
+  params: {
+    predIOUThresh: number;
+    boxNmsThresh: number;
+    pointsPerSide: number;
+  },
+  isSAMModelLoaded: boolean,
+  setIsEverythingLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  embeddedImageId?: number,
+) {
+  if (!isSAMModelLoaded) return;
+  if (!embeddedImageId || embeddedImageId !== imageId) return;
+  setIsEverythingLoading(true);
+  try {
+    const response = SAMModel.everything(
+      imageId,
+      categoryId,
+      topLeft,
+      bottomRight,
+      params,
+    );
+
+    console.log('everything, response');
+    console.log(response);
+  } catch (error) {
+    axiosErrorHandler(error, 'Failed to SAM Everything');
+    alert('everything 모드 실패, 다시 시도해주세요.');
+  } finally {
+    setIsEverythingLoading(false);
+  }
+}
+
+export async function loadSAM(modelType?: string) {
+  store.dispatch(setSAMModelLoading(true));
+  try {
+    const response = await SAMModel.loadModel(modelType ? modelType : 'vit_l');
+    console.log('response');
+    console.dir(response);
+    // dispatch(setIsSAMModelLoaded(true));
+  } catch (error) {
+    axiosErrorHandler(error, 'Failed to load SAM');
+    // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
+    // dispatch(setIsSAMModelLoaded(false));
+    alert(
+      'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
+    );
+  } finally {
+    // setIsSAMModelLoading(false);
+    store.dispatch(setSAMModelLoading(false));
+  }
+}
+
+export function dummy() {
+  store.dispatch(setSAMEverythingLoading(true));
 }
