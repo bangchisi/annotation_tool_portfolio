@@ -8,7 +8,7 @@ import { Typography } from '@mui/material';
 import ModelCard from './ModelCard/ModelCard';
 import ModelDeleteModal from './ModelDeleteModal/ModelDeleteModal';
 
-interface LogType {
+export interface LogType {
   finetuneId: number;
   datasetId: number;
   finetuneName: string;
