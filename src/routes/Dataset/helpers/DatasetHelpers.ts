@@ -7,10 +7,9 @@ export async function getIsOnTrain(userId: string, datasetId: number) {
     const response = await FinetuneModel.getLogs(userId);
     const logs = response.data as LogType[];
 
-    const log = logs.find((log) => log.datasetId === datasetId);
+    const log = logs.find((log) => log.datasetId === datasetId && !log.isDone);
 
     if (!log) return false;
-    if (log.isDone) return false;
 
     return true;
   } catch (error) {
