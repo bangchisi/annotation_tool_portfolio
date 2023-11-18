@@ -9,6 +9,7 @@ export const Container = styled('div')(() => {
     height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     backdropFilter: 'blur(5px)',
+    zIndex: 1001,
   };
 });
 
