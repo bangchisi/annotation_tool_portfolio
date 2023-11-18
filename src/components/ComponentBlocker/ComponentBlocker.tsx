@@ -7,7 +7,9 @@ export default function ComponentBlocker(props: { message: string }) {
     <Container>
       {message !== '' && (
         <Blocker>
-          <Message variant="body2">{message}</Message>
+          <Message variant="body1" color="white">
+            {message}
+          </Message>
         </Blocker>
       )}
     </Container>
