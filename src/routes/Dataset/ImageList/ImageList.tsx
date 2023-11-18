@@ -5,10 +5,11 @@ interface ImageListProps {
   // getDataset: (datasetId: number) => Promise<void>;
   imageIds: number[];
   deleteImage: (imageId: number) => Promise<void>;
+  isOnTrain: boolean;
 }
 
 export default function ImageList(props: ImageListProps) {
-  const { imageIds, deleteImage } = props;
+  const { imageIds, deleteImage, isOnTrain } = props;
   return (
     <Container>
       {imageIds &&
@@ -18,6 +19,7 @@ export default function ImageList(props: ImageListProps) {
               key={imageId}
               imageId={imageId}
               deleteImage={deleteImage}
+              isOnTrain={isOnTrain}
             />
           );
         })}

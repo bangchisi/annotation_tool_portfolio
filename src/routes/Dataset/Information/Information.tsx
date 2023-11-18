@@ -3,11 +3,17 @@ import { Container } from './Information.style';
 import { DatasetType } from '../Dataset';
 import { getFormattedDate } from 'helpers/DateHelpers';
 import CategoryPanel from './CategoryPanel/CategoryPanel';
+import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 
-export default function Information(props: DatasetType) {
-  const { datasetName, created, description, categories } = props;
+interface InformationProps extends DatasetType {
+  isOnTrain: boolean;
+}
+
+export default function Information(props: InformationProps) {
+  const { datasetName, created, description, categories, isOnTrain } = props;
   return (
     <Container>
+      {isOnTrain && <ComponentBlocker message="현재 학습중인 Dataset입니다." />}
       <Typography variant="h6">
         {datasetName}
         <Button color="secondary">...</Button>

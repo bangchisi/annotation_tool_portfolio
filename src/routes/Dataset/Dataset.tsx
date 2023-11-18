@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { setTool } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'routes/Annotator/Annotator';
 import FinetuneModel from 'models/Finetune.model';
+import { getIsOnTrain } from './helpers/DatasetHelpers';
 
 export interface DatasetType {
   datasetId: number;
@@ -35,6 +36,7 @@ export interface CategoryType {
 }
 
 export default function Dataset() {
+  const userId = useAppSelector((state) => state.auth.user.userId);
   const [dataset, setDataset] = useState<DatasetType>();
   const [availableDevices, setAvailableDevices] = useState<{
     [key: string]: boolean;
@@ -44,6 +46,7 @@ export default function Dataset() {
   const datasetId = Number(useParams().datasetId);
   const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
   const dispatch = useAppDispatch();
+  const [isOnTrain, setIsOnTrain] = useState(false);
 
   const getDataset = async (datasetId: number | undefined) => {
     try {
@@ -98,8 +101,15 @@ export default function Dataset() {
     getDataset(Number(datasetId));
   }, []);
 
-  // TODO: dataset 정보를 Information 전달
-  // TODO: dataset.imageIds를 ImageList에 전달
+  // train 중인지 확인
+  useEffect(() => {
+    getIsOnTrain(userId, datasetId).then((flag) => {
+      setIsOnTrain(flag);
+    });
+    // test용 true
+    // setIsOnTrain(true);
+  }, []);
+
   // TODO: descripttion에서 category 편집 가능하게
 
   return (
@@ -107,10 +117,11 @@ export default function Dataset() {
       <Controls
         setDeviceStatus={setDeviceStatus}
         availableDevices={availableDevices}
+        isOnTrain={isOnTrain}
       />
       {dataset && (
         <Fragment>
-          <Information {...dataset} />
+          <Information {...dataset} isOnTrain={isOnTrain} />
           <Content>
             <PaginationPanel
               onCurrentPageChange={onCurrentpageChange}
@@ -120,6 +131,7 @@ export default function Dataset() {
             <ImageList
               imageIds={dataset.imageIds[currentPage - 1]}
               deleteImage={deleteImage}
+              isOnTrain={isOnTrain}
             />
             <PaginationPanel
               onCurrentPageChange={onCurrentpageChange}

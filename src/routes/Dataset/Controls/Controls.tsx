@@ -8,14 +8,16 @@ import { useParams } from 'react-router-dom';
 import DatasetModel from '../models/Dataset.model';
 import FinetuneModel from 'models/Finetune.model';
 import TrainStartModal from './TrainStartModal/TrainStartModal';
+import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 
 interface ControlsProps {
   setDeviceStatus: () => Promise<void>;
   availableDevices?: { [key: number]: boolean };
+  isOnTrain: boolean;
 }
 
 export default function Controls(props: ControlsProps) {
-  const { setDeviceStatus, availableDevices } = props;
+  const { setDeviceStatus, availableDevices, isOnTrain } = props;
   const datasetId = Number(useParams().datasetId);
   const [isLoading, setIsLoading] = useState(false);
   const filesInput = useRef<HTMLInputElement>(null);
@@ -101,6 +103,7 @@ export default function Controls(props: ControlsProps) {
 
   return (
     <Container>
+      {isOnTrain && <ComponentBlocker message="" />}
       <TrainStartModal
         availableDevices={availableDevices}
         onTrainStart={onTrainStart}
