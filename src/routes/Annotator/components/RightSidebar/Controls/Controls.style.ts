@@ -9,8 +9,9 @@ export const Container = styled('div')(() => {
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    minHeight: '50%',
-    maxHeight: '50%',
+    height: '50%',
+    overflowY: 'scroll',
+    marginRight: '-17px',
   };
 });
 
