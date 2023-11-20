@@ -53,6 +53,8 @@ const SAMModel = {
         Math.floor(bottomRight.x),
         Math.floor(bottomRight.y),
       ],
+      // FIX: is_finetune을 model 종류에 따라 받아와야 함. 일단은 false로 고정
+      is_finetune: false,
       params: {
         pred_iou_thresh: params.predIOUThresh,
         box_nms_thresh: params.boxNmsThresh,
