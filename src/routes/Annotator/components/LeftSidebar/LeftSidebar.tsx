@@ -22,34 +22,21 @@ export default function LeftSidebar() {
   const categories = useAppSelector((state) => state.annotator.categories);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
 
-  async function saveData(datasetId: number | undefined, imageId: number) {
-    if (!datasetId || !imageId) return;
-
-    try {
-      const categoriesToUpdate = createCategoriesToUpdate();
-      const response = await AnnotatorModel.saveData(
-        datasetId,
-        imageId,
-        categoriesToUpdate,
-      );
-      console.dir('response');
-      console.dir(response);
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to save annotator data');
-    }
-  }
-
   function createCategoriesToUpdate() {
     const children = paper.project.activeLayer.children;
+
     const categoriesToUpdate = JSON.parse(JSON.stringify(categories));
 
-    children.map((child) => {
+    console.log(children);
+
+    children.forEach((child) => {
       if (child instanceof paper.CompoundPath) {
         const { categoryId, annotationId } = child.data;
-        const convertedAnnotation = getConvertedAnnotation(child);
+
+        console.log(getConvertedAnnotation(child));
 
         categoriesToUpdate[categoryId].annotations[annotationId] =
-          convertedAnnotation;
+          getConvertedAnnotation(child);
       }
     });
 
@@ -61,6 +48,25 @@ export default function LeftSidebar() {
     });
 
     return categoriesToUpdate;
+  }
+
+  async function saveData(datasetId: number | undefined, imageId: number) {
+    if (!datasetId || !imageId) return;
+
+    try {
+      const categoriesToUpdate = createCategoriesToUpdate();
+
+      const response = await AnnotatorModel.saveData(
+        datasetId,
+        imageId,
+        categoriesToUpdate,
+      );
+      // console.log(response);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to save annotator data');
+    } finally {
+      // console.dir(paper.project.activeLayer.children);
+    }
   }
 
   return (

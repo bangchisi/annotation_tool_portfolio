@@ -3,7 +3,6 @@ import {
   AnnotationType,
   AnnotationsType,
   CategoryType,
-  CurrentCategoryType,
 } from '../Annotator.types';
 
 export function setCategory(
@@ -60,31 +59,6 @@ export function toCurrentCategoryAnnotations(annotations: AnnotationsType) {
   return annotationList;
 }
 
-// export function toCurrentCategory(category: CategoryType): CurrentCategoryType {
-//   const currentCategory = {
-//     id: category.categoryId,
-//     name: category.name,
-//     color: category.color,
-//     annotations: toCurrentCategoryAnnotations(category.annotations),
-//     // annotations: annotationsToIds(category.annotations),
-//   };
-
-//   return currentCategory;
-// }
-
-// export function getLastAnnotationIdByCategoryId(
-//   category: CategoryType,
-// ): number {
-//   if (category.annotations.length > 0) {
-//     const maxIdObject = category.annotations.reduce((max, current) => {
-//       return current.annotationId > max.annotationId ? current : max;
-//     });
-//     return maxIdObject.annotationId;
-//   }
-
-//   return -1;
-// }
-
 //------------ init data
 // set data in compoundPath
 export function getCompoundPathWithData(
@@ -132,13 +106,14 @@ export function pointsToPath(points: number[]) {
 }
 
 //---------- save data
+// pathToPoints -> compoundPathToSegmentation -> getConvertedAnnotation
 // paper.Path: { .., segments: [number, number][], ...} -> points: number[]
 export function pathToPoints(path: paper.Path) {
   const points: number[] = [];
 
   const segments = path.segments; // [ Segment, Segment, ...]
 
-  segments.map((segment) => {
+  segments.forEach((segment) => {
     points.push(segment.point.x);
     points.push(segment.point.y);
   });
@@ -148,7 +123,8 @@ export function pathToPoints(path: paper.Path) {
 
 // paper.CompoundPath: { .., children: paper.Path[], ..} -> segmentation: number[][]
 export function compoundPathToSegmentation(compoundPath: paper.CompoundPath) {
-  const children = compoundPath.children;
+  const { children } = compoundPath;
+
   const segmentation: number[][] = [];
 
   // Path to points
@@ -190,8 +166,8 @@ function getIsCrowd(compound: paper.CompoundPath) {
 
 // get bbox
 function getBbox(compound: paper.CompoundPath) {
-  const group = new paper.Group(compound.children);
-  const box = new paper.Path.Rectangle(group);
+  // const group = new paper.Group(compound.children);
+  // const box = new paper.Path.Rectangle(group);
 
   // return box.bounds;
   return [];

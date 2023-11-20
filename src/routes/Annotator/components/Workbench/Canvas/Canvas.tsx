@@ -158,19 +158,7 @@ export default function Canvas(props: CanvasProps) {
 
   useEffect(() => {
     if (!categories) return;
-    console.log('drawPath');
     drawPaths(categories);
-
-    return () => {
-      console.log('%ccleanup', 'color:red');
-      paper.project.activeLayer.children.find((child) => {
-        console.log('child');
-        console.dir(child);
-        // if (child instanceof paper.CompoundPath) {
-        //   child.remove();
-        // }
-      });
-    };
   }, [categories]);
 
   const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({

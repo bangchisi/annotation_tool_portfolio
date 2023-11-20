@@ -71,9 +71,9 @@ export const onBoxMouseUp = () => {
   if (!endPoint || !guideBox) return;
 
   // 바꿔치기 할 children 생성
-  const pathToSwitch = new paper.CompoundPath(
-    tempPath.unite(guideBox) as paper.CompoundPath,
-  );
+  const unitedPath = tempPath.unite(guideBox) as paper.CompoundPath;
+  const pathToSwitch = new paper.CompoundPath(unitedPath);
+  console.dir(paper.project.activeLayer.children);
 
   // guide box 삭제
   guideBox.remove();
@@ -85,6 +85,4 @@ export const onBoxMouseUp = () => {
   // children 바꿔치기고 pathToSwitch 삭제
   tempPath.children = pathToSwitch.children;
   pathToSwitch.remove();
-
-  tempPath = null;
 };

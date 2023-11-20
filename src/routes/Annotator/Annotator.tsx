@@ -39,6 +39,9 @@ export default function Annotator() {
   const currentAnnotation = useAppSelector(
     (state) => state.annotator.currentAnnotation,
   );
+  const SAMEverythingLoading = useAppSelector(
+    (state) => state.sam.SAM.everythingLoading,
+  );
 
   // data 받아오기
   const initData = async (imageId: number) => {
@@ -85,16 +88,19 @@ export default function Annotator() {
 
       annotations.map(([id, annotation]) => {
         const annotationId = Number(id);
+        const children = paper.project.activeLayer.children;
 
-        // paper.project.activeLayer.children.find((child) => {
-        //   console.log(child.data);
-        //   if (
-        //     child.data.categoryId === categoryId &&
-        //     child.data.annotationId === annotationId
-        //   ) {
-        //     child.remove();
-        //   }
-        // });
+        // annotation이 이미 있으면 그리지 않고 스킵
+        let isFound = false;
+        children.forEach((child) => {
+          if (
+            child.data.categoryId === categoryId &&
+            child.data.annotationId === annotationId
+          ) {
+            isFound = true;
+          }
+        });
+        if (isFound) return;
 
         const compound = getCompoundPathWithData(
           annotation.segmentation,
@@ -104,8 +110,6 @@ export default function Annotator() {
         );
       });
     });
-
-    console.dir(paper.project.activeLayer.children);
   }
 
   // init data
@@ -113,6 +117,7 @@ export default function Annotator() {
     initData(imageId);
 
     return () => {
+      console.log('resetting categories');
       dispatch(setCategories({}));
     };
   }, [dispatch]);
@@ -136,6 +141,9 @@ export default function Annotator() {
       <RightSidebar />
       {isLoading && (
         <LoadingSpinner message="이미지 정보를 불러오는 중입니다. 잠시만 기다려주세요." />
+      )}
+      {SAMEverythingLoading && (
+        <LoadingSpinner message="SAM Everything 생성중입니다..." />
       )}
     </Container>
   );
