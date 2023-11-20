@@ -4,15 +4,15 @@ import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
   setSAMEverythingLoading,
   setSAMModelLoading,
-} from 'routes/Annotator/slices/annotatorSlice';
+} from 'routes/Annotator/slices/SAMSlice';
 import store from 'store';
 
 let tempRect: paper.Path.Rectangle;
 
 export function onSAMMouseDown(
-  isSAMModelLoaded: boolean,
-  setIsEverythingLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  embeddedImageId?: number,
+  SAMModelLoaded: boolean,
+  // setIsEverythingLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  embeddingId: number | null,
   categoryId?: number,
   imageId?: number,
 ) {
@@ -65,9 +65,8 @@ export function onSAMMouseDown(
       boxNmsThresh: 0.7,
       pointsPerSide: 32,
     },
-    isSAMModelLoaded,
-    setIsEverythingLoading,
-    embeddedImageId,
+    SAMModelLoaded,
+    embeddingId,
   );
 }
 
@@ -160,12 +159,11 @@ async function everything(
     pointsPerSide: number;
   },
   isSAMModelLoaded: boolean,
-  setIsEverythingLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  embeddedImageId?: number,
+  embeddingId: number | null,
 ) {
   if (!isSAMModelLoaded) return;
-  if (!embeddedImageId || embeddedImageId !== imageId) return;
-  setIsEverythingLoading(true);
+  if (!embeddingId || embeddingId !== imageId) return;
+  // store.dispatch(setSAMEverythingLoading(true));
   try {
     const response = SAMModel.everything(
       imageId,
@@ -181,7 +179,7 @@ async function everything(
     axiosErrorHandler(error, 'Failed to SAM Everything');
     alert('everything 모드 실패, 다시 시도해주세요.');
   } finally {
-    setIsEverythingLoading(false);
+    // store.dispatch(setSAMEverythingLoading(false));
   }
 }
 

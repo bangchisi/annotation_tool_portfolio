@@ -18,10 +18,10 @@ export default function App() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   const SAMModelLoading = useAppSelector(
-    (state) => state.annotator.SAM.modelLoading,
+    (state) => state.sam.SAM.modelLoading,
   ) as boolean;
   const SAMEverythingLoading = useAppSelector(
-    (state) => state.annotator.SAM.everythingLoading,
+    (state) => state.sam.SAM.everythingLoading,
   ) as boolean;
   // const handleCurrentMode = (nextMode: string): void => {
   //   setCurrentMode(nextMode);

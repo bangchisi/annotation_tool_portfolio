@@ -11,11 +11,13 @@ import { Tool } from 'routes/Annotator/Annotator';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import {
-  setEmbeddedImageId,
-  setIsSAMModelLoaded,
-} from 'routes/Annotator/slices/annotatorSlice';
 import { CategoriesType } from 'routes/Annotator/Annotator.types';
+import {
+  setSAMEmbeddingId,
+  setSAMEmbeddingLoading,
+  setSAMModelLoaded,
+  setSAMModelLoading,
+} from 'routes/Annotator/slices/SAMSlice';
 
 export let canvasData: PathStore;
 let canvasChildren: paper.Item[];
@@ -31,10 +33,6 @@ export default function Canvas(props: CanvasProps) {
   const { drawPaths, width, height } = props;
   // console.log('rendering Canvas.tsx');
   const dispatch = useAppDispatch();
-  const [isSAMModelLoading, setIsSAMModelLoading] = useState(false);
-  const [isEmbeddingLoading, setIsEmbeddingLoading] = useState(false);
-  const [isEverythingLoading, setIsEverythingLoading] = useState(false);
-  // const [isSAMLoading, setIsSAMLoading] = useState(false);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
   const imageId = Number(useParams().imageId);
   const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
@@ -46,12 +44,6 @@ export default function Canvas(props: CanvasProps) {
     (state) => state.annotator.currentCategory,
   );
   const image = useAppSelector((state) => state.annotator.image);
-  const isSAMModelLoaded = useAppSelector(
-    (state) => state.annotator.isSAMModelLoaded,
-  );
-  const embeddedImageId = useAppSelector(
-    (state) => state.annotator.embeddedImageId,
-  );
 
   const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
   // const { width: imageWidth, height: imageHeight } = image;
@@ -59,47 +51,57 @@ export default function Canvas(props: CanvasProps) {
   const imgHeight: number | null = null;
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // SAM 관련 state
+  const SAMModelLoaded = useAppSelector((state) => state.sam.SAM.modelLoaded);
+  const isSAMModelLoading = useAppSelector(
+    (state) => state.sam.SAM.modelLoading,
+  );
+  const isEmbeddingLoading = useAppSelector(
+    (state) => state.sam.SAM.embeddingLoading,
+  );
+  const embeddingId = useAppSelector((state) => state.sam.SAM.embeddingId);
+
   // SAM model 로드
   async function loadSAM(modelType?: string) {
-    setIsSAMModelLoading(true);
+    dispatch(setSAMModelLoading(true));
     try {
       const response = await SAMModel.loadModel(
         modelType ? modelType : 'vit_l',
       );
       console.log('response');
       console.dir(response);
-      dispatch(setIsSAMModelLoaded(true));
+      dispatch(setSAMModelLoaded(true));
     } catch (error) {
       axiosErrorHandler(error, 'Failed to load SAM');
       // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
-      dispatch(setIsSAMModelLoaded(false));
+      dispatch(setSAMModelLoaded(false));
+
       alert(
         'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
       );
     } finally {
-      setIsSAMModelLoading(false);
+      dispatch(setSAMModelLoading(false));
     }
   }
 
   async function embedImage(imageId: number) {
     // embed image, 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
     if (!image) return;
-    setIsEmbeddingLoading(true);
+    dispatch(setSAMEmbeddingLoading(true));
     try {
       const response = await SAMModel.embedImage(
         imageId,
         new paper.Point(0, 0),
         new paper.Point(image.width, image.height),
       );
-      dispatch(setEmbeddedImageId(imageId));
-
+      dispatch(setSAMEmbeddingId(imageId));
       console.log('image embedding response');
       console.log(response);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get image embedding');
-      dispatch(setEmbeddedImageId(undefined));
+      dispatch(setSAMEmbeddingId(null));
     } finally {
-      setIsEmbeddingLoading(false);
+      dispatch(setSAMEmbeddingLoading(false));
     }
   }
 
@@ -156,7 +158,19 @@ export default function Canvas(props: CanvasProps) {
 
   useEffect(() => {
     if (!categories) return;
+    console.log('drawPath');
     drawPaths(categories);
+
+    return () => {
+      console.log('%ccleanup', 'color:red');
+      paper.project.activeLayer.children.find((child) => {
+        console.log('child');
+        console.dir(child);
+        // if (child instanceof paper.CompoundPath) {
+        //   child.remove();
+        // }
+      });
+    };
   }, [categories]);
 
   const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({
@@ -166,8 +180,9 @@ export default function Canvas(props: CanvasProps) {
     canvasChildren,
     currentAnnotation,
     currentCategory,
-    isSAMModelLoaded,
-    setIsEverythingLoading,
+    SAMModelLoaded,
+    embeddingId,
+    // setIsEverythingLoading,
     // containerWidth,
     // containerHeight,
     // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임
@@ -192,15 +207,15 @@ export default function Canvas(props: CanvasProps) {
   useEffect(() => {
     if (selectedTool === Tool.SAM) {
       // SAM은 로드 했지만 다른 이미지 embedding을 생성해야 할때
-      if (isSAMModelLoaded) {
-        if (embeddedImageId === imageId) return;
+      if (SAMModelLoaded) {
+        if (embeddingId === imageId) return;
         embedImage(imageId);
         return;
       }
 
       // SAM 로드 안했을때.
       loadSAM().then(() => {
-        if (embeddedImageId === imageId) return;
+        if (embeddingId === imageId) return;
         embedImage(imageId);
       });
     }

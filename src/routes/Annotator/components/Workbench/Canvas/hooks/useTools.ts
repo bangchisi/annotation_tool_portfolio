@@ -25,13 +25,13 @@ interface UseToolsProps {
   selectedTool: Tool;
   onChangePoint: (point: paper.Point) => void;
   canvasChildren: paper.Item[];
-  isSAMModelLoaded: boolean;
-  setIsEverythingLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  SAMModelLoaded: boolean;
+  embeddingId: number | null;
+  // setIsEverythingLoading: React.Dispatch<React.SetStateAction<boolean>>;
   currentAnnotation?: CurrentAnnotationType;
   currentCategory?: CurrentCategoryType;
   datasetId?: number;
   imageId?: number;
-  embeddedImageId?: number;
   // containerWidth: number | null;
   // containerHeight: number | null;
 }
@@ -42,12 +42,12 @@ export const useTools = (props: UseToolsProps) => {
     onChangePoint,
     initPoint,
     canvasChildren,
-    isSAMModelLoaded,
-    setIsEverythingLoading,
+    SAMModelLoaded,
+    // setIsEverythingLoading,
     currentAnnotation,
     currentCategory,
     imageId,
-    embeddedImageId,
+    embeddingId,
     // containerWidth,
     // containerHeight,
   } = props;
@@ -78,9 +78,9 @@ export const useTools = (props: UseToolsProps) => {
       onEraserMouseDown(canvasChildren, currentCategory, currentAnnotation);
     } else if (selectedTool === Tool.SAM) {
       onSAMMouseDown(
-        isSAMModelLoaded,
-        setIsEverythingLoading,
-        embeddedImageId,
+        SAMModelLoaded,
+        // setIsEverythingLoading,
+        embeddingId,
         currentCategory?.categoryId,
         imageId,
       );
