@@ -16,13 +16,6 @@ export enum RouteMode {
 export default function App() {
   const [currentMode, setCurrentMode] = useState(RouteMode.DATASET);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-
-  const SAMModelLoading = useAppSelector(
-    (state) => state.sam.SAM.modelLoading,
-  ) as boolean;
-  const SAMEverythingLoading = useAppSelector(
-    (state) => state.sam.SAM.everythingLoading,
-  ) as boolean;
   // const handleCurrentMode = (nextMode: string): void => {
   //   setCurrentMode(nextMode);
   // };
@@ -40,12 +33,6 @@ export default function App() {
           <div id="main">
             <Outlet />
           </div>
-          {SAMModelLoading && (
-            <LoadingSpinner message="SAM을 불러오는 중입니다..." />
-          )}
-          {SAMEverythingLoading && (
-            <LoadingSpinner message="SAM Everything 생성중입니다..." />
-          )}
         </div>
       </CookiesProvider>
     </PersistGate>
