@@ -5,6 +5,8 @@ import Navigator from 'components/Navigator/Navigator';
 import { useAppSelector } from 'App.hooks';
 import { CookiesProvider } from 'react-cookie';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistor } from 'store';
 
 export enum RouteMode {
   DATASET,
@@ -26,24 +28,26 @@ export default function App() {
   // };
 
   return (
-    <CookiesProvider defaultSetOptions={{ path: '/' }}>
-      <div id="app">
-        {isAuthenticated && (
-          <Navigator
-            currentMode={currentMode}
-            setCurrentMode={setCurrentMode}
-          />
-        )}
-        <div id="main">
-          <Outlet />
+    <PersistGate persistor={persistor}>
+      <CookiesProvider defaultSetOptions={{ path: '/' }}>
+        <div id="app">
+          {isAuthenticated && (
+            <Navigator
+              currentMode={currentMode}
+              setCurrentMode={setCurrentMode}
+            />
+          )}
+          <div id="main">
+            <Outlet />
+          </div>
+          {SAMModelLoading && (
+            <LoadingSpinner message="SAM을 불러오는 중입니다..." />
+          )}
+          {SAMEverythingLoading && (
+            <LoadingSpinner message="SAM Everything 생성중입니다..." />
+          )}
         </div>
-        {SAMModelLoading && (
-          <LoadingSpinner message="SAM을 불러오는 중입니다..." />
-        )}
-        {SAMEverythingLoading && (
-          <LoadingSpinner message="SAM Everything 생성중입니다..." />
-        )}
-      </div>
-    </CookiesProvider>
+      </CookiesProvider>
+    </PersistGate>
   );
 }
