@@ -50,7 +50,7 @@ export function Annotation({
   function deleteCompound(categoryId: number, annotationId: number) {
     const children = paper.project.activeLayer.children;
 
-    children.map((child) => {
+    children.forEach((child) => {
       if (
         child.data.categoryId === categoryId &&
         child.data.annotationId === annotationId

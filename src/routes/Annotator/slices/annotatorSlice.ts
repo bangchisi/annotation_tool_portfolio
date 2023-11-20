@@ -17,10 +17,6 @@ enum Tool {
 
 interface initialStateType {
   selectedTool: Tool;
-  // isSAMModelLoaded: boolean;
-  // isSAMModelLaoding: boolean;
-  // isEmbeddingLoading: boolean;
-  // isEverythingLoading: boolean;
   datasetId?: number;
   image?: ImageType;
   categories?: CategoriesType;
@@ -76,11 +72,6 @@ export const {
   setCategories,
   setCurrentCategory,
   setCurrentAnnotation,
-  // setIsSAMModelLoaded,
-  // setEmbeddedImageId,
-  // setIsSAMModelLoading,
-  // setIsEmbeddingLoading,
-  // setIsEverythingLoading,
   updateCategories,
 } = annotatorSlice.actions;
 
