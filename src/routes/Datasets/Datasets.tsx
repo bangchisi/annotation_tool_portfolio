@@ -1,5 +1,3 @@
-import 'assets/css/datasets.css';
-
 import DatasetList from './DatasetList/DatasetList';
 import { useState } from 'react';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
