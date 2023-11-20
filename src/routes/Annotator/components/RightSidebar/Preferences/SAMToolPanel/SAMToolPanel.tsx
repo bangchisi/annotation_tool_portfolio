@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   MenuItem,
   Select,
@@ -13,44 +14,74 @@ import {
   SliderContainer,
   SliderContent,
 } from './SAMToolPanel.style';
-import { useAppDispatch, useAppSelector } from 'App.hooks';
-import { setSAMModelLoading } from 'routes/Annotator/slices/annotatorSlice';
+import { useAppSelector } from 'App.hooks';
 import {
   dummy,
+  loadFinetunedModel,
   loadSAM,
 } from 'routes/Annotator/components/Workbench/Canvas/tools/SAMTool';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import FinetuneModel from 'models/Finetune.model';
+import { LogType } from 'routes/Models/Models';
 
 export default function SAMToolPanel() {
-  const dispatch = useAppDispatch();
+  const userId = useAppSelector((state) => state.auth.user.userId);
   const preference = useAppSelector((state) => state.auth.preference);
+  const [isFinetuneModelLoading, setIsFinetuneModelLoading] = useState(false);
+  const [finetuneModelList, setFinetuneModelList] = useState<LogType[]>([]);
 
-  function onChangeModel(event: SelectChangeEvent<string>) {
+  function onChangeModel(
+    event: SelectChangeEvent<string> | SelectChangeEvent<number>,
+  ) {
     // ...
-    loadSAM(event.target.value);
+    if (event.target.value === 'vit_l' || event.target.value === 'vit_b')
+      loadSAM(event.target.value);
+    else loadFinetunedModel(Number(event.target.value));
   }
+
+  async function getFinetuneModels(userId: string) {
+    setIsFinetuneModelLoading(true);
+    try {
+      const response = await FinetuneModel.getLogs(userId);
+      if (!response.data) return;
+
+      setFinetuneModelList(response.data);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to get finetuned models in SAM Panel');
+    } finally {
+      setIsFinetuneModelLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getFinetuneModels(userId);
+  }, []);
 
   return (
     <Container>
       <Typography variant="subtitle2">SAM</Typography>
       <ModelContainer>
         <SelectModel>
-          <Typography variant="caption">기존 모델</Typography>
+          <Typography variant="caption">모델</Typography>
           <Select
             onChange={(event) => onChangeModel(event)}
             size="small"
-            defaultValue="vit_h"
+            defaultValue="vit_l"
           >
-            <MenuItem value="vit_h">vit_h</MenuItem>
             <MenuItem value="vit_l">vit_l</MenuItem>
             <MenuItem value="vit_b">vit_b</MenuItem>
-          </Select>
-        </SelectModel>
-        <SelectModel>
-          <Typography variant="caption">Finetuned 모델</Typography>
-          <Select size="small" defaultValue="vit_h">
-            <MenuItem value="vit_h">vit_h</MenuItem>
-            <MenuItem value="vit_l">vit_l</MenuItem>
-            <MenuItem value="vit_b">vit_b</MenuItem>
+            {finetuneModelList
+              .filter(
+                (finetuneModel) => finetuneModel.status === 'finetune done',
+              )
+              .map((finetuneModel) => (
+                <MenuItem
+                  key={finetuneModel.finetuneId}
+                  value={finetuneModel.finetuneId}
+                >
+                  {finetuneModel.finetuneName}
+                </MenuItem>
+              ))}
           </Select>
         </SelectModel>
       </ModelContainer>

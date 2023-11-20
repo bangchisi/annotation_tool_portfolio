@@ -1,4 +1,5 @@
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import FinetuneModel from 'models/Finetune.model';
 import paper from 'paper';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
@@ -161,9 +162,9 @@ async function everything(
   isSAMModelLoaded: boolean,
   embeddingId: number | null,
 ) {
+  store.dispatch(setSAMEverythingLoading(true));
   if (!isSAMModelLoaded) return;
   if (!embeddingId || embeddingId !== imageId) return;
-  // store.dispatch(setSAMEverythingLoading(true));
   try {
     const response = SAMModel.everything(
       imageId,
@@ -179,17 +180,37 @@ async function everything(
     axiosErrorHandler(error, 'Failed to SAM Everything');
     alert('everything 모드 실패, 다시 시도해주세요.');
   } finally {
-    // store.dispatch(setSAMEverythingLoading(false));
+    store.dispatch(setSAMEverythingLoading(false));
   }
 }
 
-export async function loadSAM(modelType?: string) {
+export async function loadSAM(modelType: string) {
   store.dispatch(setSAMModelLoading(true));
   try {
     const response = await SAMModel.loadModel(modelType ? modelType : 'vit_l');
     console.log('response');
     console.dir(response);
     // dispatch(setIsSAMModelLoaded(true));
+  } catch (error) {
+    axiosErrorHandler(error, 'Failed to load SAM');
+    // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
+    // dispatch(setIsSAMModelLoaded(false));
+    alert(
+      'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
+    );
+  } finally {
+    // setIsSAMModelLoading(false);
+    store.dispatch(setSAMModelLoading(false));
+  }
+}
+
+// finetune model을 불러오는 함수
+export async function loadFinetunedModel(finetuneId: number) {
+  store.dispatch(setSAMModelLoading(true));
+  try {
+    const response = await FinetuneModel.loadFinetunedModel(finetuneId);
+    console.log('response');
+    console.dir(response);
   } catch (error) {
     axiosErrorHandler(error, 'Failed to load SAM');
     // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이

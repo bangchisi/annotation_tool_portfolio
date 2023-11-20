@@ -52,6 +52,14 @@ const FinetuneModel = {
       },
     });
   },
+  loadFinetunedModel: (finetuneId: number) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/sam/load/finetuned/${finetuneId}`
+        : `${SERVER_URL}/sam/load/finetuned/${finetuneId}`;
+
+    return axios.get(url);
+  },
 };
 
 export default FinetuneModel;
