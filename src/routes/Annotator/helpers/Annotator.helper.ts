@@ -90,14 +90,18 @@ export function segmentationToCompoundPath(segmentation: number[][]) {
 // points: number[] -> paper.Path
 export function pointsToPath(points: number[]) {
   // number[] -> [number, number][]
+  const raster = paper.project.activeLayer.children[0] as paper.Raster;
+  const { x, y } = raster.bounds.topLeft;
+
   const path = points
     .map((point: number, idx) => {
       if (idx % 2 === 0) {
-        return [point, points[idx + 1]];
+        return [point + x, points[idx + 1] + y];
       }
     })
     .filter((point) => point !== undefined);
 
+  console.log(path);
   // path를 segments로 하는 pape.Path를 만들어 return
   return new paper.Path({
     segments: path,
@@ -110,12 +114,14 @@ export function pointsToPath(points: number[]) {
 // paper.Path: { .., segments: [number, number][], ...} -> points: number[]
 export function pathToPoints(path: paper.Path) {
   const points: number[] = [];
+  const raster = paper.project.activeLayer.children[0] as paper.Raster;
+  const { x, y } = raster.bounds.topLeft;
 
   const segments = path.segments; // [ Segment, Segment, ...]
 
   segments.forEach((segment) => {
-    points.push(segment.point.x);
-    points.push(segment.point.y);
+    points.push(segment.point.x - x);
+    points.push(segment.point.y - y);
   });
 
   return points;
