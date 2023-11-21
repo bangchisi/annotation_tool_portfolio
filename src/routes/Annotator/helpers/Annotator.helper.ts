@@ -120,8 +120,8 @@ export function pathToPoints(path: paper.Path) {
   const segments = path.segments; // [ Segment, Segment, ...]
 
   segments.forEach((segment) => {
-    points.push(segment.point.x - x);
-    points.push(segment.point.y - y);
+    points.push(Math.round((segment.point.x - x) * 100) / 100);
+    points.push(Math.round((segment.point.y - y) * 100) / 100);
   });
 
   return points;
