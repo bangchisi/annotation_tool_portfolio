@@ -7,15 +7,9 @@ import {
   ModalContent,
   ModalFooter,
   TrainContainer,
+  SelectField,
 } from './TrainStartModal.style';
-import {
-  Button,
-  MenuItem,
-  Modal,
-  Select,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Button, MenuItem, Modal, TextField, Typography } from '@mui/material';
 
 interface TrainStartModalModalProps {
   baseModelName: string;
@@ -77,17 +71,20 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
               {availableDevices && (
                 <Fragment>
                   <Typography>Base Model Name</Typography>
-                  <Select
+                  <SelectField
                     defaultValue="vit_l"
                     value={baseModelName}
                     size="small"
                     onChange={(event) => {
-                      setBaseModelName(event.target.value);
+                      setBaseModelName(event.target.value as string);
                     }}
                   >
                     <MenuItem value="vit_l">vit_l</MenuItem>
                     <MenuItem value="vit_b">vit_b</MenuItem>
-                  </Select>
+                    <MenuItem value="vit_b">
+                      vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_
+                    </MenuItem>
+                  </SelectField>
                   <Typography>New Model Name</Typography>
                   <TextField
                     type="text"

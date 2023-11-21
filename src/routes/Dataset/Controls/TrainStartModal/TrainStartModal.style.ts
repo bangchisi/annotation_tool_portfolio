@@ -1,4 +1,4 @@
-import { Box, Button, TextField, styled } from '@mui/material';
+import { Box, Button, Select, TextField, styled } from '@mui/material';
 
 // interface CategoryTagProps {
 //   categorycolor: string;
@@ -64,5 +64,12 @@ export const TrainContainer = styled(Box)(() => {
   return {
     display: 'flex',
     marginTop: 15,
+  };
+});
+
+export const SelectField = styled(Select)(() => {
+  return {
+    width: '100%',
+    marginRight: 15,
   };
 });
