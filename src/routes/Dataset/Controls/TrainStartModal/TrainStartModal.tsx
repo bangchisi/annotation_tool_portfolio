@@ -81,9 +81,6 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
                   >
                     <MenuItem value="vit_l">vit_l</MenuItem>
                     <MenuItem value="vit_b">vit_b</MenuItem>
-                    <MenuItem value="vit_b">
-                      vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_vit_b_
-                    </MenuItem>
                   </SelectField>
                   <Typography>New Model Name</Typography>
                   <TextField
