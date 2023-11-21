@@ -1,3 +1,4 @@
+import paper from 'paper';
 import { useEffect, useState } from 'react';
 import {
   MenuItem,
@@ -14,21 +15,36 @@ import {
   SliderContainer,
   SliderContent,
 } from './SAMToolPanel.style';
-import { useAppSelector } from 'App.hooks';
+import { useAppDispatch, useAppSelector } from 'App.hooks';
 import {
-  dummy,
+  getConvertedCoordinate,
+  getRegion,
   loadFinetunedModel,
   loadSAM,
 } from 'routes/Annotator/components/Workbench/Canvas/tools/SAMTool';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { LogType } from 'routes/Models/Models';
+import SAMModel from 'routes/Annotator/models/SAM.model';
+import { setSAMEverythingLoading } from 'routes/Annotator/slices/SAMSlice';
+
+let tempRect: paper.Path.Rectangle;
 
 export default function SAMToolPanel() {
   const userId = useAppSelector((state) => state.auth.user.userId);
   const preference = useAppSelector((state) => state.auth.preference);
   const [isFinetuneModelLoading, setIsFinetuneModelLoading] = useState(false);
   const [finetuneModelList, setFinetuneModelList] = useState<LogType[]>([]);
+
+  const dispatch = useAppDispatch();
+
+  // everything params
+  const image = useAppSelector((state) => state.annotator.image);
+  const currentCategory = useAppSelector(
+    (state) => state.annotator.currentCategory,
+  );
+  const SAMModelLoaded = useAppSelector((state) => state.sam.SAM.modelLoaded);
+  const embeddingId = useAppSelector((state) => state.sam.SAM.embeddingId);
 
   function onChangeModel(
     event: SelectChangeEvent<string> | SelectChangeEvent<number>,
@@ -50,6 +66,93 @@ export default function SAMToolPanel() {
       axiosErrorHandler(error, 'Failed to get finetuned models in SAM Panel');
     } finally {
       setIsFinetuneModelLoading(false);
+    }
+  }
+
+  function onEverything() {
+    const viewBounds = paper.view.bounds;
+    const raster = paper.project.activeLayer.children.find(
+      (child) => child instanceof paper.Raster,
+    ) as paper.Raster;
+    if (!raster) return;
+    const rasterBounds = raster.bounds;
+
+    const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
+
+    console.log('boundary');
+    console.dir(
+      `(${topLeft.x}, ${topLeft.y}), (${bottomRight.x}, ${bottomRight.y})`,
+    );
+
+    // draw SAM Region
+    if (tempRect) tempRect.remove();
+
+    tempRect = new paper.Path.Rectangle({
+      from: topLeft,
+      to: bottomRight,
+      strokeColor: new paper.Color('red'),
+      strokeWidth: 5,
+      guide: true,
+    });
+
+    // prompt, everything api 요청
+    const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
+      topLeft,
+      bottomRight,
+      raster,
+    );
+
+    // everything
+    console.log('everything');
+    if (!image || !currentCategory) return;
+    everything(
+      image.imageId,
+      currentCategory.categoryId,
+      calculatedTopLeft,
+      calculatedBottomRight,
+      // FIX: params need to be state, not hard-coded
+      {
+        predIOUThresh: 0.88,
+        boxNmsThresh: 0.7,
+        pointsPerSide: 16,
+      },
+      SAMModelLoaded,
+      embeddingId,
+    );
+  }
+
+  async function everything(
+    imageId: number,
+    categoryId: number,
+    topLeft: paper.Point,
+    bottomRight: paper.Point,
+    params: {
+      predIOUThresh: number;
+      boxNmsThresh: number;
+      pointsPerSide: number;
+    },
+    isSAMModelLoaded: boolean,
+    embeddingId: number | null,
+  ) {
+    dispatch(setSAMEverythingLoading(true));
+    if (!isSAMModelLoaded) return;
+    if (!embeddingId || embeddingId !== imageId) return;
+    try {
+      const response = await SAMModel.everything(
+        imageId,
+        categoryId,
+        topLeft,
+        bottomRight,
+        params,
+      );
+
+      console.log('everything, response');
+      console.log(response);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to SAM Everything');
+      alert('everything 모드 실패, 다시 시도해주세요.');
+    } finally {
+      dispatch(setSAMEverythingLoading(false));
     }
   }
 
@@ -121,7 +224,11 @@ export default function SAMToolPanel() {
           />
         </SliderContent>
       </SliderContainer>
-      <EverythingButton onClick={dummy} variant="contained" color="primary">
+      <EverythingButton
+        onClick={onEverything}
+        variant="contained"
+        color="primary"
+      >
         START EVERYTHING
       </EverythingButton>
     </Container>

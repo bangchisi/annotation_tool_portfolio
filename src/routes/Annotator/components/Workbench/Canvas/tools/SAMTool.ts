@@ -1,8 +1,11 @@
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import paper from 'paper';
+import { ImageType } from 'routes/Annotator/Annotator.types';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
+  setSAMEmbeddingId,
+  setSAMEmbeddingLoading,
   setSAMEverythingLoading,
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
@@ -43,32 +46,13 @@ export function onSAMMouseDown(
     guide: true,
   });
 
-  // prompt, everything api 요청
   const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
     topLeft,
     bottomRight,
     raster,
   );
 
-  console.log(calculatedTopLeft);
-  console.log(calculatedBottomRight);
-
-  // everything test
-  // FIX: 불러온 그림들이 raster subtract 만큼 왼쪽 위로 표시됨
-  if (!categoryId || !imageId) return;
-  everything(
-    imageId,
-    categoryId,
-    calculatedTopLeft,
-    calculatedBottomRight,
-    {
-      predIOUThresh: 0.88,
-      boxNmsThresh: 0.7,
-      pointsPerSide: 32,
-    },
-    SAMModelLoaded,
-    embeddingId,
-  );
+  // TODO: click mode 구현
 }
 
 // view.bounds와 raster.bounds의 교차점을 구함
@@ -149,41 +133,6 @@ export function getViewBounds(imageWidth: number, imageHeight: number) {
   };
 }
 
-async function everything(
-  imageId: number,
-  categoryId: number,
-  topLeft: paper.Point,
-  bottomRight: paper.Point,
-  params: {
-    predIOUThresh: number;
-    boxNmsThresh: number;
-    pointsPerSide: number;
-  },
-  isSAMModelLoaded: boolean,
-  embeddingId: number | null,
-) {
-  store.dispatch(setSAMEverythingLoading(true));
-  if (!isSAMModelLoaded) return;
-  if (!embeddingId || embeddingId !== imageId) return;
-  try {
-    const response = SAMModel.everything(
-      imageId,
-      categoryId,
-      topLeft,
-      bottomRight,
-      params,
-    );
-
-    console.log('everything, response');
-    console.log(response);
-  } catch (error) {
-    axiosErrorHandler(error, 'Failed to SAM Everything');
-    alert('everything 모드 실패, 다시 시도해주세요.');
-  } finally {
-    store.dispatch(setSAMEverythingLoading(false));
-  }
-}
-
 export async function loadSAM(modelType: string) {
   store.dispatch(setSAMModelLoading(true));
   try {
@@ -201,6 +150,28 @@ export async function loadSAM(modelType: string) {
   } finally {
     // setIsSAMModelLoading(false);
     store.dispatch(setSAMModelLoading(false));
+  }
+}
+
+export async function embedImage(image: ImageType) {
+  if (!image) return;
+  const imageId = image.imageId;
+  // embed image, 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
+  store.dispatch(setSAMEmbeddingLoading(true));
+  try {
+    const response = await SAMModel.embedImage(
+      imageId,
+      new paper.Point(0, 0),
+      new paper.Point(image.width, image.height),
+    );
+    store.dispatch(setSAMEmbeddingId(imageId));
+    console.log('image embedding response');
+    console.log(response);
+  } catch (error) {
+    axiosErrorHandler(error, 'Failed to get image embedding');
+    store.dispatch(setSAMEmbeddingId(null));
+  } finally {
+    store.dispatch(setSAMEmbeddingLoading(false));
   }
 }
 
@@ -222,8 +193,4 @@ export async function loadFinetunedModel(finetuneId: number) {
     // setIsSAMModelLoading(false);
     store.dispatch(setSAMModelLoading(false));
   }
-}
-
-export function dummy() {
-  store.dispatch(setSAMEverythingLoading(true));
 }
