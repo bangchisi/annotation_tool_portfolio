@@ -45,7 +45,7 @@ const SAMModel = {
         ? `${DEV_URL}/sam/everything`
         : `${SERVER_URL}/sam/everything`;
 
-    axios.post(url, {
+    return axios.post(url, {
       image_id: imageId,
       category_id: categoryId,
       image_left_top_coord: [Math.floor(topLeft.x), Math.floor(topLeft.y)],
