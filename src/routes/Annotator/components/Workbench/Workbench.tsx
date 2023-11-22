@@ -14,8 +14,12 @@ export default function Workbench(props: WorkbenchProps) {
   const width = containerRef.current?.clientWidth;
   const height = containerRef.current?.clientHeight;
 
+  const handleRightClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+  };
+
   return (
-    <Container ref={containerRef}>
+    <Container ref={containerRef} onContextMenu={handleRightClick}>
       <Canvas drawPaths={drawPaths} width={width} height={height} />
     </Container>
   );
