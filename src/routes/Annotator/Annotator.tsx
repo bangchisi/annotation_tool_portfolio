@@ -40,7 +40,7 @@ export default function Annotator() {
     (state) => state.annotator.currentAnnotation,
   );
   const SAMEverythingLoading = useAppSelector(
-    (state) => state.sam.SAM.everythingLoading,
+    (state) => state.sam.everythingLoading,
   );
 
   // data 받아오기

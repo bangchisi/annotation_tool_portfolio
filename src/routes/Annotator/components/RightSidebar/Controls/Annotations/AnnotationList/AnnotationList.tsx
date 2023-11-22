@@ -13,6 +13,7 @@ import {
   setCurrentAnnotation,
   setCurrentCategory,
   updateCategories,
+  selectAnnotator,
 } from 'routes/Annotator/slices/annotatorSlice';
 import { getRandomHexColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import { canvasData } from 'routes/Annotator/components/Workbench/Canvas/Canvas';
@@ -24,10 +25,7 @@ import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 export default function AnnotationList() {
   const [isLoading, setIsLoading] = useState(false);
-  const categories = useAppSelector((state) => state.annotator.categories);
-  const currentCategory = useAppSelector(
-    (state) => state.annotator.currentCategory,
-  );
+  const { categories, currentCategory } = useAppSelector(selectAnnotator);
   const dispatch = useAppDispatch();
   const imageId = Number(useParams().imageId);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
@@ -71,7 +69,7 @@ export default function AnnotationList() {
       const compoundPathToAdd = new paper.CompoundPath({});
       compoundPathToAdd.fillColor = new paper.Color(annotationColor);
       compoundPathToAdd.strokeColor = new paper.Color(1, 1, 1, 1);
-      compoundPathToAdd.opacity = 0.5;
+      compoundPathToAdd.opacity = 0.825;
       const dataToAdd = {
         categoryId: currentCategory.categoryId,
         annotationId: nextAnnotationId,
@@ -79,8 +77,25 @@ export default function AnnotationList() {
       };
       compoundPathToAdd.data = dataToAdd;
 
+      // compoundPathToAdd에 event listener 추가
+      // mouse click하면 currentAnnotation 업데이트
+      compoundPathToAdd.onClick = () => {
+        selectAnnotation(currentCategory.categoryId, nextAnnotationId);
+      };
+
+      // compoundPathToAdd에 event listener 추가
+      // mouse enter 하면 selected가 true, leave 하면 false
+      compoundPathToAdd.onMouseEnter = function () {
+        this.selected = true;
+      };
+      compoundPathToAdd.onMouseLeave = function () {
+        this.selected = false;
+      };
+
       // 항목 3. currentAnnotation 업데이트
       dispatch(setCurrentAnnotation(newAnnotation));
+      console.log('%cnewAnnotation', 'color: red');
+      console.dir(paper.project.activeLayer.children.length);
       console.dir(paper.project.activeLayer.children);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to create annotation');
@@ -119,6 +134,7 @@ export default function AnnotationList() {
   function selectAnnotation(categoryId: number, annotationId: number) {
     {
       // TODO: make paths.tempPath to selectedAnnotation path
+      console.log('selectAnnotation');
       const selectedPath = paper.project.activeLayer.children.find(
         (path) =>
           path.data.categoryId === categoryId &&
