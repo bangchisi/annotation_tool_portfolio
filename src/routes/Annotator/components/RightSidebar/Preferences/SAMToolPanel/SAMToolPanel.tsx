@@ -179,7 +179,7 @@ export default function SAMToolPanel() {
             <MenuItem value="vit_b">vit_b</MenuItem>
             {finetuneModelList
               .filter(
-                (finetuneModel) => finetuneModel.status === 'finetune done',
+                (finetuneModel) => finetuneModel.status === 'Finetuning Done',
               )
               .map((finetuneModel) => (
                 <MenuItem
