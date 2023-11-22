@@ -1,5 +1,4 @@
 import paper from 'paper';
-import { useCallback } from 'react';
 
 import { useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
@@ -17,7 +16,7 @@ const useEraserTool = (compounds: paper.Item[]) => {
     useAppSelector(selectAnnotator);
 
   // 마우스 클릭
-  const onMouseDown = useCallback(() => {
+  const onMouseDown = () => {
     if (!currentCategory || !currentAnnotation) return;
 
     const { annotationId: currentAnnotationId } = currentAnnotation;
@@ -35,10 +34,10 @@ const useEraserTool = (compounds: paper.Item[]) => {
         return compound;
       }
     }) as paper.CompoundPath;
-  }, [currentCategory, currentAnnotation]);
+  };
 
   // 마우스 드래그
-  const onMouseDrag = useCallback((event: paper.MouseEvent) => {
+  const onMouseDrag = (event: paper.MouseEvent) => {
     if (!tempPath) return;
 
     // // eraser cursor 이미 있으면 제거
@@ -65,14 +64,14 @@ const useEraserTool = (compounds: paper.Item[]) => {
     // 임시 원 삭제
     eraser.remove();
     eraser = null;
-  }, []);
+  };
 
   // 마우스 버튼 뗌
-  const onMouseUp = useCallback(() => {
+  const onMouseUp = () => {
     tempPath = null;
-  }, []);
+  };
 
-  const onMouseMove = useCallback((event: paper.MouseEvent) => {
+  const onMouseMove = (event: paper.MouseEvent) => {
     // eraser cursor 이미 있으면 제거
     if (eraserCursor !== null) {
       eraserCursor.remove();
@@ -81,9 +80,19 @@ const useEraserTool = (compounds: paper.Item[]) => {
 
     // eraser cursor 생성
     eraserCursor = createEraser(event.point, radius);
-  }, []);
+  };
 
-  return { onMouseDown, onMouseDrag, onMouseUp, onMouseMove };
+  // 마우스 떠남
+  const onMouseLeave = () => {
+    console.log('onMouseLeave');
+
+    if (eraserCursor !== null) {
+      eraserCursor.remove();
+      eraserCursor = null;
+    }
+  };
+
+  return { onMouseDown, onMouseDrag, onMouseUp, onMouseMove, onMouseLeave };
 };
 
 const createEraser = (point: paper.Point, radius: number) => {

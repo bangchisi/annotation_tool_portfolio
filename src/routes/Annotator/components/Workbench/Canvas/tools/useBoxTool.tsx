@@ -19,39 +19,36 @@ const useBoxTool = (compounds: paper.Item[]) => {
     useAppSelector(selectAnnotator);
 
   // 마우스 클릭
-  const onMouseDown = useCallback(
-    (event: paper.MouseEvent) => {
-      if (!currentCategory || !currentAnnotation) return;
+  const onMouseDown = (event: paper.MouseEvent) => {
+    if (!currentCategory || !currentAnnotation) return;
 
-      const { annotationId: currentAnnotationId } = currentAnnotation;
-      const { categoryId: currentCategoryId } = currentCategory;
+    const { annotationId: currentAnnotationId } = currentAnnotation;
+    const { categoryId: currentCategoryId } = currentCategory;
 
-      // tempPath를 현재 compound로 선택
-      tempPath = compounds.find((compound) => {
-        const { categoryId, annotationId } = compound.data;
-        if (
-          categoryId === currentCategoryId &&
-          annotationId === currentAnnotationId
-        ) {
-          // data를 넣어줌
-          // tempData = compound.data;
-          return compound;
-        }
-      }) as paper.CompoundPath;
-
-      if (!startPoint) {
-        // set start point
-        startPoint = event.point;
-      } else {
-        // set end point
-        endPoint = event.point;
+    // tempPath를 현재 compound로 선택
+    tempPath = compounds.find((compound) => {
+      const { categoryId, annotationId } = compound.data;
+      if (
+        categoryId === currentCategoryId &&
+        annotationId === currentAnnotationId
+      ) {
+        // data를 넣어줌
+        // tempData = compound.data;
+        return compound;
       }
-    },
-    [currentCategory, currentAnnotation],
-  );
+    }) as paper.CompoundPath;
+
+    if (!startPoint) {
+      // set start point
+      startPoint = event.point;
+    } else {
+      // set end point
+      endPoint = event.point;
+    }
+  };
 
   // 마우스 움직임
-  const onMouseMove = useCallback((event: paper.MouseEvent) => {
+  const onMouseMove = (event: paper.MouseEvent) => {
     if (!startPoint) return;
 
     if (guideBox) {
@@ -66,10 +63,10 @@ const useBoxTool = (compounds: paper.Item[]) => {
       strokeWidth,
       strokeColor,
     });
-  }, []);
+  };
 
   // 마우스 클릭 해제
-  const onMouseUp = useCallback(() => {
+  const onMouseUp = () => {
     if (!tempPath) return;
 
     // 두 번째 점이 없으면 무시
@@ -90,9 +87,23 @@ const useBoxTool = (compounds: paper.Item[]) => {
     // children 바꿔치기고 pathToSwitch 삭제
     tempPath.children = pathToSwitch.children;
     pathToSwitch.remove();
-  }, []);
+  };
 
-  return { onMouseUp, onMouseDown, onMouseMove, onMouseDrag: null };
+  const onMouseDrag = (event: paper.MouseEvent) => {
+    //..
+  };
+
+  const onMouseLeave = (event: paper.MouseEvent) => {
+    //..
+  };
+
+  return {
+    onMouseUp,
+    onMouseDown,
+    onMouseMove,
+    onMouseDrag,
+    onMouseLeave,
+  };
 };
 
 export default useBoxTool;

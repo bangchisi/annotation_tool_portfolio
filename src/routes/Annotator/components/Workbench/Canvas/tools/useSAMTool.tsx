@@ -1,5 +1,4 @@
 import paper from 'paper';
-import { useCallback } from 'react';
 import store from 'store';
 
 import { useAppDispatch, useAppSelector } from 'App.hooks';
@@ -26,76 +25,77 @@ const useSAMTool = () => {
   const { image, currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
-  const onMouseDown = useCallback(
-    (event: paper.MouseEvent) => {
-      event.preventDefault();
-      if (!image || !currentCategory || !currentAnnotation) return;
+  const onMouseDown = (event: paper.MouseEvent) => {
+    event.preventDefault();
+    if (!image || !currentCategory || !currentAnnotation) return;
 
-      const viewBounds = paper.view.bounds;
-      const raster = paper.project.activeLayer.children.find(
-        (child) => child instanceof paper.Raster,
-      ) as paper.Raster;
-      if (!raster) return;
-      const rasterBounds = raster.bounds;
-      const { x, y } = rasterBounds.topLeft;
+    const viewBounds = paper.view.bounds;
+    const raster = paper.project.activeLayer.children.find(
+      (child) => child instanceof paper.Raster,
+    ) as paper.Raster;
+    if (!raster) return;
+    const rasterBounds = raster.bounds;
+    const { x, y } = rasterBounds.topLeft;
 
-      const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
+    const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
 
-      // draw SAM Region
-      if (tempRect) tempRect.remove();
+    // draw SAM Region
+    if (tempRect) tempRect.remove();
 
-      tempRect = new paper.Path.Rectangle({
-        from: topLeft,
-        to: bottomRight,
-        strokeColor: new paper.Color('red'),
-        strokeWidth: 5,
-        guide: true,
-      });
+    tempRect = new paper.Path.Rectangle({
+      from: topLeft,
+      to: bottomRight,
+      strokeColor: new paper.Color('red'),
+      strokeWidth: 5,
+      guide: true,
+    });
 
-      const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
-        topLeft,
-        bottomRight,
-        raster,
-      );
+    const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
+      topLeft,
+      bottomRight,
+      raster,
+    );
 
-      // TODO: click mode 구현
+    // TODO: click mode 구현
 
-      const clickMode = (event as any).event.button === 0 ? 1 : 0;
-      const [clickedX, clickedY] = [
-        (Math.round(event.point.x - x) * 100) / 100,
-        (Math.round(event.point.y - y) * 100) / 100,
-      ];
+    const clickMode = (event as any).event.button === 0 ? 1 : 0;
+    const [clickedX, clickedY] = [
+      (Math.round(event.point.x - x) * 100) / 100,
+      (Math.round(event.point.y - y) * 100) / 100,
+    ];
 
-      // clicked x와 y가 0보다 작거나 이미지 크기보다 크면 return
-      if (
-        clickedX < 0 ||
-        clickedY < 0 ||
-        clickedX > image.width ||
-        clickedY > image.height
-      )
-        return;
+    // clicked x와 y가 0보다 작거나 이미지 크기보다 크면 return
+    if (
+      clickedX < 0 ||
+      clickedY < 0 ||
+      clickedX > image.width ||
+      clickedY > image.height
+    )
+      return;
 
-      labels.push(clickMode);
-      coords.push([clickedX, clickedY]);
+    labels.push(clickMode);
+    coords.push([clickedX, clickedY]);
 
-      embedImage(image, calculatedTopLeft, calculatedBottomRight).then(() => {
-        click(image.imageId, calculatedTopLeft, calculatedBottomRight, [x, y]);
-      });
-    },
-    [image, currentCategory, currentAnnotation],
-  );
+    embedImage(image, calculatedTopLeft, calculatedBottomRight).then(() => {
+      click(image.imageId, calculatedTopLeft, calculatedBottomRight, [x, y]);
+    });
+  };
 
-  const onMouseUp = useCallback(() => {
+  const onMouseUp = () => {
     // up
-  }, []);
+  };
 
-  const onMouseMove = useCallback(() => {
+  const onMouseMove = () => {
     // move
-  }, []);
+  };
 
-  const onMouseDrag = useCallback(() => {
+  const onMouseDrag = () => {
     // drag
-  }, []);
+  };
+
+  const onMouseLeave = () => {
+    // leave
+  };
 
   const click = async (
     imageId: number,
@@ -104,11 +104,6 @@ const useSAMTool = () => {
     correction: number[],
   ) => {
     if (!image) return;
-
-    // console.log('coords');
-    // console.log(coords[coords.length - 1]);
-    // console.log('labels');
-    // console.log(labels);
 
     dispatch(setSAMClickLoading(true));
     try {
@@ -154,7 +149,13 @@ const useSAMTool = () => {
     );
   };
 
-  return { onMouseDown, onMouseUp, onMouseMove, onMouseDrag };
+  return {
+    onMouseDown,
+    onMouseUp,
+    onMouseMove,
+    onMouseDrag,
+    onMouseLeave,
+  };
 };
 
 // view.bounds와 raster.bounds의 교차점을 구함
