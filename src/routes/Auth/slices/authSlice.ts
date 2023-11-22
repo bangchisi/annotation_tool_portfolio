@@ -9,6 +9,7 @@ interface UserType {
 export interface PreferenceType {
   [key: string]: unknown;
   brushRadius: number;
+  eraserRadius: number;
 }
 
 const initialState = {
@@ -18,7 +19,8 @@ const initialState = {
     isOnline: false,
   },
   preference: {
-    brushRadius: 10,
+    brushRadius: 20,
+    eraserRadius: 20,
   },
   isAuthenticated: false,
 };
@@ -39,10 +41,22 @@ const authSlice = createSlice({
     setBrushRadius: (state, action: PayloadAction<number>) => {
       state.preference.brushRadius = action.payload;
     },
+    setEraserRadius: (state, action: PayloadAction<number>) => {
+      state.preference.eraserRadius = action.payload;
+    },
   },
 });
 
-export const { setUser, setIsAuthenticated, setPreference, setBrushRadius } =
-  authSlice.actions;
+export const {
+  setUser,
+  setIsAuthenticated,
+  setPreference,
+  setBrushRadius,
+  setEraserRadius,
+} = authSlice.actions;
 
 export default authSlice.reducer;
+
+const selectAuth = ({ auth }: { auth: typeof initialState }) => auth;
+
+export { selectAuth };
