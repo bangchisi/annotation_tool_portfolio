@@ -1,10 +1,13 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { Container, Select } from './Categories.style';
-import { setCurrentCategory } from 'routes/Annotator/slices/annotatorSlice';
+import {
+  setCurrentCategory,
+  selectAnnotator,
+} from 'routes/Annotator/slices/annotatorSlice';
 
 export default function Categories() {
   const dispatch = useAppDispatch();
-  const categories = useAppSelector((state) => state.annotator.categories);
+  const { categories } = useAppSelector(selectAnnotator);
 
   // 카테고리 선택 변경
   const handleCategoryChange = (
