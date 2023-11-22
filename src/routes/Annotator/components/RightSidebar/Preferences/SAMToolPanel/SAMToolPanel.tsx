@@ -21,7 +21,7 @@ import {
   getRegion,
   loadFinetunedModel,
   loadSAM,
-} from 'routes/Annotator/components/Workbench/Canvas/tools/SAMTool';
+} from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { LogType } from 'routes/Models/Models';
@@ -43,8 +43,8 @@ export default function SAMToolPanel() {
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
   );
-  const SAMModelLoaded = useAppSelector((state) => state.sam.SAM.modelLoaded);
-  const embeddingId = useAppSelector((state) => state.sam.SAM.embeddingId);
+  const SAMModelLoaded = useAppSelector((state) => state.sam.modelLoaded);
+  const embeddingId = useAppSelector((state) => state.sam.embeddingId);
 
   function onChangeModel(
     event: SelectChangeEvent<string> | SelectChangeEvent<number>,

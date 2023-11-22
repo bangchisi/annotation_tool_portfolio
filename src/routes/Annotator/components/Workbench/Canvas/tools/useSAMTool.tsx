@@ -1,59 +1,80 @@
+import paper from 'paper';
+import { useCallback } from 'react';
+import store from 'store';
+
+import { useAppDispatch } from 'App.hooks';
+
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
-import paper from 'paper';
 import { ImageType } from 'routes/Annotator/Annotator.types';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
+  setSAMClickLoading,
   setSAMEmbeddingId,
   setSAMEmbeddingLoading,
-  setSAMEverythingLoading,
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
-import store from 'store';
 
 let tempRect: paper.Path.Rectangle;
 
-export function onSAMMouseDown(
-  SAMModelLoaded: boolean,
-  // setIsEverythingLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  embeddingId: number | null,
-  categoryId?: number,
-  imageId?: number,
-) {
-  console.log('SAM mouse down');
-  const viewBounds = paper.view.bounds;
-  const raster = paper.project.activeLayer.children.find(
-    (child) => child instanceof paper.Raster,
-  ) as paper.Raster;
-  if (!raster) return;
-  const rasterBounds = raster.bounds;
+const useSAMTool = () => {
+  const dispatch = useAppDispatch();
 
-  const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
+  const onMouseDown = useCallback(() => {
+    const viewBounds = paper.view.bounds;
+    const raster = paper.project.activeLayer.children.find(
+      (child) => child instanceof paper.Raster,
+    ) as paper.Raster;
+    if (!raster) return;
+    const rasterBounds = raster.bounds;
 
-  console.log('boundary');
-  console.dir(
-    `(${topLeft.x}, ${topLeft.y}), (${bottomRight.x}, ${bottomRight.y})`,
-  );
+    const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
 
-  // draw SAM Region
-  if (tempRect) tempRect.remove();
+    console.log('boundary');
 
-  tempRect = new paper.Path.Rectangle({
-    from: topLeft,
-    to: bottomRight,
-    strokeColor: new paper.Color('red'),
-    strokeWidth: 5,
-    guide: true,
-  });
+    // draw SAM Region
+    if (tempRect) tempRect.remove();
 
-  const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
-    topLeft,
-    bottomRight,
-    raster,
-  );
+    tempRect = new paper.Path.Rectangle({
+      from: topLeft,
+      to: bottomRight,
+      strokeColor: new paper.Color('red'),
+      strokeWidth: 5,
+      guide: true,
+    });
 
-  // TODO: click mode 구현
-}
+    const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
+      topLeft,
+      bottomRight,
+      raster,
+    );
+
+    // TODO: click mode 구현
+    console.log(calculatedTopLeft, calculatedBottomRight);
+    click();
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    // up
+  }, []);
+
+  const onMouseMove = useCallback(() => {
+    // move
+  }, []);
+
+  const onMouseDrag = useCallback(() => {
+    // drag
+  }, []);
+
+  const click = async () => {
+    dispatch(setSAMClickLoading(true));
+    setTimeout(() => {
+      dispatch(setSAMClickLoading(false));
+    }, 1000);
+  };
+
+  return { onMouseDown, onMouseUp, onMouseMove, onMouseDrag };
+};
 
 // view.bounds와 raster.bounds의 교차점을 구함
 export function getRegion(
@@ -91,46 +112,6 @@ export function getConvertedCoordinate(
     topLeft.subtract(raster.bounds.topLeft),
     bottomRight.subtract(raster.bounds.topLeft),
   ];
-}
-
-export function getViewBounds(imageWidth: number, imageHeight: number) {
-  // view
-  const viewTopLeft = paper.view.bounds.topLeft;
-  const viewBottomRight = paper.view.bounds.bottomRight;
-
-  // image
-  const imageTopLeft = new paper.Point(0, 0);
-  imageTopLeft.x = -(imageWidth / 2);
-  imageTopLeft.y = -(imageHeight / 2);
-  const imageBottomRight = new paper.Point(0, 0);
-  imageBottomRight.x = imageWidth / 2;
-  imageBottomRight.y = imageHeight / 2;
-
-  // result
-  const resultTopLeft = new paper.Point(0, 0);
-  resultTopLeft.x =
-    imageTopLeft.x > viewTopLeft.x ? imageTopLeft.x : viewTopLeft.x;
-  resultTopLeft.y =
-    imageTopLeft.y > viewTopLeft.y ? imageTopLeft.y : viewTopLeft.y;
-  const resultBottomRight = new paper.Point(0, 0);
-  resultBottomRight.x =
-    imageBottomRight.x < viewBottomRight.x
-      ? imageBottomRight.x
-      : viewBottomRight.x;
-  resultBottomRight.y =
-    imageBottomRight.y < viewBottomRight.y
-      ? imageBottomRight.y
-      : viewBottomRight.y;
-
-  const imageLeftTopCoord = resultTopLeft.add(imageBottomRight);
-  const imageRightBottomCoord = resultBottomRight.add(imageBottomRight);
-
-  return {
-    resultTopLeft,
-    resultBottomRight,
-    imageLeftTopCoord,
-    imageRightBottomCoord,
-  };
 }
 
 export async function loadSAM(modelType: string) {
@@ -194,3 +175,5 @@ export async function loadFinetunedModel(finetuneId: number) {
     store.dispatch(setSAMModelLoading(false));
   }
 }
+
+export default useSAMTool;

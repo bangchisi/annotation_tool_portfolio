@@ -140,40 +140,6 @@ export function drawAnnotation(
   }
 }
 
-export function getViewBounds(imageWidth: number, imageHeight: number) {
-  // view
-  const viewTopLeft = paper.view.bounds.topLeft;
-  const viewBottomRight = paper.view.bounds.bottomRight;
-
-  // image
-  const imageTopLeft = new paper.Point(-(imageWidth / 2), -(imageHeight / 2));
-  const imageBottomRight = new paper.Point(imageWidth / 2, imageHeight / 2);
-
-  // result
-  const resultTopLeft = new paper.Point(
-    imageTopLeft.x > viewTopLeft.x ? imageTopLeft.x : viewTopLeft.x,
-    imageTopLeft.y > viewTopLeft.y ? imageTopLeft.y : viewTopLeft.y,
-  );
-  const resultBottomRight = new paper.Point(
-    imageBottomRight.x < viewBottomRight.x
-      ? imageBottomRight.x
-      : viewBottomRight.x,
-    imageBottomRight.y < viewBottomRight.y
-      ? imageBottomRight.y
-      : viewBottomRight.y,
-  );
-
-  const imageLeftTopCoord = resultTopLeft.add(imageBottomRight);
-  const imageRightBottomCoord = resultBottomRight.add(imageBottomRight);
-
-  return {
-    resultTopLeft,
-    resultBottomRight,
-    imageLeftTopCoord,
-    imageRightBottomCoord,
-  };
-}
-
 export function compoundPathToSegmentations(
   compoundPath: paper.CompoundPath,
 ): number[][] {

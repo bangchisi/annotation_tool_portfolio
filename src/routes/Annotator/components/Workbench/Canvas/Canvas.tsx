@@ -1,8 +1,7 @@
 import paper from 'paper';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
-import { useTools } from './hooks/useTools';
 import { useAppSelector, useAppDispatch } from 'App.hooks';
 import { getCanvasImage, getImagePath } from 'helpers/ImagesHelpers';
 import { useParams } from 'react-router-dom';
@@ -13,11 +12,13 @@ import SAMModel from 'routes/Annotator/models/SAM.model';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { CategoriesType } from 'routes/Annotator/Annotator.types';
 import {
+  selectSAM,
   setSAMEmbeddingId,
   setSAMEmbeddingLoading,
   setSAMModelLoaded,
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
+import useTools from './hooks/useTools';
 
 export let canvasData: PathStore;
 let canvasChildren: paper.Item[];
@@ -45,21 +46,21 @@ export default function Canvas(props: CanvasProps) {
   );
   const image = useAppSelector((state) => state.annotator.image);
 
-  const [initPoint, setInitPoint] = useState<paper.Point | null>(null);
-  // const { width: imageWidth, height: imageHeight } = image;
   const imgWidth: number | null = null;
   const imgHeight: number | null = null;
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // SAM 관련 state
-  const SAMModelLoaded = useAppSelector((state) => state.sam.SAM.modelLoaded);
-  const isSAMModelLoading = useAppSelector(
-    (state) => state.sam.SAM.modelLoading,
-  );
+  const { clickLoading } = useAppSelector(selectSAM);
+  const SAMModelLoaded = useAppSelector((state) => state.sam.modelLoaded);
+  const isSAMModelLoading = useAppSelector((state) => state.sam.modelLoading);
   const isEmbeddingLoading = useAppSelector(
-    (state) => state.sam.SAM.embeddingLoading,
+    (state) => state.sam.embeddingLoading,
   );
-  const embeddingId = useAppSelector((state) => state.sam.SAM.embeddingId);
+  const embeddingId = useAppSelector((state) => state.sam.embeddingId);
+  const isSAMEverythingLoading = useAppSelector(
+    (state) => state.sam.everythingLoading,
+  );
 
   // SAM model 로드
   async function loadSAM(modelType?: string) {
@@ -106,7 +107,7 @@ export default function Canvas(props: CanvasProps) {
   }
 
   // 캔버스 초기 설정 useEffect (이미지 로드 후)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
       paper.setup(canvas);
@@ -162,19 +163,10 @@ export default function Canvas(props: CanvasProps) {
   }, [categories]);
 
   const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({
-    initPoint,
     selectedTool,
-    onChangePoint: setInitPoint,
     canvasChildren,
-    currentAnnotation,
-    currentCategory,
-    SAMModelLoaded,
-    embeddingId,
-    // setIsEverythingLoading,
-    // containerWidth,
-    // containerHeight,
-    // state를 바꾸려면, 여기에 props로 전달해줄 함수가 더 생길 것임
     imageId,
+    image,
   });
 
   useEffect(() => {
@@ -217,6 +209,10 @@ export default function Canvas(props: CanvasProps) {
       {isEmbeddingLoading && (
         <LoadingSpinner message="image embedding을 불러오는 중입니다. 조금만 기다려주세요." />
       )}
+      {isSAMEverythingLoading && (
+        <LoadingSpinner message="SAM Everything 생성중입니다..." />
+      )}
+      {clickLoading && <LoadingSpinner message="SAM Click 생성중입니다..." />}
       <Editor ref={canvasRef} id="canvas" selectedTool={selectedTool}></Editor>
     </Fragment>
   );
