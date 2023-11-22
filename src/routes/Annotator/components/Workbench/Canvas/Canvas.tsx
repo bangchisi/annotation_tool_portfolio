@@ -19,6 +19,7 @@ import {
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
 import useTools from './hooks/useTools';
+import { selectAuth } from 'routes/Auth/slices/authSlice';
 
 export let canvasData: PathStore;
 let canvasChildren: paper.Item[];
@@ -129,27 +130,6 @@ export default function Canvas(props: CanvasProps) {
     }
   }, []);
 
-  // 캔버스 초기 설정 useEffect
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   if (canvas) {
-  //     // paper.install(window);
-  //     paper.setup(canvas);
-  //     paper.activate();
-
-  //     canvasData = new PathStore(paper.project.activeLayer.children);
-  //     canvasChildren = paper.project.activeLayer.children;
-
-  //     // 줌, 스크롤은 항상 적용
-  //     canvas.onwheel = onCanvasWheel;
-
-  //     const raster = new paper.Raster();
-  //     const imagePath = getCanvasImage(imageId);
-  //     raster.source = imagePath;
-  //     raster.position = paper.view.center;
-  //   }
-  // }, []);
-
   useEffect(() => {
     if (width && height) {
       paper.view.viewSize = new paper.Size(width, height);
@@ -162,26 +142,36 @@ export default function Canvas(props: CanvasProps) {
     drawPaths(categories);
   }, [categories]);
 
-  const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } = useTools({
-    selectedTool,
-    canvasChildren,
-    imageId,
-    image,
-  });
+  const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag, onMouseLeave } =
+    useTools({
+      selectedTool,
+      canvasChildren,
+      imageId,
+      image,
+    });
 
   useEffect(() => {
     paper.view.onMouseDown = onMouseDown;
     paper.view.onMouseUp = onMouseUp;
     paper.view.onMouseMove = onMouseMove;
     paper.view.onMouseDrag = onMouseDrag;
+    paper.view.onMouseLeave = onMouseLeave;
 
     return () => {
       paper.view.onMouseDown = null;
       paper.view.onMouseUp = null;
       paper.view.onMouseMove = null;
       paper.view.onMouseDrag = null;
+      paper.view.onMouseLeave = null;
     };
-  }, [selectedTool, onMouseMove, onMouseDown, onMouseDrag]);
+  }, [
+    selectedTool,
+    onMouseMove,
+    onMouseDown,
+    onMouseDrag,
+    onMouseUp,
+    onMouseLeave,
+  ]);
 
   // SAM 로딩 했는지 검사
   useEffect(() => {
