@@ -27,6 +27,7 @@ import FinetuneModel from 'models/Finetune.model';
 import { LogType } from 'routes/Models/Models';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import { setSAMEverythingLoading } from 'routes/Annotator/slices/SAMSlice';
+import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
 let tempRect: paper.Path.Rectangle;
 
@@ -43,6 +44,7 @@ export default function SAMToolPanel() {
   const currentCategory = useAppSelector(
     (state) => state.annotator.currentCategory,
   );
+  const { currentAnnotation } = useAppSelector(selectAnnotator);
   const SAMModelLoaded = useAppSelector((state) => state.sam.modelLoaded);
   const embeddingId = useAppSelector((state) => state.sam.embeddingId);
 
@@ -103,11 +105,11 @@ export default function SAMToolPanel() {
     );
 
     // everything
-    console.log('everything');
-    if (!image || !currentCategory) return;
+    if (!image || !currentCategory || !currentAnnotation) return;
     everything(
       image.imageId,
       currentCategory.categoryId,
+      currentAnnotation.annotationId,
       calculatedTopLeft,
       calculatedBottomRight,
       // FIX: params need to be state, not hard-coded
@@ -124,6 +126,7 @@ export default function SAMToolPanel() {
   async function everything(
     imageId: number,
     categoryId: number,
+    annotationId: number,
     topLeft: paper.Point,
     bottomRight: paper.Point,
     params: {
@@ -141,6 +144,7 @@ export default function SAMToolPanel() {
       const response = await SAMModel.everything(
         imageId,
         categoryId,
+        annotationId,
         topLeft,
         bottomRight,
         params,

@@ -32,6 +32,7 @@ const SAMModel = {
   everything: (
     imageId: number,
     categoryId: number,
+    annotationId: number,
     topLeft: paper.Point,
     bottomRight: paper.Point,
     params: {
@@ -48,6 +49,7 @@ const SAMModel = {
     return axios.post(url, {
       image_id: imageId,
       category_id: categoryId,
+      annotation_id: annotationId,
       image_left_top_coord: [Math.floor(topLeft.x), Math.floor(topLeft.y)],
       image_right_bottom_coord: [
         Math.floor(bottomRight.x),
