@@ -33,15 +33,13 @@ const useTools = (props: UseToolsProps) => {
   const eraserTool = useEraserTool(canvasChildren);
   const SAMTool = useSAMTool();
 
-  const toolHandlers = useMemo(() => {
-    return {
-      [Tool.Select]: selectTool,
-      [Tool.Brush]: brushTool,
-      [Tool.Box]: boxTool,
-      [Tool.Eraser]: eraserTool,
-      [Tool.SAM]: SAMTool,
-    };
-  }, [selectedTool, currentAnnotation, brushRadius]);
+  const toolHandlers = {
+    [Tool.Select]: selectTool,
+    [Tool.Brush]: brushTool,
+    [Tool.Box]: boxTool,
+    [Tool.Eraser]: eraserTool,
+    [Tool.SAM]: SAMTool,
+  };
 
   return {
     onMouseDown: toolHandlers[selectedTool].onMouseDown,
