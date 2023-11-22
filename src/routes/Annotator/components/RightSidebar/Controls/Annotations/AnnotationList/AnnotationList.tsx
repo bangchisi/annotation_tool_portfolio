@@ -77,21 +77,6 @@ export default function AnnotationList() {
       };
       compoundPathToAdd.data = dataToAdd;
 
-      // compoundPathToAdd에 event listener 추가
-      // mouse click하면 currentAnnotation 업데이트
-      compoundPathToAdd.onClick = () => {
-        selectAnnotation(currentCategory.categoryId, nextAnnotationId);
-      };
-
-      // compoundPathToAdd에 event listener 추가
-      // mouse enter 하면 selected가 true, leave 하면 false
-      compoundPathToAdd.onMouseEnter = function () {
-        this.selected = true;
-      };
-      compoundPathToAdd.onMouseLeave = function () {
-        this.selected = false;
-      };
-
       // 항목 3. currentAnnotation 업데이트
       dispatch(setCurrentAnnotation(newAnnotation));
       console.log('%cnewAnnotation', 'color: red');
