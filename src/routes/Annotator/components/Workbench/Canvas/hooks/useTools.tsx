@@ -1,6 +1,8 @@
 import { Tool } from 'routes/Annotator/Annotator';
 import { ImageType } from 'routes/Annotator/Annotator.types';
 
+import { useMemo } from 'react';
+
 import { useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
@@ -10,6 +12,7 @@ import useBrushTool from '../tools/useBrushTool';
 import useEraserTool from '../tools/useEraserTool';
 import useSelectTool from '../tools/useSelectTool';
 import useSAMTool from '../tools/useSAMTool';
+import { selectAuth } from 'routes/Auth/slices/authSlice';
 
 interface UseToolsProps {
   selectedTool: Tool;
@@ -21,6 +24,7 @@ interface UseToolsProps {
 
 const useTools = (props: UseToolsProps) => {
   const { selectedTool } = useAppSelector(selectAnnotator);
+  const { brushRadius } = useAppSelector(selectAuth).preference;
   const { canvasChildren } = props;
 
   const selectTool = useSelectTool();
@@ -29,65 +33,22 @@ const useTools = (props: UseToolsProps) => {
   const eraserTool = useEraserTool(canvasChildren);
   const SAMTool = useSAMTool();
 
-  // 마우스 클릭
-  const onMouseDown = (event: paper.MouseEvent) => {
-    if (selectedTool === Tool.Select) {
-      selectTool.onMouseDown(event);
-    } else if (selectedTool === Tool.Brush) {
-      brushTool.onMouseDown();
-    } else if (selectedTool === Tool.Box) {
-      boxTool.onMouseDown(event);
-    } else if (selectedTool === Tool.Eraser) {
-      eraserTool.onMouseDown();
-    } else if (selectedTool === Tool.SAM) {
-      SAMTool.onMouseDown(event);
-    }
-  };
-
-  // 마우스 업
-  const onMouseUp = () => {
-    // console.log(event);
-    if (selectedTool === Tool.Select) {
-      // ...
-    } else if (selectedTool === Tool.Brush) {
-      brushTool.onMouseUp();
-    } else if (selectedTool === Tool.Box) {
-      boxTool.onMouseUp();
-    } else if (selectedTool === Tool.Eraser) {
-      eraserTool.onMouseUp();
-    }
-  };
-
-  // 마우스 움직임
-  const onMouseMove = (event: paper.MouseEvent) => {
-    if (selectedTool === Tool.Select) {
-      // ...
-    } else if (selectedTool === Tool.Brush) {
-      brushTool.onMouseMove(event);
-    } else if (selectedTool === Tool.Box) {
-      boxTool.onMouseMove(event);
-    } else if (selectedTool === Tool.Eraser) {
-      eraserTool.onMouseMove(event);
-    }
-  };
-
-  // 마우스 드래그
-  const onMouseDrag = (event: paper.MouseEvent) => {
-    if (selectedTool === Tool.Select) {
-      // 이미지 드래그해서 옮기기
-      selectTool.onMouseDrag(event);
-    } else if (selectedTool === Tool.Brush) {
-      brushTool.onMouseDrag(event);
-    } else if (selectedTool === Tool.Eraser) {
-      eraserTool.onMouseDrag(event);
-    }
-  };
+  const toolHandlers = useMemo(() => {
+    return {
+      [Tool.Select]: selectTool,
+      [Tool.Brush]: brushTool,
+      [Tool.Box]: boxTool,
+      [Tool.Eraser]: eraserTool,
+      [Tool.SAM]: SAMTool,
+    };
+  }, [selectedTool, brushRadius]);
 
   return {
-    onMouseDown,
-    onMouseUp,
-    onMouseDrag,
-    onMouseMove,
+    onMouseDown: toolHandlers[selectedTool].onMouseDown,
+    onMouseUp: toolHandlers[selectedTool].onMouseUp,
+    onMouseDrag: toolHandlers[selectedTool].onMouseDrag,
+    onMouseMove: toolHandlers[selectedTool].onMouseMove,
+    onMouseLeave: toolHandlers[selectedTool].onMouseLeave,
   };
 };
 
