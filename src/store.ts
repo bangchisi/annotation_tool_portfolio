@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import annotatorReducer from 'routes/Annotator/slices/annotatorSlice';
 import samReducer from 'routes/Annotator/slices/SAMSlice';
 import authReducer from 'routes/Auth/slices/authSlice';
@@ -9,23 +9,19 @@ import storage from 'redux-persist/lib/storage';
 // config persist
 const persistConfig = {
   key: 'root',
+  whitelist: ['auth', 'annotator', 'sam'],
   storage,
 };
 
-// config store
-const persistedAnnotatorReducer = persistReducer(
-  persistConfig,
-  annotatorReducer,
-);
-
-const persistedAuthReducer = persistReducer(persistConfig, authReducer);
-
 const store = configureStore({
-  reducer: {
-    annotator: persistedAnnotatorReducer,
-    auth: persistedAuthReducer,
-    sam: samReducer,
-  },
+  reducer: persistReducer(
+    persistConfig,
+    combineReducers({
+      annotator: annotatorReducer,
+      auth: authReducer,
+      sam: samReducer,
+    }),
+  ),
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
