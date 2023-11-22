@@ -9,7 +9,7 @@ import storage from 'redux-persist/lib/storage';
 // config persist
 const persistConfig = {
   key: 'root',
-  whitelist: ['auth', 'annotator', 'sam'],
+  whitelist: ['auth', 'annotator'],
   storage,
 };
 
