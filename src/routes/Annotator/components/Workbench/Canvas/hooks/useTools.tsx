@@ -23,7 +23,7 @@ interface UseToolsProps {
 }
 
 const useTools = (props: UseToolsProps) => {
-  const { selectedTool } = useAppSelector(selectAnnotator);
+  const { selectedTool, currentAnnotation } = useAppSelector(selectAnnotator);
   const { brushRadius } = useAppSelector(selectAuth).preference;
   const { canvasChildren } = props;
 
@@ -41,7 +41,7 @@ const useTools = (props: UseToolsProps) => {
       [Tool.Eraser]: eraserTool,
       [Tool.SAM]: SAMTool,
     };
-  }, [selectedTool, brushRadius]);
+  }, [selectedTool, currentAnnotation, brushRadius]);
 
   return {
     onMouseDown: toolHandlers[selectedTool].onMouseDown,
