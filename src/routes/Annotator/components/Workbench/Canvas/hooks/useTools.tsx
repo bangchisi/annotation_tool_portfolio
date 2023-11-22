@@ -40,13 +40,7 @@ const useTools = (props: UseToolsProps) => {
     } else if (selectedTool === Tool.Eraser) {
       eraserTool.onMouseDown();
     } else if (selectedTool === Tool.SAM) {
-      SAMTool.onMouseDown();
-      // onSAMMouseDown(
-      //   SAMModelLoaded,
-      //   embeddingId,
-      //   currentCategory?.categoryId,
-      //   imageId,
-      // );
+      SAMTool.onMouseDown(event);
     }
   };
 

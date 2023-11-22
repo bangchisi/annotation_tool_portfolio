@@ -25,8 +25,11 @@ const SAMModel = {
 
     return axios.post(url, {
       image_id: imageId,
-      image_left_top_coord: [topLeft.x, topLeft.y],
-      image_right_bottom_coord: [bottomRight.x, bottomRight.y],
+      image_left_top_coord: [Math.floor(topLeft.x), Math.floor(topLeft.y)],
+      image_right_bottom_coord: [
+        Math.floor(bottomRight.x),
+        Math.floor(bottomRight.y),
+      ],
     });
   },
   everything: (
@@ -62,6 +65,29 @@ const SAMModel = {
         box_nms_thresh: params.boxNmsThresh,
         points_per_side: params.pointsPerSide,
       },
+    });
+  },
+  click: (
+    imageId: number,
+    coords: [number, number][],
+    labels: number[],
+    topLeft: paper.Point,
+    bottomRight: paper.Point,
+  ) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/sam/click`
+        : `${SERVER_URL}/sam/click`;
+
+    return axios.post(url, {
+      image_id: imageId,
+      point_coords: coords, // 클릭한 위치 배열, float
+      point_labels: labels, // positive or negative 배열, int
+      image_left_top_coord: [Math.floor(topLeft.x), Math.floor(topLeft.y)],
+      image_right_bottom_coord: [
+        Math.floor(bottomRight.x),
+        Math.floor(bottomRight.y),
+      ],
     });
   },
 };

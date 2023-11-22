@@ -101,7 +101,6 @@ export function pointsToPath(points: number[]) {
     })
     .filter((point) => point !== undefined);
 
-  console.log(path);
   // path를 segments로 하는 pape.Path를 만들어 return
   return new paper.Path({
     segments: path,

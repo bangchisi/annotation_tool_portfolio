@@ -2,13 +2,15 @@ import paper from 'paper';
 import { useCallback } from 'react';
 import store from 'store';
 
-import { useAppDispatch } from 'App.hooks';
+import { useAppDispatch, useAppSelector } from 'App.hooks';
+import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { ImageType } from 'routes/Annotator/Annotator.types';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
+  selectSAM,
   setSAMClickLoading,
   setSAMEmbeddingId,
   setSAMEmbeddingLoading,
@@ -18,41 +20,70 @@ import {
 let tempRect: paper.Path.Rectangle;
 
 const useSAMTool = () => {
+  const coords: [number, number][] = [];
+  const labels: number[] = [];
   const dispatch = useAppDispatch();
+  const { image, currentCategory, currentAnnotation } =
+    useAppSelector(selectAnnotator);
 
-  const onMouseDown = useCallback(() => {
-    const viewBounds = paper.view.bounds;
-    const raster = paper.project.activeLayer.children.find(
-      (child) => child instanceof paper.Raster,
-    ) as paper.Raster;
-    if (!raster) return;
-    const rasterBounds = raster.bounds;
+  const onMouseDown = useCallback(
+    (event: paper.MouseEvent) => {
+      event.preventDefault();
+      if (!image || !currentCategory || !currentAnnotation) return;
 
-    const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
+      const viewBounds = paper.view.bounds;
+      const raster = paper.project.activeLayer.children.find(
+        (child) => child instanceof paper.Raster,
+      ) as paper.Raster;
+      if (!raster) return;
+      const rasterBounds = raster.bounds;
+      const { x, y } = rasterBounds.topLeft;
 
-    console.log('boundary');
+      const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
 
-    // draw SAM Region
-    if (tempRect) tempRect.remove();
+      // draw SAM Region
+      if (tempRect) tempRect.remove();
 
-    tempRect = new paper.Path.Rectangle({
-      from: topLeft,
-      to: bottomRight,
-      strokeColor: new paper.Color('red'),
-      strokeWidth: 5,
-      guide: true,
-    });
+      tempRect = new paper.Path.Rectangle({
+        from: topLeft,
+        to: bottomRight,
+        strokeColor: new paper.Color('red'),
+        strokeWidth: 5,
+        guide: true,
+      });
 
-    const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
-      topLeft,
-      bottomRight,
-      raster,
-    );
+      const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
+        topLeft,
+        bottomRight,
+        raster,
+      );
 
-    // TODO: click mode 구현
-    console.log(calculatedTopLeft, calculatedBottomRight);
-    click();
-  }, []);
+      // TODO: click mode 구현
+
+      const clickMode = (event as any).event.button === 0 ? 1 : 0;
+      const [clickedX, clickedY] = [
+        (Math.round(event.point.x - x) * 100) / 100,
+        (Math.round(event.point.y - y) * 100) / 100,
+      ];
+
+      // clicked x와 y가 0보다 작거나 이미지 크기보다 크면 return
+      if (
+        clickedX < 0 ||
+        clickedY < 0 ||
+        clickedX > image.width ||
+        clickedY > image.height
+      )
+        return;
+
+      labels.push(clickMode);
+      coords.push([clickedX, clickedY]);
+
+      embedImage(image, calculatedTopLeft, calculatedBottomRight).then(() => {
+        click(image.imageId, calculatedTopLeft, calculatedBottomRight, [x, y]);
+      });
+    },
+    [image, currentCategory, currentAnnotation],
+  );
 
   const onMouseUp = useCallback(() => {
     // up
@@ -66,11 +97,61 @@ const useSAMTool = () => {
     // drag
   }, []);
 
-  const click = async () => {
+  const click = async (
+    imageId: number,
+    topLeft: paper.Point,
+    bottomRight: paper.Point,
+    correction: number[],
+  ) => {
+    if (!image) return;
+
+    // console.log('coords');
+    // console.log(coords[coords.length - 1]);
+    // console.log('labels');
+    // console.log(labels);
+
     dispatch(setSAMClickLoading(true));
-    setTimeout(() => {
+    try {
+      const response = await SAMModel.click(
+        imageId,
+        coords,
+        labels,
+        topLeft,
+        bottomRight,
+      );
+      const segmentation = response.data.segmentation;
+      setChildrenWithSegmentation(segmentation, correction);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to SAM click');
+    } finally {
       dispatch(setSAMClickLoading(false));
-    }, 1000);
+    }
+  };
+
+  const setChildrenWithSegmentation = (
+    segmentation: number[][][],
+    correction: number[],
+  ) => {
+    const { children } = paper.project.activeLayer;
+    const compound = children.find(
+      (child) =>
+        child.data.annotationId === currentAnnotation?.annotationId &&
+        child.data.categoryId === currentCategory?.categoryId,
+    ) as paper.CompoundPath;
+
+    compound.removeChildren();
+    // segmentation의 모든 숫자에 1을 더해서 temp라는 변수에 넣어줌
+    const correctedSegmentation = segmentation.map((path) => {
+      return path.map((point) => {
+        return [point[0] + correction[0], point[1] + correction[1]];
+      });
+    });
+
+    compound.addChildren(
+      correctedSegmentation.map((path) => {
+        return new paper.Path(path);
+      }),
+    );
   };
 
   return { onMouseDown, onMouseUp, onMouseMove, onMouseDrag };
@@ -134,7 +215,11 @@ export async function loadSAM(modelType: string) {
   }
 }
 
-export async function embedImage(image: ImageType) {
+export async function embedImage(
+  image: ImageType,
+  topLeft: paper.Point,
+  bottomRight: paper.Point,
+) {
   if (!image) return;
   const imageId = image.imageId;
   // embed image, 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
@@ -142,8 +227,10 @@ export async function embedImage(image: ImageType) {
   try {
     const response = await SAMModel.embedImage(
       imageId,
-      new paper.Point(0, 0),
-      new paper.Point(image.width, image.height),
+      topLeft,
+      bottomRight,
+      // new paper.Point(0, 0),
+      // new paper.Point(image.width, image.height),
     );
     store.dispatch(setSAMEmbeddingId(imageId));
     console.log('image embedding response');
