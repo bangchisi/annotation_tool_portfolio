@@ -76,3 +76,9 @@ export const {
 } = annotatorSlice.actions;
 
 export default annotatorSlice.reducer;
+
+const selectAnnotator = ({ annotator }: { annotator: initialStateType }) => {
+  return annotator;
+};
+
+export { selectAnnotator };

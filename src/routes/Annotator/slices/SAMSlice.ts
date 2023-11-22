@@ -2,29 +2,25 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface SAMState {
-  SAM: {
-    model: string | null;
-    modelLoading: boolean;
-    modelLoaded: boolean;
-    embeddingLoading: boolean;
-    embeddingLoaded: boolean;
-    embeddingId: number | null;
-    everythingLoading: boolean;
-    clickLoading: boolean;
-  };
+  model: string | null;
+  modelLoading: boolean;
+  modelLoaded: boolean;
+  embeddingLoading: boolean;
+  embeddingLoaded: boolean;
+  embeddingId: number | null;
+  everythingLoading: boolean;
+  clickLoading: boolean;
 }
 
 const initialState: SAMState = {
-  SAM: {
-    model: null,
-    modelLoading: false,
-    modelLoaded: false,
-    embeddingLoading: false,
-    embeddingLoaded: false,
-    embeddingId: null,
-    everythingLoading: false,
-    clickLoading: false,
-  },
+  model: null,
+  modelLoading: false,
+  modelLoaded: false,
+  embeddingLoading: false,
+  embeddingLoaded: false,
+  embeddingId: null,
+  everythingLoading: false,
+  clickLoading: false,
 };
 
 const samSlice = createSlice({
@@ -33,28 +29,28 @@ const samSlice = createSlice({
   reducers: {
     // 여기에 SAM에 대한 액션 핸들러를 정의합니다.
     setSAMModel: (state, action: PayloadAction<string>) => {
-      state.SAM.model = action.payload;
+      state.model = action.payload;
     },
     setSAMModelLoading: (state, action: PayloadAction<boolean>) => {
-      state.SAM.modelLoading = action.payload;
+      state.modelLoading = action.payload;
     },
     setSAMModelLoaded: (state, action: PayloadAction<boolean>) => {
-      state.SAM.modelLoaded = action.payload;
+      state.modelLoaded = action.payload;
     },
     setSAMEmbeddingLoading: (state, action: PayloadAction<boolean>) => {
-      state.SAM.embeddingLoading = action.payload;
+      state.embeddingLoading = action.payload;
     },
     setSAMEmbeddingLoaded: (state, action: PayloadAction<boolean>) => {
-      state.SAM.embeddingLoaded = action.payload;
+      state.embeddingLoaded = action.payload;
     },
     setSAMEmbeddingId: (state, action: PayloadAction<number | null>) => {
-      state.SAM.embeddingId = action.payload;
+      state.embeddingId = action.payload;
     },
     setSAMEverythingLoading: (state, action: PayloadAction<boolean>) => {
-      state.SAM.everythingLoading = action.payload;
+      state.everythingLoading = action.payload;
     },
     setSAMClickLoading: (state, action: PayloadAction<boolean>) => {
-      state.SAM.clickLoading = action.payload;
+      state.clickLoading = action.payload;
     },
   },
 });
@@ -71,3 +67,7 @@ export const {
 } = samSlice.actions;
 
 export default samSlice.reducer;
+
+const selectSAM = ({ sam }: { sam: SAMState }) => sam;
+
+export { selectSAM };
