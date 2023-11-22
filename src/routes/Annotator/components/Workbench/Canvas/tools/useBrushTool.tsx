@@ -1,11 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import { selectAuth } from 'routes/Auth/slices/authSlice';
 
 let brushCursor: paper.Path.Circle | null = null;
-const radius = 20; // brush 크기는 preferece에서 받아올 것.
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
@@ -13,11 +13,14 @@ const strokeWidth = 2;
 let tempPath: paper.CompoundPath | null;
 
 const useBrushTool = (compounds: paper.Item[]) => {
+  // Brush radius
+  const { brushRadius } = useAppSelector(selectAuth).preference;
+
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
   // 마우스 움직임
-  const onMouseMove = useCallback((event: paper.MouseEvent) => {
+  const onMouseMove = (event: paper.MouseEvent) => {
     // brush cursor 이미 있으면 제거
     if (brushCursor !== null) {
       brushCursor.remove();
@@ -25,11 +28,11 @@ const useBrushTool = (compounds: paper.Item[]) => {
     }
 
     // brush cursor 생성
-    brushCursor = createBrush(event.point, radius);
-  }, []);
+    brushCursor = createBrush(event.point, brushRadius);
+  };
 
   // 마우스 클릭
-  const onMouseDown = useCallback(() => {
+  const onMouseDown = () => {
     if (!currentCategory || !currentAnnotation) return;
 
     const { annotationId: currentAnnotationId } = currentAnnotation;
@@ -45,10 +48,10 @@ const useBrushTool = (compounds: paper.Item[]) => {
         return compound;
       }
     }) as paper.CompoundPath;
-  }, [currentCategory, currentAnnotation]);
+  };
 
   // 마우스 드래그
-  const onMouseDrag = useCallback((event: paper.MouseEvent) => {
+  const onMouseDrag = (event: paper.MouseEvent) => {
     if (!tempPath) return;
 
     // // brush cursor 이미 있으면 제거
@@ -57,11 +60,11 @@ const useBrushTool = (compounds: paper.Item[]) => {
       brushCursor = null;
     }
     // brush cursor 생성
-    brushCursor = createBrush(event.point, radius);
+    brushCursor = createBrush(event.point, brushRadius);
 
     let brush: paper.Path | null = new paper.Path.Circle({
       center: event.point,
-      radius,
+      radius: brushRadius,
     });
 
     // 바꿔치기 할 children 생성
@@ -75,14 +78,21 @@ const useBrushTool = (compounds: paper.Item[]) => {
     // 임시 원 삭제
     brush.remove();
     brush = null;
-  }, []);
+  };
 
   // 마우스 버튼 뗌
-  const onMouseUp = useCallback(() => {
+  const onMouseUp = () => {
     tempPath = null;
-  }, []);
+  };
 
-  return { onMouseMove, onMouseDown, onMouseUp, onMouseDrag };
+  const onMouseLeave = () => {
+    if (brushCursor !== null) {
+      brushCursor.remove();
+      brushCursor = null;
+    }
+  };
+
+  return { onMouseMove, onMouseDown, onMouseUp, onMouseDrag, onMouseLeave };
 };
 
 const createBrush = (point: paper.Point, radius: number) => {

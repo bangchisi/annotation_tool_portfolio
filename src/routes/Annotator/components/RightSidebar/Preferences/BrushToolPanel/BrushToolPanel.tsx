@@ -6,13 +6,11 @@ import {
   PrefName,
   ToolName,
 } from './BrushToolPanel.style';
-import { setBrushRadius } from 'routes/Auth/slices/authSlice';
+import { selectAuth, setBrushRadius } from 'routes/Auth/slices/authSlice';
 
 export default function BrushToolPanel() {
   const dispatch = useAppDispatch();
-  const brushRadius = useAppSelector(
-    (state) => state.auth.preference.brushRadius,
-  );
+  const { brushRadius } = useAppSelector(selectAuth).preference;
 
   function onBrushRadiusChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
