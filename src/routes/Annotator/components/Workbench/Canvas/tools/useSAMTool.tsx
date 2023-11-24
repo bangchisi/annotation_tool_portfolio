@@ -1,5 +1,4 @@
 import paper from 'paper';
-import store from 'store';
 
 import { useRef, useEffect } from 'react';
 
@@ -261,6 +260,11 @@ const useSAMTool = () => {
       dispatch(setSAMModelLoading(false));
     }
   }
+
+  useEffect(() => {
+    if (!tempRect) return;
+    tempRect.remove();
+  }, [selectedTool, currentAnnotation]);
 
   return {
     onMouseDown,
