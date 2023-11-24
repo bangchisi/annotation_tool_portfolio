@@ -33,7 +33,7 @@ const annotatorSlice = createSlice({
   name: 'annotator',
   initialState,
   reducers: {
-    setTool: (state, action) => {
+    setTool: (state, action: PayloadAction<Tool>) => {
       state.selectedTool = action.payload;
     },
     setDatasetId: (state, action: PayloadAction<number>) => {
