@@ -1,4 +1,4 @@
-import Explorer from './Explorer/Explorer';
+// import Explorer from './Explorer/Explorer';
 import { Container, TabButton, TabContainer } from './Controls.style';
 import Annotations from './Annotations/Annotations';
 import { useState } from 'react';
@@ -21,16 +21,16 @@ export default function Controls() {
         >
           Annotations
         </TabButton>
-        <TabButton
+        {/* <TabButton
           data-selected={selectedTab === Tab.EXPLORER}
           variant="button"
           onClick={() => setSelectedTab(Tab.EXPLORER)}
         >
           Explorer
-        </TabButton>
+        </TabButton> */}
       </TabContainer>
       {selectedTab === Tab.ANNOTATIONS && <Annotations />}
-      {selectedTab === Tab.EXPLORER && <Explorer />}
+      {/* {selectedTab === Tab.EXPLORER && <Explorer />} */}
     </Container>
   );
 }
