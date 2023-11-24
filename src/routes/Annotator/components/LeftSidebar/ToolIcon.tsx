@@ -6,7 +6,7 @@ import { setTool } from 'routes/Annotator/slices/annotatorSlice';
 
 export default function ToolIcon(props: {
   toolName: string;
-  toolId?: Tool;
+  toolId: Tool;
   iconComponent: ReactNode;
   placement?:
     | 'bottom-end'
