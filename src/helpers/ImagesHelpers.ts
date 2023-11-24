@@ -2,7 +2,7 @@ import ImagesModel from 'models/Images.model';
 import { axiosErrorHandler } from './Axioshelpers';
 
 const DEV_URL = 'http://143.248.249.11:60133';
-const SERVER_URL = `${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
+const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 
 export const getThumbnailPath = async (datasetId: number, length = 100) => {
   try {
@@ -30,10 +30,7 @@ export const getImagePath = (imageId: number, length = 100): string => {
 };
 
 export function getCanvasImage(imageId: number): string {
-  const url =
-    process.env.NODE_ENV === 'development'
-      ? `${DEV_URL}/image/${imageId}`
-      : `${SERVER_URL}/image/${imageId}`;
+  const baseUrl = process.env.NODE_ENV === 'development' ? DEV_URL : SERVER_URL;
 
-  return url;
+  return new URL(`/image/${imageId}`, baseUrl).href;
 }
