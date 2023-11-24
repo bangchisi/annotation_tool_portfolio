@@ -16,18 +16,13 @@ import {
   SliderContent,
 } from './SAMToolPanel.style';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
-import {
-  getConvertedCoordinate,
-  getRegion,
-  loadFinetunedModel,
-  loadSAM,
-} from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { LogType } from 'routes/Models/Models';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import { setSAMEverythingLoading } from 'routes/Annotator/slices/SAMSlice';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import useSAMTool from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
 
 let tempRect: paper.Path.Rectangle;
 
@@ -47,6 +42,9 @@ export default function SAMToolPanel() {
   const { currentAnnotation } = useAppSelector(selectAnnotator);
   const SAMModelLoaded = useAppSelector((state) => state.sam.modelLoaded);
   const embeddingId = useAppSelector((state) => state.sam.embeddingId);
+
+  const { loadSAM, loadFinetunedModel, getRegion, getConvertedCoordinate } =
+    useSAMTool();
 
   function onChangeModel(
     event: SelectChangeEvent<string> | SelectChangeEvent<number>,
