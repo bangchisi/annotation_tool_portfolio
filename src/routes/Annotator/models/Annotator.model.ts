@@ -56,6 +56,14 @@ const AnnotatorModel = {
 
     return axios.delete(url);
   },
+  deleteAllAnnotations: (imageId: number, categoryId: number) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/annotation/clear/${imageId}/${categoryId}`
+        : `${SERVER_URL}/annotation/clear/${imageId}/${categoryId}`;
+
+    return axios.delete(url);
+  },
 };
 
 export default AnnotatorModel;
