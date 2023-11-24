@@ -127,6 +127,8 @@ const useReloadAnnotator = () => {
     // number[] -> [number, number][]
     const raster = paper.project.activeLayer.children[0] as paper.Raster;
     const { x, y } = raster.bounds.topLeft;
+    console.log('raster.bounds.topLeft');
+    console.log(x, y);
 
     const path = points
       .map((point: number, idx) => {
@@ -149,6 +151,7 @@ const useReloadAnnotator = () => {
     currentAnnotation,
     image,
     isLoading,
+    setIsLoading,
     initData,
     drawPaths,
     clearCanvas,

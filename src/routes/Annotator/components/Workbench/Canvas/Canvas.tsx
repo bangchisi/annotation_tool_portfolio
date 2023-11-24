@@ -9,7 +9,6 @@ import { Tool } from 'routes/Annotator/Annotator';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { CategoriesType } from 'routes/Annotator/Annotator.types';
 import {
   selectSAM,
   setSAMEmbeddingId,
@@ -21,22 +20,23 @@ import useTools from './hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import { eraserCursor, brushCursor } from './tools';
+import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 
 let canvasChildren: paper.Item[];
 
 interface CanvasProps {
-  drawPaths: (categories: CategoriesType) => void;
   width?: number;
   height?: number;
 }
 
 // TODO: paper init to another file?
 export default function Canvas(props: CanvasProps) {
-  const { drawPaths, width, height } = props;
+  const { width, height } = props;
   const dispatch = useAppDispatch();
   const imageId = Number(useParams().imageId);
   const { selectedTool, categories, currentAnnotation, image } =
     useAppSelector(selectAnnotator);
+  const { drawPaths } = useReloadAnnotator();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // SAM 관련 state

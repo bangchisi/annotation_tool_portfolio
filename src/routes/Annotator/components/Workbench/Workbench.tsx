@@ -1,14 +1,8 @@
 import { Container } from './Workbench.style';
 import Canvas from './Canvas/Canvas';
-import { CategoriesType } from 'routes/Annotator/Annotator.types';
 import { useRef } from 'react';
 
-interface WorkbenchProps {
-  drawPaths: (categories: CategoriesType) => void;
-}
-
-export default function Workbench(props: WorkbenchProps) {
-  const { drawPaths } = props;
+export default function Workbench() {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const width = containerRef.current?.clientWidth;
@@ -20,7 +14,7 @@ export default function Workbench(props: WorkbenchProps) {
 
   return (
     <Container ref={containerRef} onContextMenu={handleRightClick}>
-      <Canvas drawPaths={drawPaths} width={width} height={height} />
+      <Canvas width={width} height={height} />
     </Container>
   );
 }
