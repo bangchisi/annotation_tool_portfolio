@@ -10,3 +10,7 @@ export const Container = styled('div')(() => {
 export const AddButton = styled(FunctionIcon)(() => {
   return {};
 });
+
+export const DeleteAllButton = styled(FunctionIcon)(() => {
+  return {};
+});

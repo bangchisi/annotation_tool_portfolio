@@ -1,10 +1,12 @@
 import paper from 'paper';
-import { AddButton, Container } from './AnnotationList.style';
+import { AddButton, Container, DeleteAllButton } from './AnnotationList.style';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { Annotation } from './Annotation/Annotation';
 import {
   AnnotationType,
+  CategoriesType,
   CategoryType,
   CurrentAnnotationType,
 } from 'routes/Annotator/Annotator.types';
@@ -90,6 +92,20 @@ export default function AnnotationList() {
     }
   }
 
+  async function deleteAllAnnotations(imageId: number, categoryId: number) {
+    try {
+      const response = await AnnotatorModel.deleteAllAnnotations(
+        imageId,
+        categoryId,
+      );
+      if (response.status !== 200)
+        throw new Error('Failed to delete all annotations');
+      deleteAllAnnotationInCategories(categoryId);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to delete all annotations');
+    }
+  }
+
   // categoriesToUpdate 생성하는 함수
   function updateSelectedCategory(
     category: CategoryType,
@@ -159,13 +175,40 @@ export default function AnnotationList() {
     dispatch(setCategories(categoriesToUpdate));
   }
 
+  function deleteAllAnnotationInCategories(categoryId: number) {
+    if (!categories) return;
+
+    const categoriesToUpdate = JSON.parse(
+      JSON.stringify(categories),
+    ) as CategoriesType;
+
+    categoriesToUpdate[categoryId].annotations = {} as {
+      [key: string]: AnnotationType;
+    };
+
+    dispatch(setCategories(categoriesToUpdate));
+  }
+
   return (
     <Container>
       {isLoading && <LoadingSpinner message="annotation 목록 갱신 중입니다." />}
       <AddButton
-        functionName="Add annotation"
+        functionName="Add Annotation"
         iconComponent={<AddCircleOutlineOutlinedIcon />}
         handleClick={createEmptyAnnotation}
+        placement="left"
+        isFunction={true}
+      />
+      <DeleteAllButton
+        functionName="Delete All"
+        iconComponent={<DeleteSweepOutlinedIcon />}
+        handleClick={() => {
+          // ...
+          if (!currentCategory) return;
+          confirm('모두 삭제 하시겠습니까?')
+            ? deleteAllAnnotations(imageId, currentCategory.categoryId)
+            : () => false;
+        }}
         placement="left"
         isFunction={true}
       />
