@@ -11,23 +11,35 @@ import {
   deleteAnnotation,
   deleteAnnotations,
   updateAnnotation,
+  setTool,
 } from 'routes/Annotator/slices/annotatorSlice';
 import { getRandomHexColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
 import { useParams } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import { Tool } from 'routes/Annotator/Annotator';
 
 export default function AnnotationList() {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const { categories, currentCategory } = useAppSelector(selectAnnotator);
+  const { categories, currentCategory, currentAnnotation } =
+    useAppSelector(selectAnnotator);
   const imageId = Number(useParams().imageId);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
   const { clearCanvas } = useReloadAnnotator();
   const annotations = currentCategory?.annotations;
+
+  // annotation 목록을 ID 내림차순 정렬
+  const sortedAnnotations = useMemo(() => {
+    if (!annotations) return [];
+
+    return Object.entries(annotations).sort(
+      (prev, next) => Number(next[0]) - Number(prev[0]),
+    );
+  }, [annotations]);
 
   // empty annotation 생성
   async function createEmptyAnnotation() {
@@ -124,7 +136,7 @@ export default function AnnotationList() {
   }
 
   // 특정 annotation 삭제
-  function deleteAnnotationInCategories(annotationId: number) {
+  function deleteAnnotationInCategory(annotationId: number) {
     if (!categories || !currentCategory) return;
     dispatch(
       deleteAnnotation({
@@ -141,14 +153,18 @@ export default function AnnotationList() {
     dispatch(deleteAnnotations({ categoryId }));
   }
 
-  // annotation 목록을 ID 내림차순 정렬
-  const sortedAnnotations = useMemo(() => {
-    if (!annotations) return [];
+  useEffect(() => {
+    if (currentAnnotation) return;
+    if (sortedAnnotations.length <= 0) {
+      dispatch(setTool(Tool.Select));
+      return;
+    }
 
-    return Object.entries(annotations).sort(
-      (prev, next) => Number(next[0]) - Number(prev[0]),
-    );
-  }, [annotations]);
+    const annotationOnTop = sortedAnnotations[0][1];
+    if (!annotationOnTop) return;
+
+    dispatch(setCurrentAnnotation(annotationOnTop));
+  }, [sortedAnnotations]);
 
   return (
     <Container>
@@ -184,7 +200,7 @@ export default function AnnotationList() {
             annotationColor={annotation.color}
             onClick={selectAnnotation}
             setIsLoading={setIsLoading}
-            deleteAnnotationInCategories={deleteAnnotationInCategories}
+            deleteAnnotationInCategory={deleteAnnotationInCategory}
           />
         ))}
     </Container>

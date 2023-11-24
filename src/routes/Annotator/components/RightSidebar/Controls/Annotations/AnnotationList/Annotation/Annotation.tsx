@@ -11,7 +11,7 @@ interface AnnotationProps {
   categoryColor: string;
   onClick: (categoryId: number, annotationId: number) => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  deleteAnnotationInCategories: (annotationId: number) => void;
+  deleteAnnotationInCategory: (annotationId: number) => void;
 }
 
 export function Annotation({
@@ -21,24 +21,19 @@ export function Annotation({
   categoryColor,
   onClick,
   setIsLoading,
-  deleteAnnotationInCategories,
+  deleteAnnotationInCategory,
 }: AnnotationProps) {
   async function onClickDeleteButton(categoryId: number, annotationId: number) {
     setIsLoading(true);
     try {
       const response = await AnnotatorModel.deleteAnnotation(annotationId);
-      console.log('response', response);
+      if (response.status !== 200)
+        throw new Error('Failed to delete annotation');
 
-      // TODO 1:
-      // canvas에 있는 해당 compound 삭제
+      // delete compound in canvas
       deleteCompound(categoryId, annotationId);
 
-      // TODO 2:
-      // 1. delete `deleted annotation` in categories,
-      // 2. currentCategory and currentAnnotation will be reloaded if categories changed
-      // 3. reload annotation list. currentCategory changes -> annotation list reload
-      // 결국 categories만 바꾸면 됨
-      deleteAnnotationInCategories(annotationId);
+      deleteAnnotationInCategory(annotationId);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to delete annotation');
       alert('annotation 삭제 실패. 다시 시도 해주세요.');
@@ -48,9 +43,11 @@ export function Annotation({
   }
 
   function deleteCompound(categoryId: number, annotationId: number) {
-    const children = paper.project.activeLayer.children;
+    const childrenCompound = paper.project.activeLayer.children.filter(
+      (child) => child instanceof paper.CompoundPath,
+    );
 
-    children.forEach((child) => {
+    childrenCompound.forEach((child) => {
       if (
         child.data.categoryId === categoryId &&
         child.data.annotationId === annotationId
