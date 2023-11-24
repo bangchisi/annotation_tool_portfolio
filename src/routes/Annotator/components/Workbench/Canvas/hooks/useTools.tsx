@@ -12,7 +12,6 @@ import useBrushTool from '../tools/useBrushTool';
 import useEraserTool from '../tools/useEraserTool';
 import useSelectTool from '../tools/useSelectTool';
 import useSAMTool from '../tools/useSAMTool';
-import { selectAuth } from 'routes/Auth/slices/authSlice';
 
 interface UseToolsProps {
   selectedTool: Tool;
@@ -23,31 +22,32 @@ interface UseToolsProps {
 }
 
 const useTools = (props: UseToolsProps) => {
-  const { selectedTool, currentAnnotation } = useAppSelector(selectAnnotator);
-  const { brushRadius } = useAppSelector(selectAuth).preference;
+  const { selectedTool } = useAppSelector(selectAnnotator);
   const { canvasChildren } = props;
 
-  const selectTool = useSelectTool();
   const brushTool = useBrushTool(canvasChildren);
   const boxTool = useBoxTool(canvasChildren);
   const eraserTool = useEraserTool(canvasChildren);
-  const SAMTool = useSAMTool();
+  const selectTool = useSelectTool();
+  const samTool = useSAMTool();
 
-  const toolHandlers = {
-    [Tool.Select]: selectTool,
-    [Tool.Brush]: brushTool,
-    [Tool.Box]: boxTool,
-    [Tool.Eraser]: eraserTool,
-    [Tool.SAM]: SAMTool,
-  };
+  const toolHandlers = useMemo(
+    () => ({
+      [Tool.Brush]: brushTool,
+      [Tool.Box]: boxTool,
+      [Tool.Eraser]: eraserTool,
+      [Tool.Select]: selectTool,
+      [Tool.SAM]: samTool,
+    }),
+    [brushTool, boxTool, eraserTool, selectTool, samTool],
+  );
 
-  return {
-    onMouseDown: toolHandlers[selectedTool].onMouseDown,
-    onMouseUp: toolHandlers[selectedTool].onMouseUp,
-    onMouseDrag: toolHandlers[selectedTool].onMouseDrag,
-    onMouseMove: toolHandlers[selectedTool].onMouseMove,
-    onMouseLeave: toolHandlers[selectedTool].onMouseLeave,
-  };
+  const selectedToolHandler = useMemo(
+    () => toolHandlers[selectedTool],
+    [selectedTool, toolHandlers],
+  );
+
+  return selectedToolHandler;
 };
 
 export default useTools;

@@ -3,7 +3,7 @@ import paper from 'paper';
 import { useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
-let eraserCursor: paper.Path.Circle | null = null;
+export let eraserCursor: paper.Path.Circle | null = null;
 const radius = 20; // eraser 크기는 preferece에서 받아올 것.
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
@@ -16,7 +16,7 @@ const useEraserTool = (compounds: paper.Item[]) => {
     useAppSelector(selectAnnotator);
 
   // 마우스 클릭
-  const onMouseDown = () => {
+  const onMouseDown = (event: paper.MouseEvent) => {
     if (!currentCategory || !currentAnnotation) return;
 
     const { annotationId: currentAnnotationId } = currentAnnotation;
@@ -67,7 +67,7 @@ const useEraserTool = (compounds: paper.Item[]) => {
   };
 
   // 마우스 버튼 뗌
-  const onMouseUp = () => {
+  const onMouseUp = (event: paper.MouseEvent) => {
     tempPath = null;
   };
 
@@ -82,14 +82,10 @@ const useEraserTool = (compounds: paper.Item[]) => {
     eraserCursor = createEraser(event.point, radius);
   };
 
-  // 마우스 떠남
-  const onMouseLeave = () => {
-    console.log('onMouseLeave');
-
-    if (eraserCursor !== null) {
-      eraserCursor.remove();
-      eraserCursor = null;
-    }
+  // @이슈: 마우스가 canvas 밖으로 나가면 brush cursor가 남아있음
+  //        그래서 Canvas에 직접 이벤트를 걸어서 해결
+  const onMouseLeave = (event: paper.MouseEvent) => {
+    //
   };
 
   return { onMouseDown, onMouseDrag, onMouseUp, onMouseMove, onMouseLeave };

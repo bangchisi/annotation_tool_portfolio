@@ -1,11 +1,12 @@
-import { useCallback, useEffect } from 'react';
 import paper from 'paper';
+
+import { useCallback } from 'react';
 
 import { useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { selectAuth } from 'routes/Auth/slices/authSlice';
 
-let brushCursor: paper.Path.Circle | null = null;
+export let brushCursor: paper.Path.Circle | null = null;
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
@@ -20,19 +21,22 @@ const useBrushTool = (compounds: paper.Item[]) => {
     useAppSelector(selectAnnotator);
 
   // 마우스 움직임
-  const onMouseMove = (event: paper.MouseEvent) => {
-    // brush cursor 이미 있으면 제거
-    if (brushCursor !== null) {
-      brushCursor.remove();
-      brushCursor = null;
-    }
+  const onMouseMove = useCallback(
+    (event: paper.MouseEvent) => {
+      // brush cursor 이미 있으면 제거
+      if (brushCursor !== null) {
+        brushCursor.remove();
+        brushCursor = null;
+      }
 
-    // brush cursor 생성
-    brushCursor = createBrush(event.point, brushRadius);
-  };
+      // brush cursor 생성
+      brushCursor = createBrush(event.point, brushRadius);
+    },
+    [brushRadius],
+  );
 
   // 마우스 클릭
-  const onMouseDown = () => {
+  const onMouseDown = (event: paper.MouseEvent) => {
     if (!currentCategory || !currentAnnotation) return;
 
     const { annotationId: currentAnnotationId } = currentAnnotation;
@@ -51,45 +55,48 @@ const useBrushTool = (compounds: paper.Item[]) => {
   };
 
   // 마우스 드래그
-  const onMouseDrag = (event: paper.MouseEvent) => {
-    if (!tempPath) return;
+  const onMouseDrag = useCallback(
+    (event: paper.MouseEvent) => {
+      if (!tempPath) return;
 
-    // // brush cursor 이미 있으면 제거
-    if (brushCursor !== null) {
-      brushCursor.remove();
-      brushCursor = null;
-    }
-    // brush cursor 생성
-    brushCursor = createBrush(event.point, brushRadius);
+      // // brush cursor 이미 있으면 제거
+      if (brushCursor !== null) {
+        brushCursor.remove();
+        brushCursor = null;
+      }
 
-    let brush: paper.Path | null = new paper.Path.Circle({
-      center: event.point,
-      radius: brushRadius,
-    });
+      // brush cursor 생성
+      brushCursor = createBrush(event.point, brushRadius);
 
-    // 바꿔치기 할 children 생성
-    const pathToSwitch = new paper.CompoundPath(
-      tempPath.unite(brush) as paper.CompoundPath,
-    );
+      let brush: paper.Path | null = new paper.Path.Circle({
+        center: event.point,
+        radius: brushRadius,
+      });
 
-    // children 바꿔치기고 pathToSwitch 삭제
-    tempPath.children = pathToSwitch.children;
-    pathToSwitch.remove();
-    // 임시 원 삭제
-    brush.remove();
-    brush = null;
-  };
+      // 바꿔치기 할 children 생성
+      const pathToSwitch = new paper.CompoundPath(
+        tempPath.unite(brush) as paper.CompoundPath,
+      );
+
+      // children 바꿔치기고 pathToSwitch 삭제
+      tempPath.children = pathToSwitch.children;
+      pathToSwitch.remove();
+      // 임시 원 삭제
+      brush.remove();
+      brush = null;
+    },
+    [brushRadius],
+  );
 
   // 마우스 버튼 뗌
-  const onMouseUp = () => {
+  const onMouseUp = (event: paper.MouseEvent) => {
     tempPath = null;
   };
 
-  const onMouseLeave = () => {
-    if (brushCursor !== null) {
-      brushCursor.remove();
-      brushCursor = null;
-    }
+  // @이슈: 마우스가 canvas 밖으로 나가면 brush cursor가 남아있음
+  //        그래서 Canvas에 직접 이벤트를 걸어서 해결
+  const onMouseLeave = (event: paper.MouseEvent) => {
+    //
   };
 
   return { onMouseMove, onMouseDown, onMouseUp, onMouseDrag, onMouseLeave };

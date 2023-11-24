@@ -1,9 +1,9 @@
 import paper from 'paper';
-import { Fragment, useEffect, useRef, useState, useLayoutEffect } from 'react';
+import { Fragment, useEffect, useRef, useLayoutEffect } from 'react';
 import { onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { useAppSelector, useAppDispatch } from 'App.hooks';
-import { getCanvasImage, getImagePath } from 'helpers/ImagesHelpers';
+import { getCanvasImage } from 'helpers/ImagesHelpers';
 import { useParams } from 'react-router-dom';
 import PathStore from 'routes/Annotator/utils/PathStore';
 import { Tool } from 'routes/Annotator/Annotator';
@@ -19,7 +19,9 @@ import {
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
 import useTools from './hooks/useTools';
-import { selectAuth } from 'routes/Auth/slices/authSlice';
+import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+// 브러쉬 툴, 지우개 툴 등 툴브
+import { eraserCursor, brushCursor } from './tools';
 
 export let canvasData: PathStore;
 let canvasChildren: paper.Item[];
@@ -33,35 +35,21 @@ interface CanvasProps {
 // TODO: paper init to another file?
 export default function Canvas(props: CanvasProps) {
   const { drawPaths, width, height } = props;
-  // console.log('rendering Canvas.tsx');
   const dispatch = useAppDispatch();
-  const datasetId = useAppSelector((state) => state.annotator.datasetId);
   const imageId = Number(useParams().imageId);
-  const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
-  const categories = useAppSelector((state) => state.annotator.categories);
-  const currentAnnotation = useAppSelector(
-    (state) => state.annotator.currentAnnotation,
-  );
-  const currentCategory = useAppSelector(
-    (state) => state.annotator.currentCategory,
-  );
-  const image = useAppSelector((state) => state.annotator.image);
-
-  const imgWidth: number | null = null;
-  const imgHeight: number | null = null;
+  const { selectedTool, categories, currentAnnotation, image } =
+    useAppSelector(selectAnnotator);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // SAM 관련 state
-  const { clickLoading } = useAppSelector(selectSAM);
-  const SAMModelLoaded = useAppSelector((state) => state.sam.modelLoaded);
-  const isSAMModelLoading = useAppSelector((state) => state.sam.modelLoading);
-  const isEmbeddingLoading = useAppSelector(
-    (state) => state.sam.embeddingLoading,
-  );
-  const embeddingId = useAppSelector((state) => state.sam.embeddingId);
-  const isSAMEverythingLoading = useAppSelector(
-    (state) => state.sam.everythingLoading,
-  );
+  const {
+    embeddingId,
+    clickLoading,
+    modelLoaded: SAMModelLoaded,
+    modelLoading: isSAMModelLoading,
+    embeddingLoading: isEmbeddingLoading,
+    everythingLoading: isSAMEverythingLoading,
+  } = useAppSelector(selectSAM);
 
   // SAM model 로드
   async function loadSAM(modelType?: string) {
@@ -70,8 +58,6 @@ export default function Canvas(props: CanvasProps) {
       const response = await SAMModel.loadModel(
         modelType ? modelType : 'vit_l',
       );
-      console.log('response');
-      console.dir(response);
       dispatch(setSAMModelLoaded(true));
     } catch (error) {
       axiosErrorHandler(error, 'Failed to load SAM');
@@ -89,16 +75,18 @@ export default function Canvas(props: CanvasProps) {
   async function embedImage(imageId: number) {
     // embed image, 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
     if (!image) return;
+
     dispatch(setSAMEmbeddingLoading(true));
+
     try {
       const response = await SAMModel.embedImage(
         imageId,
         new paper.Point(0, 0),
         new paper.Point(image.width, image.height),
       );
+      if (response.status !== 200)
+        throw new Error('Failed to get image embedding');
       dispatch(setSAMEmbeddingId(imageId));
-      console.log('image embedding response');
-      console.log(response);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get image embedding');
       dispatch(setSAMEmbeddingId(null));
@@ -110,24 +98,32 @@ export default function Canvas(props: CanvasProps) {
   // 캔버스 초기 설정 useEffect (이미지 로드 후)
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
-    if (canvas) {
-      paper.setup(canvas);
-      paper.activate();
+    if (!canvas) return;
 
-      canvasData = new PathStore(paper.project.activeLayer.children);
-      canvasChildren = paper.project.activeLayer.children;
+    paper.setup(canvas);
+    paper.activate();
 
-      canvas.onwheel = onCanvasWheel;
+    canvasData = new PathStore(paper.project.activeLayer.children);
+    canvasChildren = paper.project.activeLayer.children;
 
-      const raster = new paper.Raster({
-        onLoad: function () {
-          // 이미지가 로드된 후에 중앙으로 이동
-          raster.position = paper.view.center;
-        },
-      });
-      const imagePath = getCanvasImage(imageId);
-      raster.source = imagePath;
-    }
+    canvas.onwheel = onCanvasWheel;
+    canvas.onmouseleave = () => {
+      if (brushCursor) brushCursor.remove();
+      if (eraserCursor) eraserCursor.remove();
+    };
+
+    const raster = new paper.Raster({
+      onLoad: function () {
+        // 이미지가 로드된 후에 중앙으로 이동
+        raster.position = paper.view.center;
+      },
+    });
+    raster.source = getCanvasImage(imageId);
+
+    return () => {
+      canvas.onwheel = null;
+      canvas.onmouseleave = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -142,36 +138,28 @@ export default function Canvas(props: CanvasProps) {
     drawPaths(categories);
   }, [categories]);
 
-  const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag, onMouseLeave } =
-    useTools({
-      selectedTool,
-      canvasChildren,
-      imageId,
-      image,
-    });
+  const selectedToolsHandlers = useTools({
+    selectedTool,
+    canvasChildren,
+    imageId,
+    image,
+  });
+  const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } =
+    selectedToolsHandlers;
 
   useEffect(() => {
     paper.view.onMouseDown = onMouseDown;
     paper.view.onMouseUp = onMouseUp;
     paper.view.onMouseMove = onMouseMove;
     paper.view.onMouseDrag = onMouseDrag;
-    paper.view.onMouseLeave = onMouseLeave;
 
     return () => {
       paper.view.onMouseDown = null;
       paper.view.onMouseUp = null;
       paper.view.onMouseMove = null;
       paper.view.onMouseDrag = null;
-      paper.view.onMouseLeave = null;
     };
-  }, [
-    selectedTool,
-    onMouseMove,
-    onMouseDown,
-    onMouseDrag,
-    onMouseUp,
-    onMouseLeave,
-  ]);
+  }, [selectedTool, selectedToolsHandlers, currentAnnotation]);
 
   // SAM 로딩 했는지 검사
   useEffect(() => {

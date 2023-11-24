@@ -66,7 +66,7 @@ const useBoxTool = (compounds: paper.Item[]) => {
   };
 
   // 마우스 클릭 해제
-  const onMouseUp = () => {
+  const onMouseUp = (event: paper.MouseEvent) => {
     if (!tempPath) return;
 
     // 두 번째 점이 없으면 무시
