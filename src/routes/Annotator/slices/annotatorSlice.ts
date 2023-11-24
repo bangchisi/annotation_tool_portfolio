@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {
+  AnnotationType,
   CategoriesType,
   CategoryType,
   CurrentAnnotationType,
@@ -33,7 +34,6 @@ const annotatorSlice = createSlice({
   initialState,
   reducers: {
     setTool: (state, action) => {
-      // console.log('annotatorSlice.ts, set tool');
       state.selectedTool = action.payload;
     },
     setDatasetId: (state, action: PayloadAction<number>) => {
@@ -43,24 +43,56 @@ const annotatorSlice = createSlice({
       state.image = action.payload;
     },
     setCategories: (state, action: PayloadAction<CategoriesType>) => {
-      // console.log('annotatorSlice.ts, set categories');
       state.categories = action.payload;
     },
     setCurrentCategory: (state, action: PayloadAction<CurrentCategoryType>) => {
-      // console.log('annotatorSlice.ts, set currentCategory');
       state.currentCategory = action.payload;
     },
     setCurrentAnnotation: (
       state,
       action: PayloadAction<CurrentAnnotationType>,
     ) => {
-      // console.log('annotatorSlice.ts, set currentAnnotation');
       state.currentAnnotation = action.payload;
     },
     updateCategories: (state, action: PayloadAction<CategoryType>) => {
-      // state.categories.set(action.payload.categoryId, action.payload);
       if (!state.categories) return;
       state.categories[`${action.payload.categoryId}`] = action.payload;
+    },
+    updateAnnotation: (
+      state,
+      action: PayloadAction<{
+        categoryId: number;
+        annotation: AnnotationType;
+      }>,
+    ) => {
+      if (!state.categories) return;
+
+      const { categoryId, annotation } = action.payload;
+      state.categories[categoryId].annotations[annotation.annotationId] =
+        annotation;
+    },
+    deleteAnnotation: (
+      state,
+      action: PayloadAction<{
+        categoryId: number;
+        annotationId: number;
+      }>,
+    ) => {
+      if (!state.categories) return;
+
+      const { categoryId, annotationId } = action.payload;
+      delete state.categories[categoryId].annotations[annotationId];
+    },
+    deleteAnnotations: (
+      state,
+      action: PayloadAction<{
+        categoryId: number;
+      }>,
+    ) => {
+      if (!state.categories) return;
+
+      const { categoryId } = action.payload;
+      state.categories[categoryId].annotations = {};
     },
   },
 });
@@ -73,6 +105,9 @@ export const {
   setCurrentCategory,
   setCurrentAnnotation,
   updateCategories,
+  updateAnnotation,
+  deleteAnnotation,
+  deleteAnnotations,
 } = annotatorSlice.actions;
 
 export default annotatorSlice.reducer;
