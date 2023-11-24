@@ -83,6 +83,18 @@ const useReloadAnnotator = () => {
     });
   };
 
+  // clear canvas except image
+  const clearCanvas = () => {
+    const childrenToRemove = paper.project.activeLayer.children.filter(
+      (child) => child.className !== 'Raster',
+    );
+
+    childrenToRemove.forEach((child) => {
+      console.log('remove');
+      child.remove();
+    });
+  };
+
   // set data in compoundPath
   const getCompoundPathWithData = (
     segmentation: number[][],
@@ -139,6 +151,7 @@ const useReloadAnnotator = () => {
     isLoading,
     initData,
     drawPaths,
+    clearCanvas,
   };
 };
 
