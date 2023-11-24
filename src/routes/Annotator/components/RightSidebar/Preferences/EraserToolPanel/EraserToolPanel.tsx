@@ -20,9 +20,9 @@ export default function EraserToolPanel() {
 
   return (
     <Container>
-      <ToolName variant="subtitle2">Brush panel</ToolName>
+      <ToolName variant="subtitle2">Eraser Panel</ToolName>
       <EraserRadiusContainer>
-        <PrefName variant="h6">radius</PrefName>
+        <PrefName variant="h6">Radius</PrefName>
         <EraserRadius
           type="number"
           value={eraserRadius}

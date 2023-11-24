@@ -20,9 +20,9 @@ export default function BrushToolPanel() {
 
   return (
     <Container>
-      <ToolName variant="subtitle2">Brush panel</ToolName>
+      <ToolName variant="subtitle2">Brush Panel</ToolName>
       <BrushRadiusContainer>
-        <PrefName variant="h6">radius</PrefName>
+        <PrefName variant="h6">Radius</PrefName>
         <BrushRadius
           type="number"
           value={brushRadius}
