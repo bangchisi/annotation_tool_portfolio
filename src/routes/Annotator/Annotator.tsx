@@ -16,7 +16,11 @@ import { useEffect, useState } from 'react';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useNavigate, useParams } from 'react-router-dom';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { AnnotationType, CategoriesType } from './Annotator.types';
+import {
+  AnnotationType,
+  CategoriesType,
+  CategoryType,
+} from './Annotator.types';
 import { getCompoundPathWithData } from './helpers/Annotator.helper';
 
 export enum Tool {
@@ -77,32 +81,23 @@ export default function Annotator() {
 
   // 기존 그림 불러오기
   function drawPaths(categories: CategoriesType) {
-    console.dir(JSON.parse(JSON.stringify(categories)));
-    Object.entries(categories).map(([id, category]) => {
+    const existingAnnotations = new Set();
+    paper.project.activeLayer.children.forEach((child) => {
+      existingAnnotations.add(
+        `${child.data.categoryId}-${child.data.annotationId}`,
+      );
+    });
+
+    Object.entries(categories ?? {}).forEach(([id, category]) => {
       const categoryId = Number(id);
+      const annotations = Object.values<AnnotationType>(category.annotations);
 
-      const annotations = Object.entries(category.annotations) as [
-        string,
-        AnnotationType,
-      ][];
+      annotations.forEach((annotation) => {
+        const { annotationId } = annotation;
 
-      annotations.map(([id, annotation]) => {
-        const annotationId = Number(id);
-        const children = paper.project.activeLayer.children;
+        if (existingAnnotations.has(`${categoryId}-${annotationId}`)) return;
 
-        // annotation이 이미 있으면 그리지 않고 스킵
-        let isFound = false;
-        children.forEach((child) => {
-          if (
-            child.data.categoryId === categoryId &&
-            child.data.annotationId === annotationId
-          ) {
-            isFound = true;
-          }
-        });
-        if (isFound) return;
-
-        const compound = getCompoundPathWithData(
+        getCompoundPathWithData(
           annotation.segmentation,
           categoryId,
           annotationId,
@@ -117,7 +112,6 @@ export default function Annotator() {
     initData(imageId);
 
     return () => {
-      console.log('resetting categories');
       dispatch(setCategories({}));
     };
   }, [dispatch]);
