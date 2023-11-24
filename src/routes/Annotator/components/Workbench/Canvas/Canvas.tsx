@@ -5,7 +5,6 @@ import { Editor } from './Canvas.style';
 import { useAppSelector, useAppDispatch } from 'App.hooks';
 import { getCanvasImage } from 'helpers/ImagesHelpers';
 import { useParams } from 'react-router-dom';
-import PathStore from 'routes/Annotator/utils/PathStore';
 import { Tool } from 'routes/Annotator/Annotator';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import SAMModel from 'routes/Annotator/models/SAM.model';
@@ -23,7 +22,6 @@ import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import { eraserCursor, brushCursor } from './tools';
 
-export let canvasData: PathStore;
 let canvasChildren: paper.Item[];
 
 interface CanvasProps {
@@ -103,7 +101,6 @@ export default function Canvas(props: CanvasProps) {
     paper.setup(canvas);
     paper.activate();
 
-    canvasData = new PathStore(paper.project.activeLayer.children);
     canvasChildren = paper.project.activeLayer.children;
 
     canvas.onwheel = onCanvasWheel;
