@@ -23,12 +23,14 @@ import SAMModel from 'routes/Annotator/models/SAM.model';
 import { setSAMEverythingLoading } from 'routes/Annotator/slices/SAMSlice';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import useSAMTool from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
+import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 
 let tempRect: paper.Path.Rectangle;
 
 export default function SAMToolPanel() {
   const userId = useAppSelector((state) => state.auth.user.userId);
   const preference = useAppSelector((state) => state.auth.preference);
+  const { categories, initData, drawPaths } = useReloadAnnotator();
   const [isFinetuneModelLoading, setIsFinetuneModelLoading] = useState(false);
   const [finetuneModelList, setFinetuneModelList] = useState<LogType[]>([]);
 
@@ -155,6 +157,9 @@ export default function SAMToolPanel() {
       alert('everything 모드 실패, 다시 시도해주세요.');
     } finally {
       dispatch(setSAMEverythingLoading(false));
+      if (!image || !categories) return;
+      await initData(image.imageId as number);
+      drawPaths(categories);
     }
   }
 
