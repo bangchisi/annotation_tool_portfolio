@@ -55,9 +55,23 @@ interface ModelCardProps {
   };
 }
 
+function remainingTimeToString(remainingTime: number) {
+  const hours = Math.floor(remainingTime / 3600);
+  const minutes = Math.floor((remainingTime % 3600) / 60);
+  const seconds = Math.floor((remainingTime % 3600) % 60);
+
+  if (hours === 0) {
+    if (minutes === 0) {
+      return `${seconds}초`;
+    }
+    return `${minutes}분 ${seconds}초`;
+  }
+
+  return `${hours}시간 ${minutes}분 ${seconds}초`;
+}
+
 export default function ModelCard(props: ModelCardProps) {
-  const { setOpen, setDeleteModelName, setFinetuneId, onDelete, getLogs, log } =
-    props;
+  const { setOpen, setDeleteModelName, setFinetuneId, log } = props;
 
   return (
     <Container>
@@ -75,16 +89,22 @@ export default function ModelCard(props: ModelCardProps) {
       </Property>
       <Property>
         <PropertyName>학습시작</PropertyName>
-        <PropertyValue>{log.finetuneStartTime.toLocaleString()}</PropertyValue>
+        <PropertyValue>
+          {new Date(log.finetuneStartTime).toLocaleString()}
+        </PropertyValue>
       </Property>
-      <Property>
-        <PropertyName>상태</PropertyName>
-        <PropertyValue>{log.status}</PropertyValue>
-      </Property>
+      {/* <Property>
+        <PropertyName>이미지 개수(train/test)</PropertyName>
+        <PropertyValue>{`${log.numTrainImages + log.numTestImages} (${
+          log.numTrainImages
+        }/${log.numTestImages})`}</PropertyValue>
+      </Property> */}
       <Property>
         <PropertyName>남은시간</PropertyName>
         <PropertyValue>
-          {log.detail.remainingTime ? log.detail.remainingTime : '0'}
+          {log.detail.remainingTime
+            ? remainingTimeToString(log.detail.remainingTime)
+            : '-'}
         </PropertyValue>
       </Property>
       <Property>
