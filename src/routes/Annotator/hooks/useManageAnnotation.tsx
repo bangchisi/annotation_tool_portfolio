@@ -158,6 +158,11 @@ const useManageAnnotation = () => {
 
     const selectedCurrentAnnotation =
       selectedCategory.annotations[annotationId];
+
+    if (annotationId < 0) {
+      dispatch(setCurrentAnnotation(undefined));
+      return;
+    }
     dispatch(setCurrentAnnotation(selectedCurrentAnnotation));
   };
 

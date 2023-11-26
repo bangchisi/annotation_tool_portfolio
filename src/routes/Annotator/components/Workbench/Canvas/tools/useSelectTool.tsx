@@ -1,8 +1,10 @@
 import { useRef } from 'react';
 import paper from 'paper';
 import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
+import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 
 const useSelectTool = () => {
+  const { currentCategory } = useReloadAnnotator();
   const { selectAnnotation } = useManageAnnotation();
   // delta 구하기 위한 마우스 시작 지점
   const startingPoint = useRef<paper.Point>();
@@ -18,6 +20,9 @@ const useSelectTool = () => {
       tolerance: 5,
     });
 
+    let categoryId: number;
+    let annotationId: number;
+
     // if hitResult is not null and is CompoundPath, disable previous selected item and select new item
     // set currentAnnotation with selected item's data.annotationId property
     if (hitResult && hitResult.item instanceof paper.CompoundPath) {
@@ -29,9 +34,17 @@ const useSelectTool = () => {
       hitResult.item.selected = true;
 
       // set currentAnnotation with selected item's data property
-      const categoryId = hitResult.item.data.categoryId;
-      const annotationId = hitResult.item.data.annotationId;
+      categoryId = hitResult.item.data.categoryId;
+      annotationId = hitResult.item.data.annotationId;
       selectAnnotation(categoryId, annotationId);
+    } else {
+      // disable previous selected item and set currentAnnotation to null
+      if (!currentCategory) return;
+
+      if (paper.project.selectedItems.length > 0) {
+        paper.project.selectedItems[0].selected = false;
+      }
+      selectAnnotation(currentCategory.categoryId, -1);
     }
   };
 
