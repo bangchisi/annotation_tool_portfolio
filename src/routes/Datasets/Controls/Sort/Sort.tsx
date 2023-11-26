@@ -11,8 +11,13 @@ export default function Sort() {
         sx={{
           width: '85px',
           height: '40px',
-          backgroundColor: '#1F883D',
+          backgroundColor: '#00AA55',
+          boxShadow: 'none',
+          borderRadius: '3',
+          transition: 'all 0.25s ease-in-out',
+          fontSize: '12px',
         }}
+        disableFocusRipple={true}
       >
         Sort by
       </Button>
