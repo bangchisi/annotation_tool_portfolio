@@ -3,7 +3,7 @@ import { Container, Content } from './Dataset.style';
 import ImageList from './ImageList/ImageList';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import DatasetModel from './models/Dataset.model';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState, useMemo } from 'react';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import Information from './Information/Information';
 import Controls from './Controls/Controls';
@@ -110,10 +110,26 @@ export default function Dataset() {
     // setIsOnTrain(true);
   }, []);
 
+  const isImageListEmpty = useMemo(() => {
+    if (!dataset) {
+      return true;
+    }
+
+    if (
+      currentPage === 1 &&
+      dataset.imageIds.length === 0 &&
+      dataset.imageIds.length === 0
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }, [dataset, currentPage, dataset?.imageIds]);
+
   // TODO: descripttion에서 category 편집 가능하게
 
   return (
-    <Container>
+    <Container id="dataset">
       <Controls
         setDeviceStatus={setDeviceStatus}
         availableDevices={availableDevices}
@@ -123,21 +139,25 @@ export default function Dataset() {
         <Fragment>
           <Information {...dataset} isOnTrain={isOnTrain} />
           <Content>
-            <PaginationPanel
-              onCurrentPageChange={onCurrentpageChange}
-              currentPage={currentPage}
-              lastPage={dataset.imageIds.length}
-            />
+            {!isImageListEmpty && (
+              <PaginationPanel
+                onCurrentPageChange={onCurrentpageChange}
+                currentPage={currentPage}
+                lastPage={dataset.imageIds.length}
+              />
+            )}
             <ImageList
               imageIds={dataset.imageIds[currentPage - 1]}
               deleteImage={deleteImage}
               isOnTrain={isOnTrain}
             />
-            <PaginationPanel
-              onCurrentPageChange={onCurrentpageChange}
-              currentPage={currentPage}
-              lastPage={dataset.imageIds.length}
-            />
+            {!isImageListEmpty && (
+              <PaginationPanel
+                onCurrentPageChange={onCurrentpageChange}
+                currentPage={currentPage}
+                lastPage={dataset.imageIds.length}
+              />
+            )}
           </Content>
         </Fragment>
       )}
