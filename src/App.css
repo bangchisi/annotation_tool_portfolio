@@ -23,6 +23,13 @@ h6.MuiTypography-root {
   border-bottom: 1px solid #20252c !important;
   padding: 10px 32px 10px 16px !important;
 }
+#nav .dropdown-item {
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.75);
+}
+#nav .dropdown-item:hover {
+  color: rgba(0, 0, 0, 1);
+}
 #nav .nav-container {
   display: flex;
   flex-direction: row;
@@ -87,6 +94,10 @@ h6.MuiTypography-root {
   flex-shrink: 1;
   gap: 16px;
   padding: 10px;
+  transition: all 0.15s ease-in-out;
+}
+#datasets .dataset-list .dataset-card:hover {
+  box-shadow: rgba(136, 146, 157, 0.25) 0px 3px 6px 3px;
 }
 
 /* 데이터셋 카드 각 부분 공통 */
@@ -146,7 +157,6 @@ h6.MuiTypography-root {
   button
   h5 {
   color: #0e1116;
-  line-height: 1.1rem;
 }
 #datasets .dataset-list .dataset-card > div:nth-child(2) .meta-data-body {
   margin-bottom: 3px;
@@ -194,12 +204,57 @@ h6.MuiTypography-root {
   min-width: 0;
 }
 /* Control */
+#datasets .create-dataset-button {
+  line-height: 1rem;
+}
 #datasets .create-dataset-button:hover {
   background-color: #dff7ff;
 }
-#datasets .dataset-search-input input[type='text'] {
-  /* border: 1px solid #0e1116 !important;
-  border-radius: 4px; */
+
+/*
+  Dataset 페이지
+*/
+#dataset .train-model-button {
+  width: 125px;
+  height: 45px;
+  padding: 2px !important;
+  animation: none;
+}
+#dataset .train-model-button:hover {
+  background-image: linear-gradient(90deg, #005af0 50%, white 50%),
+    linear-gradient(90deg, #005af0 50%, white 50%),
+    linear-gradient(0deg, #005af0 50%, white 50%),
+    linear-gradient(0deg, #005af0 50%, white 50%);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size:
+    13px 2px,
+    13px 2px,
+    2px 13px,
+    2px 13px;
+  background-position:
+    left top,
+    left bottom,
+    right bottom,
+    right top;
+  animation: border-dance 0.275s infinite linear;
+  box-shadow: none !important;
+  background-color: #005af0 !important;
+}
+@keyframes border-dance {
+  0% {
+    background-position:
+      left top,
+      right bottom,
+      left bottom,
+      right top;
+  }
+  100% {
+    background-position:
+      left 13px top,
+      right 13px bottom,
+      left bottom 13px,
+      right top 13px;
+  }
 }
 
 /* 
