@@ -1,13 +1,38 @@
 import { useRef } from 'react';
 import paper from 'paper';
+import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
 
 const useSelectTool = () => {
+  const { selectAnnotation } = useManageAnnotation();
   // delta 구하기 위한 마우스 시작 지점
   const startingPoint = useRef<paper.Point>();
 
   // 마우스 다운
   const onMouseDown = (event: paper.MouseEvent) => {
     startingPoint.current = event.point;
+    // get compoundPath from hitResult and make it selected
+    const hitResult = paper.project.hitTest(event.point, {
+      fill: true,
+      stroke: true,
+      segments: true,
+      tolerance: 5,
+    });
+
+    // if hitResult is not null and is CompoundPath, disable previous selected item and select new item
+    // set currentAnnotation with selected item's data.annotationId property
+    if (hitResult && hitResult.item instanceof paper.CompoundPath) {
+      // disable previous selected item
+      if (paper.project.selectedItems.length > 0) {
+        paper.project.selectedItems[0].selected = false;
+      }
+      // select new item
+      hitResult.item.selected = true;
+
+      // set currentAnnotation with selected item's data property
+      const categoryId = hitResult.item.data.categoryId;
+      const annotationId = hitResult.item.data.annotationId;
+      selectAnnotation(categoryId, annotationId);
+    }
   };
 
   // 마우스 드래그
