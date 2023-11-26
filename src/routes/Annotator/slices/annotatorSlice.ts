@@ -50,7 +50,7 @@ const annotatorSlice = createSlice({
     },
     setCurrentAnnotation: (
       state,
-      action: PayloadAction<CurrentAnnotationType>,
+      action: PayloadAction<CurrentAnnotationType | undefined>,
     ) => {
       state.currentAnnotation = action.payload;
     },
