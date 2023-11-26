@@ -1,5 +1,7 @@
 import { styled } from '@mui/material';
 
 export const Container = styled('div')(() => {
-  return {};
+  return {
+    marginLeft: '60px',
+  };
 });
