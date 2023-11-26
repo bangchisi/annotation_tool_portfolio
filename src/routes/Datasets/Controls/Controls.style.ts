@@ -6,7 +6,14 @@ export const Container = styled('div')(() => {
     width: '100%',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '0 10px',
-    margin: '15px 0',
+    margin: '0 auto',
+  };
+});
+
+export const LeftControl = styled('div')(() => {
+  return {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   };
 });
