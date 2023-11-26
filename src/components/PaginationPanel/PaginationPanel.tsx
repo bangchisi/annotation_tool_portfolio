@@ -20,6 +20,8 @@ export default function PaginationPanel(props: PaginationProps) {
         count={lastPage}
         page={currentPage}
         renderItem={(item) => <PaginationItem {...item} />}
+        variant="outlined"
+        shape="rounded"
       />
     </Container>
   );
