@@ -23,7 +23,7 @@ const CursorTypes = {
 // export const Editor = styled('canvas')<EditorProps>(() => {
 export const Editor = styled('canvas')<EditorProps>(({ selectedTool }) => {
   return {
-    backgroundColor: 'rgba(215, 215, 215, 1.0)',
+    backgroundColor: '#E7ECF0',
     // backgroundColor: 'white',
     cursor: CursorTypes[selectedTool] ?? 'default',
   };
