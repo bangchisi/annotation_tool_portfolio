@@ -1,6 +1,7 @@
 import { Button, Divider, Menu, MenuItem, Typography } from '@mui/material';
-import { Container } from './DatasetMenu.style';
-import { useState } from 'react';
+import { Container, MenuButton } from './DatasetMenu.style';
+import { useState, useCallback } from 'react';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 interface DatasetMenuProps {
   deleteDataset: (userId: string, datasetId: number) => Promise<void>;
@@ -23,12 +24,22 @@ export default function DatasetMenu(props: DatasetMenuProps) {
     setAnchorEl(null);
   };
 
+  const onDeleteClick = useCallback(() => {
+    setAnchorEl(null);
+    deleteDataset(userId, datasetId);
+  }, [setAnchorEl, deleteDataset, userId, datasetId]);
+
   return (
-    <Container>
-      <Button variant="text" size="small" onClick={onClick}>
-        <Typography variant="h6">...</Typography>
-      </Button>
-      <Menu anchorEl={anchorEl} open={open} onClose={onClose}>
+    <Container className="dataset-menu">
+      <MenuButton variant="text" size="small" onClick={onClick}>
+        <MoreHorizIcon />
+      </MenuButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={onClose}
+        disableScrollLock={true}
+      >
         <MenuItem onClick={onClose}>
           <Button
             onClick={() => {
@@ -40,13 +51,8 @@ export default function DatasetMenu(props: DatasetMenuProps) {
           </Button>
         </MenuItem>
         <Divider />
-        <MenuItem onClick={onClose}>
-          <Button
-            variant="text"
-            color="warning"
-            size="small"
-            onClick={() => deleteDataset(userId, datasetId)}
-          >
+        <MenuItem onClick={onDeleteClick}>
+          <Button variant="text" color="warning" size="small">
             Delete
           </Button>
         </MenuItem>
