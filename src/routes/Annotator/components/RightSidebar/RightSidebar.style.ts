@@ -7,6 +7,6 @@ export const Container = styled('div')(() => {
     width: '270px',
     minWidth: '270px',
     position: 'relative',
-    boxShadow: '0 0 2px rgba(0, 0, 0, 0.3)',
+    borderLeft: '1px solid #20252c',
   };
 });
