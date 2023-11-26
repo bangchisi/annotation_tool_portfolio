@@ -1,5 +1,5 @@
 import { Button } from '@mui/material';
-import { Container } from './Controls.style';
+import { Container, FilesLabel } from './Controls.style';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useRef, useState } from 'react';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
@@ -9,6 +9,7 @@ import DatasetModel from '../models/Dataset.model';
 import FinetuneModel from 'models/Finetune.model';
 import TrainStartModal from './TrainStartModal/TrainStartModal';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
+import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
 
 interface ControlsProps {
   setDeviceStatus: () => Promise<void>;
@@ -44,18 +45,17 @@ export default function Controls(props: ControlsProps) {
     }
   };
 
-  const filesToFormData = (files: FileList): void => {
+  const onFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
     if (files.length <= 0) return;
 
     for (let idx = 0; idx < files.length; idx++) {
       formData.append('images', files[idx]);
     }
-  };
 
-  const onFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-    filesToFormData(files);
+    uploadImages(Number(datasetId), formData);
   };
 
   const onTrainStart = async (
@@ -114,24 +114,22 @@ export default function Controls(props: ControlsProps) {
         datasetId={datasetId}
       />
       <form>
+        <label htmlFor=""></label>
         <input
+          style={{ display: 'none' }}
+          id="filesInput"
           ref={filesInput}
           name="images"
           type="file"
           multiple
           onChange={onFilesChange}
         />
-        <Button
-          type="submit"
-          onClick={(event) => {
-            event.preventDefault();
-            console.log('upload images');
-            if (!datasetId) return;
-            uploadImages(Number(datasetId), formData);
-          }}
-        >
-          UPLOAD IMAGE
-        </Button>
+        <FilesLabel htmlFor="filesInput">
+          <div>
+            <CloudUploadRoundedIcon fontSize="medium" />
+            <span>사진 업로드</span>
+          </div>
+        </FilesLabel>
       </form>
       {isLoading && (
         <LoadingSpinner message="이미지 업로드 중입니다. 잠시만 기다려주세요." />
