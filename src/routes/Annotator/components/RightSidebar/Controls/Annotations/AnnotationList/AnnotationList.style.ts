@@ -14,3 +14,10 @@ export const AddButton = styled(FunctionIcon)(() => {
 export const DeleteAllButton = styled(FunctionIcon)(() => {
   return {};
 });
+
+export const ButtonsContainer = styled('div')(() => {
+  return {
+    display: 'flex',
+    borderBottom: '1px solid #20252c',
+  };
+});

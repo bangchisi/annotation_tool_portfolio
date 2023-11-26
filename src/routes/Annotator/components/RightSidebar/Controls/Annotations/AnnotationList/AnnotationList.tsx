@@ -1,4 +1,9 @@
-import { AddButton, Container, DeleteAllButton } from './AnnotationList.style';
+import {
+  AddButton,
+  Container,
+  DeleteAllButton,
+  ButtonsContainer,
+} from './AnnotationList.style';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
@@ -90,26 +95,28 @@ export default function AnnotationList() {
   return (
     <Container>
       {isLoading && <LoadingSpinner message="annotation 목록 갱신 중입니다." />}
-      <AddButton
-        functionName="Add Annotation"
-        iconComponent={<AddCircleOutlineOutlinedIcon />}
-        handleClick={createEmptyAnnotation}
-        placement="left"
-        isFunction={true}
-      />
-      <DeleteAllButton
-        functionName="Delete All"
-        iconComponent={<DeleteSweepOutlinedIcon />}
-        handleClick={() => {
-          // ...
-          if (!currentCategory) return;
-          confirm('모두 삭제 하시겠습니까?')
-            ? deleteAllAnnotations(imageId, currentCategory.categoryId)
-            : () => false;
-        }}
-        placement="left"
-        isFunction={true}
-      />
+      <ButtonsContainer>
+        <AddButton
+          functionName="Add Annotation"
+          iconComponent={<AddCircleOutlineOutlinedIcon />}
+          handleClick={createEmptyAnnotation}
+          placement="left"
+          isFunction={true}
+        />
+        <DeleteAllButton
+          functionName="Delete All"
+          iconComponent={<DeleteSweepOutlinedIcon />}
+          handleClick={() => {
+            // ...
+            if (!currentCategory) return;
+            confirm('모두 삭제 하시겠습니까?')
+              ? deleteAllAnnotations(imageId, currentCategory.categoryId)
+              : () => false;
+          }}
+          placement="right"
+          isFunction={true}
+        />
+      </ButtonsContainer>
       {currentCategory &&
         sortedAnnotations &&
         sortedAnnotations.map(([annotationId, annotation]) => (
