@@ -11,6 +11,7 @@ export const Container = styled('div')(() => {
     marginBottom: '15px',
     backgroundColor: 'rgba(255, 255, 255, 1)',
     borderRadius: 3,
+    justifyContent: 'space-between',
   };
 });
 
@@ -19,8 +20,6 @@ export const ImageContainer = styled('div')(() => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    // width: '100px',
-    // height: '100px',
     overflow: 'hidden',
     flex: 1,
   };
@@ -28,9 +27,7 @@ export const ImageContainer = styled('div')(() => {
 
 export const TitleContainer = styled('div')(() => {
   return {
-    padding: '0 25px',
-    // width: '200px',
-    flex: 1,
+    //
   };
 });
 
@@ -38,15 +35,32 @@ export const StatusContainer = styled('div')(() => {
   return {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    padding: '15px 30px',
-    flex: 5,
+  };
+});
+
+export const TitleStatusContainer = styled('div')(() => {
+  return {};
+});
+
+export const CategoriesContainerScrollbarWindow = styled('div')(() => {
+  return {
+    overflow: 'hidden',
   };
 });
 
 export const CategoriesContainer = styled('div')(() => {
   return {
-    marginBottom: 10,
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    overflow: 'auto',
+  };
+});
+
+export const CategoriesPadding = styled('div')(() => {
+  return {
+    display: 'flex',
+    height: '27px',
   };
 });
 
@@ -59,7 +73,5 @@ export const MenuButtonContainer = styled('div')(() => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 'auto',
-    flex: 1,
   };
 });

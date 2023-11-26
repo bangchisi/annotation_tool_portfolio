@@ -7,6 +7,8 @@ import {
   CategoriesContainer,
   MenuButtonContainer,
   ProgressContainer,
+  TitleStatusContainer,
+  CategoriesPadding,
 } from './DatasetCard.style';
 import { getThumbnailPath } from 'helpers/ImagesHelpers';
 import { LinearProgress, Typography } from '@mui/material';
@@ -72,55 +74,71 @@ export default function DatasetCard(props: DatasetCardProps) {
   }, []);
 
   return (
-    <Container>
+    <Container className="dataset-card">
       <ImageContainer>
         <Link to={'/dataset/' + datasetId}>
-          <img src={imgPath} />
+          <img
+            src={imgPath}
+            className={imgPath.includes('no_image') ? 'no-image' : undefined}
+          />
         </Link>
       </ImageContainer>
-      <TitleContainer>
-        <Link
-          to={'/dataset/' + datasetId}
-          style={{ textDecoration: 'none', color: 'black' }}
-        >
-          <Typography variant="h5">{datasetName}</Typography>
-        </Link>
-        <div>
-          created by{' '}
-          <Typography variant="subtitle2" display="inline">
-            {user.userName}
-          </Typography>
-        </div>
-        {/* <Typography variant="subtitle1">{getFormattedDate(created)}</Typography> */}
-        <Typography variant="subtitle2" display="inline" color="gray">
-          update : {getDifferenceDate(lastUpdate)}
-        </Typography>
-      </TitleContainer>
-      <StatusContainer>
-        <CategoriesContainer>
-          {categories.map((category) => {
-            const textcolor = getTextColor(category.color);
-            return (
-              <CategoryTag
-                key={category.categoryId + category.name}
-                categoryName={category.name}
-                categorycolor={category.color}
-                textcolor={textcolor}
-              />
-            );
-          })}
-        </CategoriesContainer>
-        <ProgressContainer>
-          <LinearProgress
-            sx={{ my: 1 }}
-            variant="determinate"
-            value={progress * 100}
-          />
-          <Typography variant="subtitle2" display="inline">
-            {progress * 100}% done
-          </Typography>
-        </ProgressContainer>
-      </StatusContainer>
+      <TitleStatusContainer>
+        <TitleContainer className="meta-data">
+          <div className="meta-data-title">
+            <Link
+              to={'/dataset/' + datasetId}
+              style={{ textDecoration: 'none', color: 'black' }}
+            >
+              <Typography variant="h5" className="title">
+                {datasetName}
+              </Typography>
+            </Link>
+          </div>
+          <div className="meta-data-body">
+            <div>
+              created by{' '}
+              <Typography variant="subtitle2" display="inline">
+                {user.userName}
+              </Typography>
+            </div>
+            <div>
+              <pre>update: </pre>
+              <Typography variant="subtitle2" display="inline" color="gray">
+                {getDifferenceDate(lastUpdate)}
+              </Typography>
+            </div>
+          </div>
+        </TitleContainer>
+        <StatusContainer className="meta-data-status">
+          <CategoriesContainer>
+            {categories.map((category) => {
+              const textcolor = getTextColor(category.color);
+              return (
+                <CategoryTag
+                  key={category.categoryId + category.name}
+                  categoryName={category.name}
+                  categorycolor={category.color}
+                  textcolor={textcolor}
+                />
+              );
+            })}
+            {categories.length <= 0 && (
+              <CategoriesPadding className="categories-padding" />
+            )}
+          </CategoriesContainer>
+          <ProgressContainer>
+            <LinearProgress
+              sx={{ my: 1 }}
+              variant="determinate"
+              value={progress * 100}
+            />
+            <Typography variant="subtitle2" display="inline">
+              {Math.round(progress * 100)}% done
+            </Typography>
+          </ProgressContainer>
+        </StatusContainer>
+      </TitleStatusContainer>
       <MenuButtonContainer>
         <DatasetMenu
           userId={user.userId}
