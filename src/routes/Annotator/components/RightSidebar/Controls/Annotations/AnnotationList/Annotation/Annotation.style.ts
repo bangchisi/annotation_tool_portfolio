@@ -11,7 +11,6 @@ export const Container = styled(Box)<AnnotationProps>(({ annotationcolor }) => {
   const textColor = getTextColor(annotationcolor);
 
   return {
-    borderBottom: 1,
     display: 'flex',
     height: 45,
     backgroundColor: annotationcolor,
@@ -21,10 +20,11 @@ export const Container = styled(Box)<AnnotationProps>(({ annotationcolor }) => {
     alignItems: 'center',
     cursor: 'pointer',
     padding: '10px',
-    marginBottom: '1px',
     opacity: 0.9,
-    ':hover': {
-      boxShadow: `0 0 0 1px ${textColor} inset`,
+
+    '&:hover': {
+      boxShadow: 'inset 0 0 0 2px rgba(0, 0, 0, 0.1)',
+      filter: 'brightness(1.1) saturate(1.5) contrast(1.2)',
     },
   };
 });

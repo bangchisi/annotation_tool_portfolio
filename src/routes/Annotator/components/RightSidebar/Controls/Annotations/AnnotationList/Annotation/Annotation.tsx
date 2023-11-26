@@ -2,6 +2,9 @@ import paper from 'paper';
 import { Typography } from '@mui/material';
 import { Container, DeleteButton, SelectPanel } from './Annotation.style';
 import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
+import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import { useAppSelector } from 'App.hooks';
+import { useMemo } from 'react';
 
 interface AnnotationProps {
   categoryId: number;
@@ -19,6 +22,12 @@ export function Annotation({
   onClick,
 }: AnnotationProps) {
   const { onClickDeleteButton } = useManageAnnotation();
+  const { categories } = useAppSelector(selectAnnotator);
+  const categoriesList = useMemo(() => {
+    return (
+      Object.values(categories || {}).map((category) => category.name) || []
+    );
+  }, [categories]);
 
   return (
     <Container
@@ -30,9 +39,10 @@ export function Annotation({
         (id: {annotationId})
       </Typography>
       <SelectPanel>
-        <option>cat</option>
-        <option>dog</option>
-        <option>animal</option>
+        {categoriesList.length > 0 &&
+          categoriesList.map((categoryName) => (
+            <option key={categoryName}>{categoryName}</option>
+          ))}
       </SelectPanel>
       <DeleteButton
         categorycolor={categoryColor}
