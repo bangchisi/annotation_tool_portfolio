@@ -13,12 +13,18 @@ export const Container = styled('div')(() => {
 
 export const CreateButton = styled(Button)(() => {
   return {
-    border: '1px solid #368cf9',
-    borderRadius: '4px',
+    borderRadius: '3px',
     height: '40px',
-    transition: 'background-color 0.3s ease-in-out',
-    backgroundColor: '#DFF7FF',
-    color: '#0e1116',
+    transition: 'all 0.25s ease-in-out',
+    color: 'white',
+    backgroundColor: '#005AF0',
+    fontSize: '12px',
+    padding: '4px 10px',
+    '&:hover': {
+      backgroundColor: '#0045B9 !important',
+      boxShadow:
+        '0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)',
+    },
   };
 });
 
@@ -43,7 +49,7 @@ export const ModalBody = styled('div')(() => {
     border: '1px solid #1976D2',
     width: '400px',
     borderRadius: 3,
-    padding: '0px 7px 7px 7px',
+    padding: '0px 10px 10px 10px',
     outline: 'none',
   };
 });
@@ -81,16 +87,3 @@ export const InputField = styled(TextField)(() => {
     marginBottom: 15,
   };
 });
-
-// export const CategoryTag = styled('button')<CategoryTagProps>(({
-//   categorycolor,
-//   textcolor,
-// }) => {
-//   return {
-//     backgroundColor: categorycolor,
-//     color: textcolor,
-//     border: 'none',
-//     borderRadius: 10,
-//     margin: '2px 5px',
-//   };
-// });
