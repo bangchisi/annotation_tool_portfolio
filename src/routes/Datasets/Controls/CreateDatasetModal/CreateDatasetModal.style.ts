@@ -7,24 +7,44 @@ import { Button, TextField, styled } from '@mui/material';
 
 export const Container = styled('div')(() => {
   return {
-    marginLeft: 'auto',
+    marginRight: '55px',
   };
 });
 
 export const CreateButton = styled(Button)(() => {
-  return {};
+  return {
+    border: '1px solid #368cf9',
+    borderRadius: '4px',
+    height: '40px',
+    transition: 'background-color 0.3s ease-in-out',
+    backgroundColor: '#DFF7FF',
+    color: '#0e1116',
+  };
+});
+
+export const ModalShadowContainer = styled('div')(() => {
+  return {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  };
+});
+
+export const ModalShadow = styled('div')(() => {
+  return {
+    boxShadow: '0 5px 10px rgba(0,0,0,0.3)',
+  };
 });
 
 export const ModalBody = styled('div')(() => {
   return {
-    backgroundColor: 'rgba(215, 215, 215, 1)',
+    backgroundColor: '#F6FAFD',
+    border: '1px solid #1976D2',
     width: '400px',
     borderRadius: 3,
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    padding: '5px 5px',
+    padding: '0px 7px 7px 7px',
+    outline: 'none',
   };
 });
 
@@ -33,6 +53,7 @@ export const ModalHeader = styled('div')(() => {
     padding: 5,
     display: 'flex',
     justifyContent: 'center',
+    color: '#0e1116',
   };
 });
 
@@ -44,6 +65,7 @@ export const ModalContent = styled('div')(() => {
     padding: 15,
     borderRadius: 3,
     justifyContent: 'space-between',
+    border: '1px solid #1976D2',
   };
 });
 

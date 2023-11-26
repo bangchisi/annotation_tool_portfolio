@@ -7,6 +7,8 @@ import {
   ModalContent,
   ModalFooter,
   InputField,
+  ModalShadow,
+  ModalShadowContainer,
 } from './CreateDatasetModal.style';
 import { Button, Modal, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
@@ -79,103 +81,130 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
 
   return (
     <Container>
-      <CreateButton onClick={handleOpen}>Create Dataset</CreateButton>
+      <CreateButton
+        disableFocusRipple={true}
+        onClick={handleOpen}
+        className="create-dataset-button"
+      >
+        Create Dataset
+      </CreateButton>
       <Modal
         open={open}
         onClose={handleClose}
+        disableScrollLock={true}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
+        closeAfterTransition
+        slotProps={{
+          backdrop: {
+            timeout: 350,
+          },
+        }}
       >
-        <ModalBody>
-          <ModalHeader>
-            <Typography variant="h5">Create Dataset</Typography>
-          </ModalHeader>
-          <ModalContent>
-            <InputField
-              label="Dataset Name"
-              variant="outlined"
-              size="small"
-              value={datasetName}
-              onChange={(e) => {
-                setDatasetName(e.target.value);
-              }}
-              required
-            />
-            <InputField
-              label="description"
-              variant="outlined"
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-              }}
-              size="small"
-              multiline
-            />
-            <InputField
-              variant="outlined"
-              value={`/datasets/${datasetName}`}
-              disabled
-              size="small"
-            />
-            <div>
-              <InputField
-                label="add category"
-                variant="outlined"
-                value={addCategoryName}
-                size="small"
-                onChange={(e) => {
-                  setAddCategoryName(e.target.value);
-                }}
-              ></InputField>
-              <Button
-                onClick={() => addCategory(addCategoryName)}
-                color="primary"
-              >
-                Add
-              </Button>
-            </div>
-            <div>
-              {categories.map((category) => {
-                const textcolor = getTextColor(category[1]);
-                return (
-                  <CategoryTag
-                    key={category[0] + category[1]}
-                    categoryName={category[0]}
-                    categorycolor={category[1]}
-                    textcolor={textcolor}
-                  />
-                );
-              })}
-            </div>
-            <ModalFooter>
-              <Button color="warning" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button
-                onClick={async () => {
-                  console.dir(user.userId);
-                  console.log('dataset name: ', datasetName);
-                  console.log('categories: ');
-                  console.dir(categories);
-                  console.log('description: ', description);
-                  if (!datasetName) {
-                    alert('Dataset 이름은 필수입니다.');
-                    return;
-                  }
-                  createDataset(
-                    user.userId,
-                    datasetName,
-                    categories,
-                    description,
-                  );
-                  setCategories([]);
-                }}
-              >
-                Create
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </ModalBody>
+        <ModalShadowContainer>
+          <ModalShadow>
+            <ModalBody>
+              <ModalHeader>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontSize: '22px',
+                  }}
+                >
+                  Create Dataset
+                </Typography>
+              </ModalHeader>
+              <ModalContent>
+                <InputField
+                  label="Dataset Name"
+                  variant="outlined"
+                  size="small"
+                  value={datasetName}
+                  onChange={(e) => {
+                    setDatasetName(e.target.value);
+                  }}
+                  required
+                />
+                <InputField
+                  label="description"
+                  variant="outlined"
+                  value={description}
+                  onChange={(e) => {
+                    setDescription(e.target.value);
+                  }}
+                  size="small"
+                  multiline
+                />
+                <InputField
+                  variant="outlined"
+                  value={`/datasets/${datasetName}`}
+                  disabled
+                  size="small"
+                />
+                <div>
+                  <InputField
+                    label="add category"
+                    variant="outlined"
+                    value={addCategoryName}
+                    size="small"
+                    onChange={(e) => {
+                      setAddCategoryName(e.target.value);
+                    }}
+                  ></InputField>
+                  <Button
+                    onClick={() => addCategory(addCategoryName)}
+                    color="primary"
+                    sx={{
+                      height: '40px',
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
+                <div>
+                  {categories.map((category) => {
+                    const textcolor = getTextColor(category[1]);
+                    return (
+                      <CategoryTag
+                        key={category[0] + category[1]}
+                        categoryName={category[0]}
+                        categorycolor={category[1]}
+                        textcolor={textcolor}
+                      />
+                    );
+                  })}
+                </div>
+                <ModalFooter>
+                  <Button color="warning" onClick={handleClose}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      console.dir(user.userId);
+                      console.log('dataset name: ', datasetName);
+                      console.log('categories: ');
+                      console.dir(categories);
+                      console.log('description: ', description);
+                      if (!datasetName) {
+                        alert('Dataset 이름은 필수입니다.');
+                        return;
+                      }
+                      createDataset(
+                        user.userId,
+                        datasetName,
+                        categories,
+                        description,
+                      );
+                      setCategories([]);
+                    }}
+                  >
+                    Create
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </ModalBody>
+          </ModalShadow>
+        </ModalShadowContainer>
       </Modal>
     </Container>
   );
