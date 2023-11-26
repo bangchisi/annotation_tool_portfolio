@@ -25,7 +25,17 @@ export default function CategoryPanel(props: CategoryPanelProps) {
             setAddCategoryName(e.target.value);
           }}
         ></TextField>
-        <Button color="primary">Add</Button>
+        <Button
+          color="primary"
+          sx={{
+            color: 'black',
+            '&:hover': {
+              backgroundColor: 'rgba(0,0,0,0.05)',
+            },
+          }}
+        >
+          Add
+        </Button>
       </InputCategory>
       {categories.map((category) => {
         const textcolor = getTextColor(category.color);
