@@ -2,8 +2,14 @@ import { Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { NavLink } from 'react-router-dom';
 import AuthModel from 'routes/Auth/models/Auth.model';
-import { setIsAuthenticated, setUser } from 'routes/Auth/slices/authSlice';
+import {
+  clearAuth,
+  setIsAuthenticated,
+  setUser,
+} from 'routes/Auth/slices/authSlice';
 import { RouteMode } from 'App';
+import { clearSAM } from 'routes/Annotator/slices/SAMSlice';
+import { clearAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
 interface NavigatorProps {
   currentMode: RouteMode;
@@ -25,6 +31,10 @@ export default function Navigator(props: NavigatorProps) {
         isOnline: response.data.isOnline,
       }),
     );
+
+    dispatch(clearAuth());
+    dispatch(clearAnnotator());
+    dispatch(clearSAM());
   };
 
   return (
