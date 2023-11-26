@@ -2,9 +2,10 @@ import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import { selectAuth } from 'routes/Auth/slices/authSlice';
 
 export let eraserCursor: paper.Path.Circle | null = null;
-const radius = 20; // eraser 크기는 preferece에서 받아올 것.
+// const radius = 20; // eraser 크기는 preferece에서 받아올 것.
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
@@ -14,6 +15,7 @@ let tempPath: paper.CompoundPath | null;
 const useEraserTool = (compounds: paper.Item[]) => {
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
+  const { eraserRadius } = useAppSelector(selectAuth).preference;
 
   // 마우스 클릭
   const onMouseDown = (event: paper.MouseEvent) => {
@@ -46,11 +48,11 @@ const useEraserTool = (compounds: paper.Item[]) => {
       eraserCursor = null;
     }
     // eraser cursor 생성
-    eraserCursor = createEraser(event.point, radius);
+    eraserCursor = createEraser(event.point, eraserRadius);
 
     let eraser: paper.Path | null = new paper.Path.Circle({
       center: event.point,
-      radius,
+      radius: eraserRadius,
     });
 
     // 바꿔치기 할 children 생성
@@ -79,7 +81,7 @@ const useEraserTool = (compounds: paper.Item[]) => {
     }
 
     // eraser cursor 생성
-    eraserCursor = createEraser(event.point, radius);
+    eraserCursor = createEraser(event.point, eraserRadius);
   };
 
   // @이슈: 마우스가 canvas 밖으로 나가면 brush cursor가 남아있음
