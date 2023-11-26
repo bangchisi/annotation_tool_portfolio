@@ -111,7 +111,7 @@ export default function DatasetCard(props: DatasetCardProps) {
           </div>
         </TitleContainer>
         <StatusContainer className="meta-data-status">
-          <CategoriesContainer>
+          <CategoriesContainer className="meta-data-categories">
             {categories.map((category) => {
               const textcolor = getTextColor(category.color);
               return (

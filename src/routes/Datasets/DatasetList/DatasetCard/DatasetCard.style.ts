@@ -54,6 +54,7 @@ export const CategoriesContainer = styled('div')(() => {
     flexDirection: 'row',
     flexWrap: 'wrap',
     overflow: 'auto',
+    userSelect: 'none',
   };
 });
 
