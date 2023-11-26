@@ -4,6 +4,7 @@ import { Container } from './Annotator.style';
 import Workbench from './components/Workbench/Workbench';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import {
+  selectAnnotator,
   setCategories,
   setCurrentAnnotation,
   setCurrentCategory,
@@ -12,6 +13,13 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import useReloadAnnotator from './hooks/useReloadAnnotator';
+import useKeyEvent from './hooks/useKeyEvent';
+import useManageAnnotation from './hooks/useManageAnnotation';
+import {
+  selectAuth,
+  setBrushRadius,
+  setEraserRadius,
+} from 'routes/Auth/slices/authSlice';
 
 export enum Tool {
   Select,
@@ -24,17 +32,15 @@ export enum Tool {
 export default function Annotator() {
   const dispatch = useAppDispatch();
   const { isLoading, initData } = useReloadAnnotator();
+  const { createEmptyAnnotation, onClickDeleteButton } = useManageAnnotation();
   const imageId = Number(useParams().imageId);
   const categories = useAppSelector((state) => state.annotator.categories);
-  const currentCategory = useAppSelector(
-    (state) => state.annotator.currentCategory,
-  );
-  const currentAnnotation = useAppSelector(
-    (state) => state.annotator.currentAnnotation,
-  );
+  const { selectedTool, currentCategory, currentAnnotation } =
+    useAppSelector(selectAnnotator);
   const SAMEverythingLoading = useAppSelector(
     (state) => state.sam.everythingLoading,
   );
+  const { brushRadius, eraserRadius } = useAppSelector(selectAuth).preference;
 
   // init data
   useEffect(() => {
@@ -56,6 +62,32 @@ export default function Annotator() {
     dispatch(setCurrentCategory(currentCategoryToUpdate));
     dispatch(setCurrentAnnotation(currentAnnotationToUpdate));
   }, [categories]);
+
+  useKeyEvent('Space', createEmptyAnnotation);
+
+  useKeyEvent('BracketLeft', () => {
+    if (selectedTool === Tool.Brush && brushRadius > 1) {
+      dispatch(setBrushRadius(brushRadius - 1));
+    } else if (selectedTool === Tool.Eraser && eraserRadius > 1) {
+      dispatch(setEraserRadius(eraserRadius - 1));
+    }
+  });
+
+  useKeyEvent('BracketRight', () => {
+    if (selectedTool === Tool.Brush && brushRadius > 0) {
+      dispatch(setBrushRadius(brushRadius + 1));
+    } else if (selectedTool === Tool.Eraser && eraserRadius > 0) {
+      dispatch(setEraserRadius(eraserRadius + 1));
+    }
+  });
+
+  useKeyEvent('Delete', () => {
+    if (!currentCategory || !currentAnnotation) return;
+    onClickDeleteButton(
+      currentCategory.categoryId,
+      currentAnnotation.annotationId,
+    );
+  });
 
   return (
     <Container>
