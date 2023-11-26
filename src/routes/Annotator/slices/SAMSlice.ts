@@ -27,7 +27,7 @@ const samSlice = createSlice({
   name: 'sam',
   initialState,
   reducers: {
-    // 여기에 SAM에 대한 액션 핸들러를 정의합니다.
+    clearSAM: () => initialState,
     setSAMModel: (state, action: PayloadAction<string>) => {
       state.model = action.payload;
     },
@@ -56,6 +56,7 @@ const samSlice = createSlice({
 });
 
 export const {
+  clearSAM,
   setSAMModel,
   setSAMModelLoading,
   setSAMModelLoaded,

@@ -33,6 +33,7 @@ const annotatorSlice = createSlice({
   name: 'annotator',
   initialState,
   reducers: {
+    clearAnnotator: () => initialState,
     setTool: (state, action: PayloadAction<Tool>) => {
       state.selectedTool = action.payload;
     },
@@ -98,6 +99,7 @@ const annotatorSlice = createSlice({
 });
 
 export const {
+  clearAnnotator,
   setTool,
   setDatasetId,
   setImage,
