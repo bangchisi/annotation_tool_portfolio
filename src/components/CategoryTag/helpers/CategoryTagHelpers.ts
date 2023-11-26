@@ -18,8 +18,8 @@ export const getTextColor = (hexColor: string): string => {
   const brightness = (r * 299 + g * 587 + b * 114) / 1000;
 
   if (brightness > 128) {
-    return '#000000';
+    return '#0e1116';
   } else {
-    return '#ffffff';
+    return '#f5f5f5';
   }
 };
