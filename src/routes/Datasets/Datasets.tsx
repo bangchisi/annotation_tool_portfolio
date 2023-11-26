@@ -49,7 +49,7 @@ export default function Datasets() {
 
   // TODO: style dataset-search
   return (
-    <Container>
+    <Container id="datasets">
       <Controls setDatasetList={setDatasetList} />
       {!isError && (
         <DatasetList datasets={datasets} setDatasetList={setDatasetList} />

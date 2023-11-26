@@ -8,6 +8,5 @@ export const Container = styled('div')(() => {
     alignItems: 'center',
     padding: '0 10px',
     margin: '15px 0',
-    marginBottom: '65px',
   };
 });
