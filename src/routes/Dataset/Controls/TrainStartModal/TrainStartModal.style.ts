@@ -1,4 +1,4 @@
-import { Box, Button, Select, TextField, styled } from '@mui/material';
+import { Box, Select, TextField, styled } from '@mui/material';
 
 // interface CategoryTagProps {
 //   categorycolor: string;
@@ -11,20 +11,29 @@ export const Container = styled('div')(() => {
   };
 });
 
-export const CreateButton = styled(Button)(() => {
-  return {};
+export const ModalShadowContainer = styled('div')(() => {
+  return {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+  };
+});
+
+export const ModalShadow = styled('div')(() => {
+  return {
+    boxShadow: '0 5px 10px rgba(0,0,0,0.3)',
+  };
 });
 
 export const ModalBody = styled('div')(() => {
   return {
-    backgroundColor: 'rgba(215, 215, 215, 1)',
+    backgroundColor: '#F6FAFD',
+    border: '1px solid #1976D2',
     width: '400px',
     borderRadius: 3,
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    padding: '5px 5px',
+    padding: '0px 10px 10px 10px',
+    outline: 'none',
   };
 });
 
@@ -33,6 +42,7 @@ export const ModalHeader = styled('div')(() => {
     padding: 5,
     display: 'flex',
     justifyContent: 'center',
+    color: '#0e1116',
   };
 });
 
@@ -41,6 +51,7 @@ export const ModalContent = styled('div')(() => {
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: 'rgba(255, 255, 255, 1)',
+    border: '1px solid #1976D2',
     padding: 15,
     borderRadius: 3,
     justifyContent: 'space-between',
@@ -71,5 +82,15 @@ export const SelectField = styled(Select)(() => {
   return {
     width: '100%',
     marginRight: 15,
+  };
+});
+
+export const FieldContainer = styled(Box)(() => {
+  return {
+    marginBottom: '12px',
+
+    '& p': {
+      fontSize: '14px',
+    },
   };
 });
