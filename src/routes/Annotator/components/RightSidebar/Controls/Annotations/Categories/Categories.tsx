@@ -35,6 +35,7 @@ export default function Categories() {
             id: 'uncontrolled-native',
           }}
           onChange={handleCategoryChange}
+          disableUnderline={true}
         >
           {Object.entries(categories).map(([categoryId, category]) => (
             <option key={categoryId} value={categoryId}>
