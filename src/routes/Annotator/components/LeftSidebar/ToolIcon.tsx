@@ -1,6 +1,6 @@
 import { IconButton, Tooltip } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { Tool } from 'routes/Annotator/Annotator';
 import { setTool } from 'routes/Annotator/slices/annotatorSlice';
 
@@ -36,6 +36,11 @@ export default function ToolIcon(props: {
     dispatch(setTool(toolId));
   };
 
+  const sx = useMemo(
+    () => ({ color: selectedTool === toolId ? '#005AF0' : '#0e1116' }),
+    [selectedTool, toolId],
+  );
+
   return (
     <Tooltip title={toolName} placement={placement || 'right'}>
       <span>
@@ -43,7 +48,7 @@ export default function ToolIcon(props: {
           disabled={!currentAnnotation && toolId !== Tool.Select}
           key={props.toolName}
           onClick={handleClick}
-          color={selectedTool === toolId ? 'primary' : 'default'}
+          sx={sx}
         >
           {iconComponent}
         </IconButton>
