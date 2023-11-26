@@ -4,7 +4,12 @@ import { FormContainer } from './SearchPanel.style';
 export default function SearchPanel() {
   return (
     <FormContainer onSubmit={(e) => e.preventDefault()}>
-      <TextField type="text" size="small" placeholder="Search.." />
+      <TextField
+        type="text"
+        size="small"
+        placeholder="Search.."
+        className="dataset-search-input"
+      />
     </FormContainer>
   );
 }
