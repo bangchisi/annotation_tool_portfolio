@@ -84,8 +84,8 @@ const useEraserTool = (compounds: paper.Item[]) => {
     eraserCursor = createEraser(event.point, eraserRadius);
   };
 
-  // @이슈: 마우스가 canvas 밖으로 나가면 brush cursor가 남아있음
-  //        그래서 Canvas에 직접 이벤트를 걸어서 해결
+  // 마우스가 canvas 밖으로 나가면 brush cursor가 남아있음
+  // 그래서 Canvas에 직접 이벤트를 걸어서 해결
   const onMouseLeave = (event: paper.MouseEvent) => {
     //
   };
