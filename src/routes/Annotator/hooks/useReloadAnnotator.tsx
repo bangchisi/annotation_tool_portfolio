@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from 'App.hooks';
 import {
   selectAnnotator,
   setCategories,
-  setCurrentCategory,
+  setCurrentCategoryByCategoryId,
   setDatasetId,
   setImage,
 } from '../slices/annotatorSlice';
@@ -46,9 +46,9 @@ const useReloadAnnotator = () => {
     const keys = Object.keys(categories);
     if (keys.length <= 0) return;
 
-    const firstCategory = categories[Number(keys[0])];
+    const firstCategoryId = Number(keys[0]);
 
-    dispatch(setCurrentCategory(firstCategory));
+    dispatch(setCurrentCategoryByCategoryId(firstCategoryId));
   };
 
   const drawPaths = (categories: CategoriesType): void => {

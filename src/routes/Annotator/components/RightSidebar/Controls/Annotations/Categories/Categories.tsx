@@ -1,8 +1,8 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { Container, Select } from './Categories.style';
 import {
-  setCurrentCategory,
   selectAnnotator,
+  setCurrentCategoryByCategoryId,
 } from 'routes/Annotator/slices/annotatorSlice';
 
 export default function Categories() {
@@ -21,7 +21,7 @@ export default function Categories() {
     const selectedCategory = categories[`${selectedCategoryId}`];
 
     if (selectedCategory) {
-      dispatch(setCurrentCategory(selectedCategory));
+      dispatch(setCurrentCategoryByCategoryId(selectedCategoryId));
     }
   };
 

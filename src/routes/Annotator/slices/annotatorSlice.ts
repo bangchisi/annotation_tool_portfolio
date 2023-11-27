@@ -43,11 +43,32 @@ const annotatorSlice = createSlice({
     setImage: (state, action: PayloadAction<ImageType>) => {
       state.image = action.payload;
     },
-    setCategories: (state, action: PayloadAction<CategoriesType>) => {
+    setCategories: (
+      state,
+      action: PayloadAction<CategoriesType | undefined>,
+    ) => {
       state.categories = action.payload;
     },
-    setCurrentCategory: (state, action: PayloadAction<CurrentCategoryType>) => {
+    setCurrentCategoryByCategoryId: (state, action: PayloadAction<number>) => {
+      if (!state.categories) return;
+
+      const categoryId = action.payload;
+      state.currentCategory = state.categories[categoryId];
+    },
+    setCurrentCategory: (
+      state,
+      action: PayloadAction<CurrentCategoryType | undefined>,
+    ) => {
       state.currentCategory = action.payload;
+    },
+    setCurrentAnnotationByAnnotationId: (
+      state,
+      action: PayloadAction<number>,
+    ) => {
+      if (!state.currentCategory) return;
+
+      const annotationId = action.payload;
+      state.currentAnnotation = state.currentCategory.annotations[annotationId];
     },
     setCurrentAnnotation: (
       state,
@@ -59,7 +80,7 @@ const annotatorSlice = createSlice({
       if (!state.categories) return;
       state.categories[`${action.payload.categoryId}`] = action.payload;
     },
-    updateAnnotation: (
+    addAnnotation: (
       state,
       action: PayloadAction<{
         categoryId: number;
@@ -104,10 +125,12 @@ export const {
   setDatasetId,
   setImage,
   setCategories,
+  setCurrentCategoryByCategoryId,
   setCurrentCategory,
+  setCurrentAnnotationByAnnotationId,
   setCurrentAnnotation,
   updateCategories,
-  updateAnnotation,
+  addAnnotation,
   deleteAnnotation,
   deleteAnnotations,
 } = annotatorSlice.actions;

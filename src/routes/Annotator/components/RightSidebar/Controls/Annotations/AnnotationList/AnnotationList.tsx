@@ -9,11 +9,11 @@ import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { Annotation } from './Annotation/Annotation';
 import {
-  setCurrentAnnotation,
-  setCurrentCategory,
   selectAnnotator,
   deleteAnnotations,
   setTool,
+  setCurrentCategoryByCategoryId,
+  setCurrentAnnotationByAnnotationId,
 } from 'routes/Annotator/slices/annotatorSlice';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
@@ -65,11 +65,9 @@ export default function AnnotationList() {
 
     if (!selectedCategory) return;
 
-    dispatch(setCurrentCategory(selectedCategory));
+    dispatch(setCurrentCategoryByCategoryId(categoryId));
 
-    const selectedCurrentAnnotation =
-      selectedCategory.annotations[annotationId];
-    dispatch(setCurrentAnnotation(selectedCurrentAnnotation));
+    dispatch(setCurrentAnnotationByAnnotationId(annotationId));
   }
 
   // category의 모든 annotation 삭제
@@ -86,10 +84,10 @@ export default function AnnotationList() {
       return;
     }
 
-    const annotationOnTop = sortedAnnotations[0][1];
-    if (!annotationOnTop) return;
+    const annotationIdOnTop = sortedAnnotations[0][1].annotationId;
+    if (!annotationIdOnTop) return;
 
-    dispatch(setCurrentAnnotation(annotationOnTop));
+    dispatch(setCurrentAnnotationByAnnotationId(annotationIdOnTop));
   }, [sortedAnnotations]);
 
   return (
@@ -123,9 +121,8 @@ export default function AnnotationList() {
           <Annotation
             key={annotation.annotationId}
             categoryId={currentCategory.categoryId}
-            categoryColor={currentCategory.color}
             annotationId={Number(annotationId)}
-            annotationColor={annotation.color}
+            annotationcolor={annotation.color}
             onClick={selectAnnotation}
           />
         ))}

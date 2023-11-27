@@ -7,7 +7,9 @@ import {
   selectAnnotator,
   setCategories,
   setCurrentAnnotation,
+  setCurrentAnnotationByAnnotationId,
   setCurrentCategory,
+  setCurrentCategoryByCategoryId,
 } from './slices/annotatorSlice';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -47,20 +49,21 @@ export default function Annotator() {
     initData(imageId);
 
     return () => {
-      dispatch(setCategories({}));
+      dispatch(setCategories(undefined));
     };
   }, [dispatch]);
 
   useEffect(() => {
-    if (!categories) return;
-    if (!currentCategory || !currentAnnotation) return;
-    const currentCategoryToUpdate = categories[currentCategory.categoryId];
-    if (!currentCategoryToUpdate) return;
-    const currentAnnotationToUpdate =
-      currentCategoryToUpdate.annotations[currentAnnotation.annotationId];
-
-    dispatch(setCurrentCategory(currentCategoryToUpdate));
-    dispatch(setCurrentAnnotation(currentAnnotationToUpdate));
+    if (!categories) {
+      dispatch(setCurrentCategory(undefined));
+      dispatch(setCurrentAnnotation(undefined));
+    }
+    if (!currentCategory) return;
+    dispatch(setCurrentCategoryByCategoryId(currentCategory.categoryId));
+    if (!currentAnnotation) return;
+    dispatch(
+      setCurrentAnnotationByAnnotationId(currentAnnotation.annotationId),
+    );
   }, [categories]);
 
   useKeyEvent('Space', createEmptyAnnotation);
