@@ -32,7 +32,7 @@ export const TabButton = styled(Typography)<TabButtonProps>((props) => {
     cursor: 'pointer',
     padding: '5px',
 
-    '&:nth-child(2n-1)': {
+    '&:nth-of-type(2n-1)': {
       borderRight: '1px solid #20252c',
     },
   };
