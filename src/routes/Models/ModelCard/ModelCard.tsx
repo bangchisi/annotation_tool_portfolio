@@ -6,6 +6,8 @@ import {
   PropertyValue,
 } from './ModelCard.style';
 
+import NewModelCard from './NewModelCard';
+
 interface ModelCardProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setDeleteModelName: React.Dispatch<React.SetStateAction<string>>;
@@ -93,12 +95,6 @@ export default function ModelCard(props: ModelCardProps) {
           {new Date(log.finetuneStartTime).toLocaleString()}
         </PropertyValue>
       </Property>
-      {/* <Property>
-        <PropertyName>이미지 개수(train/test)</PropertyName>
-        <PropertyValue>{`${log.numTrainImages + log.numTestImages} (${
-          log.numTrainImages
-        }/${log.numTestImages})`}</PropertyValue>
-      </Property> */}
       <Property>
         <PropertyName>남은시간</PropertyName>
         <PropertyValue>

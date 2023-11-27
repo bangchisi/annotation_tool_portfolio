@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Container } from './Models.style';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
@@ -6,6 +6,7 @@ import FinetuneModel from 'models/Finetune.model';
 import { useAppSelector } from 'App.hooks';
 import { Typography } from '@mui/material';
 import ModelCard from './ModelCard/ModelCard';
+import NewModelCard from './ModelCard/NewModelCard';
 import ModelDeleteModal from './ModelDeleteModal/ModelDeleteModal';
 
 export interface LogType {
@@ -90,53 +91,29 @@ export default function Models() {
 
   return (
     <Container>
-      <div>
-        <Typography variant="h3">vit_h</Typography>
-        {logs &&
-          logs
-            .filter((log) => log.vitModelType === 'vit_h')
-            .map((log) => (
-              <ModelCard
-                key={log.finetuneId}
-                log={log}
-                getLogs={() => getLogs(userId)}
-                onDelete={onDelete}
-                setOpen={setOpen}
-                setDeleteModelName={setDeleteModelName}
-                setFinetuneId={setFinetuneId}
-              />
-            ))}
-        <Typography variant="h3">vit_l</Typography>
-        {logs &&
-          logs
-            .filter((log) => log.vitModelType === 'vit_l')
-            .map((log) => (
-              <ModelCard
-                key={log.finetuneId}
-                log={log}
-                getLogs={() => getLogs(userId)}
-                onDelete={onDelete}
-                setOpen={setOpen}
-                setDeleteModelName={setDeleteModelName}
-                setFinetuneId={setFinetuneId}
-              />
-            ))}
-        <Typography variant="h3">vit_b</Typography>
-        {logs &&
-          logs
-            .filter((log) => log.vitModelType === 'vit_b')
-            .map((log) => (
-              <ModelCard
-                key={log.finetuneId}
-                log={log}
-                getLogs={() => getLogs(userId)}
-                onDelete={onDelete}
-                setOpen={setOpen}
-                setDeleteModelName={setDeleteModelName}
-                setFinetuneId={setFinetuneId}
-              />
-            ))}
-      </div>
+      {logs &&
+        logs.map((log) => (
+          <div key={log.finetuneName}>
+            <Typography
+              variant="h3"
+              sx={{
+                fontSize: '36px',
+                marginBottom: '9px',
+              }}
+            >
+              {log.vitModelType}
+            </Typography>
+            <NewModelCard
+              key={log.finetuneId}
+              log={log}
+              getLogs={() => getLogs(userId)}
+              onDelete={onDelete}
+              setOpen={setOpen}
+              setDeleteModelName={setDeleteModelName}
+              setFinetuneId={setFinetuneId}
+            />
+          </div>
+        ))}
       <ModelDeleteModal
         open={open}
         setOpen={setOpen}

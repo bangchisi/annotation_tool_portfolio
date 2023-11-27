@@ -3,9 +3,7 @@ import { Box, Button, Typography, styled } from '@mui/material';
 export const Container = styled(Box)(() => {
   return {
     display: 'flex',
-    width: '80%',
     marginBottom: '10px',
-    border: '1px solid rgba(0, 0, 0, 1)',
   };
 });
 

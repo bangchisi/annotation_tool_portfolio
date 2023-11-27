@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import { Grid } from 'gridjs';
+import { Grid } from 'gridjs-react';
 import 'gridjs/dist/theme/mermaid.css';
+import { Container, DeleteButton } from './ModelCard.style';
 
 interface ModelCardProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -67,9 +68,6 @@ function remainingTimeToString(remainingTime: number) {
 }
 
 const NewModelCard = (props: ModelCardProps) => {
-  const tableRef = useRef<HTMLElement>(null);
-  const wrapperRef = useRef<HTMLElement>(null);
-
   const { setOpen, setDeleteModelName, setFinetuneId, log } = props;
   const {
     finetuneId,
@@ -81,40 +79,41 @@ const NewModelCard = (props: ModelCardProps) => {
     status,
   } = log;
 
-  useEffect(() => {
-    const grid = new Grid({
-      from: tableRef.current,
-    }).render(wrapperRef.current);
-  }, []);
-
   return (
-    <>
-      <table ref={tableRef}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>이름</th>
-            <th>Dataset</th>
-            <th>학습시작</th>
-            <th>남은시간</th>
-            <th>완료여부</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{finetuneId}</td>
-            <td>{finetuneName}</td>
-            <td>{datasetName}</td>
-            <td>{new Date(finetuneStartTime).toLocaleString()}</td>
-            <td>
-              {remainingTime ? remainingTimeToString(remainingTime) : '-'}
-            </td>
-            <td>{isDone ? '완료' : '진행중'}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div ref={wrapperRef}></div>
-    </>
+    <Container>
+      <Grid
+        data={[
+          [
+            finetuneId,
+            finetuneName,
+            datasetName,
+            new Date(finetuneStartTime).toLocaleString(),
+            remainingTime ? remainingTimeToString(remainingTime) : '-',
+            isDone ? '완료' : '진행중',
+          ],
+        ]}
+        columns={['ID', '이름', 'Dataset', '학습시작', '남은시간', '완료여부']}
+        style={{
+          td: {
+            'font-size': '14px',
+            'text-align': 'center',
+          },
+        }}
+      />
+      <DeleteButton
+        variant="contained"
+        color="warning"
+        disabled={status === 'Getting Ready to Train'}
+        disableFocusRipple
+        onClick={() => {
+          setFinetuneId([finetuneId]);
+          setDeleteModelName(finetuneName);
+          setOpen(true);
+        }}
+      >
+        DELETE
+      </DeleteButton>
+    </Container>
   );
 };
 
