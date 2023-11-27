@@ -12,12 +12,13 @@ export const Container = styled('div')(() => {
     height: '50%',
     overflowY: 'scroll',
     marginRight: '-17px',
+    // borderBottom: '1px solid #88929D',
   };
 });
 
 export const TabContainer = styled('div')(() => {
   return {
-    width: '100%',
+    display: 'flex',
     borderBottom: '1px solid #20252c',
   };
 });
@@ -26,11 +27,12 @@ export const TabButton = styled(Typography)<TabButtonProps>((props) => {
   const selected = props['data-selected'];
 
   return {
-    display: 'inline',
+    display: 'inline-flex',
     backgroundColor: selected ? '#E7ECF0' : 'none',
     color: selected ? '#0e1116' : 'rgb(0, 0, 0, 0.7)',
     cursor: 'pointer',
-    padding: '5px',
+    padding: '3px 5px',
+    flexBasis: '50%',
 
     '&:nth-of-type(2n-1)': {
       borderRight: '1px solid #20252c',
