@@ -1,4 +1,4 @@
-import { Toolbar, Box, List, Divider } from '@mui/material';
+import { Box, List, Divider } from '@mui/material';
 import ToolIcon from './ToolIcon';
 import paper from 'paper';
 
@@ -27,13 +27,14 @@ export default function LeftSidebar() {
 
     const categoriesToUpdate = JSON.parse(JSON.stringify(categories));
 
-    console.log(children);
-
+    // @이슈: 브러쉬 커브 없던 거
+    // 이유: 기존 숨겨진 속성이 없는 채로 save를 했음.
+    // segmentation만 바로 보내니까 브러쉬 커브가 없던 거였음.
+    // 전체 객체를 serialize해서 보내는 것이 아니라 일부(segmentation)만 보냈음
+    // 해결방법: 전체 객체를 serialize해서 보내기. 그리고 data 객체도 서버에 저장하고 load하면 보내기
     children.forEach((child) => {
       if (child instanceof paper.CompoundPath) {
         const { categoryId, annotationId } = child.data;
-
-        console.log(getConvertedAnnotation(child));
 
         categoriesToUpdate[categoryId].annotations[annotationId] =
           getConvertedAnnotation(child);
@@ -61,11 +62,10 @@ export default function LeftSidebar() {
         imageId,
         categoriesToUpdate,
       );
-      // console.log(response);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to save annotator data');
     } finally {
-      // console.dir(paper.project.activeLayer.children);
+      //
     }
   }
 
