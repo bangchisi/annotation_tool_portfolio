@@ -81,7 +81,7 @@ export default function Annotator() {
     }
   });
 
-  useKeyEvent('Delete', () => {
+  useKeyEvent('Backspace', () => {
     if (!currentCategory || !currentAnnotation) return;
     onClickDeleteButton(
       currentCategory.categoryId,
