@@ -53,8 +53,7 @@ export default function Dataset() {
       setIsLoading(true);
       const response = await DatasetModel.getDatasetById(datasetId);
       const dataset = response.data;
-      // console.log('Dataset.tsx, dataset: ');
-      // console.dir(dataset);
+
       setDataset(dataset);
       return dataset;
     } catch (error) {
@@ -67,7 +66,7 @@ export default function Dataset() {
   async function deleteImage(imageId: number) {
     try {
       const response = await ImagesModel.deleteImage(imageId);
-      // console.log('response', response);
+
       getDataset(datasetId);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to delete image');
@@ -77,7 +76,7 @@ export default function Dataset() {
   async function setDeviceStatus() {
     try {
       const response = await FinetuneModel.checkAvailableDevice();
-      console.log(response.data);
+
       setAvailableDevices(response.data);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to check device status');

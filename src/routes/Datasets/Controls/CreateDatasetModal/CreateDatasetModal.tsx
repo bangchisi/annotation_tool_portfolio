@@ -63,7 +63,6 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
       );
 
       handleClose();
-      console.dir(response);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to create dataset');
       alert('Dataset 생성 실패.');
@@ -180,11 +179,6 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
                   </Button>
                   <Button
                     onClick={async () => {
-                      console.dir(user.userId);
-                      console.log('dataset name: ', datasetName);
-                      console.log('categories: ');
-                      console.dir(categories);
-                      console.log('description: ', description);
                       if (!datasetName) {
                         alert('Dataset 이름은 필수입니다.');
                         return;

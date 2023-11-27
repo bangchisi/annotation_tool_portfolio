@@ -32,7 +32,6 @@ export default function ExportDatasetModal(props: ExportDatasetModalProps) {
   }
 
   async function exportDataset(datasetId: number, exportFormat: string) {
-    console.log(datasetId, exportFormat);
     try {
       const response = await DatasetModel.exportDataset(
         datasetId,

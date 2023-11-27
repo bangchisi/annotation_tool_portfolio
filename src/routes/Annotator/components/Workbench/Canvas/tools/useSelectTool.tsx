@@ -75,7 +75,6 @@ const useSelectTool = () => {
 
   const onMouseLeave = (event: paper.MouseEvent) => {
     //..
-    console.log('select leave');
   };
 
   return {

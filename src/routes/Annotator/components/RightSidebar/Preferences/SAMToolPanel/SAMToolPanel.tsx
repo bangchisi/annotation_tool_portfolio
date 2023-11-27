@@ -81,7 +81,6 @@ export default function SAMToolPanel() {
 
     const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
 
-    console.log('boundary');
     console.dir(
       `(${topLeft.x}, ${topLeft.y}), (${bottomRight.x}, ${bottomRight.y})`,
     );
@@ -149,9 +148,6 @@ export default function SAMToolPanel() {
         bottomRight,
         params,
       );
-
-      console.log('everything, response');
-      console.log(response);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to SAM Everything');
       alert('everything 모드 실패, 다시 시도해주세요.');

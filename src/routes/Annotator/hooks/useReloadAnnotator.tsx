@@ -22,7 +22,6 @@ const useReloadAnnotator = () => {
     useAppSelector(selectAnnotator);
 
   const initData = async (imageId: number) => {
-    console.log('%cinitData', 'color: red');
     setIsLoading(true);
     try {
       const response = await AnnotatorModel.getData(imageId);
@@ -31,14 +30,10 @@ const useReloadAnnotator = () => {
 
       if (!datasetId || !imageData || !categoriesData) return;
 
-      console.log('setCategories');
       dispatch(setCategories(categoriesData));
-      console.log('setImage');
       dispatch(setImage(imageData));
-      console.log('setDatasetId');
       dispatch(setDatasetId(datasetId));
 
-      console.log('selectFirstCategory');
       selectFirstCategory(categoriesData);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get annotator data');
@@ -90,7 +85,6 @@ const useReloadAnnotator = () => {
     );
 
     childrenToRemove.forEach((child) => {
-      console.log('remove');
       child.remove();
     });
   };
@@ -127,8 +121,6 @@ const useReloadAnnotator = () => {
     // number[] -> [number, number][]
     const raster = paper.project.activeLayer.children[0] as paper.Raster;
     const { x, y } = raster.bounds.topLeft;
-    console.log('raster.bounds.topLeft');
-    console.log(x, y);
 
     const path = points
       .map((point: number, idx) => {

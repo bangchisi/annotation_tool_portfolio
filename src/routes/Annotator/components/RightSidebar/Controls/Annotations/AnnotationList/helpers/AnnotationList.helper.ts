@@ -23,10 +23,10 @@ const dispatch = useAppDispatch();
 //     ) as paper.CompoundPath;
 
 //     paths.tempPath = selectedPath;
-//     console.dir(selectedPath);
+
 //   }
 
-//   console.log(`select annotation. (${categoryId}, ${annotationId})`);
+//
 //   if (!categories) return;
 
 //   const selectedCategory = categories.find(

@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
@@ -75,7 +74,6 @@ const useBoxTool = (compounds: paper.Item[]) => {
     // 바꿔치기 할 children 생성
     const unitedPath = tempPath.unite(guideBox) as paper.CompoundPath;
     const pathToSwitch = new paper.CompoundPath(unitedPath);
-    console.dir(paper.project.activeLayer.children);
 
     // guide box 삭제
     guideBox.remove();

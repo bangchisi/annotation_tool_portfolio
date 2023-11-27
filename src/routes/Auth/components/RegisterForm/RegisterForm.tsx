@@ -75,9 +75,7 @@ export default function RegisterForm() {
     try {
       setIsLoading(true);
       const response = await AuthModel.register(userId, password, userName);
-      console.log('onRegister, response: ');
-      console.log('response.status: ', response.status);
-      console.dir(response);
+
       if (response.status === 200) {
         alert('회원등록 성공');
         window.location.reload();

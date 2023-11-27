@@ -47,7 +47,6 @@ export function Annotation({
       <DeleteButton
         categorycolor={categoryColor}
         annotationcolor={annotationColor}
-        // onClick={() => onClickDeleteButton(categoryId, annotationId)}
         onClick={() => onClickDeleteButton(categoryId, annotationId)}
       />
     </Container>

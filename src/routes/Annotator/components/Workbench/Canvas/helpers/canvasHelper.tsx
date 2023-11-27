@@ -8,19 +8,10 @@ interface fetchImageProps {
 
 export function onCanvasMouseDown(event: paper.MouseEvent): void {
   event.preventDefault();
-  console.log('canvas mouse down', event.point);
-  console.log(event.point.subtract(paper.view.center));
-  // console.log('canvas mouse down', paper.view.bounds);
-  // const bounds = paper.view.bounds;
-
-  // const redRect = new paper.Path.Rectangle(bounds);
-  // redRect.strokeColor = new paper.Color('red');
-  // redRect.strokeWidth = 1;
 }
 
 export function onCanvasMouseUp(event: paper.MouseEvent): void {
   event.preventDefault();
-  // console.log('canvas mouse up', event);
 }
 
 export function onCanvasDrag(event: paper.MouseEvent): void {
@@ -29,11 +20,11 @@ export function onCanvasDrag(event: paper.MouseEvent): void {
 }
 
 export function onCanvasDragStart(event: paper.MouseEvent): void {
-  console.log('canvas drag start', event);
+  //
 }
 
 export function onCanvasDragEnd(event: paper.MouseEvent): void {
-  console.log('canvas drag end', event);
+  //
 }
 
 export function onCanvasWheel(event: WheelEvent): void {
@@ -77,19 +68,18 @@ export async function fetchImage({
   }
   // try {
   //   const response = await axios.get(`/api/image/${datasetId}/${imageId}`);
-  //   console.log(response);
+
   // } catch (error) {
   //   if (error instanceof Error) {
-  //     console.log('Failed fetchImage');
-  //     console.log(error.stack);
+
   //     return null;
   //   }
   // }
 
   const img = new Image();
   img.src = '/test.png';
-  // console.log('fetchImage(), result');
-  // console.dir(img);
+  //
+
   return img;
 }
 
@@ -99,7 +89,6 @@ export function drawAnnotation(
   imgWidth: number,
   imgHeight: number,
 ) {
-  console.log('drawAnnotation');
   interface AnnotationType {
     points: number[][];
     color: string;
@@ -199,6 +188,5 @@ export function setAnnotationDataToCompoundPath(
 
   compoundPath.onMouseDown = () => {
     // TODO: set current category, annotation with categoryId, annotationId
-    console.log('select path!');
   };
 }

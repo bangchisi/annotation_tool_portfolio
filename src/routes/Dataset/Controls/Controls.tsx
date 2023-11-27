@@ -1,4 +1,3 @@
-import { Button } from '@mui/material';
 import { Container, FilesLabel } from './Controls.style';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useRef, useState } from 'react';
@@ -36,8 +35,6 @@ export default function Controls(props: ControlsProps) {
     try {
       setIsLoading(true);
       const response = await ImagesModel.uploadImages(datasetId, images);
-      console.log('Dataset.tsx Controls.tsx, upload image response: ');
-      console.dir(response);
     } catch (error) {
       axiosErrorHandler('error', 'Failed to upload images');
     } finally {
@@ -73,8 +70,6 @@ export default function Controls(props: ControlsProps) {
         modelType,
         finetuneName,
       );
-      console.log(response);
-      console.log('start fine tuning');
     } catch (error) {
       axiosErrorHandler(error, 'Failed to start train');
     } finally {
@@ -89,8 +84,6 @@ export default function Controls(props: ControlsProps) {
     if (!response) return false;
 
     const { num_annotated_images } = response.data; // { num_total_images, num_annotated_images }
-
-    console.log('annotated: ', num_annotated_images);
 
     const result = num_annotated_images >= criteria;
     if (!result)

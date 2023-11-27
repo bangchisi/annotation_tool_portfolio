@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 const useKeyEvent = (key: string, callback: () => void) => {
   useEffect(() => {
     const handleKeyEvent = (event: KeyboardEvent) => {
-      console.log(`keyCode: ${event.code}`);
       if (event.code === key) {
         event.preventDefault();
         callback();
