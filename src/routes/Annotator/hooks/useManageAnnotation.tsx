@@ -1,11 +1,11 @@
 import paper from 'paper';
 import { getRandomHexColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import {
+  addAnnotation,
   deleteAnnotation,
   selectAnnotator,
-  setCurrentAnnotation,
-  setCurrentCategory,
-  updateAnnotation,
+  setCurrentAnnotationByAnnotationId,
+  setCurrentCategoryByCategoryId,
 } from '../slices/annotatorSlice';
 import useReloadAnnotator from './useReloadAnnotator';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
@@ -42,11 +42,11 @@ const useManageAnnotation = () => {
         throw new Error('Failed to create annotation');
 
       // 서버에서 생성한 마지막 annotation id
-      const nextAnnotationId = response.data.annotationId;
+      const newAnnotationId = response.data.annotationId;
 
       // 새 annotation 생성, default 값들임.
       const newAnnotation = {
-        annotationId: nextAnnotationId,
+        annotationId: newAnnotationId,
         isCrowd: false,
         isBbox: false,
         color: annotationColor,
@@ -57,7 +57,7 @@ const useManageAnnotation = () => {
 
       // 새 annotation 추가
       dispatch(
-        updateAnnotation({
+        addAnnotation({
           categoryId: currentCategory.categoryId,
           annotation: newAnnotation,
         }),
@@ -70,13 +70,13 @@ const useManageAnnotation = () => {
       compoundPathToAdd.opacity = 0.825;
       const dataToAdd = {
         categoryId: currentCategory.categoryId,
-        annotationId: nextAnnotationId,
+        annotationId: newAnnotationId,
         annotationColor: annotationColor,
       };
       compoundPathToAdd.data = dataToAdd;
 
       // 항목 3. currentAnnotation 업데이트
-      dispatch(setCurrentAnnotation(newAnnotation));
+      dispatch(setCurrentAnnotationByAnnotationId(newAnnotationId));
     } catch (error) {
       axiosErrorHandler(error, 'Failed to create annotation');
       alert('annotation 생성에 실패했습니다. 다시 시도해주세요.');
@@ -85,19 +85,7 @@ const useManageAnnotation = () => {
     }
   }
 
-  // 현재 annotation 삭제
-  const deleteCurrentAnnotation = () => {
-    if (!categories) return;
-    if (!currentCategory || !currentAnnotation) return;
-
-    dispatch(
-      deleteAnnotation({
-        categoryId: currentCategory.categoryId,
-        annotationId: currentAnnotation.annotationId,
-      }),
-    );
-  };
-
+  // categoryId, annotationId: target annotation to delete
   const onClickDeleteButton = async (
     categoryId: number,
     annotationId: number,
@@ -111,7 +99,40 @@ const useManageAnnotation = () => {
       // delete compound in canvas
       deleteCompound(categoryId, annotationId);
 
+      // delete target annotation in category
       deleteAnnotationInCategory(annotationId);
+
+      // select next annotation if needed
+      if (currentAnnotation?.annotationId !== annotationId) {
+        return;
+      }
+
+      if (!currentCategory?.annotations) {
+      }
+      // case 1: annotation 많이 있을 때
+      const annotationsList = Object.values(currentCategory?.annotations ?? {});
+      const annotationIds =
+        annotationsList.map((annotation) => Number(annotation.annotationId)) ??
+        [];
+      const nextAnnotationIds = annotationIds.filter(
+        (nextAnnotationId) => nextAnnotationId < Number(annotationId),
+      );
+
+      // case 2: annotation list가 1개가 될 때 (총 2개의 annotation이 있을 때, 1개 삭제)
+      if (nextAnnotationIds.length === 1) {
+        selectAnnotation(categoryId, nextAnnotationIds[0]);
+        return;
+      }
+
+      // case 3: annotation 0개가 될 때 (총 1개의 annotation이 있을 때, 1개 삭제)
+      if (nextAnnotationIds.length === 0) {
+        selectAnnotation(categoryId, -1);
+        return;
+      }
+
+      // case 1: annotation 많이 있을 때 continue
+      const nextAnnotationId = Math.max(...nextAnnotationIds);
+      selectAnnotation(categoryId, nextAnnotationId);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to delete annotation');
       alert('annotation 삭제 실패. 다시 시도 해주세요.');
@@ -154,23 +175,15 @@ const useManageAnnotation = () => {
 
     if (!selectedCategory) return;
 
-    dispatch(setCurrentCategory(selectedCategory));
+    dispatch(setCurrentCategoryByCategoryId(categoryId));
 
-    const selectedCurrentAnnotation =
-      selectedCategory.annotations[annotationId];
-
-    if (annotationId < 0) {
-      dispatch(setCurrentAnnotation(undefined));
-      return;
-    }
-    dispatch(setCurrentAnnotation(selectedCurrentAnnotation));
+    dispatch(setCurrentAnnotationByAnnotationId(annotationId));
   };
 
   return {
     isLoading,
     setIsLoading,
     createEmptyAnnotation,
-    deleteCurrentAnnotation,
     selectAnnotation,
     onClickDeleteButton,
   };
