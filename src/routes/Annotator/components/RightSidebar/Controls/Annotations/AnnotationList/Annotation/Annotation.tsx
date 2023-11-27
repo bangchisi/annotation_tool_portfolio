@@ -1,6 +1,10 @@
-import paper from 'paper';
 import { Typography } from '@mui/material';
-import { Container, DeleteButton, SelectPanel } from './Annotation.style';
+import {
+  Container,
+  DeleteButton,
+  SelectPanel,
+  AnnotationColorTag,
+} from './Annotation.style';
 import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { useAppSelector } from 'App.hooks';
@@ -9,16 +13,14 @@ import { useMemo } from 'react';
 interface AnnotationProps {
   categoryId: number;
   annotationId: number;
-  annotationColor: string;
-  categoryColor: string;
+  annotationcolor: string;
   onClick: (categoryId: number, annotationId: number) => void;
 }
 
 export function Annotation({
   categoryId,
   annotationId,
-  annotationColor,
-  categoryColor,
+  annotationcolor,
   onClick,
 }: AnnotationProps) {
   const { onClickDeleteButton } = useManageAnnotation();
@@ -31,10 +33,10 @@ export function Annotation({
 
   return (
     <Container
-      categorycolor={categoryColor}
-      annotationcolor={annotationColor}
+      annotationcolor={annotationcolor}
       onClick={() => onClick(categoryId, annotationId)}
     >
+      <AnnotationColorTag annotationcolor={annotationcolor} />
       <Typography variant="button" display="inline">
         (id: {annotationId})
       </Typography>
@@ -45,8 +47,7 @@ export function Annotation({
           ))}
       </SelectPanel>
       <DeleteButton
-        categorycolor={categoryColor}
-        annotationcolor={annotationColor}
+        annotationcolor={annotationcolor}
         onClick={() => onClickDeleteButton(categoryId, annotationId)}
       />
     </Container>

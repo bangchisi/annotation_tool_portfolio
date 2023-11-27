@@ -3,7 +3,6 @@ import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers'
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 
 interface AnnotationProps {
-  categorycolor: string;
   annotationcolor: string;
 }
 
@@ -13,7 +12,7 @@ export const Container = styled(Box)<AnnotationProps>(({ annotationcolor }) => {
   return {
     display: 'flex',
     height: 45,
-    backgroundColor: annotationcolor,
+    // backgroundColor: annotationcolor,
     font: textColor,
     color: textColor,
     justifyContent: 'flex-start',
@@ -21,11 +20,18 @@ export const Container = styled(Box)<AnnotationProps>(({ annotationcolor }) => {
     cursor: 'pointer',
     padding: '10px',
     opacity: 0.9,
+    borderBottom: '1px solid #88929D',
+  };
+});
 
-    '&:hover': {
-      boxShadow: 'inset 0 0 0 2px rgba(0, 0, 0, 0.1)',
-      filter: 'brightness(1.1) saturate(1.5) contrast(1.2)',
-    },
+export const AnnotationColorTag = styled('div')<AnnotationProps>(({
+  annotationcolor,
+}) => {
+  return {
+    display: 'flex',
+    width: '12px',
+    height: '23px',
+    backgroundColor: annotationcolor,
   };
 });
 
