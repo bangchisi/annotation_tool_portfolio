@@ -1,5 +1,5 @@
 import paper from 'paper';
-import { Fragment, useEffect, useRef, useLayoutEffect } from 'react';
+import { Fragment, useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { onCanvasWheel } from './helpers/canvasHelper';
 import { Editor } from './Canvas.style';
 import { useAppSelector, useAppDispatch } from 'App.hooks';
@@ -93,6 +93,7 @@ export default function Canvas(props: CanvasProps) {
     }
   }
 
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   // 캔버스 초기 설정 useEffect (이미지 로드 후)
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -109,13 +110,22 @@ export default function Canvas(props: CanvasProps) {
       if (eraserCursor) eraserCursor.remove();
     };
 
+    const { children } = paper.project.activeLayer;
+
+    const imageUrl = getCanvasImage(imageId);
     const raster = new paper.Raster({
-      onLoad: function () {
-        // 이미지가 로드된 후에 중앙으로 이동
+      source: imageUrl,
+      onLoad: () => {
         raster.position = paper.view.center;
+
+        children.forEach((child) => {
+          if (child instanceof paper.CompoundPath)
+            child.position = child.position.add(raster.bounds.topLeft);
+        });
+        // 이미지 로드 여부를 정해버림
+        setIsImageLoaded(true);
       },
     });
-    raster.source = getCanvasImage(imageId);
 
     return () => {
       canvas.onwheel = null;
@@ -131,9 +141,15 @@ export default function Canvas(props: CanvasProps) {
   }, [width, height]);
 
   useEffect(() => {
+    // 데이터셋이 아직 없으면 마스크를 그리지 않는다.
     if (!categories) return;
+
+    // 이미지가 아직 로드 되지 않았다면 마스크를 그리지 않는다.
+    // 이유는 이미지가 로드 되기 전에 마스크를 그리면 기준 좌표가 0, 0이 되기 때문이다.
+    if (!isImageLoaded) return;
+
     drawPaths(categories);
-  }, [categories]);
+  }, [categories, isImageLoaded]);
 
   const selectedToolsHandlers = useTools({
     selectedTool,
