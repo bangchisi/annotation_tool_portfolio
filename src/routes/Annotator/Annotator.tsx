@@ -44,8 +44,10 @@ export default function Annotator() {
   );
   const { brushRadius, eraserRadius } = useAppSelector(selectAuth).preference;
 
+  // @이슈: redux의 categories가 뒤로 가기 했을 때 초기화되지 않는 문때
   // init data
   useEffect(() => {
+    setCategories(undefined);
     initData(imageId);
 
     return () => {
