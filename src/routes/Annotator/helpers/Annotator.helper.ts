@@ -155,7 +155,7 @@ export function getConvertedAnnotation(compound: paper.CompoundPath) {
     segmentation: compoundPathToSegmentation(compound),
     area: Math.round(compound.area),
     // new Group(compound.children)을 Path.Rectangle().bounds 해야하나 알아보기.
-    bbox: getBbox(compound),
+    bbox: getBbox(compound, annotationId),
   };
 }
 
@@ -170,8 +170,12 @@ function getIsCrowd(compound: paper.CompoundPath) {
 }
 
 // get bbox
-function getBbox(compound: paper.CompoundPath) {
-  const group = new paper.Group([...compound.children]);
+function getBbox(compound: paper.CompoundPath, annotationId: number) {
+  const group =
+    compound.children.slice(1).filter((child) => {
+      annotationId === child.data.annotationId;
+    }) || [];
+  // const group = new paper.Group([...compound.children]);
   const bbox = new paper.Path.Rectangle(group);
 
   return [
