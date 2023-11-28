@@ -149,7 +149,9 @@ const useSAMTool = () => {
 
     compound.addChildren(
       correctedSegmentation.map((path) => {
-        return new paper.Path(path);
+        const correctedPath = new paper.Path(path);
+        correctedPath.closed = true;
+        return correctedPath;
       }),
     );
   };
