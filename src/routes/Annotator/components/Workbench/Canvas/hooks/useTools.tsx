@@ -1,17 +1,15 @@
+import { useAppDispatch, useAppSelector } from 'App.hooks';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Tool } from 'routes/Annotator/Annotator';
-import { ImageType } from 'routes/Annotator/Annotator.types';
-
-import { useMemo } from 'react';
-
-import { useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
 // tools
 import useBoxTool from '../tools/useBoxTool';
 import useBrushTool from '../tools/useBrushTool';
 import useEraserTool from '../tools/useEraserTool';
-import useSelectTool from '../tools/useSelectTool';
 import useSAMTool from '../tools/useSAMTool';
+import useSelectTool from '../tools/useSelectTool';
+import { ImageType } from 'routes/Annotator/Annotator.types';
 
 interface UseToolsProps {
   selectedTool: Tool;
