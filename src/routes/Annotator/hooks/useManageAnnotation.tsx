@@ -67,7 +67,7 @@ const useManageAnnotation = () => {
       const compoundPathToAdd = new paper.CompoundPath({});
       compoundPathToAdd.fillColor = new paper.Color(annotationColor);
       compoundPathToAdd.strokeColor = new paper.Color(1, 1, 1, 1);
-      compoundPathToAdd.opacity = 0.825;
+      compoundPathToAdd.opacity = 0.5;
       const dataToAdd = {
         categoryId: currentCategory.categoryId,
         annotationId: newAnnotationId,
