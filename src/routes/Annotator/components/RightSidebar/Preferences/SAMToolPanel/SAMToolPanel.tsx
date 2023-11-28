@@ -52,7 +52,11 @@ export default function SAMToolPanel() {
     event: SelectChangeEvent<string> | SelectChangeEvent<number>,
   ) {
     // ...
-    if (event.target.value === 'vit_l' || event.target.value === 'vit_b')
+    if (
+      event.target.value === 'vit_h' ||
+      event.target.value === 'vit_l' ||
+      event.target.value === 'vit_b'
+    )
       loadSAM(event.target.value);
     else loadFinetunedModel(Number(event.target.value));
   }
@@ -151,12 +155,11 @@ export default function SAMToolPanel() {
     } catch (error) {
       axiosErrorHandler(error, 'Failed to SAM Everything');
       alert('everything 모드 실패, 다시 시도해주세요.');
-    } finally {
-      dispatch(setSAMEverythingLoading(false));
-      if (!image || !categories) return;
-      await initData(image.imageId as number);
-      drawPaths(categories);
     }
+    dispatch(setSAMEverythingLoading(false));
+    if (!image || !categories) return;
+    await initData(image.imageId as number);
+    drawPaths(categories);
   }
 
   useEffect(() => {
@@ -174,6 +177,7 @@ export default function SAMToolPanel() {
             size="small"
             defaultValue="vit_l"
           >
+            <MenuItem value="vit_h">vit_h</MenuItem>
             <MenuItem value="vit_l">vit_l</MenuItem>
             <MenuItem value="vit_b">vit_b</MenuItem>
             {finetuneModelList
