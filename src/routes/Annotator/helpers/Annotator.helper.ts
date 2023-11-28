@@ -161,7 +161,7 @@ export function getConvertedAnnotation(compound: paper.CompoundPath) {
 
 // get bbox or not: boolean
 function getIsBbox(compound: paper.CompoundPath) {
-  return true;
+  return false;
 }
 
 // get crowded or not: boolean
@@ -171,9 +171,13 @@ function getIsCrowd(compound: paper.CompoundPath) {
 
 // get bbox
 function getBbox(compound: paper.CompoundPath) {
-  // const group = new paper.Group(compound.children);
-  // const box = new paper.Path.Rectangle(group);
+  const group = new paper.Group([...compound.children]);
+  const bbox = new paper.Path.Rectangle(group);
 
-  // return box.bounds;
-  return [];
+  return [
+    bbox.bounds.topLeft.x,
+    bbox.bounds.topLeft.y,
+    bbox.bounds.width,
+    bbox.bounds.height,
+  ];
 }
