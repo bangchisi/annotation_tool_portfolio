@@ -107,8 +107,6 @@ const useManageAnnotation = () => {
         return;
       }
 
-      if (!currentCategory?.annotations) {
-      }
       // case 1: annotation 많이 있을 때
       const annotationsList = Object.values(currentCategory?.annotations ?? {});
       const annotationIds =
