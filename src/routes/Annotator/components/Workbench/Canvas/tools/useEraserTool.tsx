@@ -55,6 +55,8 @@ const useEraserTool = (compounds: paper.Item[]) => {
       radius: eraserRadius,
     });
 
+    eraser.flatten(0.1);
+
     // 바꿔치기 할 children 생성
     const pathToSwitch = new paper.CompoundPath(
       tempPath.subtract(eraser) as paper.CompoundPath,

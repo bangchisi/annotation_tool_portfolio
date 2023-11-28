@@ -36,6 +36,7 @@ const useBrushTool = (compounds: paper.Item[]) => {
   );
 
   // 마우스 클릭
+  // TODO: 클릭 하자마자 해당 위치에 브러쉬 생성 시작
   const onMouseDown = (event: paper.MouseEvent) => {
     if (!currentCategory || !currentAnnotation) return;
 
@@ -72,6 +73,8 @@ const useBrushTool = (compounds: paper.Item[]) => {
         center: event.point,
         radius: brushRadius,
       });
+
+      brush.flatten(0.1);
 
       // 바꿔치기 할 children 생성
       const pathToSwitch = new paper.CompoundPath(
