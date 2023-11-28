@@ -99,6 +99,7 @@ export default function Canvas(props: CanvasProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    if (paper.project) paper.project.clear();
     paper.setup(canvas);
     paper.activate();
 
