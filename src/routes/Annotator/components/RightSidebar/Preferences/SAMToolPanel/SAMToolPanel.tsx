@@ -85,10 +85,6 @@ export default function SAMToolPanel() {
 
     const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
 
-    console.dir(
-      `(${topLeft.x}, ${topLeft.y}), (${bottomRight.x}, ${bottomRight.y})`,
-    );
-
     // prompt, everything api 요청
     const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
       topLeft,

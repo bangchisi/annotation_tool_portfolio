@@ -74,9 +74,7 @@ const useSAMTool = () => {
 
     embedImage(image, calculatedTopLeft, calculatedBottomRight).then(
       (result) => {
-        console.log('before result');
         if (result instanceof Error) return;
-        console.log('after result');
         click(image.imageId, calculatedTopLeft, calculatedBottomRight, [x, y]);
 
         // draw SAM Region
