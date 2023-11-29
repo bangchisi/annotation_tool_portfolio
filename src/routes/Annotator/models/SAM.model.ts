@@ -39,7 +39,7 @@ const SAMModel = {
     bottomRight: paper.Point,
     params: {
       predIOUThresh: number;
-      boxNmsThresh: number;
+      boxNMSThresh: number;
       pointsPerSide: number;
     },
   ) => {
@@ -60,7 +60,7 @@ const SAMModel = {
       is_finetune: false,
       params: {
         pred_iou_thresh: params.predIOUThresh,
-        box_nms_thresh: params.boxNmsThresh,
+        box_nms_thresh: params.boxNMSThresh,
         points_per_side: params.pointsPerSide,
       },
     });
