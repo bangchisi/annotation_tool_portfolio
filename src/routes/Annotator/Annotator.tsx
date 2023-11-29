@@ -53,7 +53,7 @@ export default function Annotator() {
     return () => {
       dispatch(setCategories(undefined));
     };
-  }, [dispatch]);
+  }, [imageId, dispatch]);
 
   useEffect(() => {
     if (!categories) {
