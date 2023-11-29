@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Container,
   TitleContainer,
@@ -20,6 +20,7 @@ import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers'
 import CategoryTag from 'components/CategoryTag/CategoryTag';
 import { getDifferenceDate } from 'helpers/DateHelpers';
 import DatasetMenu from './DatasetMenu/DatasetMenu';
+import axios from 'axios';
 
 interface DatasetCardProps {
   datasetId: number; // Dataset 고유 ID
@@ -71,6 +72,20 @@ export default function DatasetCard(props: DatasetCardProps) {
       if (!response) return;
       setImgPath(response);
     });
+  }, []);
+
+  const handleDeleteCategory = useCallback(async (categoryId: number) => {
+    try {
+      const DEV_URL = `http://${process.env.REACT_APP_DEV_IP}:${process.env.REACT_APP_DEV_PORT}`;
+      const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
+      const url =
+        process.env.NODE_ENV === 'development'
+          ? `${DEV_URL}/dataset/category/${categoryId}`
+          : `${SERVER_URL}/dataset/category/${categoryId}`;
+      await axios.delete(url);
+    } catch (error) {
+      axiosErrorHandler(error, `Failed to delete category (id: ${categoryId})`);
+    }
   }, []);
 
   return (

@@ -12,10 +12,18 @@ import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 
 interface InformationProps extends DatasetType {
   isOnTrain: boolean;
+  handleCategoryDeleted: () => void;
 }
 
 export default function Information(props: InformationProps) {
-  const { datasetName, created, description, categories, isOnTrain } = props;
+  const {
+    datasetName,
+    created,
+    description,
+    categories,
+    isOnTrain,
+    handleCategoryDeleted,
+  } = props;
   return (
     <Container>
       {isOnTrain && <ComponentBlocker message="현재 학습중인 Dataset입니다." />}
@@ -47,7 +55,10 @@ export default function Information(props: InformationProps) {
           Description
         </Typography>
         <span className="content">{description}</span>
-        <CategoryPanel categories={categories} />
+        <CategoryPanel
+          handleCategoryDeleted={handleCategoryDeleted}
+          categories={categories}
+        />
       </ContentContainer>
     </Container>
   );

@@ -4,14 +4,31 @@ import { useState } from 'react';
 import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import CategoryTag from 'components/CategoryTag/CategoryTag';
 import { CategoryType } from 'routes/Dataset/Dataset';
+import axios from 'axios';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import DatasetModel from 'routes/Dataset/models/Dataset.model';
 
 interface CategoryPanelProps {
   categories: CategoryType[];
+  handleCategoryDeleted: () => void;
 }
 
 export default function CategoryPanel(props: CategoryPanelProps) {
-  const { categories } = props;
+  const { categories, handleCategoryDeleted } = props;
   const [addCategoryName, setAddCategoryName] = useState('');
+
+  const handleCategoryTagClick = async (categoryId: number) => {
+    try {
+      // await API Call
+      const response = await DatasetModel.deleteCategory(categoryId);
+      if (response.status !== 200) throw new Error('Failed to delete category');
+
+      handleCategoryDeleted();
+    } catch (error) {
+      // Axios Handler
+      axiosErrorHandler(error, `Failed to delete category: ${categoryId}`);
+    }
+  };
 
   return (
     <Container>
@@ -45,6 +62,7 @@ export default function CategoryPanel(props: CategoryPanelProps) {
             categoryName={category.name}
             categorycolor={category.color}
             textcolor={textcolor}
+            onClick={() => handleCategoryTagClick(category.categoryId)}
           />
         );
       })}

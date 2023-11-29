@@ -63,6 +63,12 @@ export default function Dataset() {
     }
   };
 
+  // @리팩토링: Datasets 페이지에서 category를 상태로 저장하지 않기 때문에
+  // category가 삭제되면 dataset을 다시 불러와야 함
+  const handleCategoryDeleted = () => {
+    getDataset(datasetId);
+  };
+
   async function deleteImage(imageId: number) {
     try {
       const response = await ImagesModel.deleteImage(imageId);
@@ -136,7 +142,11 @@ export default function Dataset() {
       />
       {dataset && (
         <Fragment>
-          <Information {...dataset} isOnTrain={isOnTrain} />
+          <Information
+            {...dataset}
+            handleCategoryDeleted={handleCategoryDeleted}
+            isOnTrain={isOnTrain}
+          />
           <Content>
             {!isImageListEmpty && (
               <PaginationPanel

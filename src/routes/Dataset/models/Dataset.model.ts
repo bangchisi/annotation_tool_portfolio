@@ -36,6 +36,14 @@ const DatasetModel = {
 
     return axios.get(url);
   },
+  deleteCategory: (categoryId: number) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/dataset/category/${categoryId}`
+        : `${SERVER_URL}/dataset/category/${categoryId}`;
+
+    return axios.delete(url);
+  },
 };
 
 export default DatasetModel;
