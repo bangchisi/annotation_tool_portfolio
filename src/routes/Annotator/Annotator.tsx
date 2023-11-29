@@ -22,6 +22,7 @@ import {
   setBrushRadius,
   setEraserRadius,
 } from 'routes/Auth/slices/authSlice';
+import { unstable_usePrompt } from 'react-router-dom';
 
 export enum Tool {
   Select,
@@ -93,6 +94,27 @@ export default function Annotator() {
       currentAnnotation.annotationId,
     );
   });
+
+  // 특정 브라우저에서 작동하지 않을 수 있음
+  unstable_usePrompt({
+    when: true,
+    message: '페이지를 벗어나면 작업한 내용이 저장되지 않습니다.',
+  });
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '페이지를 벗어나면 작업한 내용이 저장되지 않습니다.';
+
+      return true;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <Container>
