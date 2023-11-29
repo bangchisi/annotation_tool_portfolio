@@ -112,7 +112,6 @@ export default function SAMToolPanel() {
     everything(
       image.imageId,
       currentCategory.categoryId,
-      currentAnnotation.annotationId,
       calculatedTopLeft,
       calculatedBottomRight,
       // FIX: params need to be state, not hard-coded
@@ -129,7 +128,6 @@ export default function SAMToolPanel() {
   async function everything(
     imageId: number,
     categoryId: number,
-    annotationId: number,
     topLeft: paper.Point,
     bottomRight: paper.Point,
     params: {
@@ -147,7 +145,6 @@ export default function SAMToolPanel() {
       const response = await SAMModel.everything(
         imageId,
         categoryId,
-        annotationId,
         topLeft,
         bottomRight,
         params,
