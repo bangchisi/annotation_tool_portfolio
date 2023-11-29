@@ -89,17 +89,6 @@ export default function SAMToolPanel() {
       `(${topLeft.x}, ${topLeft.y}), (${bottomRight.x}, ${bottomRight.y})`,
     );
 
-    // draw SAM Region
-    if (tempRect) tempRect.remove();
-
-    tempRect = new paper.Path.Rectangle({
-      from: topLeft,
-      to: bottomRight,
-      strokeColor: new paper.Color('red'),
-      strokeWidth: 5,
-      guide: true,
-    });
-
     // prompt, everything api 요청
     const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
       topLeft,
@@ -123,6 +112,17 @@ export default function SAMToolPanel() {
       SAMModelLoaded,
       embeddingId,
     );
+
+    // draw SAM Region
+    if (tempRect) tempRect.remove();
+
+    tempRect = new paper.Path.Rectangle({
+      from: topLeft,
+      to: bottomRight,
+      strokeColor: new paper.Color('red'),
+      strokeWidth: 5,
+      guide: true,
+    });
   }
 
   async function everything(
@@ -232,6 +232,7 @@ export default function SAMToolPanel() {
         onClick={onEverything}
         variant="contained"
         color="primary"
+        disabled={!SAMModelLoaded || !embeddingId}
       >
         START EVERYTHING
       </EverythingButton>
