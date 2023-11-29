@@ -1,6 +1,7 @@
 import paper from 'paper';
 import { useEffect, useState } from 'react';
 import {
+  ButtonGroup,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -12,8 +13,8 @@ import {
   EverythingButton,
   ModelContainer,
   SelectModel,
-  SliderContainer,
-  SliderContent,
+  ParameterContainer,
+  ParameterContent,
 } from './SAMToolPanel.style';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
@@ -24,6 +25,10 @@ import { setSAMEverythingLoading } from 'routes/Annotator/slices/SAMSlice';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import useSAMTool from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import ParameterButtonGroup, {
+  ParameterType,
+} from './ParameterButtons/ParameterButtonGroup';
+import useSAMParameter from './hooks/useSAMParameter';
 
 let tempRect: paper.Path.Rectangle;
 
@@ -47,6 +52,15 @@ export default function SAMToolPanel() {
 
   const { loadSAM, loadFinetunedModel, getRegion, getConvertedCoordinate } =
     useSAMTool();
+
+  const {
+    predIOUThresh,
+    setPredIOUThresh,
+    boxNMSThresh,
+    setBoxNMSThresh,
+    pointsPerSide,
+    setPointsPerSide,
+  } = useSAMParameter();
 
   function onChangeModel(
     event: SelectChangeEvent<string> | SelectChangeEvent<number>,
@@ -99,11 +113,10 @@ export default function SAMToolPanel() {
       currentCategory.categoryId,
       calculatedTopLeft,
       calculatedBottomRight,
-      // FIX: params need to be state, not hard-coded
       {
-        predIOUThresh: 0.88,
-        boxNmsThresh: 0.7,
-        pointsPerSide: 16,
+        predIOUThresh,
+        boxNMSThresh,
+        pointsPerSide,
       },
       SAMModelLoaded,
       embeddingId,
@@ -128,7 +141,7 @@ export default function SAMToolPanel() {
     bottomRight: paper.Point,
     params: {
       predIOUThresh: number;
-      boxNmsThresh: number;
+      boxNMSThresh: number;
       pointsPerSide: number;
     },
     isSAMModelLoaded: boolean,
@@ -189,41 +202,32 @@ export default function SAMToolPanel() {
         </SelectModel>
       </ModelContainer>
       <Typography variant="subtitle2">EVERYTHING</Typography>
-      <SliderContainer>
-        <SliderContent>
+      <ParameterContainer>
+        <ParameterContent>
           <Typography variant="caption">pred_iou_thresh</Typography>
-          <Slider
-            defaultValue={0.88}
-            valueLabelDisplay="auto"
-            step={0.01}
-            marks
-            min={0.0}
-            max={1.0}
+          <ParameterButtonGroup
+            onClick={setPredIOUThresh}
+            currentParamValue={predIOUThresh}
+            paramType={ParameterType.predIOUThresh}
           />
-        </SliderContent>
-        <SliderContent>
+        </ParameterContent>
+        <ParameterContent>
           <Typography variant="caption">box_nms_thresh</Typography>
-          <Slider
-            defaultValue={0.7}
-            valueLabelDisplay="auto"
-            step={0.1}
-            marks
-            min={0.0}
-            max={1.0}
+          <ParameterButtonGroup
+            onClick={setBoxNMSThresh}
+            currentParamValue={boxNMSThresh}
+            paramType={ParameterType.boxNMSThresh}
           />
-        </SliderContent>
-        <SliderContent>
+        </ParameterContent>
+        <ParameterContent>
           <Typography variant="caption">points_per_side</Typography>
-          <Slider
-            defaultValue={16}
-            valueLabelDisplay="auto"
-            step={4}
-            marks
-            min={12}
-            max={40}
+          <ParameterButtonGroup
+            onClick={setPointsPerSide}
+            currentParamValue={pointsPerSide}
+            paramType={ParameterType.pointsPerSide}
           />
-        </SliderContent>
-      </SliderContainer>
+        </ParameterContent>
+      </ParameterContainer>
       <EverythingButton
         onClick={onEverything}
         variant="contained"

@@ -20,17 +20,20 @@ export const SelectModel = styled(Box)(() => {
   };
 });
 
-export const SliderContainer = styled(Box)(() => {
+export const ParameterContainer = styled(Box)(() => {
   return {
     display: 'flex',
     flexDirection: 'column',
+    width: '100%',
+    marginBottom: 15,
   };
 });
 
-export const SliderContent = styled(Box)(() => {
+export const ParameterContent = styled(Box)(() => {
   return {
     display: 'flex',
     flexDirection: 'column',
+    width: '100%',
   };
 });
 
