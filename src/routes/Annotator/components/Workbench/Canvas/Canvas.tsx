@@ -12,6 +12,7 @@ import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import {
   selectSAM,
   setSAMEmbeddingId,
+  setSAMEmbeddingLoaded,
   setSAMEmbeddingLoading,
   setSAMModelLoaded,
   setSAMModelLoading,
@@ -71,12 +72,22 @@ export default function Canvas(props: CanvasProps) {
   }
 
   async function embedImage(imageId: number) {
-    // embed image, 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
     if (!image) return;
+    if (image.width >= 4096 || image.height >= 4096) {
+      dispatch(setSAMEmbeddingId(null));
+      dispatch(setSAMEmbeddingLoaded(false));
+      alert(
+        '이미지의 크기가 너무 큽니다. 4096 * 4096 이하의 이미지를 사용해주세요.',
+      );
+      return;
+    }
 
     dispatch(setSAMEmbeddingLoading(true));
 
     try {
+      // 이건 첫 embed 생성이다.
+      // (0, 0)과 (image.width, image.height)를 보내는 이유는
+      // embed image가 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
       const response = await SAMModel.embedImage(
         imageId,
         new paper.Point(0, 0),
