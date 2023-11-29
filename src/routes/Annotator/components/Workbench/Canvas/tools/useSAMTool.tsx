@@ -12,6 +12,7 @@ import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
   setSAMClickLoading,
   setSAMEmbeddingId,
+  setSAMEmbeddingLoaded,
   setSAMEmbeddingLoading,
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
@@ -45,17 +46,6 @@ const useSAMTool = () => {
 
     const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
 
-    // draw SAM Region
-    if (tempRect) tempRect.remove();
-
-    tempRect = new paper.Path.Rectangle({
-      from: topLeft,
-      to: bottomRight,
-      strokeColor: new paper.Color('red'),
-      strokeWidth: 5,
-      guide: true,
-    });
-
     const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
       topLeft,
       bottomRight,
@@ -82,9 +72,25 @@ const useSAMTool = () => {
     labels.current = [...labels.current, clickMode];
     coords.current = [...coords.current, [clickedX, clickedY]];
 
-    embedImage(image, calculatedTopLeft, calculatedBottomRight).then(() => {
-      click(image.imageId, calculatedTopLeft, calculatedBottomRight, [x, y]);
-    });
+    embedImage(image, calculatedTopLeft, calculatedBottomRight).then(
+      (result) => {
+        console.log('before result');
+        if (result instanceof Error) return;
+        console.log('after result');
+        click(image.imageId, calculatedTopLeft, calculatedBottomRight, [x, y]);
+
+        // draw SAM Region
+        if (tempRect) tempRect.remove();
+
+        tempRect = new paper.Path.Rectangle({
+          from: topLeft,
+          to: bottomRight,
+          strokeColor: new paper.Color('red'),
+          strokeWidth: 5,
+          guide: true,
+        });
+      },
+    );
   };
 
   const onMouseUp = (event: paper.MouseEvent) => {
@@ -221,17 +227,20 @@ const useSAMTool = () => {
     bottomRight: paper.Point,
   ) {
     if (!image) return;
+    dispatch(setSAMEmbeddingId(null));
+    dispatch(setSAMEmbeddingLoaded(false));
+    if (image.width >= 4096 || image.height >= 4096) {
+      alert(
+        '이미지의 크기가 너무 큽니다. 4096 * 4096 이하의 이미지를 사용해주세요.',
+      );
+      return new Error('Image size is too big');
+    }
+
     const imageId = image.imageId;
     // embed image, 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
     dispatch(setSAMEmbeddingLoading(true));
     try {
-      const response = await SAMModel.embedImage(
-        imageId,
-        topLeft,
-        bottomRight,
-        // new paper.Point(0, 0),
-        // new paper.Point(image.width, image.height),
-      );
+      const response = await SAMModel.embedImage(imageId, topLeft, bottomRight);
       if (response.status !== 200)
         throw new Error('Failed to get image embedding');
       dispatch(setSAMEmbeddingId(imageId));
