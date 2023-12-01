@@ -4,12 +4,12 @@ networks:
     external: false
 
 services:
-  frontend:
+  development:
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: annotator-frontend-client-dev
+    container_name: annotator-frontend-client-development
     ports:
-      - "60143:60143"
+      - "60142:60142"
     networks:
       - annotatorweb

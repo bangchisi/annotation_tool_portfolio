@@ -1,0 +1,15 @@
+version: "3"
+networks:
+  annotatorweb:
+
+
+services:
+  production:
+    build:
+      context: .
+      dockerfile: ./for_production/Dockerfile
+    container_name: annotator-frontend-client-production
+    ports:
+      - "60143:60143"
+    networks:
+      - annotatorweb
