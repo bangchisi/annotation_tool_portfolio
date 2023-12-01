@@ -207,6 +207,16 @@ export default function Canvas(props: CanvasProps) {
     }
   }, [selectedTool]);
 
+  // remove eraser cursor and brush cursor on tool change
+  useEffect(() => {
+    if (selectedTool !== Tool.Brush) {
+      if (brushCursor) brushCursor.remove();
+    }
+    if (selectedTool !== Tool.Eraser) {
+      if (eraserCursor) eraserCursor.remove();
+    }
+  }, [selectedTool]);
+
   // selectedTool 변경 시 clickRect, everythingRect 삭제
   useEffect(() => {
     if (!clickRect) return;
