@@ -74,8 +74,14 @@ export default function Dataset() {
   };
 
   async function deleteImage(imageId: number) {
+    const confirmDelete = confirm('정말로 삭제하시겠습니까?');
+    if (!confirmDelete) return;
     try {
       const response = await ImagesModel.deleteImage(imageId);
+
+      if (response.status !== 200) {
+        throw new Error('Failed to delete image');
+      }
 
       getDataset(datasetId);
     } catch (error) {
