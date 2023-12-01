@@ -171,11 +171,11 @@ function getIsCrowd(compound: paper.CompoundPath) {
 
 // get bbox
 function getBbox(compound: paper.CompoundPath, annotationId: number) {
+  // FIX: compound가 이전 상태를 가리킴. 현재 상태로 바꿔야함
   const group =
-    compound.children.slice(1).filter((child) => {
-      annotationId === child.data.annotationId;
-    }) || [];
-  // const group = new paper.Group([...compound.children]);
+    compound.children
+      .slice(1)
+      .filter((child) => annotationId === child.data.annotationId) || [];
   const bbox = new paper.Path.Rectangle(group);
 
   return [
