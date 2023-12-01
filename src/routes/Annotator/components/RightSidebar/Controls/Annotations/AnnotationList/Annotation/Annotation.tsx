@@ -1,14 +1,14 @@
 import { Typography } from '@mui/material';
+import { useAppSelector } from 'App.hooks';
+import { useMemo } from 'react';
+import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
+import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import {
+  AnnotationColorTag,
   Container,
   DeleteButton,
   SelectPanel,
-  AnnotationColorTag,
 } from './Annotation.style';
-import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
-import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
-import { useAppSelector } from 'App.hooks';
-import { useMemo } from 'react';
 
 interface AnnotationProps {
   categoryId: number;
@@ -24,21 +24,32 @@ export function Annotation({
   onClick,
 }: AnnotationProps) {
   const { onClickDeleteButton } = useManageAnnotation();
-  const { categories } = useAppSelector(selectAnnotator);
+  const { categories, currentAnnotation } = useAppSelector(selectAnnotator);
   const categoriesList = useMemo(() => {
     return (
       Object.values(categories || {}).map((category) => category.name) || []
     );
   }, [categories]);
 
+  const currentAnnotationId = useMemo(
+    () => currentAnnotation?.annotationId,
+    [currentAnnotation],
+  );
+
   return (
     <Container
       annotationcolor={annotationcolor}
+      annotationid={annotationId}
+      currentannotationid={currentAnnotationId}
       onClick={() => onClick(categoryId, annotationId)}
     >
-      <AnnotationColorTag annotationcolor={annotationcolor} />
+      <AnnotationColorTag
+        annotationcolor={annotationcolor}
+        annotationid={annotationId}
+        currentannotationid={currentAnnotationId}
+      />
       <Typography variant="button" display="inline">
-        (id: {annotationId})
+        {annotationId}
       </Typography>
       <SelectPanel>
         {categoriesList.length > 0 &&
