@@ -69,6 +69,10 @@ export default function Dataset() {
     getDataset(datasetId);
   };
 
+  const handleCategoryAdded = () => {
+    getDataset(datasetId);
+  };
+
   async function deleteImage(imageId: number) {
     try {
       const response = await ImagesModel.deleteImage(imageId);
@@ -145,6 +149,7 @@ export default function Dataset() {
           <Information
             {...dataset}
             handleCategoryDeleted={handleCategoryDeleted}
+            handleCategoryAdded={handleCategoryAdded}
             isOnTrain={isOnTrain}
           />
           <Content>

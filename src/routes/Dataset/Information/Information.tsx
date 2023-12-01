@@ -13,6 +13,7 @@ import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 interface InformationProps extends DatasetType {
   isOnTrain: boolean;
   handleCategoryDeleted: () => void;
+  handleCategoryAdded: () => void;
 }
 
 export default function Information(props: InformationProps) {
@@ -23,6 +24,7 @@ export default function Information(props: InformationProps) {
     categories,
     isOnTrain,
     handleCategoryDeleted,
+    handleCategoryAdded,
   } = props;
   return (
     <Container>
@@ -56,6 +58,7 @@ export default function Information(props: InformationProps) {
         </Typography>
         <span className="content">{description}</span>
         <CategoryPanel
+          handleCategoryAdded={handleCategoryAdded}
           handleCategoryDeleted={handleCategoryDeleted}
           categories={categories}
         />
