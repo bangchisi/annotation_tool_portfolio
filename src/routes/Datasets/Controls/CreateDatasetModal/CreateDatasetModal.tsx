@@ -43,6 +43,11 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
 
   const addCategory = (categoryName: string): void => {
     if (!categoryName) return;
+    if (categories.find((category) => category[0] === categoryName)) {
+      alert('이미 존재하는 카테고리입니다.');
+      setAddCategoryName('');
+      return;
+    }
     const color = getRandomHexColor();
     const newCategory = [categoryName, color];
     setCategories((prevCategories) => [...prevCategories, newCategory]);
