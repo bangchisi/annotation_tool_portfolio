@@ -16,7 +16,7 @@ const CursorTypes = {
   [Tool.Select]: 'pointer',
   [Tool.Box]: 'crosshair',
   [Tool.Brush]: 'none',
-  [Tool.Eraser]: 'default',
+  [Tool.Eraser]: 'none',
   [Tool.SAM]: 'crosshair',
 };
 
