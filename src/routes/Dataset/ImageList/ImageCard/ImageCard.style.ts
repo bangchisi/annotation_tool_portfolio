@@ -9,7 +9,7 @@ export const Container = styled('div')(() => {
     backgroundColor: 'rgba(255, 255, 255, 1)',
     padding: 5,
     width: '200px',
-    height: '275px',
+    height: 'auto', // made this '275px' to 'auto'
     border: '2px solid rgba(0, 0, 0, 0.3)',
     boxShadow: 'rgba(136, 146, 157, 0.15) 0px 3px 6px 0px',
     borderRadius: '6px',

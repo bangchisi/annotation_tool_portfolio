@@ -5,6 +5,13 @@ const DEV_URL = `http://${process.env.REACT_APP_DEV_IP}:${process.env.REACT_APP_
 const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 
 const ImagesModel = {
+  getImageInfo: (imageId: number) => {
+    const base = process.env.NODE_ENV === 'development' ? DEV_URL : SERVER_URL;
+    const api = '/image/info/' + imageId;
+    const url = base + api;
+
+    return axios.get(url);
+  },
   getThumbnail: (datasetId: number, length: number) => {
     const url =
       process.env.NODE_ENV === 'development'
