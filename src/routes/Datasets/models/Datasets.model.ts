@@ -28,6 +28,7 @@ const DatasetsModel = {
       dataset_name: datasetName,
       categories,
       description,
+      superdataset_name: 'test',
     });
   },
   deleteDataset: (datasetId: number) => {
