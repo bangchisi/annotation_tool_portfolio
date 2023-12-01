@@ -19,14 +19,13 @@
     "@types/jest": "^27.5.2",
     "@types/lodash": "^4.14.201",
     "@types/node": "^16.18.48",
-    "@types/react": "^18.2.21",
+    "@types/react": "^18.2.39",
     "@types/react-dom": "^18.2.7",
     "@types/react-router-dom": "^5.3.3",
     "@types/redux-persist": "^4.3.1",
     "axios": "^1.5.0",
     "gridjs": "^6.0.6",
     "gridjs-react": "^6.0.1",
-    "lodash": "^4.17.21",
     "onnxruntime-node": "^1.15.1",
     "onnxruntime-web": "^1.15.1",
     "paper": "^0.12.17",
@@ -72,5 +71,10 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^3.0.3"
-  }
+  },
+  "include": [
+    "src/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
 }

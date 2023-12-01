@@ -9,6 +9,14 @@ import FinetuneModel from 'models/Finetune.model';
 import TrainStartModal from './TrainStartModal/TrainStartModal';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
+import DriveFolderUploadOutlinedIcon from '@mui/icons-material/DriveFolderUploadOutlined';
+
+declare module 'react' {
+  interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
+    directory?: string;
+    webkitdirectory?: string;
+  }
+}
 
 interface ControlsProps {
   setDeviceStatus: () => Promise<void>;
@@ -34,22 +42,32 @@ export default function Controls(props: ControlsProps) {
 
     try {
       setIsLoading(true);
-      const response = await ImagesModel.uploadImages(datasetId, images);
+      await ImagesModel.uploadImages(datasetId, images);
     } catch (error) {
       axiosErrorHandler('error', 'Failed to upload images');
     } finally {
       setIsLoading(false);
+      window.location.reload();
     }
   };
 
-  const onFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onFilesChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    isFolder?: boolean,
+  ) => {
     const files = event.target.files;
     if (!files) return;
 
     if (files.length <= 0) return;
 
     for (let idx = 0; idx < files.length; idx++) {
+      if (isFolder && !files[idx].name.match(/mip\.(jpg|png|tiff)$/i)) continue;
       formData.append('images', files[idx]);
+    }
+
+    if (!formData.getAll('images').length) {
+      alert('해당 폴더에 MIP 파일이 없습니다.');
+      return;
     }
 
     uploadImages(Number(datasetId), formData);
@@ -64,12 +82,7 @@ export default function Controls(props: ControlsProps) {
     if (!isEnoughSamples(datasetId)) return;
 
     try {
-      const response = await FinetuneModel.start(
-        datasetId,
-        deviceId,
-        modelType,
-        finetuneName,
-      );
+      await FinetuneModel.start(datasetId, deviceId, modelType, finetuneName);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to start train');
     } finally {
@@ -110,10 +123,30 @@ export default function Controls(props: ControlsProps) {
         <label htmlFor=""></label>
         <input
           style={{ display: 'none' }}
+          id="folderInput"
+          ref={filesInput}
+          name="images"
+          type="file"
+          accept="image/*"
+          onChange={(event) => onFilesChange(event, true)}
+          webkitdirectory=""
+        />
+        <FilesLabel htmlFor="folderInput" sx={{ marginRight: '20px' }}>
+          <div>
+            <DriveFolderUploadOutlinedIcon fontSize="medium" />
+            <span>폴더 업로드</span>
+          </div>
+        </FilesLabel>
+      </form>
+      <form>
+        <label htmlFor=""></label>
+        <input
+          style={{ display: 'none' }}
           id="filesInput"
           ref={filesInput}
           name="images"
           type="file"
+          accept="image/*"
           multiple
           onChange={onFilesChange}
         />
