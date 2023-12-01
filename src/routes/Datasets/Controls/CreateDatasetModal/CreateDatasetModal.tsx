@@ -49,6 +49,12 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
     setAddCategoryName('');
   };
 
+  const deleteCategory = (categoryName: string): void => {
+    setCategories((prevCategories) =>
+      prevCategories.filter((category) => category[0] !== categoryName),
+    );
+  };
+
   const createDataset = async (
     userId: string,
     datasetName: string,
@@ -182,6 +188,7 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
                         categoryName={category[0]}
                         categorycolor={category[1]}
                         textcolor={textcolor}
+                        onClick={() => deleteCategory(category[0])}
                       />
                     );
                   })}
