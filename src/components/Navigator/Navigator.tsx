@@ -42,7 +42,7 @@ export default function Navigator(props: NavigatorProps) {
       <div className="nav-container">
         <NavLink to="/datasets" className="nav-link">
           <Typography sx={{ marginRight: '20px' }} variant="h6">
-            Annotator
+            Annotator{process.env.NODE_ENV === 'development' && ' (dev)'}
           </Typography>
         </NavLink>
         <div className="navbar-menu-container">
