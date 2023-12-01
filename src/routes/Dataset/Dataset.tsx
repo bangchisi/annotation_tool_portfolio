@@ -149,6 +149,7 @@ export default function Dataset() {
         setDeviceStatus={setDeviceStatus}
         availableDevices={availableDevices}
         isOnTrain={isOnTrain}
+        setIsOnTrain={setIsOnTrain}
       />
       {dataset && (
         <Fragment>

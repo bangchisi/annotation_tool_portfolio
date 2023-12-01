@@ -20,12 +20,13 @@ declare module 'react' {
 
 interface ControlsProps {
   setDeviceStatus: () => Promise<void>;
-  availableDevices?: { [key: number]: boolean };
   isOnTrain: boolean;
+  setIsOnTrain: React.Dispatch<React.SetStateAction<boolean>>;
+  availableDevices?: { [key: number]: boolean };
 }
 
 export default function Controls(props: ControlsProps) {
-  const { setDeviceStatus, availableDevices, isOnTrain } = props;
+  const { setDeviceStatus, availableDevices, isOnTrain, setIsOnTrain } = props;
   const datasetId = Number(useParams().datasetId);
   const [isLoading, setIsLoading] = useState(false);
   const filesInput = useRef<HTMLInputElement>(null);
@@ -82,7 +83,18 @@ export default function Controls(props: ControlsProps) {
     if (!isEnoughSamples(datasetId)) return;
 
     try {
-      await FinetuneModel.start(datasetId, deviceId, modelType, finetuneName);
+      const response = await FinetuneModel.start(
+        datasetId,
+        deviceId,
+        modelType,
+        finetuneName,
+      );
+
+      if (response.status !== 200) {
+        throw new Error('Failed to start train');
+      }
+
+      setIsOnTrain(true);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to start train');
     } finally {
