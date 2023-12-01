@@ -18,6 +18,7 @@ const DatasetsModel = {
     datasetName: string,
     categories: string[][],
     description: string,
+    superdatasetName: string,
   ) => {
     const url =
       process.env.NODE_ENV === 'development'
@@ -28,7 +29,7 @@ const DatasetsModel = {
       dataset_name: datasetName,
       categories,
       description,
-      superdataset_name: 'test',
+      superdataset_name: superdatasetName,
     });
   },
   deleteDataset: (datasetId: number) => {

@@ -34,6 +34,7 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
   const [addCategoryName, setAddCategoryName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [categories, setCategories] = useState<string[][]>([]);
+  const [superDatasetName, setSuperDatasetName] = useState<string>('');
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     resetForm();
@@ -55,11 +56,12 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
     description: string,
   ) => {
     try {
-      const response = await DatasetsModel.createDataset(
+      await DatasetsModel.createDataset(
         userId,
         datasetName,
         categories,
         description,
+        superDatasetName,
       );
 
       handleClose();
@@ -72,6 +74,7 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
   };
 
   const resetForm = () => {
+    setSuperDatasetName('');
     setDatasetName('');
     setAddCategoryName('');
     setDescription('');
@@ -115,6 +118,16 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
               </ModalHeader>
               <ModalContent>
                 <InputField
+                  label="Super Dataset Name"
+                  variant="outlined"
+                  size="small"
+                  value={superDatasetName}
+                  onChange={(e) => {
+                    setSuperDatasetName(e.target.value);
+                  }}
+                  required
+                />
+                <InputField
                   label="Dataset Name"
                   variant="outlined"
                   size="small"
@@ -136,7 +149,7 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
                 />
                 <InputField
                   variant="outlined"
-                  value={`/datasets/${datasetName}`}
+                  value={`/datasets/${superDatasetName}/${datasetName}`}
                   disabled
                   size="small"
                 />
