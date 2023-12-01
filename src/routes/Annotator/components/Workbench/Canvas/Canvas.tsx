@@ -30,6 +30,9 @@ interface CanvasProps {
   height?: number;
 }
 
+import { tempRect as clickRect } from './tools/useSAMTool';
+import { tempRect as everythingRect } from '../../RightSidebar/Preferences/SAMToolPanel/SAMToolPanel';
+
 // TODO: paper init to another file?
 export default function Canvas(props: CanvasProps) {
   const { width, height } = props;
@@ -203,6 +206,17 @@ export default function Canvas(props: CanvasProps) {
       });
     }
   }, [selectedTool]);
+
+  // selectedTool 변경 시 clickRect, everythingRect 삭제
+  useEffect(() => {
+    if (!clickRect) return;
+    clickRect.remove();
+  }, [selectedTool, currentAnnotation]);
+
+  useEffect(() => {
+    if (!everythingRect) return;
+    everythingRect.remove();
+  }, [selectedTool, currentAnnotation]);
 
   return (
     <Fragment>

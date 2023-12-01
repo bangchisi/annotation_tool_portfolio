@@ -30,7 +30,7 @@ import ParameterButtonGroup, {
 } from './ParameterButtons/ParameterButtonGroup';
 import useSAMParameter from './hooks/useSAMParameter';
 
-let tempRect: paper.Path.Rectangle;
+export let tempRect: paper.Path.Rectangle;
 
 export default function SAMToolPanel() {
   const userId = useAppSelector((state) => state.auth.user.userId);

@@ -17,7 +17,7 @@ import {
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
 
-let tempRect: paper.Path.Rectangle;
+export let tempRect: paper.Path.Rectangle;
 
 const useSAMTool = () => {
   const coords = useRef<[number, number][]>([]);
