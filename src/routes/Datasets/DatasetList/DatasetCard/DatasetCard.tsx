@@ -59,8 +59,17 @@ export default function DatasetCard(props: DatasetCardProps) {
   const [imgPath, setImgPath] = useState('');
 
   const deleteDataset = async (userId: string, datasetId: number) => {
+    const confirmDelete = confirm('Dataset을 삭제하시겠습니까?');
+    if (!confirmDelete) return;
+
     try {
-      await DatasetsModel.deleteDataset(datasetId);
+      const response = await DatasetsModel.deleteDataset(datasetId);
+
+      if (response.status !== 200) {
+        alert('Failed to delete dataset.');
+        return;
+      }
+
       setDatasetList(userId);
     } catch (error) {
       axiosErrorHandler(error, `Failed to delete dataset (id: ${datasetId})`);
