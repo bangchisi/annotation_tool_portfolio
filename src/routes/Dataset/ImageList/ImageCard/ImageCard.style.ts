@@ -1,4 +1,5 @@
 import { styled } from '@mui/material';
+import { NavLink } from 'react-router-dom';
 
 export const Container = styled('div')(() => {
   return {
@@ -25,6 +26,13 @@ export const Container = styled('div')(() => {
   };
 });
 
+// <NavLink> to <ImageLink>
+export const ImageLink = styled(NavLink)(() => {
+  return {
+    width: '100%',
+  };
+});
+
 export const ImageContainer = styled('div')(() => {
   return {
     display: 'flex',
@@ -47,5 +55,25 @@ export const TitleContainer = styled('div')(() => {
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: '4px',
+  };
+});
+
+// <span> to <Title>
+export const Title = styled('span')(() => {
+  return {
+    width: '100%',
+    height: 'auto',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    textAlign: 'center',
+    fontSize: '14px',
+    fontWeight: 500,
+    '&:hover': {
+      width: '100%',
+      overflow: 'visible',
+      whiteSpace: 'normal',
+      wordWrap: 'break-word',
+    },
   };
 });

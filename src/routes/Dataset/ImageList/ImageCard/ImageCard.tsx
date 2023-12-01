@@ -1,9 +1,13 @@
 import { getImagePath } from 'helpers/ImagesHelpers';
-import { Container, ImageContainer, TitleContainer } from './ImageCard.style';
-import { NavLink } from 'react-router-dom';
+import {
+  Container,
+  ImageContainer,
+  ImageLink,
+  Title,
+  TitleContainer,
+} from './ImageCard.style';
 import { Button } from '@mui/material';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ImagesModel from 'models/Images.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
@@ -54,20 +58,20 @@ export default function ImageCard(props: ImageCardProps) {
   return (
     <Container>
       {isOnTrain && <ComponentBlocker message="현재 학습중인 이미지입니다." />}
-      <NavLink to={link}>
+      <ImageLink to={link}>
         <ImageContainer>
           <img src={imagePath} />
         </ImageContainer>
         <TitleContainer>
-          <span>
+          <Title>
             {imageInfo === undefined
               ? // 초기 이미지 제목은 빈 문자열로 설정
                 ''
               : // 이미지 정보 가져오기 이후 있으면 이미지 이름을 표시
                 imageInfo?.filename || 'No Image Name'}
-          </span>
+          </Title>
         </TitleContainer>
-      </NavLink>
+      </ImageLink>
       <Button
         onClick={() => deleteImage(imageId)}
         disableFocusRipple={true}
