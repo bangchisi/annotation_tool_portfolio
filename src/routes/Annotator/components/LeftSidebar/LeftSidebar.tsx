@@ -77,27 +77,27 @@ export default function LeftSidebar() {
       >
         <List>
           <ToolIcon
-            toolName="Select"
+            toolName="Select (S)"
             toolId={Tool.Select}
             iconComponent={<BackHandOutlinedIcon />}
           />
           <ToolIcon
-            toolName="Box"
+            toolName="Box (R)"
             toolId={Tool.Box}
             iconComponent={<RectangleOutlinedIcon />}
           />
           <ToolIcon
-            toolName="Brush"
+            toolName="Brush (B)"
             toolId={Tool.Brush}
             iconComponent={<BrushOutlinedIcon />}
           />
           <ToolIcon
-            toolName="Eraser"
+            toolName="Eraser (E)"
             toolId={Tool.Eraser}
             iconComponent={<AutoFixOffOutlinedIcon />}
           />
           <ToolIcon
-            toolName="SAM"
+            toolName="SAM (F)"
             toolId={Tool.SAM}
             iconComponent={<FacebookOutlinedIcon />}
           />

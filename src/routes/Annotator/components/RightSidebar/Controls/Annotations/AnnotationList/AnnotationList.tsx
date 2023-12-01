@@ -95,7 +95,7 @@ export default function AnnotationList() {
       {isLoading && <LoadingSpinner message="annotation 목록 갱신 중입니다." />}
       <ButtonsContainer>
         <AddButton
-          functionName="Add Annotation"
+          functionName="Add Annotation (Spacebar)"
           iconComponent={<AddCircleOutlineOutlinedIcon />}
           handleClick={createEmptyAnnotation}
           placement="left"
