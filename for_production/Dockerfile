@@ -27,7 +27,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /app/build /usr/share/nginx/html
 
 # 포트 80으로 노출
-EXPOSE 60143
+EXPOSE 60144
 
 # Nginx 시작
 CMD ["nginx", "-g", "daemon off;"]

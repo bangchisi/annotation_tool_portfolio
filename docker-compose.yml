@@ -9,6 +9,6 @@ services:
       context: .
       dockerfile: ./for_production/Dockerfile
     ports:
-      - "60143:60143"
+      - "60144:60144"
     networks:
       - annotatorweb

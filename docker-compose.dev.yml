@@ -1,6 +1,6 @@
 version: "3"
 networks:
-  annotatorweb:
+  annotatorweb-dev:
     external: false
 
 services:
@@ -9,6 +9,6 @@ services:
       context: .
       dockerfile: ./Dockerfile
     ports:
-      - "60142:60142"
+      - "60143:60143"
     networks:
-      - annotatorweb
+      - annotatorweb-dev
