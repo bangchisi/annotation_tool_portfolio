@@ -11,22 +11,26 @@ export const Container = styled('div')(() => {
   };
 });
 
-export const CreateButton = styled(Button)(() => {
-  return {
-    borderRadius: '3px',
-    height: '40px',
-    transition: 'all 0.25s ease-in-out',
-    color: 'white',
-    backgroundColor: '#005AF0',
-    fontSize: '12px',
-    padding: '4px 10px',
-    '&:hover': {
-      backgroundColor: '#0045B9 !important',
-      boxShadow:
-        '0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)',
-    },
-  };
-});
+export const CreateButton = styled(Button)`
+  border-radius: 3px;
+  transition: all 0.25s ease-in-out;
+  color: white;
+  background-color: #005af0;
+  font-size: 12px;
+  line-height: 1rem;
+  width: 125px;
+  height: 40px;
+  padding: 2px;
+  animation: none;
+
+  &:hover {
+    background-color: #0045b9;
+    box-shadow:
+      0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+      0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+      0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+  }
+`;
 
 export const ModalShadowContainer = styled('div')(() => {
   return {

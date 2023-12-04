@@ -1,19 +1,18 @@
+import { useAppDispatch, useAppSelector } from 'App.hooks';
+import PaginationPanel from 'components/PaginationPanel/PaginationPanel';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import FinetuneModel from 'models/Finetune.model';
+import ImagesModel from 'models/Images.model';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Tool } from 'routes/Annotator/Annotator';
+import { setTool } from 'routes/Annotator/slices/annotatorSlice';
+import Controls from './Controls/Controls';
 import { Container, Content } from './Dataset.style';
 import ImageList from './ImageList/ImageList';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import DatasetModel from './models/Dataset.model';
-import { Fragment, useEffect, useState, useMemo } from 'react';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import Information from './Information/Information';
-import Controls from './Controls/Controls';
-import PaginationPanel from 'components/PaginationPanel/PaginationPanel';
-import ImagesModel from 'models/Images.model';
-import { useAppDispatch, useAppSelector } from 'App.hooks';
-import { setTool } from 'routes/Annotator/slices/annotatorSlice';
-import { Tool } from 'routes/Annotator/Annotator';
-import FinetuneModel from 'models/Finetune.model';
 import { getIsOnTrain } from './helpers/DatasetHelpers';
+import DatasetModel from './models/Dataset.model';
 
 export interface DatasetType {
   datasetId: number;
@@ -139,7 +138,7 @@ export default function Dataset() {
     } else {
       return false;
     }
-  }, [dataset, currentPage, dataset?.imageIds]);
+  }, [dataset, currentPage]);
 
   // TODO: descripttion에서 category 편집 가능하게
 
@@ -181,9 +180,6 @@ export default function Dataset() {
             )}
           </Content>
         </Fragment>
-      )}
-      {isLoading && (
-        <LoadingSpinner message="Dataset 정보를 불러오는 중입니다. 잠시만 기다려주세요." />
       )}
     </Container>
   );

@@ -1,4 +1,5 @@
-import { Box, Select, TextField, styled } from '@mui/material';
+import { Box, Select, TextField, keyframes, styled } from '@mui/material';
+import { CreateButton } from '../../../../routes/Datasets/Controls/CreateDatasetModal/CreateDatasetModal.style';
 
 // interface CategoryTagProps {
 //   categorycolor: string;
@@ -94,3 +95,43 @@ export const FieldContainer = styled(Box)(() => {
     },
   };
 });
+
+const borderDance = keyframes`
+  0% {
+    background-position:
+      left top,
+      right bottom,
+      left bottom,
+      right top;
+  }
+  100% {
+    background-position:
+      left 13px top,
+      right 13px bottom,
+      left bottom 13px,
+      right top 13px;
+  }
+`;
+
+export const TrainModelButton = styled(CreateButton)`
+  &:hover {
+    background-color: #005af0;
+    background-image: linear-gradient(90deg, #005af0 50%, white 50%),
+      linear-gradient(90deg, #005af0 50%, white 50%),
+      linear-gradient(0deg, #005af0 50%, white 50%),
+      linear-gradient(0deg, #005af0 50%, white 50%);
+    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+    background-size:
+      13px 2px,
+      13px 2px,
+      2px 13px,
+      2px 13px;
+    background-position:
+      left top,
+      left bottom,
+      right bottom,
+      right top;
+    animation: ${borderDance} 0.275s infinite linear;
+    box-shadow: none;
+  }
+`;

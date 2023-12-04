@@ -1,26 +1,29 @@
-import { useEffect, useState, useCallback } from 'react';
-import {
-  Container,
-  TitleContainer,
-  ImageContainer,
-  StatusContainer,
-  CategoriesContainer,
-  MenuButtonContainer,
-  ProgressContainer,
-  TitleStatusContainer,
-  CategoriesPadding,
-} from './DatasetCard.style';
-import { getThumbnailPath } from 'helpers/ImagesHelpers';
 import { LinearProgress, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
-import { Link } from 'react-router-dom';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import DatasetsModel from '../../models/Datasets.model';
-import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import CategoryTag from 'components/CategoryTag/CategoryTag';
+import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { getDifferenceDate } from 'helpers/DateHelpers';
+import { getThumbnailPath } from 'helpers/ImagesHelpers';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import DatasetsModel from '../../models/Datasets.model';
+import {
+  CategoriesContainer,
+  CategoriesPadding,
+  Container,
+  CreatedAt,
+  ImageContainer,
+  MenuButtonContainer,
+  MetaDataBody,
+  MetaDataTitle,
+  ProgressContainer,
+  StatusContainer,
+  TitleContainer,
+  TitleStatusContainer,
+  UpdatedAt,
+} from './DatasetCard.style';
 import DatasetMenu from './DatasetMenu/DatasetMenu';
-import axios from 'axios';
 
 interface DatasetCardProps {
   datasetId: number; // Dataset 고유 ID
@@ -56,7 +59,6 @@ export default function DatasetCard(props: DatasetCardProps) {
     setExportId,
     setOpen,
   } = props;
-  const [imgPath, setImgPath] = useState('');
 
   const deleteDataset = async (userId: string, datasetId: number) => {
     const confirmDelete = confirm('Dataset을 삭제하시겠습니까?');
@@ -76,25 +78,12 @@ export default function DatasetCard(props: DatasetCardProps) {
     }
   };
 
+  const [imgPath, setImgPath] = useState('');
   useEffect(() => {
     getThumbnailPath(datasetId, 100).then((response) => {
       if (!response) return;
       setImgPath(response);
     });
-  }, []);
-
-  const handleDeleteCategory = useCallback(async (categoryId: number) => {
-    try {
-      const DEV_URL = `http://${process.env.REACT_APP_DEV_IP}:${process.env.REACT_APP_DEV_PORT}`;
-      const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
-      const url =
-        process.env.NODE_ENV === 'development'
-          ? `${DEV_URL}/dataset/category/${categoryId}`
-          : `${SERVER_URL}/dataset/category/${categoryId}`;
-      await axios.delete(url);
-    } catch (error) {
-      axiosErrorHandler(error, `Failed to delete category (id: ${categoryId})`);
-    }
   }, []);
 
   return (
@@ -109,32 +98,38 @@ export default function DatasetCard(props: DatasetCardProps) {
       </ImageContainer>
       <TitleStatusContainer>
         <TitleContainer className="meta-data">
-          <div className="meta-data-title">
+          <MetaDataTitle>
             <Link
               to={'/dataset/' + datasetId}
               style={{ textDecoration: 'none', color: 'black' }}
             >
-              <Typography variant="h5" className="title">
+              <Typography
+                variant="h5"
+                className="title"
+                sx={{
+                  color: '#0e1116',
+                }}
+              >
                 {datasetName}
               </Typography>
             </Link>
-          </div>
-          <div className="meta-data-body">
-            <div>
+          </MetaDataTitle>
+          <MetaDataBody>
+            <CreatedAt>
               created by{' '}
               <Typography variant="subtitle2" display="inline">
                 {user.userName}
               </Typography>
-            </div>
-            <div>
+            </CreatedAt>
+            <UpdatedAt>
               <pre>update: </pre>
               <Typography variant="subtitle2" display="inline" color="gray">
                 {getDifferenceDate(lastUpdate)}
               </Typography>
-            </div>
-          </div>
+            </UpdatedAt>
+          </MetaDataBody>
         </TitleContainer>
-        <StatusContainer className="meta-data-status">
+        <StatusContainer>
           <CategoriesContainer className="meta-data-categories">
             {categories.map((category) => {
               const textcolor = getTextColor(category.color);

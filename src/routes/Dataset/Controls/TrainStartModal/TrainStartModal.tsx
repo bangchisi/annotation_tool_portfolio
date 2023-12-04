@@ -1,18 +1,18 @@
+import { Button, MenuItem, Modal, TextField, Typography } from '@mui/material';
 import { Fragment, useState } from 'react';
 import {
-  ModalBody,
   Container,
-  ModalHeader,
+  FieldContainer,
+  ModalBody,
   ModalContent,
   ModalFooter,
-  TrainContainer,
-  SelectField,
+  ModalHeader,
   ModalShadow,
   ModalShadowContainer,
-  FieldContainer,
+  SelectField,
+  TrainContainer,
+  TrainModelButton,
 } from './TrainStartModal.style';
-import { CreateButton } from '../../../../routes/Datasets/Controls/CreateDatasetModal/CreateDatasetModal.style';
-import { Button, MenuItem, Modal, TextField, Typography } from '@mui/material';
 
 interface TrainStartModalModalProps {
   baseModelName: string;
@@ -58,13 +58,13 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
 
   return (
     <Container>
-      <CreateButton
+      <TrainModelButton
         onClick={handleOpen}
         className="train-model-button"
         disableFocusRipple={true}
       >
         TRAIN MODEL
-      </CreateButton>
+      </TrainModelButton>
       <Modal
         open={open}
         onClose={handleClose}

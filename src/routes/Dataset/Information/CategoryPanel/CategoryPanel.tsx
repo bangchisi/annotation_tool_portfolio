@@ -1,16 +1,15 @@
 import { Button, TextField } from '@mui/material';
-import { Container, InputCategory } from './CategoryPanel.style';
-import { useState } from 'react';
+import CategoryTag from 'components/CategoryTag/CategoryTag';
 import {
   getRandomHexColor,
   getTextColor,
 } from 'components/CategoryTag/helpers/CategoryTagHelpers';
-import CategoryTag from 'components/CategoryTag/CategoryTag';
-import { CategoryType } from 'routes/Dataset/Dataset';
-import axios from 'axios';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import DatasetModel from 'routes/Dataset/models/Dataset.model';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { CategoryType } from 'routes/Dataset/Dataset';
+import DatasetModel from 'routes/Dataset/models/Dataset.model';
+import { Container, InputCategory } from './CategoryPanel.style';
 
 interface CategoryPanelProps {
   categories: CategoryType[];

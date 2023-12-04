@@ -1,7 +1,7 @@
-import { Button, Divider, Menu, MenuItem, Typography } from '@mui/material';
-import { Container, MenuButton } from './DatasetMenu.style';
-import { useState, useCallback } from 'react';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { Button, Divider, Menu, MenuItem } from '@mui/material';
+import { useCallback, useState } from 'react';
+import { Container, MenuButton } from './DatasetMenu.style';
 
 interface DatasetMenuProps {
   deleteDataset: (userId: string, datasetId: number) => Promise<void>;
@@ -30,7 +30,7 @@ export default function DatasetMenu(props: DatasetMenuProps) {
   }, [setAnchorEl, deleteDataset, userId, datasetId]);
 
   return (
-    <Container className="dataset-menu">
+    <Container>
       <MenuButton variant="text" size="small" onClick={onClick}>
         <MoreHorizIcon />
       </MenuButton>
