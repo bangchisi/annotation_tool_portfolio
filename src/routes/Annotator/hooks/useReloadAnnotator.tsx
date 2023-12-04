@@ -12,8 +12,8 @@ import {
 
 import AnnotatorModel from '../models/Annotator.model';
 
-import { AnnotationType, CategoriesType } from '../Annotator.types';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { AnnotationType, CategoriesType } from '../Annotator.types';
 
 const useReloadAnnotator = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -78,17 +78,6 @@ const useReloadAnnotator = () => {
     });
   };
 
-  // clear canvas except image
-  const clearCanvas = () => {
-    const childrenToRemove = paper.project.activeLayer.children.filter(
-      (child) => child.className !== 'Raster',
-    );
-
-    childrenToRemove.forEach((child) => {
-      child.remove();
-    });
-  };
-
   // set data in compoundPath
   const getCompoundPathWithData = (
     segmentation: number[][],
@@ -134,6 +123,17 @@ const useReloadAnnotator = () => {
     return new paper.Path({
       segments: path,
       closed: true,
+    });
+  };
+
+  // clear canvas except image
+  const clearCanvas = () => {
+    const childrenToRemove = paper.project.activeLayer.children.filter(
+      (child) => child.className !== 'Raster',
+    );
+
+    childrenToRemove.forEach((child) => {
+      child.remove();
     });
   };
 
