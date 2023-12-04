@@ -15,6 +15,7 @@ import {
   SelectModel,
   ParameterContainer,
   ParameterContent,
+  RangeLabelContainer,
 } from './SAMToolPanel.style';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
@@ -181,7 +182,7 @@ export default function SAMToolPanel() {
           <Select
             onChange={(event) => onChangeModel(event)}
             size="small"
-            defaultValue="vit_l"
+            defaultValue="vit_h"
           >
             <MenuItem value="vit_h">vit_h</MenuItem>
             <MenuItem value="vit_l">vit_l</MenuItem>
@@ -204,7 +205,11 @@ export default function SAMToolPanel() {
       <Typography variant="subtitle2">EVERYTHING</Typography>
       <ParameterContainer>
         <ParameterContent>
-          <Typography variant="caption">pred_iou_thresh</Typography>
+          <Typography variant="body2">Sensitivity</Typography>
+          <RangeLabelContainer>
+            <Typography variant="caption">low</Typography>
+            <Typography variant="caption">high</Typography>
+          </RangeLabelContainer>
           <ParameterButtonGroup
             onClick={setPredIOUThresh}
             currentParamValue={predIOUThresh}
@@ -212,7 +217,11 @@ export default function SAMToolPanel() {
           />
         </ParameterContent>
         <ParameterContent>
-          <Typography variant="caption">box_nms_thresh</Typography>
+          <Typography variant="body2">Overlap Restriction</Typography>
+          <RangeLabelContainer>
+            <Typography variant="caption">low</Typography>
+            <Typography variant="caption">high</Typography>
+          </RangeLabelContainer>
           <ParameterButtonGroup
             onClick={setBoxNMSThresh}
             currentParamValue={boxNMSThresh}
@@ -220,7 +229,11 @@ export default function SAMToolPanel() {
           />
         </ParameterContent>
         <ParameterContent>
-          <Typography variant="caption">points_per_side</Typography>
+          <Typography variant="body2">Size of Obejct</Typography>
+          <RangeLabelContainer>
+            <Typography variant="caption">large focus</Typography>
+            <Typography variant="caption">include small</Typography>
+          </RangeLabelContainer>
           <ParameterButtonGroup
             onClick={setPointsPerSide}
             currentParamValue={pointsPerSide}

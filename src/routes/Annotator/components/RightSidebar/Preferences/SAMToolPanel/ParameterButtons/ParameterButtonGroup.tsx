@@ -18,7 +18,7 @@ interface ParameterButtonGroupProps {
 const ParameterButtonGroup = (props: ParameterButtonGroupProps) => {
   const { onClick, currentParamValue, paramType } = props;
   const value = {
-    predIOUThresh: [0.7, 0.88, 0.96],
+    predIOUThresh: [0.7, 0.88, 0.92],
     boxNMSThresh: [0.7, 0.4, 0.1],
     pointsPerSide: [16, 32, 48],
   };

@@ -202,7 +202,7 @@ const useSAMTool = () => {
     dispatch(setSAMModelLoading(true));
     try {
       const response = await SAMModel.loadModel(
-        modelType ? modelType : 'vit_l',
+        modelType ? modelType : 'vit_h',
       );
       if (response.status !== 200) throw new Error('Failed to load SAM');
       // dispatch(setIsSAMModelLoaded(true));

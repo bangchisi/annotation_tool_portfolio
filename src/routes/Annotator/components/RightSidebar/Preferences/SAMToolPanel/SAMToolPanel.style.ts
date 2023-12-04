@@ -37,6 +37,13 @@ export const ParameterContent = styled(Box)(() => {
   };
 });
 
+export const RangeLabelContainer = styled(Box)(() => {
+  return {
+    display: 'flex',
+    justifyContent: 'space-between',
+  };
+});
+
 export const EverythingButton = styled(Button)(() => {
   return {
     width: '100%',
