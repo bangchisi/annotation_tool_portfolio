@@ -58,6 +58,24 @@ const DatasetModel = {
 
     return axios.delete(url);
   },
+  updateDatset: (
+    datasetId: number, // int
+    datasetName: string,
+    superdatasetName: string,
+    description: string,
+  ) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/dataset`
+        : `${SERVER_URL}/dataset`;
+
+    return axios.put(url, {
+      dataset_id: datasetId,
+      dataset_name: datasetName,
+      superdataset_name: superdatasetName,
+      description: description,
+    });
+  },
 };
 
 export default DatasetModel;
