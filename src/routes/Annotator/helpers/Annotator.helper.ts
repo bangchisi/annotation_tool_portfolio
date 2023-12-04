@@ -2,6 +2,7 @@ import paper from 'paper';
 import {
   AnnotationType,
   AnnotationsType,
+  CategoriesType,
   CategoryType,
 } from '../Annotator.types';
 
@@ -16,7 +17,6 @@ export function setCategory(
     annotations,
   };
 
-  // for serializing
   return JSON.parse(JSON.stringify(category));
 }
 
@@ -31,7 +31,6 @@ export function setAnnotation(
     path,
   };
 
-  // for serializing
   return JSON.parse(JSON.stringify(annotation));
 }
 
@@ -59,8 +58,6 @@ export function toCurrentCategoryAnnotations(annotations: AnnotationsType) {
   return annotationList;
 }
 
-//------------ init data
-// set data in compoundPath
 export function getCompoundPathWithData(
   segmentation: number[][],
   categoryId: number,
@@ -76,7 +73,6 @@ export function getCompoundPathWithData(
   return compoundPath;
 }
 
-// segmentation -> paper.CompoundPath
 export function segmentationToCompoundPath(segmentation: number[][]) {
   const compoundPath = new paper.CompoundPath({});
 
@@ -87,9 +83,7 @@ export function segmentationToCompoundPath(segmentation: number[][]) {
   return compoundPath;
 }
 
-// points: number[] -> paper.Path
 export function pointsToPath(points: number[]) {
-  // number[] -> [number, number][]
   const raster = paper.project.activeLayer.children[0] as paper.Raster;
   const { x, y } = raster.bounds.topLeft;
 
@@ -101,16 +95,12 @@ export function pointsToPath(points: number[]) {
     })
     .filter((point) => point !== undefined);
 
-  // path를 segments로 하는 pape.Path를 만들어 return
   return new paper.Path({
     segments: path,
     closed: true,
   });
 }
 
-//---------- save data
-// pathToPoints -> compoundPathToSegmentation -> getConvertedAnnotation
-// paper.Path: { .., segments: [number, number][], ...} -> points: number[]
 export function pathToPoints(path: paper.Path) {
   const points: number[] = [];
   const raster = paper.project.activeLayer.children[0] as paper.Raster;
@@ -119,20 +109,24 @@ export function pathToPoints(path: paper.Path) {
   const segments = path.segments; // [ Segment, Segment, ...]
 
   segments.forEach((segment) => {
-    points.push(Math.round((segment.point.x - x) * 100) / 100);
-    points.push(Math.round((segment.point.y - y) * 100) / 100);
+    points.push(Math.floor((segment.point.x - x) * 100) / 100);
+    points.push(Math.floor((segment.point.y - y) * 100) / 100);
   });
 
   return points;
 }
 
-// paper.CompoundPath: { .., children: paper.Path[], ..} -> segmentation: number[][]
 export function compoundPathToSegmentation(compoundPath: paper.CompoundPath) {
+  // 한 CompoundPath의 모든 마스킹을 하나의 segmentation으로 변환
   const { children } = compoundPath;
 
   const segmentation: number[][] = [];
 
-  // Path to points
+  // 이미지 위에 마스킹이 없을 경우
+  if (children.length <= 1) return [];
+
+  // 하나의 CompoundPath 위의 여러 마스킹을 하나씩 순회하면서
+  // 서버에서 호환 가능한 segmentation 형태로 변환
   children.map((child) => {
     segmentation.push(pathToPoints(child as paper.Path));
   });
@@ -153,7 +147,7 @@ export function getConvertedAnnotation(compound: paper.CompoundPath) {
     iscrowd: getIsCrowd(compound),
     color: annotationColor,
     segmentation: compoundPathToSegmentation(compound),
-    area: Math.round(compound.area),
+    area: Math.floor(compound.area),
     // new Group(compound.children)을 Path.Rectangle().bounds 해야하나 알아보기.
     bbox: getBbox(compound, annotationId),
   };
@@ -184,4 +178,27 @@ function getBbox(compound: paper.CompoundPath, annotationId: number) {
     bbox.bounds.width,
     bbox.bounds.height,
   ];
+}
+
+export function createCategoriesToUpdate(categories: CategoriesType) {
+  const children = paper.project.activeLayer.children;
+
+  const categoriesToUpdate = JSON.parse(JSON.stringify(categories));
+  children.forEach((child) => {
+    if (child instanceof paper.CompoundPath) {
+      const { categoryId, annotationId } = child.data;
+
+      categoriesToUpdate[categoryId].annotations[annotationId] =
+        getConvertedAnnotation(child);
+    }
+  });
+
+  // 속성 이름 kebab_case로 맞춤
+  Object.entries(categoriesToUpdate).map(([categoryId]) => {
+    categoriesToUpdate[categoryId]['category_id'] = categoryId;
+    delete categoriesToUpdate[categoryId].categoryId;
+    delete categoriesToUpdate[categoryId].name;
+  });
+
+  return categoriesToUpdate;
 }

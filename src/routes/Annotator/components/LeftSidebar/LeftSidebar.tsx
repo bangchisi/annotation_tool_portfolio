@@ -1,56 +1,31 @@
-import { useCallback } from 'react';
-import paper from 'paper';
-import { Box, List, Divider } from '@mui/material';
+import { Box, Divider, List } from '@mui/material';
 import ToolIcon from './ToolIcon';
 
-import BackHandOutlinedIcon from '@mui/icons-material/BackHandOutlined';
-import RectangleOutlinedIcon from '@mui/icons-material/RectangleOutlined';
-import BrushOutlinedIcon from '@mui/icons-material/BrushOutlined';
 import AutoFixOffOutlinedIcon from '@mui/icons-material/AutoFixOffOutlined';
+import BackHandOutlinedIcon from '@mui/icons-material/BackHandOutlined';
+import BrushOutlinedIcon from '@mui/icons-material/BrushOutlined';
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
+import RectangleOutlinedIcon from '@mui/icons-material/RectangleOutlined';
 import SaveIcon from '@mui/icons-material/Save';
-import { Container } from './LeftSidebar.style';
-import { Tool } from 'routes/Annotator/Annotator';
-import FunctionIcon from './FunctionIcon';
-import { getConvertedAnnotation } from 'routes/Annotator/helpers/Annotator.helper';
 import { useAppSelector } from 'App.hooks';
-import { useParams } from 'react-router-dom';
-import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { useParams } from 'react-router-dom';
+import { Tool } from 'routes/Annotator/Annotator';
+import { createCategoriesToUpdate } from 'routes/Annotator/helpers/Annotator.helper';
+import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
+import FunctionIcon from './FunctionIcon';
+import { Container } from './LeftSidebar.style';
 
 export default function LeftSidebar() {
   const imageId = Number(useParams().imageId);
   const categories = useAppSelector((state) => state.annotator.categories);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
 
-  function createCategoriesToUpdate() {
-    const children = paper.project.activeLayer.children;
-
-    const categoriesToUpdate = JSON.parse(JSON.stringify(categories));
-    children.forEach((child) => {
-      if (child instanceof paper.CompoundPath) {
-        const { categoryId, annotationId } = child.data;
-
-        categoriesToUpdate[categoryId].annotations[annotationId] =
-          getConvertedAnnotation(child);
-      }
-    });
-
-    // 속성 이름 kebab_case로 맞춤
-    Object.entries(categoriesToUpdate).map(([categoryId]) => {
-      categoriesToUpdate[categoryId]['category_id'] = categoryId;
-      delete categoriesToUpdate[categoryId].categoryId;
-      delete categoriesToUpdate[categoryId].name;
-    });
-
-    return categoriesToUpdate;
-  }
-
   async function saveData(datasetId: number | undefined, imageId: number) {
     if (!datasetId || !imageId) return;
 
     try {
-      const categoriesToUpdate = createCategoriesToUpdate();
+      const categoriesToUpdate = createCategoriesToUpdate(categories);
 
       const response = await AnnotatorModel.saveData(
         datasetId,
