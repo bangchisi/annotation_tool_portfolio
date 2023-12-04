@@ -217,7 +217,7 @@ export default function SAMToolPanel() {
           />
         </ParameterContent>
         <ParameterContent>
-          <Typography variant="body2">Overlap Restriction</Typography>
+          <Typography variant="body2">Overlap</Typography>
           <RangeLabelContainer>
             <Typography variant="caption">low</Typography>
             <Typography variant="caption">high</Typography>

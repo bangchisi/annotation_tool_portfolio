@@ -1,7 +1,7 @@
 import { Container, ParameterButton } from './ParameterButtonGroup.style';
 
-// - pred_iou_thresh (1, 2, 3단계 순) : 0.7, 0.88, 0.96 (default : 2단계, 0.88)
-// - box_nms_thresh : 0.7, 0.4, 0.1 (default : 1단계, 0.7)
+// - pred_iou_thresh (1, 2, 3단계 순) : 0.7, 0.88, 0.92 (default : 2단계, 0.88)
+// - box_nms_thresh : 0.1, 0.4, 0.7 (default : 1단계, 0.7)
 // - points_per_side : 16, 32, 48 (default : 2단계, 32)
 export enum ParameterType {
   predIOUThresh = 'predIOUThresh',
@@ -19,7 +19,7 @@ const ParameterButtonGroup = (props: ParameterButtonGroupProps) => {
   const { onClick, currentParamValue, paramType } = props;
   const value = {
     predIOUThresh: [0.7, 0.88, 0.92],
-    boxNMSThresh: [0.7, 0.4, 0.1],
+    boxNMSThresh: [0.1, 0.4, 0.7],
     pointsPerSide: [16, 32, 48],
   };
 
