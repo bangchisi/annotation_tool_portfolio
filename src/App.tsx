@@ -1,12 +1,11 @@
-import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import './App.css';
-import Navigator from 'components/Navigator/Navigator';
 import { useAppSelector } from 'App.hooks';
+import Navigator from 'components/Navigator/Navigator';
+import { useState } from 'react';
 import { CookiesProvider } from 'react-cookie';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { Outlet } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistor } from 'store';
+import './App.css';
 
 export enum RouteMode {
   DATASET,
