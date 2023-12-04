@@ -15,7 +15,7 @@ const AuthModel = {
     const url =
       process.env.NODE_ENV === 'development'
         ? `${DEV_URL}/user/register`
-        : `${SERVER_URL}/user/resgister`;
+        : `${SERVER_URL}/user/register`;
 
     return axios.post(
       url,
