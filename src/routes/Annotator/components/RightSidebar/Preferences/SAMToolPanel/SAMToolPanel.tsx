@@ -22,7 +22,11 @@ import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { LogType } from 'routes/Models/Models';
 import SAMModel from 'routes/Annotator/models/SAM.model';
-import { setSAMEverythingLoading } from 'routes/Annotator/slices/SAMSlice';
+import {
+  selectSAM,
+  setSAMEverythingLoading,
+  setSAMModel,
+} from 'routes/Annotator/slices/SAMSlice';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import useSAMTool from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
@@ -40,6 +44,8 @@ export default function SAMToolPanel() {
   const [isFinetuneModelLoading, setIsFinetuneModelLoading] = useState(false);
   const [finetuneModelList, setFinetuneModelList] = useState<LogType[]>([]);
   const [isFinetune, setIsFinetune] = useState(false);
+  // const [currentModel, setCurrentModel] = useState('vit_h');
+  const { model: currentModel } = useAppSelector(selectSAM);
 
   const dispatch = useAppDispatch();
 
@@ -64,9 +70,9 @@ export default function SAMToolPanel() {
     setPointsPerSide,
   } = useSAMParameter();
 
-  function onChangeModel(
-    event: SelectChangeEvent<string> | SelectChangeEvent<number>,
-  ) {
+  function onChangeModel(event: SelectChangeEvent<string>) {
+    // setCurrentModel(event.target.value);
+    dispatch(setSAMModel(event.target.value));
     if (
       event.target.value === 'vit_h' ||
       event.target.value === 'vit_l' ||
@@ -76,7 +82,13 @@ export default function SAMToolPanel() {
         setIsFinetune(false);
       });
     } else {
-      loadFinetunedModel(Number(event.target.value)).then(() => {
+      const selectedFinetunedModel = finetuneModelList.find((finetuneModel) => {
+        return finetuneModel.finetuneName === event.target.value;
+      });
+
+      if (!selectedFinetunedModel) return;
+
+      loadFinetunedModel(Number(selectedFinetunedModel.finetuneId)).then(() => {
         setIsFinetune(true);
       });
     }
@@ -154,9 +166,14 @@ export default function SAMToolPanel() {
     isSAMModelLoaded: boolean,
     embeddingId: number | null,
   ) {
+    console.log(currentModel);
     dispatch(setSAMEverythingLoading(true));
     if (!isSAMModelLoaded) return;
     if (!embeddingId || embeddingId !== imageId) return;
+    const isBaseModel =
+      currentModel === 'vit_h' ||
+      currentModel === 'vit_l' ||
+      currentModel === 'vit_b';
     try {
       const response = await SAMModel.everything(
         imageId,
@@ -164,7 +181,7 @@ export default function SAMToolPanel() {
         topLeft,
         bottomRight,
         params,
-        isFinetune,
+        isBaseModel ? false : true,
       );
 
       if (response.status !== 200) {
@@ -194,7 +211,7 @@ export default function SAMToolPanel() {
           <Select
             onChange={(event) => onChangeModel(event)}
             size="small"
-            defaultValue="vit_h"
+            value={currentModel}
           >
             <MenuItem value="vit_h">vit_h</MenuItem>
             <MenuItem value="vit_l">vit_l</MenuItem>
@@ -206,7 +223,7 @@ export default function SAMToolPanel() {
               .map((finetuneModel) => (
                 <MenuItem
                   key={finetuneModel.finetuneId}
-                  value={finetuneModel.finetuneId}
+                  value={finetuneModel.finetuneName}
                 >
                   {finetuneModel.finetuneName}
                 </MenuItem>
