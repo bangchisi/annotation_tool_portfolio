@@ -39,7 +39,7 @@ export default function Controls(props: ControlsProps) {
   const filesInput = useRef<HTMLInputElement>(null);
   const formData = new FormData();
   const [finetuneName, setFinetuneName] = useState('');
-  const [baseModelName, setBaseModelName] = useState('');
+  const [baseModelName, setBaseModelName] = useState('vit_b');
 
   const uploadImages = async (
     datasetId: number | undefined,
@@ -104,6 +104,8 @@ export default function Controls(props: ControlsProps) {
       if (response.status !== 200) {
         throw new Error('Failed to start train');
       }
+
+      alert(`${baseModelName} 기반 ${finetuneName} 모델 학습을 시작했습니다.`);
 
       setIsOnTrain(true);
     } catch (error) {

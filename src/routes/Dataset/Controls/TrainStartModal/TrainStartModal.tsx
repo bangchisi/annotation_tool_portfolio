@@ -9,7 +9,6 @@ import {
   ModalHeader,
   ModalShadow,
   ModalShadowContainer,
-  SelectField,
   TrainContainer,
   TrainModelButton,
 } from './TrainStartModal.style';
@@ -105,7 +104,7 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
                 <div>
                   {availableDevices && (
                     <Fragment>
-                      <FieldContainer>
+                      {/* <FieldContainer>
                         <Typography>Base Model Name</Typography>
                         <SelectField
                           defaultValue="vit_l"
@@ -118,7 +117,7 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
                           <MenuItem value="vit_l">vit_l</MenuItem>
                           <MenuItem value="vit_b">vit_b</MenuItem>
                         </SelectField>
-                      </FieldContainer>
+                      </FieldContainer> */}
                       <FieldContainer>
                         <Typography>New Model Name</Typography>
                         <TextField
@@ -147,14 +146,9 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
                               key={firstAvailableDeviceId}
                               onClick={() => {
                                 if (!baseModelName || !finetuneName) {
-                                  alert(
-                                    'base model name과 new model name은 필수 값입니다.',
-                                  );
+                                  alert('new model name은 필수 값입니다.');
                                   return;
                                 }
-                                alert(
-                                  `${baseModelName} 기반 ${finetuneName} 모델 학습을 시작했습니다.`,
-                                );
                                 onTrainStart(
                                   datasetId,
                                   Number(firstAvailableDeviceId),
