@@ -47,6 +47,10 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
     isDeviceLoading,
   } = props;
 
+  const firstAvailableDeviceId = Object.entries(availableDevices || {}).find(
+    ([id, available]) => available,
+  )?.[0];
+
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -135,38 +139,33 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
                           size="small"
                         />
                         <TrainContainer>
-                          {Object.entries(availableDevices).map(
-                            ([id, device]) => {
-                              const deviceId = Number(id);
-                              return (
-                                <Button
-                                  key={deviceId}
-                                  disabled={!device}
-                                  onClick={() => {
-                                    if (!baseModelName || !finetuneName) {
-                                      alert(
-                                        'base model name과 new model name은 필수 값입니다.',
-                                      );
-                                      return;
-                                    }
-                                    alert(
-                                      `${baseModelName} 기반 ${finetuneName} 모델 학습을 시작했습니다.`,
-                                    );
-                                    onTrainStart(
-                                      datasetId,
-                                      deviceId,
-                                      baseModelName,
-                                      finetuneName,
-                                    );
-                                    handleClose();
-                                  }}
-                                >
-                                  {device
-                                    ? `TRAIN (device ${deviceId})`
-                                    : 'BUSY'}
-                                </Button>
-                              );
-                            },
+                          {!firstAvailableDeviceId && (
+                            <Button disabled>BUSY</Button>
+                          )}
+                          {firstAvailableDeviceId && (
+                            <Button
+                              key={firstAvailableDeviceId}
+                              onClick={() => {
+                                if (!baseModelName || !finetuneName) {
+                                  alert(
+                                    'base model name과 new model name은 필수 값입니다.',
+                                  );
+                                  return;
+                                }
+                                alert(
+                                  `${baseModelName} 기반 ${finetuneName} 모델 학습을 시작했습니다.`,
+                                );
+                                onTrainStart(
+                                  datasetId,
+                                  Number(firstAvailableDeviceId),
+                                  baseModelName,
+                                  finetuneName,
+                                );
+                                handleClose();
+                              }}
+                            >
+                              TRAIN
+                            </Button>
                           )}
                         </TrainContainer>
                       </FieldContainer>
