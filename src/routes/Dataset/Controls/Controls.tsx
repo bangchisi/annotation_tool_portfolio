@@ -82,6 +82,7 @@ export default function Controls(props: ControlsProps) {
 
       await uploadImages(Number(datasetId), formData);
     }
+    window.location.reload();
   };
 
   const onTrainStart = async (
@@ -153,11 +154,7 @@ export default function Controls(props: ControlsProps) {
           name="images"
           type="file"
           accept="image/*"
-          onChange={(event) => {
-            onFilesChange(event, true).then(() => {
-              window.location.reload();
-            });
-          }}
+          onChange={(event) => onFilesChange(event, true)}
           webkitdirectory=""
         />
         <FilesLabel htmlFor="folderInput" sx={{ marginRight: '20px' }}>
