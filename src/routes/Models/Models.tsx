@@ -94,7 +94,7 @@ export default function Models() {
       {logs &&
         logs.map((log) => (
           <div key={log.finetuneName}>
-            <Typography
+            {/* <Typography
               variant="h3"
               sx={{
                 fontSize: '36px',
@@ -102,7 +102,7 @@ export default function Models() {
               }}
             >
               {log.vitModelType}
-            </Typography>
+            </Typography> */}
             <NewModelCard
               key={log.finetuneId}
               log={log}
