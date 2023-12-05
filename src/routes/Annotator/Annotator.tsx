@@ -66,76 +66,76 @@ export default function Annotator() {
 
   useKeyEvents();
 
-  // 페이지를 떠나기 전에 저장하지 않은 변경사항이 있는지 검사
-  // 변경사항을 검사하는 코어 함수
-  const hasUnsavedChange = useCallback(() => {
-    // 모든 레이어의 모든 패스가 비어있는지 검사
-    // 그 말은 이미지 위에 마스킹이 없다는 뜻
-    // 모든 레이어를 순회하면서
-    return !paper.project.activeLayer.children.every((child) => {
-      // 컴파운드 패스만 검사
-      if (child instanceof paper.CompoundPath) {
-        // 컴파운드 패스의 모든 패스가 비어있는지 검사
-        const pathIsEmpty = child.children.every((path) => path.isEmpty());
-        return pathIsEmpty;
-      }
-      return true;
-    });
-  }, []);
-  // # 브라우저 네비게이션 막기
-  const [shouldBlock, setShouldBlock] = useState(false);
-  const blockerFunction = useCallback<BlockerFunction>(
-    ({ currentLocation, nextLocation }) => {
-      return (
-        // 저장하지 않은 변경사항이 없고,
-        hasUnsavedChange() &&
-        // 다음 페이지가 현재 페이지와 다를 때
-        currentLocation.pathname !== nextLocation.pathname
-      );
-    },
-    [hasUnsavedChange],
-  );
-  const blocker = useBlocker(blockerFunction);
-  useEffect(() => {
-    if (shouldBlock && blocker.state === 'blocked') {
-      const confirmLeave = window.confirm(unsavedChangeMessage);
-      if (confirmLeave) {
-        blocker.proceed();
-      } else {
-        blocker.reset();
-      }
-    }
-  }, [shouldBlock, blocker]);
-  useEffect(() => {
-    const checkShouldBlock = () => {
-      const blockingState = hasUnsavedChange();
-      if (shouldBlock === blockingState) return;
+  // // 페이지를 떠나기 전에 저장하지 않은 변경사항이 있는지 검사
+  // // 변경사항을 검사하는 코어 함수
+  // const hasUnsavedChange = useCallback(() => {
+  //   // 모든 레이어의 모든 패스가 비어있는지 검사
+  //   // 그 말은 이미지 위에 마스킹이 없다는 뜻
+  //   // 모든 레이어를 순회하면서
+  //   return !paper.project.activeLayer.children.every((child) => {
+  //     // 컴파운드 패스만 검사
+  //     if (child instanceof paper.CompoundPath) {
+  //       // 컴파운드 패스의 모든 패스가 비어있는지 검사
+  //       const pathIsEmpty = child.children.every((path) => path.isEmpty());
+  //       return pathIsEmpty;
+  //     }
+  //     return true;
+  //   });
+  // }, []);
+  // // # 브라우저 네비게이션 막기
+  // const [shouldBlock, setShouldBlock] = useState(false);
+  // const blockerFunction = useCallback<BlockerFunction>(
+  //   ({ currentLocation, nextLocation }) => {
+  //     return (
+  //       // 저장하지 않은 변경사항이 없고,
+  //       hasUnsavedChange() &&
+  //       // 다음 페이지가 현재 페이지와 다를 때
+  //       currentLocation.pathname !== nextLocation.pathname
+  //     );
+  //   },
+  //   [hasUnsavedChange],
+  // );
+  // const blocker = useBlocker(blockerFunction);
+  // useEffect(() => {
+  //   if (shouldBlock && blocker.state === 'blocked') {
+  //     const confirmLeave = window.confirm(unsavedChangeMessage);
+  //     if (confirmLeave) {
+  //       blocker.proceed();
+  //     } else {
+  //       blocker.reset();
+  //     }
+  //   }
+  // }, [shouldBlock, blocker]);
+  // useEffect(() => {
+  //   const checkShouldBlock = () => {
+  //     const blockingState = hasUnsavedChange();
+  //     if (shouldBlock === blockingState) return;
 
-      setShouldBlock(blockingState);
-    };
+  //     setShouldBlock(blockingState);
+  //   };
 
-    window.addEventListener('mouseup', checkShouldBlock);
-    return () => {
-      window.removeEventListener('mouseup', checkShouldBlock);
-    };
-  }, [shouldBlock, hasUnsavedChange]);
+  //   window.addEventListener('mouseup', checkShouldBlock);
+  //   return () => {
+  //     window.removeEventListener('mouseup', checkShouldBlock);
+  //   };
+  // }, [shouldBlock, hasUnsavedChange]);
 
-  // # 브라우저 닫기, 새로고침 막침
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      const shouldBlock = hasUnsavedChange();
-      if (!shouldBlock) return;
+  // // # 브라우저 닫기, 새로고침 막침
+  // useEffect(() => {
+  //   const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  //     const shouldBlock = hasUnsavedChange();
+  //     if (!shouldBlock) return;
 
-      event.preventDefault();
-      event.returnValue = unsavedChangeMessage;
-      return unsavedChangeMessage;
-    };
+  //     event.preventDefault();
+  //     event.returnValue = unsavedChangeMessage;
+  //     return unsavedChangeMessage;
+  //   };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [hasUnsavedChange]);
+  //   window.addEventListener('beforeunload', handleBeforeUnload);
+  //   return () => {
+  //     window.removeEventListener('beforeunload', handleBeforeUnload);
+  //   };
+  // }, [hasUnsavedChange]);
 
   return (
     <Container>
