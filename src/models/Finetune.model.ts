@@ -29,7 +29,7 @@ const FinetuneModel = {
       vit_model_type: modelType,
       finetune_name: finetuneName,
       // 개발용 속성. epoch를 임의로 1로 해서 빠르게 끝내기 위함
-      num_epochs: process.env.NODE_ENV === 'development' ? 1 : null,
+      // num_epochs: process.env.NODE_ENV === 'development' ? 1 : null,
     });
   },
   getLogs: (userId: string) => {
