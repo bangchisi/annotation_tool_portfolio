@@ -50,8 +50,6 @@ export const useKeyEvents = () => {
 
   useKeyEvent('KeyS', () => {
     dispatch(setTool(Tool.Select));
-    dispatch(setCurrentAnnotation(undefined));
-    dispatch(setCurrentCategory(undefined));
   });
 
   useKeyEvent('KeyR', () => {
