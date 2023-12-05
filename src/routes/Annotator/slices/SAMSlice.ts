@@ -2,7 +2,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface SAMState {
-  model: string | null;
+  model: string;
   modelLoading: boolean;
   modelLoaded: boolean;
   embeddingLoading: boolean;
@@ -13,7 +13,7 @@ interface SAMState {
 }
 
 const initialState: SAMState = {
-  model: null,
+  model: 'vit_h',
   modelLoading: false,
   modelLoaded: false,
   embeddingLoading: false,
