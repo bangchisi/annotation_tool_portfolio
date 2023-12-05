@@ -55,7 +55,6 @@ export default function Controls(props: ControlsProps) {
       axiosErrorHandler('error', 'Failed to upload images');
     } finally {
       setIsLoading(false);
-      window.location.reload();
     }
   };
 
@@ -154,7 +153,11 @@ export default function Controls(props: ControlsProps) {
           name="images"
           type="file"
           accept="image/*"
-          onChange={(event) => onFilesChange(event, true)}
+          onChange={(event) => {
+            onFilesChange(event, true).then(() => {
+              window.location.reload();
+            });
+          }}
           webkitdirectory=""
         />
         <FilesLabel htmlFor="folderInput" sx={{ marginRight: '20px' }}>
