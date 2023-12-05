@@ -13,6 +13,7 @@ import {
   TrainContainer,
   TrainModelButton,
 } from './TrainStartModal.style';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 interface TrainStartModalModalProps {
   baseModelName: string;
@@ -20,6 +21,7 @@ interface TrainStartModalModalProps {
   finetuneName: string;
   setFinetuneName: React.Dispatch<React.SetStateAction<string>>;
   datasetId: number;
+  isDeviceLoading: boolean;
   onTrainStart: (
     datasetId: number,
     deviceId: number,
@@ -42,6 +44,7 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
     datasetId,
     onTrainStart,
     availableDevices,
+    isDeviceLoading,
   } = props;
 
   const [open, setOpen] = useState(false);
@@ -92,6 +95,9 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
                 </Typography>
               </ModalHeader>
               <ModalContent>
+                {isDeviceLoading && (
+                  <LoadingSpinner message="loading finetune..." />
+                )}
                 <div>
                   {availableDevices && (
                     <Fragment>

@@ -40,6 +40,7 @@ export default function Dataset() {
   const [availableDevices, setAvailableDevices] = useState<{
     [key: string]: boolean;
   }>();
+  const [isDeviceLoading, setIsDeviceLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const datasetId = Number(useParams().datasetId);
@@ -89,12 +90,15 @@ export default function Dataset() {
   }
 
   async function setDeviceStatus() {
+    setIsDeviceLoading(true);
     try {
       const response = await FinetuneModel.checkAvailableDevice();
 
       setAvailableDevices(response.data);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to check device status');
+    } finally {
+      setIsDeviceLoading(false);
     }
   }
 
@@ -149,6 +153,7 @@ export default function Dataset() {
         availableDevices={availableDevices}
         isOnTrain={isOnTrain}
         setIsOnTrain={setIsOnTrain}
+        isDeviceLoading={isDeviceLoading}
       />
       {dataset && (
         <Fragment>

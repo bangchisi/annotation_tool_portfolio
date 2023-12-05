@@ -22,11 +22,18 @@ interface ControlsProps {
   setDeviceStatus: () => Promise<void>;
   isOnTrain: boolean;
   setIsOnTrain: React.Dispatch<React.SetStateAction<boolean>>;
+  isDeviceLoading: boolean;
   availableDevices?: { [key: number]: boolean };
 }
 
 export default function Controls(props: ControlsProps) {
-  const { setDeviceStatus, availableDevices, isOnTrain, setIsOnTrain } = props;
+  const {
+    setDeviceStatus,
+    availableDevices,
+    isOnTrain,
+    setIsOnTrain,
+    isDeviceLoading,
+  } = props;
   const datasetId = Number(useParams().datasetId);
   const [isLoading, setIsLoading] = useState(false);
   const filesInput = useRef<HTMLInputElement>(null);
@@ -130,6 +137,7 @@ export default function Controls(props: ControlsProps) {
         finetuneName={finetuneName}
         setFinetuneName={setFinetuneName}
         datasetId={datasetId}
+        isDeviceLoading={isDeviceLoading}
       />
       <form>
         <label htmlFor=""></label>
