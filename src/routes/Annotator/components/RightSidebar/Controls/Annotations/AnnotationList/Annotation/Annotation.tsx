@@ -36,19 +36,25 @@ export function Annotation({
     [currentAnnotation],
   );
 
+  const isCurrentAnnotation = useMemo(
+    () => annotationId === currentAnnotationId,
+    [annotationId, currentAnnotationId],
+  );
+
   return (
     <Container
       annotationcolor={annotationcolor}
       annotationid={annotationId}
       currentannotationid={currentAnnotationId}
       onClick={() => onClick(categoryId, annotationId)}
+      className={isCurrentAnnotation ? 'current-annotation' : undefined}
     >
       <AnnotationColorTag
         annotationcolor={annotationcolor}
         annotationid={annotationId}
         currentannotationid={currentAnnotationId}
       />
-      <Typography variant="button" display="inline">
+      <Typography variant="button" className="annotation-id">
         {annotationId}
       </Typography>
       <SelectPanel>
@@ -60,6 +66,8 @@ export function Annotation({
       <DeleteButton
         annotationcolor={annotationcolor}
         onClick={() => onClickDeleteButton(categoryId, annotationId)}
+        className="delete-button"
+        fontSize="small"
       />
     </Container>
   );

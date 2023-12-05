@@ -12,7 +12,6 @@ export const Container = styled('div')(() => {
     height: '50%',
     overflowY: 'scroll',
     marginRight: '-17px',
-    // borderBottom: '1px solid #88929D',
   };
 });
 

@@ -13,12 +13,14 @@ export const Container = styled(Box)<AnnotationProps>(({
   annotationid,
   currentannotationid,
 }) => {
+  const textColor = getTextColor(annotationcolor);
+  const isCurrentAnnotation = annotationid === currentannotationid;
+
   const focusedAnnotationColor = {
     backgroundColor: annotationcolor,
-    color: getTextColor(annotationcolor),
+    color: textColor,
   };
-  const backgroundColor =
-    annotationid === currentannotationid ? focusedAnnotationColor : {};
+  const backgroundColor = isCurrentAnnotation ? focusedAnnotationColor : {};
   return {
     display: 'flex',
     height: 45,
@@ -26,20 +28,40 @@ export const Container = styled(Box)<AnnotationProps>(({
     justifyContent: 'flex-start',
     alignItems: 'center',
     cursor: 'pointer',
-    padding: '10px',
+    padding: '10px 8px 10px 14px',
     opacity: 0.9,
-    borderBottom: '1px solid #88929D',
+    // 현재 선택된 annotation의 하단 border를 제거
+    borderBottom: `1px solid ${
+      isCurrentAnnotation ? 'transparent' : '#88929D'
+    }`,
     ...backgroundColor,
 
     '&:hover': {
       ...focusedAnnotationColor,
+    },
+    // 현재 선택된 annotation의 상단 border를 제거
+    '&:has(+ .current-annotation)': {
+      borderBottom: '1px solid transparent',
+    },
+
+    // 목록 위에 호버를 감지하기 위해 스타일을 DeleteButton에서
+    // 적용하지고않고 상위 컴포넌트에 적용
+    '& .delete-button': {
+      color: isCurrentAnnotation ? textColor : '#0e1116',
+      marginLeft: '10px',
+    },
+    '&:hover .delete-button': {
+      color: getTextColor(annotationcolor),
+    },
+
+    '& .annotation-id': {
+      lineHeight: '1 !important',
     },
   };
 });
 
 export const AnnotationColorTag = styled('div')<AnnotationProps>(({
   annotationcolor,
-  currentannotationid,
 }) => {
   return {
     display: 'flex',
@@ -58,15 +80,9 @@ export const SelectPanel = styled('select')(() => {
 });
 
 export const DeleteButton = styled(DeleteForeverOutlinedIcon)<AnnotationProps>(
-  ({ annotationcolor }) => {
-    const textColor = getTextColor(annotationcolor);
-
+  () => {
     return {
-      color: textColor,
-      marginLeft: '10px',
-      ':hover': {
-        opacity: 0.5,
-      },
+      //
     };
   },
 );
