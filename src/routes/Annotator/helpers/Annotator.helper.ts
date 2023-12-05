@@ -122,9 +122,6 @@ export function compoundPathToSegmentation(compoundPath: paper.CompoundPath) {
 
   const segmentation: number[][] = [];
 
-  // 이미지 위에 마스킹이 없을 경우
-  if (children.length <= 1) return [];
-
   // 하나의 CompoundPath 위의 여러 마스킹을 하나씩 순회하면서
   // 서버에서 호환 가능한 segmentation 형태로 변환
   children.map((child) => {
