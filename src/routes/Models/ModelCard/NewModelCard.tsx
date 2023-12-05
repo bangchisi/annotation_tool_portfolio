@@ -57,6 +57,10 @@ function remainingTimeToString(remainingTime: number) {
   const minutes = Math.floor((remainingTime % 3600) / 60);
   const seconds = Math.floor((remainingTime % 3600) % 60);
 
+  if (hours === -1 || minutes === -1 || seconds === -1) {
+    return '남은 시간 계산중..';
+  }
+
   if (hours === 0) {
     if (minutes === 0) {
       return `${seconds}초`;
