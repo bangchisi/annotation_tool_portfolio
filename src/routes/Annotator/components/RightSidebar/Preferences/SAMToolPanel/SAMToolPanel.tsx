@@ -39,6 +39,7 @@ export default function SAMToolPanel() {
   const { categories, initData, drawPaths } = useReloadAnnotator();
   const [isFinetuneModelLoading, setIsFinetuneModelLoading] = useState(false);
   const [finetuneModelList, setFinetuneModelList] = useState<LogType[]>([]);
+  const [isFinetune, setIsFinetune] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -66,14 +67,19 @@ export default function SAMToolPanel() {
   function onChangeModel(
     event: SelectChangeEvent<string> | SelectChangeEvent<number>,
   ) {
-    // ...
     if (
       event.target.value === 'vit_h' ||
       event.target.value === 'vit_l' ||
       event.target.value === 'vit_b'
-    )
-      loadSAM(event.target.value);
-    else loadFinetunedModel(Number(event.target.value));
+    ) {
+      loadSAM(event.target.value).then(() => {
+        setIsFinetune(false);
+      });
+    } else {
+      loadFinetunedModel(Number(event.target.value)).then(() => {
+        setIsFinetune(true);
+      });
+    }
   }
 
   async function getFinetuneModels(userId: string) {
@@ -158,10 +164,16 @@ export default function SAMToolPanel() {
         topLeft,
         bottomRight,
         params,
+        isFinetune,
       );
+
+      if (response.status !== 200) {
+        alert('everything 모드 실패, F5를 눌러 새로고침 해주세요.');
+        return;
+      }
     } catch (error) {
       axiosErrorHandler(error, 'Failed to SAM Everything');
-      alert('everything 모드 실패, 다시 시도해주세요.');
+      alert('everything 모드 실패, F5를 눌러 새로고침 해주세요.');
     }
     dispatch(setSAMEverythingLoading(false));
     if (!image || !categories) return;

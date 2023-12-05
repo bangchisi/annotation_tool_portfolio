@@ -41,6 +41,7 @@ const SAMModel = {
       boxNMSThresh: number;
       pointsPerSide: number;
     },
+    isFinetune: boolean,
   ) => {
     const url =
       process.env.NODE_ENV === 'development'
@@ -56,7 +57,7 @@ const SAMModel = {
         Math.floor(bottomRight.y),
       ],
       // FIX: is_finetune을 model 종류에 따라 받아와야 함. 일단은 false로 고정
-      is_finetune: false,
+      is_finetune: isFinetune,
       params: {
         pred_iou_thresh: params.predIOUThresh,
         box_nms_thresh: params.boxNMSThresh,
