@@ -24,6 +24,7 @@ import {
   UpdatedAt,
 } from './DatasetCard.style';
 import DatasetMenu from './DatasetMenu/DatasetMenu';
+import { AxiosError } from 'axios';
 
 interface DatasetCardProps {
   datasetId: number; // Dataset 고유 ID
@@ -67,6 +68,13 @@ export default function DatasetCard(props: DatasetCardProps) {
     try {
       const response = await DatasetsModel.deleteDataset(datasetId);
 
+      console.log(response.data.detail);
+      console.log(response);
+      if (response.status === 400) {
+        alert('현재 학습중인 Dataset은 삭제할 수 없습니다.');
+        return;
+      }
+
       if (response.status !== 200) {
         alert('Failed to delete dataset.');
         return;
@@ -74,6 +82,10 @@ export default function DatasetCard(props: DatasetCardProps) {
 
       setDatasetList(userId);
     } catch (error) {
+      if (error instanceof AxiosError && error.code === 'ERR_BAD_REQUEST') {
+        alert('현재 학습중인 Dataset은 삭제할 수 없습니다.');
+        return;
+      }
       axiosErrorHandler(error, `Failed to delete dataset (id: ${datasetId})`);
     }
   };
