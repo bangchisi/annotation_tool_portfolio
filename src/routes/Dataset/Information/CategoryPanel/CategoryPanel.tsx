@@ -23,6 +23,10 @@ export default function CategoryPanel(props: CategoryPanelProps) {
   const [addCategoryName, setAddCategoryName] = useState('');
 
   const handleCategoryTagClick = async (categoryId: number) => {
+    const isDelete = window.confirm(
+      '카테고리를 삭제하시겠습니까? 관련 annotation이 모두 삭제됩니다.',
+    );
+    if (!isDelete) return;
     try {
       // await API Call
       const response = await DatasetModel.deleteCategory(categoryId);
