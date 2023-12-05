@@ -134,16 +134,17 @@ export function compoundPathToSegmentation(compoundPath: paper.CompoundPath) {
 // set data with segmentation
 export function getConvertedAnnotation(compound: paper.CompoundPath) {
   const { annotationId, annotationColor } = compound.data;
-
+  const seg = compoundPathToSegmentation(compound);
   return {
     annotation_id: annotationId,
     // isBbox() 구현이나 bbox인지 확인하는 방법 생각.
     // 사용했던 tool을 기록해서 box tool 요소 단 한개만 있으면 bbox겠지?
     isbbox: getIsBbox(compound),
     // iscrowd 역시 isbbox와 같이 고민.
-    iscrowd: getIsCrowd(compound),
+    // iscrowd: getIsCrowd(compound),
+    iscrowd: false,
     color: annotationColor,
-    segmentation: compoundPathToSegmentation(compound),
+    segmentation: seg.length > 0 ? seg : [[]],
     area: Math.floor(compound.area),
     // new Group(compound.children)을 Path.Rectangle().bounds 해야하나 알아보기.
     bbox: getBbox(compound, annotationId),
