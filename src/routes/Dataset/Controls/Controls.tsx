@@ -59,7 +59,7 @@ export default function Controls(props: ControlsProps) {
     }
   };
 
-  const onFilesChange = (
+  const onFilesChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
     isFolder?: boolean,
   ) => {
@@ -68,17 +68,21 @@ export default function Controls(props: ControlsProps) {
 
     if (files.length <= 0) return;
 
-    for (let idx = 0; idx < files.length; idx++) {
-      if (isFolder && !files[idx].name.match(/mip\.(jpg|png|tiff)$/i)) continue;
-      formData.append('images', files[idx]);
-    }
+    const chunkSize = 1000;
+    for (let i = 0; i < files.length; i += chunkSize) {
+      const formData = new FormData();
+      for (let j = i; j < Math.min(i + chunkSize, files.length); j++) {
+        if (isFolder && !files[j].name.match(/mip\.(jpg|png|tiff)$/i)) continue;
+        formData.append('images', files[j]);
+      }
 
-    if (!formData.getAll('images').length) {
-      alert('해당 폴더에 MIP 파일이 없습니다.');
-      return;
-    }
+      if (!formData.getAll('images').length) {
+        alert('해당 폴더에 MIP 파일이 없습니다.');
+        continue;
+      }
 
-    uploadImages(Number(datasetId), formData);
+      await uploadImages(Number(datasetId), formData);
+    }
   };
 
   const onTrainStart = async (
