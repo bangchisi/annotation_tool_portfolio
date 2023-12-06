@@ -1,7 +1,7 @@
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Tool } from 'routes/Annotator/Annotator';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
@@ -13,46 +13,47 @@ const strokeWidth = 2;
 let tempPath: paper.CompoundPath | null;
 let startPoint: paper.Point | null;
 let endPoint: paper.Point | null;
-let guideBox: paper.Path.Rectangle | null;
+export let guideBox: paper.Path.Rectangle | null;
 
 const useBoxTool = (compounds: paper.Item[]) => {
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
+  const tool = useMemo(() => new AnnotationTool(Tool.Box), []);
+
   // 마우스 클릭
-  const onMouseDown = useCallback(
-    (event: paper.MouseEvent) => {
-      if (!currentCategory || !currentAnnotation) return;
+  tool.onMouseDown = function (event: paper.MouseEvent) {
+    if (!currentCategory || !currentAnnotation) return;
 
-      const { annotationId: currentAnnotationId } = currentAnnotation;
-      const { categoryId: currentCategoryId } = currentCategory;
+    this.startDrawing();
 
-      // tempPath를 현재 compound로 선택
-      tempPath = compounds.find((compound) => {
-        const { categoryId, annotationId } = compound.data;
-        if (
-          categoryId === currentCategoryId &&
-          annotationId === currentAnnotationId
-        ) {
-          // data를 넣어줌
-          // tempData = compound.data;
-          return compound;
-        }
-      }) as paper.CompoundPath;
+    const { annotationId: currentAnnotationId } = currentAnnotation;
+    const { categoryId: currentCategoryId } = currentCategory;
 
-      if (!startPoint) {
-        // set start point
-        startPoint = event.point;
-      } else {
-        // set end point
-        endPoint = event.point;
+    // tempPath를 현재 compound로 선택
+    tempPath = compounds.find((compound) => {
+      const { categoryId, annotationId } = compound.data;
+      if (
+        categoryId === currentCategoryId &&
+        annotationId === currentAnnotationId
+      ) {
+        // data를 넣어줌
+        // tempData = compound.data;
+        return compound;
       }
-    },
-    [compounds, currentAnnotation, currentCategory],
-  );
+    }) as paper.CompoundPath;
+
+    if (!startPoint) {
+      // set start point
+      startPoint = event.point;
+    } else {
+      // set end point
+      endPoint = event.point;
+    }
+  };
 
   // 마우스 움직임
-  const onMouseMove = useCallback((event: paper.MouseEvent) => {
+  tool.onMouseMove = function (event: paper.MouseEvent) {
     if (!startPoint) return;
 
     if (guideBox) {
@@ -67,10 +68,10 @@ const useBoxTool = (compounds: paper.Item[]) => {
       strokeWidth,
       strokeColor,
     });
-  }, []);
+  };
 
   // 마우스 클릭 해제
-  const onMouseUp = useCallback(() => {
+  tool.onMouseUp = function () {
     if (!tempPath) return;
 
     // 두 번째 점이 없으면 무시
@@ -90,15 +91,9 @@ const useBoxTool = (compounds: paper.Item[]) => {
     // children 바꿔치기고 pathToSwitch 삭제
     tempPath.children = pathToSwitch.children;
     pathToSwitch.remove();
-  }, []);
 
-  const tool = useMemo(() => {
-    const tool = new AnnotationTool(Tool.Box);
-    tool.onMouseDown = onMouseDown;
-    tool.onMouseUp = onMouseUp;
-    tool.onMouseMove = onMouseMove;
-    return tool;
-  }, [onMouseUp, onMouseDown, onMouseMove]);
+    this.endDrawing();
+  };
 
   return tool;
 };

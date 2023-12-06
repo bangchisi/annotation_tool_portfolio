@@ -18,7 +18,7 @@ import {
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { Editor } from './Canvas.style';
 import { onCanvasWheel } from './helpers/canvasHelper';
-import useTools from './hooks/useTools';
+import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import { brushCursor, eraserCursor } from './tools';
@@ -107,8 +107,27 @@ export default function Canvas(props: CanvasProps) {
     }
   }
 
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const selectedToolInstances = useTools({
+    selectedTool,
+    canvasChildren,
+    imageId,
+    image,
+  });
+
+  // 선택된 툴이 바뀔 때마다 activate
+  useEffect(() => {
+    const selectedToolInstance = selectedToolInstances[selectedTool];
+    selectedToolInstance?.activate();
+  }, [selectedToolInstances, selectedTool]);
+
+  // 캔버스 초기 설정 시, 캔버스 히스토리 초기리
+  useEffect(() => {
+    AnnotationTool.history.undo = [];
+    AnnotationTool.history.redo = [];
+  }, []);
+
   // 캔버스 초기 설정 useEffect (이미지 로드 후)
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -165,17 +184,6 @@ export default function Canvas(props: CanvasProps) {
 
     drawPaths(categories);
   }, [categories, isImageLoaded, drawPaths]);
-
-  const selectedToolInstance = useTools({
-    selectedTool,
-    canvasChildren,
-    imageId,
-    image,
-  });
-
-  useEffect(() => {
-    selectedToolInstance?.activate();
-  }, [selectedToolInstance]);
 
   // SAM 로딩 했는지 검사
   useEffect(() => {

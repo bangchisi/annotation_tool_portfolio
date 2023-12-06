@@ -15,6 +15,7 @@ const strokeWidth = 2;
 const useEraserTool = (compounds: paper.Item[]) => {
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
+
   const { eraserRadius } = useAppSelector(selectAuth).preference;
 
   const createEraser = useCallback((point: paper.Point, radius: number) => {
@@ -27,9 +28,13 @@ const useEraserTool = (compounds: paper.Item[]) => {
     });
   }, []);
 
+  const tool = useMemo(() => new AnnotationTool(Tool.Eraser), []);
+
   // 마우스 클릭
-  const onMouseDown = useCallback(() => {
+  tool.onMouseDown = function () {
     if (!currentCategory || !currentAnnotation) return;
+
+    this.startDrawing();
 
     const { annotationId: currentAnnotationId } = currentAnnotation;
     const { categoryId: currentCategoryId } = currentCategory;
@@ -46,72 +51,56 @@ const useEraserTool = (compounds: paper.Item[]) => {
         return compound;
       }
     }) as paper.CompoundPath;
-  }, [compounds, currentAnnotation, currentCategory]);
+  };
 
   // 마우스 드래그
-  const onMouseDrag = useCallback(
-    (event: paper.MouseEvent) => {
-      if (!tempPath) return;
+  tool.onMouseDrag = function (event: paper.MouseEvent) {
+    if (!tempPath) return;
 
-      // // eraser cursor 이미 있으면 제거
-      if (eraserCursor !== null) {
-        eraserCursor.remove();
-        eraserCursor = null;
-      }
-      // eraser cursor 생성
-      eraserCursor = createEraser(event.point, eraserRadius);
+    // // eraser cursor 이미 있으면 제거
+    if (eraserCursor !== null) {
+      eraserCursor.remove();
+      eraserCursor = null;
+    }
+    // eraser cursor 생성
+    eraserCursor = createEraser(event.point, eraserRadius);
 
-      let eraser: paper.Path | null = new paper.Path.Circle({
-        center: event.point,
-        radius: eraserRadius,
-      });
+    let eraser: paper.Path | null = new paper.Path.Circle({
+      center: event.point,
+      radius: eraserRadius,
+    });
 
-      eraser.flatten(0.1);
+    eraser.flatten(0.1);
 
-      // 바꿔치기 할 children 생성
-      const pathToSwitch = new paper.CompoundPath(
-        tempPath.subtract(eraser) as paper.CompoundPath,
-      );
+    // 바꿔치기 할 children 생성
+    const pathToSwitch = new paper.CompoundPath(
+      tempPath.subtract(eraser) as paper.CompoundPath,
+    );
 
-      // children 바꿔치기고 pathToSwitch 삭제
-      tempPath.children = pathToSwitch.children;
-      pathToSwitch.remove();
-      // 임시 원 삭제
-      eraser.remove();
-      eraser = null;
-    },
-    [eraserRadius, createEraser],
-  );
+    // children 바꿔치기고 pathToSwitch 삭제
+    tempPath.children = pathToSwitch.children;
+    pathToSwitch.remove();
 
-  // 마우스 버튼 뗌
-  const onMouseUp = useCallback(() => {
+    // 임시 원 삭제
+    eraser.remove();
+    eraser = null;
+  };
+
+  tool.onMouseUp = function () {
     tempPath = null;
-  }, []);
+    this.endDrawing();
+  };
 
-  const onMouseMove = useCallback(
-    (event: paper.MouseEvent) => {
-      // eraser cursor 이미 있으면 제거
-      if (eraserCursor !== null) {
-        eraserCursor.remove();
-        eraserCursor = null;
-      }
+  tool.onMouseMove = function (event: paper.MouseEvent) {
+    // eraser cursor 이미 있으면 제거
+    if (eraserCursor !== null) {
+      eraserCursor.remove();
+      eraserCursor = null;
+    }
 
-      // eraser cursor 생성
-      eraserCursor = createEraser(event.point, eraserRadius);
-    },
-    [eraserRadius, createEraser],
-  );
-
-  const tool = useMemo(() => {
-    const tool = new AnnotationTool(Tool.Eraser);
-
-    tool.onMouseMove = onMouseMove;
-    tool.onMouseDown = onMouseDown;
-    tool.onMouseDrag = onMouseDrag;
-    tool.onMouseUp = onMouseUp;
-
-    return tool;
-  }, [onMouseDown, onMouseDrag, onMouseUp, onMouseMove]);
+    // eraser cursor 생성
+    eraserCursor = createEraser(event.point, eraserRadius);
+  };
 
   return tool;
 };

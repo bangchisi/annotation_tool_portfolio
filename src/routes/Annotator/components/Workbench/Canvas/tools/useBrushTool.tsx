@@ -1,6 +1,6 @@
 import paper from 'paper';
 
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { useAppSelector } from 'App.hooks';
 import { Tool } from 'routes/Annotator/Annotator';
@@ -22,25 +22,25 @@ const useBrushTool = (compounds: paper.Item[]) => {
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
-  // 마우스 움직임
-  const onMouseMove = useCallback(
-    (event: paper.MouseEvent) => {
-      // brush cursor 이미 있으면 제거
-      if (brushCursor !== null) {
-        brushCursor.remove();
-        brushCursor = null;
-      }
+  const tool = useMemo(() => new AnnotationTool(Tool.Brush), []);
 
-      // brush cursor 생성
-      brushCursor = createBrush(event.point, brushRadius);
-    },
-    [brushRadius],
-  );
+  // 마우스 움직임
+  tool.onMouseMove = function (event: paper.MouseEvent) {
+    // brush cursor 이미 있으면 제거
+    if (brushCursor) {
+      brushCursor.remove();
+    }
+
+    // brush cursor 생성
+    brushCursor = createBrush(event.point, brushRadius);
+  };
 
   // 마우스 클릭
   // TODO: 클릭 하자마자 해당 위치에 브러쉬 생성 시작
-  const onMouseDown = useCallback(() => {
+  tool.onMouseDown = function () {
     if (!currentCategory || !currentAnnotation) return;
+
+    this.startDrawing();
 
     const { annotationId: currentAnnotationId } = currentAnnotation;
     const { categoryId: currentCategoryId } = currentCategory;
@@ -55,53 +55,44 @@ const useBrushTool = (compounds: paper.Item[]) => {
         return compound;
       }
     }) as paper.CompoundPath;
-  }, [compounds, currentAnnotation, currentCategory]);
+  };
 
   // 마우스 드래그
-  const onMouseDrag = useCallback(
-    (event: paper.MouseEvent) => {
-      if (!tempPath) return;
+  tool.onMouseDrag = function (event: paper.MouseEvent) {
+    if (!tempPath) return;
 
-      // // brush cursor 이미 있으면 제거
-      if (brushCursor !== null) {
-        brushCursor.remove();
-        brushCursor = null;
-      }
+    // // brush cursor 이미 있으면 제거
+    if (brushCursor) {
+      brushCursor.remove();
+    }
 
-      // brush cursor 생성
-      brushCursor = createBrush(event.point, brushRadius);
+    // brush cursor 생성
+    brushCursor = createBrush(event.point, brushRadius);
 
-      let brush: paper.Path | null = new paper.Path.Circle({
-        center: event.point,
-        radius: brushRadius,
-      });
+    let brush: paper.Path | null = new paper.Path.Circle({
+      center: event.point,
+      radius: brushRadius,
+    });
 
-      brush.flatten(0.1);
+    brush.flatten(0.1);
 
-      // 바꿔치기 할 children 생성
-      const pathToSwitch = new paper.CompoundPath(
-        tempPath.unite(brush) as paper.CompoundPath,
-      );
+    // 바꿔치기 할 children 생성
+    const pathToSwitch = new paper.CompoundPath(
+      tempPath.unite(brush) as paper.CompoundPath,
+    );
 
-      // children 바꿔치기고 pathToSwitch 삭제
-      tempPath.children = pathToSwitch.children;
-      pathToSwitch.remove();
-      // 임시 원 삭제
-      brush.remove();
-      brush = null;
-    },
-    [brushRadius],
-  );
+    // children 바꿔치기고 pathToSwitch 삭제
+    tempPath.children = pathToSwitch.children;
+    pathToSwitch.remove();
 
-  const tool = useMemo(() => {
-    const tool = new AnnotationTool(Tool.Brush);
+    // 임시 원 삭제
+    brush.remove();
+    brush = null;
+  };
 
-    tool.onMouseMove = onMouseMove;
-    tool.onMouseDown = onMouseDown;
-    tool.onMouseDrag = onMouseDrag;
-
-    return tool;
-  }, [onMouseMove, onMouseDown, onMouseDrag]);
+  tool.onMouseUp = function () {
+    this.endDrawing();
+  };
 
   return tool;
 };
