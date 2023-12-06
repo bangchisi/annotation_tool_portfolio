@@ -20,11 +20,9 @@ const CursorTypes = {
   [Tool.SAM]: 'crosshair',
 };
 
-// export const Editor = styled('canvas')<EditorProps>(() => {
 export const Editor = styled('canvas')<EditorProps>(({ selectedTool }) => {
   return {
     backgroundColor: '#E7ECF0',
-    // backgroundColor: 'white',
     cursor: CursorTypes[selectedTool] ?? 'default',
   };
 });

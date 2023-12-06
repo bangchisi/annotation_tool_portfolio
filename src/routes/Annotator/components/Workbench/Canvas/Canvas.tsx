@@ -3,7 +3,14 @@ import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { getCanvasImage } from 'helpers/ImagesHelpers';
 import paper from 'paper';
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useParams } from 'react-router-dom';
 import { Tool } from 'routes/Annotator/Annotator';
 import SAMModel from 'routes/Annotator/models/SAM.model';
@@ -54,58 +61,66 @@ export default function Canvas(props: CanvasProps) {
   } = useAppSelector(selectSAM);
 
   // SAM model 로드
-  async function loadSAM(modelType?: string) {
-    dispatch(setSAMModelLoading(true));
-    try {
-      const response = await SAMModel.loadModel(
-        modelType ? modelType : 'vit_l',
-      );
-      dispatch(setSAMModelLoaded(true));
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to load SAM');
-      // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
-      dispatch(setSAMModelLoaded(false));
+  const loadSAM = useCallback(
+    async (modelType?: string) => {
+      dispatch(setSAMModelLoading(true));
+      try {
+        const response = await SAMModel.loadModel(
+          modelType ? modelType : 'vit_l',
+        );
+        if (response.status !== 200) throw new Error('Failed to load SAM');
 
-      alert(
-        'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
-      );
-    } finally {
-      dispatch(setSAMModelLoading(false));
-    }
-  }
+        dispatch(setSAMModelLoaded(true));
+      } catch (error) {
+        axiosErrorHandler(error, 'Failed to load SAM');
+        // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
+        dispatch(setSAMModelLoaded(false));
 
-  async function embedImage(imageId: number) {
-    if (!image) return;
-    if (image.width >= 4096 || image.height >= 4096) {
-      dispatch(setSAMEmbeddingId(null));
-      dispatch(setSAMEmbeddingLoaded(false));
-      alert(
-        '이미지의 크기가 너무 큽니다. 4096 * 4096 이하의 이미지를 사용해주세요.',
-      );
-      return;
-    }
+        alert(
+          'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
+        );
+      } finally {
+        dispatch(setSAMModelLoading(false));
+      }
+    },
+    [dispatch],
+  );
 
-    dispatch(setSAMEmbeddingLoading(true));
+  const embedImage = useCallback(
+    async (imageId: number) => {
+      if (!image) return;
+      if (image.width >= 4096 || image.height >= 4096) {
+        dispatch(setSAMEmbeddingId(null));
+        dispatch(setSAMEmbeddingLoaded(false));
+        alert(
+          '이미지의 크기가 너무 큽니다. 4096 * 4096 이하의 이미지를 사용해주세요.',
+        );
+        return;
+      }
 
-    try {
-      // 이건 첫 embed 생성이다.
-      // (0, 0)과 (image.width, image.height)를 보내는 이유는
-      // embed image가 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
-      const response = await SAMModel.embedImage(
-        imageId,
-        new paper.Point(0, 0),
-        new paper.Point(image.width, image.height),
-      );
-      if (response.status !== 200)
-        throw new Error('Failed to get image embedding');
-      dispatch(setSAMEmbeddingId(imageId));
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to get image embedding');
-      dispatch(setSAMEmbeddingId(null));
-    } finally {
-      dispatch(setSAMEmbeddingLoading(false));
-    }
-  }
+      dispatch(setSAMEmbeddingLoading(true));
+
+      try {
+        // 이건 첫 embed 생성이다.
+        // (0, 0)과 (image.width, image.height)를 보내는 이유는
+        // embed image가 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
+        const response = await SAMModel.embedImage(
+          imageId,
+          new paper.Point(0, 0),
+          new paper.Point(image.width, image.height),
+        );
+        if (response.status !== 200)
+          throw new Error('Failed to get image embedding');
+        dispatch(setSAMEmbeddingId(imageId));
+      } catch (error) {
+        axiosErrorHandler(error, 'Failed to get image embedding');
+        dispatch(setSAMEmbeddingId(null));
+      } finally {
+        dispatch(setSAMEmbeddingLoading(false));
+      }
+    },
+    [dispatch, image],
+  );
 
   const selectedToolInstances = useTools({
     selectedTool,
@@ -165,7 +180,7 @@ export default function Canvas(props: CanvasProps) {
       canvas.onwheel = null;
       canvas.onmouseleave = null;
     };
-  }, []);
+  }, [imageId]);
 
   useEffect(() => {
     if (width && height) {
@@ -201,7 +216,7 @@ export default function Canvas(props: CanvasProps) {
         embedImage(imageId);
       });
     }
-  }, [selectedTool]);
+  }, [selectedTool, SAMModelLoaded, embeddingId, imageId, embedImage, loadSAM]);
 
   // remove eraser cursor and brush cursor on tool change
   useEffect(() => {
