@@ -1,8 +1,10 @@
 import paper from 'paper';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useAppSelector } from 'App.hooks';
+import { Tool } from 'routes/Annotator/Annotator';
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { selectAuth } from 'routes/Auth/slices/authSlice';
 
@@ -37,7 +39,7 @@ const useBrushTool = (compounds: paper.Item[]) => {
 
   // 마우스 클릭
   // TODO: 클릭 하자마자 해당 위치에 브러쉬 생성 시작
-  const onMouseDown = (event: paper.MouseEvent) => {
+  const onMouseDown = useCallback(() => {
     if (!currentCategory || !currentAnnotation) return;
 
     const { annotationId: currentAnnotationId } = currentAnnotation;
@@ -53,7 +55,7 @@ const useBrushTool = (compounds: paper.Item[]) => {
         return compound;
       }
     }) as paper.CompoundPath;
-  };
+  }, [compounds, currentAnnotation, currentCategory]);
 
   // 마우스 드래그
   const onMouseDrag = useCallback(
@@ -91,18 +93,17 @@ const useBrushTool = (compounds: paper.Item[]) => {
     [brushRadius],
   );
 
-  // 마우스 버튼 뗌
-  const onMouseUp = (event: paper.MouseEvent) => {
-    tempPath = null;
-  };
+  const tool = useMemo(() => {
+    const tool = new AnnotationTool(Tool.Brush);
 
-  // 마우스가 canvas 밖으로 나가면 brush cursor가 남아있음
-  // Canvas에 직접 이벤트를 걸어서 해결
-  const onMouseLeave = (event: paper.MouseEvent) => {
-    //
-  };
+    tool.onMouseMove = onMouseMove;
+    tool.onMouseDown = onMouseDown;
+    tool.onMouseDrag = onMouseDrag;
 
-  return { onMouseMove, onMouseDown, onMouseUp, onMouseDrag, onMouseLeave };
+    return tool;
+  }, [onMouseMove, onMouseDown, onMouseDrag]);
+
+  return tool;
 };
 
 const createBrush = (point: paper.Point, radius: number) => {

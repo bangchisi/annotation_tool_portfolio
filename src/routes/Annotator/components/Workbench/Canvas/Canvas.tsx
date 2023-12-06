@@ -1,14 +1,12 @@
-import paper from 'paper';
-import { Fragment, useEffect, useState, useRef, useLayoutEffect } from 'react';
-import { onCanvasWheel } from './helpers/canvasHelper';
-import { Editor } from './Canvas.style';
-import { useAppSelector, useAppDispatch } from 'App.hooks';
+import { useAppDispatch, useAppSelector } from 'App.hooks';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { getCanvasImage } from 'helpers/ImagesHelpers';
+import paper from 'paper';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Tool } from 'routes/Annotator/Annotator';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import SAMModel from 'routes/Annotator/models/SAM.model';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import {
   selectSAM,
   setSAMEmbeddingId,
@@ -17,11 +15,13 @@ import {
   setSAMModelLoaded,
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
-import useTools from './hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import { Editor } from './Canvas.style';
+import { onCanvasWheel } from './helpers/canvasHelper';
+import useTools from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
-import { eraserCursor, brushCursor } from './tools';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import { brushCursor, eraserCursor } from './tools';
 
 let canvasChildren: paper.Item[];
 
@@ -30,8 +30,8 @@ interface CanvasProps {
   height?: number;
 }
 
-import { tempRect as clickRect } from './tools/useSAMTool';
 import { tempRect as everythingRect } from '../../RightSidebar/Preferences/SAMToolPanel/SAMToolPanel';
+import { tempRect as clickRect } from './tools/useSAMTool';
 
 // TODO: paper init to another file?
 export default function Canvas(props: CanvasProps) {
@@ -164,30 +164,18 @@ export default function Canvas(props: CanvasProps) {
     if (!isImageLoaded) return;
 
     drawPaths(categories);
-  }, [categories, isImageLoaded]);
+  }, [categories, isImageLoaded, drawPaths]);
 
-  const selectedToolsHandlers = useTools({
+  const selectedToolInstance = useTools({
     selectedTool,
     canvasChildren,
     imageId,
     image,
   });
-  const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } =
-    selectedToolsHandlers;
 
   useEffect(() => {
-    paper.view.onMouseDown = onMouseDown;
-    paper.view.onMouseUp = onMouseUp;
-    paper.view.onMouseMove = onMouseMove;
-    paper.view.onMouseDrag = onMouseDrag;
-
-    return () => {
-      paper.view.onMouseDown = null;
-      paper.view.onMouseUp = null;
-      paper.view.onMouseMove = null;
-      paper.view.onMouseDrag = null;
-    };
-  }, [selectedTool, selectedToolsHandlers, currentAnnotation]);
+    selectedToolInstance?.activate();
+  }, [selectedToolInstance]);
 
   // SAM 로딩 했는지 검사
   useEffect(() => {

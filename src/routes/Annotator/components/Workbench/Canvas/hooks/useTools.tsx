@@ -1,15 +1,50 @@
-import { useAppDispatch, useAppSelector } from 'App.hooks';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAppSelector } from 'App.hooks';
+import { useMemo } from 'react';
 import { Tool } from 'routes/Annotator/Annotator';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
 // tools
+import { ImageType } from 'routes/Annotator/Annotator.types';
 import useBoxTool from '../tools/useBoxTool';
 import useBrushTool from '../tools/useBrushTool';
 import useEraserTool from '../tools/useEraserTool';
 import useSAMTool from '../tools/useSAMTool';
 import useSelectTool from '../tools/useSelectTool';
-import { ImageType } from 'routes/Annotator/Annotator.types';
+
+import paper from 'paper';
+import { Tool as ToolType } from 'routes/Annotator/Annotator';
+
+export type ToolCommand = {
+  toolType: ToolType;
+
+  // 이전에 존재했던 annotation들만 비교하기 위한 id 목록
+  annotationIds: string[];
+
+  // undo, redo를 위한 이전 상태
+  layer: paper.Layer;
+
+  // 편집 전후 마스킹 비교를 위한 해시값
+  hash: string;
+};
+
+export class AnnotationTool extends paper.Tool {
+  toolType: ToolType;
+
+  constructor(toolType: ToolType) {
+    super();
+    this.toolType = toolType;
+  }
+}
+
+export class ToolHistory {
+  undo: ToolCommand[];
+  redo: ToolCommand[];
+
+  constructor() {
+    this.undo = [];
+    this.redo = [];
+  }
+}
 
 interface UseToolsProps {
   selectedTool: Tool;
@@ -27,9 +62,9 @@ const useTools = (props: UseToolsProps) => {
   const boxTool = useBoxTool(canvasChildren);
   const eraserTool = useEraserTool(canvasChildren);
   const selectTool = useSelectTool();
-  const samTool = useSAMTool();
+  const samTool = useSAMTool().tool;
 
-  const toolHandlers = useMemo(
+  const selectedToolInstances = useMemo(
     () => ({
       [Tool.Brush]: brushTool,
       [Tool.Box]: boxTool,
@@ -40,12 +75,12 @@ const useTools = (props: UseToolsProps) => {
     [brushTool, boxTool, eraserTool, selectTool, samTool],
   );
 
-  const selectedToolHandler = useMemo(
-    () => toolHandlers[selectedTool],
-    [selectedTool, toolHandlers],
+  const selectedToolInstance = useMemo(
+    () => selectedToolInstances[selectedTool],
+    [selectedToolInstances, selectedTool],
   );
 
-  return selectedToolHandler;
+  return selectedToolInstance;
 };
 
 export default useTools;
