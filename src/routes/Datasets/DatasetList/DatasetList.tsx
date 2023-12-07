@@ -23,8 +23,12 @@ export default function DatasetList(props: DatasetListProps) {
   const list = filteredDatasets;
 
   useEffect(() => {
-    setFilteredDatasets(datasets);
+    setDatasetList(user.userId);
   }, []);
+
+  useEffect(() => {
+    setFilteredDatasets(datasets);
+  }, [datasets]);
 
   return (
     <Container className="dataset-list">
