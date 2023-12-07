@@ -102,10 +102,6 @@ export default function Dataset() {
     }
   }
 
-  useEffect(() => {
-    setDeviceStatus();
-  }, []);
-
   const onCurrentpageChange = (
     event: React.ChangeEvent<unknown>,
     page: number,
@@ -119,13 +115,10 @@ export default function Dataset() {
     getDataset(Number(datasetId));
   }, []);
 
-  // train 중인지 확인
   useEffect(() => {
     getIsOnTrain(userId, datasetId).then((flag) => {
       setIsOnTrain(flag);
     });
-    // test용 true
-    // setIsOnTrain(true);
   }, []);
 
   const isImageListEmpty = useMemo(() => {

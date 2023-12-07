@@ -1,18 +1,15 @@
-import { Button, MenuItem, Modal, TextField, Typography } from '@mui/material';
-import { Fragment, useState } from 'react';
+import { Button, TextField, Typography } from '@mui/material';
+import DeferComponent from 'components/DeferComponent';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import ModalWrapper, { useModal } from 'components/ModalWrapper/ModalWrapper';
+import { Fragment, useCallback } from 'react';
 import {
   Container,
   FieldContainer,
-  ModalBody,
-  ModalContent,
   ModalFooter,
-  ModalHeader,
-  ModalShadow,
-  ModalShadowContainer,
   TrainContainer,
   TrainModelButton,
 } from './TrainStartModal.style';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 interface TrainStartModalModalProps {
   baseModelName: string;
@@ -21,6 +18,7 @@ interface TrainStartModalModalProps {
   setFinetuneName: React.Dispatch<React.SetStateAction<string>>;
   datasetId: number;
   isDeviceLoading: boolean;
+  setDeviceStatus: () => Promise<void>;
   onTrainStart: (
     datasetId: number,
     deviceId: number,
@@ -44,23 +42,29 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
     onTrainStart,
     availableDevices,
     isDeviceLoading,
+    setDeviceStatus,
   } = props;
 
   const firstAvailableDeviceId = Object.entries(availableDevices || {}).find(
     ([id, available]) => available,
   )?.[0];
 
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    resetForm();
-    setOpen(false);
-  };
+  const { open, handleOpen: onOpen, handleClose: onClose } = useModal();
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setBaseModelName('vit_l');
     setFinetuneName('');
-  };
+  }, [setBaseModelName, setFinetuneName]);
+
+  const handleOpen = useCallback(() => {
+    onOpen();
+    setDeviceStatus();
+  }, [onOpen, setDeviceStatus]);
+
+  const handleClose = useCallback(() => {
+    onClose();
+    resetForm();
+  }, [onClose, resetForm]);
 
   return (
     <Container>
@@ -71,111 +75,68 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
       >
         TRAIN MODEL
       </TrainModelButton>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        disableScrollLock={true}
-        closeAfterTransition
-        slotProps={{
-          backdrop: {
-            timeout: 350,
-          },
-        }}
-      >
-        <ModalShadowContainer>
-          <ModalShadow>
-            <ModalBody>
-              <ModalHeader>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontSize: '22px',
-                  }}
-                >
-                  Train Model
-                </Typography>
-              </ModalHeader>
-              <ModalContent>
-                {isDeviceLoading && (
-                  <LoadingSpinner message="loading finetune..." />
-                )}
-                <div>
-                  {availableDevices && (
-                    <Fragment>
-                      {/* <FieldContainer>
-                        <Typography>Base Model Name</Typography>
-                        <SelectField
-                          defaultValue="vit_l"
-                          value={baseModelName}
-                          size="small"
-                          onChange={(event) => {
-                            setBaseModelName(event.target.value as string);
-                          }}
-                        >
-                          <MenuItem value="vit_l">vit_l</MenuItem>
-                          <MenuItem value="vit_b">vit_b</MenuItem>
-                        </SelectField>
-                      </FieldContainer> */}
-                      <FieldContainer>
-                        <Typography>New Model Name</Typography>
-                        <TextField
-                          type="text"
-                          value={finetuneName}
-                          size="small"
-                          onChange={(event) => {
-                            setFinetuneName(event.target.value);
-                          }}
-                        ></TextField>
-                      </FieldContainer>
-                      <FieldContainer>
-                        <Typography>Directory</Typography>
-                        <TextField
-                          type="text"
-                          value={`/${baseModelName}/${finetuneName}`}
-                          disabled
-                          size="small"
-                        />
-                        <TrainContainer>
-                          {!firstAvailableDeviceId && (
-                            <Button disabled>BUSY</Button>
-                          )}
-                          {firstAvailableDeviceId && (
-                            <Button
-                              key={firstAvailableDeviceId}
-                              onClick={() => {
-                                if (!baseModelName || !finetuneName) {
-                                  alert('new model name은 필수 값입니다.');
-                                  return;
-                                }
-                                onTrainStart(
-                                  datasetId,
-                                  Number(firstAvailableDeviceId),
-                                  baseModelName,
-                                  finetuneName,
-                                );
-                                handleClose();
-                              }}
-                            >
-                              TRAIN
-                            </Button>
-                          )}
-                        </TrainContainer>
-                      </FieldContainer>
-                    </Fragment>
-                  )}
-                </div>
-                <ModalFooter>
-                  <Button color="warning" onClick={handleClose}>
-                    Cancel
-                  </Button>
-                </ModalFooter>
-              </ModalContent>
-            </ModalBody>
-          </ModalShadow>
-        </ModalShadowContainer>
-      </Modal>
+      {isDeviceLoading ? (
+        <DeferComponent delay={150}>
+          <LoadingSpinner message="loading finetune..." />
+        </DeferComponent>
+      ) : (
+        <ModalWrapper open={open} handleClose={handleClose} title="Train Model">
+          <div>
+            {availableDevices && (
+              <Fragment>
+                <FieldContainer>
+                  <Typography>New Model Name</Typography>
+                  <TextField
+                    type="text"
+                    value={finetuneName}
+                    size="small"
+                    onChange={(event) => {
+                      setFinetuneName(event.target.value);
+                    }}
+                  ></TextField>
+                </FieldContainer>
+                <FieldContainer>
+                  <Typography>Directory</Typography>
+                  <TextField
+                    type="text"
+                    value={`/${baseModelName}/${finetuneName}`}
+                    disabled
+                    size="small"
+                  />
+                  <TrainContainer>
+                    {!firstAvailableDeviceId && <Button disabled>BUSY</Button>}
+                    {firstAvailableDeviceId && (
+                      <Button
+                        key={firstAvailableDeviceId}
+                        onClick={() => {
+                          if (!baseModelName || !finetuneName) {
+                            alert('new model name은 필수 값입니다.');
+                            return;
+                          }
+                          onTrainStart(
+                            datasetId,
+                            Number(firstAvailableDeviceId),
+                            baseModelName,
+                            finetuneName,
+                          );
+                          handleClose();
+                        }}
+                      >
+                        TRAIN
+                      </Button>
+                    )}
+                  </TrainContainer>
+                </FieldContainer>
+              </Fragment>
+            )}
+          </div>
+          <ModalFooter>
+            <Button color="warning" onClick={handleClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalWrapper>
+      )}
     </Container>
   );
 }
