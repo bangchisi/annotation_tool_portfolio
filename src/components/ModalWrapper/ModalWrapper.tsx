@@ -64,6 +64,7 @@ export const useModal = () => {
 
   return {
     open,
+    setOpen,
     handleOpen,
     handleClose,
   };
@@ -77,7 +78,7 @@ const Container = styled('div')`
   height: 100%;
   background-color: #f6fafd;
   border: 1px solid #1976d2;
-  padding: 0px 10px 10px 10px;
+  padding: 0px 15px 15px 15px;
   outline: none;
   border-radius: 7px;
 `;
@@ -87,7 +88,7 @@ const Body = styled('div')`
 `;
 
 const Header = styled('div')`
-  padding: 5px;
+  padding: 8px;
   display: flex;
   justify-content: center;
   color: #0e1116;
@@ -109,6 +110,7 @@ const ModalShadowContainer = styled('div')`
   align-items: center;
   height: 100%;
   min-width: 850px;
+  margin-left: -100px;
 `;
 
 const ModalShadow = styled('div')`
