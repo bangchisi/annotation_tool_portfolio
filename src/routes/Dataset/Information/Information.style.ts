@@ -48,13 +48,13 @@ export const NameField = styled(TextField)(() => {
     '& .MuiInputBase-root': {
       fontSize: '1.25rem',
       fontWeight: 'bold',
-      width: 'fit-content',
     },
   };
 });
 
 export const DescriptionField = styled(TextField)(() => {
   return {
+    marginTop: '8px',
     '& .MuiInputBase-root': {
       fontSize: '14px',
     },

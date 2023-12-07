@@ -14,7 +14,6 @@ import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import { Fragment, useEffect, useState } from 'react';
 import DatasetModel from '../models/Dataset.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 interface InformationProps extends DatasetType {
   isOnTrain: boolean;
@@ -37,11 +36,15 @@ export default function Information(props: InformationProps) {
     getDataset,
   } = props;
   const [isEdit, setIsEdit] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const onDatasetUpdate = async (datasetId: number) => {
-    if (!editSuperDatasetName || !editDatasetName) return;
-    setIsLoading(true);
+    if (!editSuperDatasetName || !editDatasetName) {
+      alert('super dataset과 dataset의 이름을 입력해주세요.');
+      setEditSuperDatasetName(superDatasetName);
+      setEditDatasetName(datasetName);
+      setEditDescription(description);
+      return;
+    }
     try {
       await DatasetModel.updateDataset(
         datasetId,
@@ -51,17 +54,8 @@ export default function Information(props: InformationProps) {
       );
     } catch (error) {
       axiosErrorHandler(error, 'Failed to update dataset information.');
-    } finally {
-      setIsLoading(false);
-      getDataset(datasetId);
     }
   };
-
-  useEffect(() => {
-    if (!isEdit) {
-      onDatasetUpdate(datasetId);
-    }
-  }, [isEdit]);
 
   const [editSuperDatasetName, setEditSuperDatasetName] =
     useState(superDatasetName);
@@ -70,9 +64,6 @@ export default function Information(props: InformationProps) {
 
   return (
     <Container>
-      {/* {isLoading && (
-        <LoadingSpinner message="Dataset 정보 업데이트 중입니다.." />
-      )} */}
       {isOnTrain && <ComponentBlocker message="현재 학습중인 Dataset입니다." />}
       <TitleContainer>
         {isEdit && (
@@ -81,13 +72,17 @@ export default function Information(props: InformationProps) {
               value={editSuperDatasetName}
               placeholder="super dataset name"
               size="small"
+              label="super dataset name"
               onChange={(e) => setEditSuperDatasetName(e.target.value)}
             />
-            /
+            <Typography variant="h6" className="slash">
+              /
+            </Typography>
             <NameField
               value={editDatasetName}
               placeholder="dataset name"
               size="small"
+              label="dataset name"
               onChange={(e) => setEditDatasetName(e.target.value)}
             />
           </Fragment>
@@ -107,7 +102,12 @@ export default function Information(props: InformationProps) {
             padding: 0,
             marginLeft: '8px',
           }}
-          onClick={() => setIsEdit((prev) => !prev)}
+          onClick={() => {
+            if (isEdit) {
+              onDatasetUpdate(datasetId).then(() => getDataset(datasetId));
+            }
+            setIsEdit((prev) => !prev);
+          }}
         >
           <EditOutlinedIcon
             sx={{
@@ -127,6 +127,7 @@ export default function Information(props: InformationProps) {
           <DescriptionField
             value={editDescription}
             onChange={(e) => setEditDescription(e.target.value)}
+            size="small"
             multiline
           />
         )}
