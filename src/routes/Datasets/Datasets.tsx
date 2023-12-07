@@ -49,10 +49,6 @@ export default function Datasets() {
     }
   };
 
-  useEffect(() => {
-    setDatasetList(user.userId);
-  }, []);
-
   // TODO: style dataset-search
   return (
     <Container id="datasets">
