@@ -15,6 +15,7 @@ import { getIsOnTrain } from './helpers/DatasetHelpers';
 import DatasetModel from './models/Dataset.model';
 
 export interface DatasetType {
+  superDatasetName: string;
   datasetId: number;
   datasetName: string;
   lastUpdate: string;
@@ -55,7 +56,6 @@ export default function Dataset() {
       const dataset = response.data;
 
       setDataset(dataset);
-      return dataset;
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get dataset information.');
     } finally {
@@ -155,6 +155,7 @@ export default function Dataset() {
             handleCategoryDeleted={handleCategoryDeleted}
             handleCategoryAdded={handleCategoryAdded}
             isOnTrain={isOnTrain}
+            getDataset={getDataset}
           />
           <Content>
             {!isImageListEmpty && (
