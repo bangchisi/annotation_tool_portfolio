@@ -1,6 +1,4 @@
 import { Button, TextField, Typography } from '@mui/material';
-import DeferComponent from 'components/DeferComponent';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import ModalWrapper, { useModal } from 'components/ModalWrapper/ModalWrapper';
 import { useCallback } from 'react';
 import {
@@ -45,8 +43,7 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
 
   const handleOpen = useCallback(() => {
     onOpen();
-    setDeviceStatus();
-  }, [onOpen, setDeviceStatus]);
+  }, [onOpen]);
 
   const handleClose = useCallback(() => {
     onClose();
