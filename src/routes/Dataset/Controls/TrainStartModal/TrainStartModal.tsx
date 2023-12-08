@@ -2,7 +2,7 @@ import { Button, TextField, Typography } from '@mui/material';
 import DeferComponent from 'components/DeferComponent';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import ModalWrapper, { useModal } from 'components/ModalWrapper/ModalWrapper';
-import { Fragment, useCallback } from 'react';
+import { useCallback } from 'react';
 import {
   Container,
   FieldContainer,
@@ -17,19 +17,11 @@ interface TrainStartModalModalProps {
   finetuneName: string;
   setFinetuneName: React.Dispatch<React.SetStateAction<string>>;
   datasetId: number;
-  isDeviceLoading: boolean;
-  setDeviceStatus: () => Promise<void>;
   onTrainStart: (
     datasetId: number,
-    deviceId: number,
     modelType: string,
     finetuneName: string,
   ) => Promise<void>;
-  availableDevices:
-    | {
-        [key: number]: boolean;
-      }
-    | undefined;
 }
 
 export default function TrainStartModal(props: TrainStartModalModalProps) {
@@ -40,14 +32,9 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
     setFinetuneName,
     datasetId,
     onTrainStart,
-    availableDevices,
-    isDeviceLoading,
-    setDeviceStatus,
   } = props;
 
-  const firstAvailableDeviceId = Object.entries(availableDevices || {}).find(
-    ([id, available]) => available,
-  )?.[0];
+  let debounceTimerId: NodeJS.Timeout;
 
   const { open, handleOpen: onOpen, handleClose: onClose } = useModal();
 
@@ -66,6 +53,19 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
     resetForm();
   }, [onClose, resetForm]);
 
+  const onClickTrainButton = () => {
+    clearTimeout(debounceTimerId);
+
+    debounceTimerId = setTimeout(() => {
+      if (!baseModelName || !finetuneName) {
+        alert('new model name은 필수 값입니다.');
+        return;
+      }
+      onTrainStart(datasetId, baseModelName, finetuneName);
+      handleClose();
+    }, 300);
+  };
+
   return (
     <Container>
       <TrainModelButton
@@ -75,68 +75,38 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
       >
         TRAIN MODEL
       </TrainModelButton>
-      {isDeviceLoading ? (
-        <DeferComponent delay={150}>
-          <LoadingSpinner message="loading finetune..." />
-        </DeferComponent>
-      ) : (
-        <ModalWrapper open={open} handleClose={handleClose} title="Train Model">
-          <div>
-            {availableDevices && (
-              <Fragment>
-                <FieldContainer>
-                  <Typography>New Model Name</Typography>
-                  <TextField
-                    type="text"
-                    value={finetuneName}
-                    size="small"
-                    onChange={(event) => {
-                      setFinetuneName(event.target.value);
-                    }}
-                  ></TextField>
-                </FieldContainer>
-                <FieldContainer>
-                  <Typography>Directory</Typography>
-                  <TextField
-                    type="text"
-                    value={`/${baseModelName}/${finetuneName}`}
-                    disabled
-                    size="small"
-                  />
-                  <TrainContainer>
-                    {!firstAvailableDeviceId && <Button disabled>BUSY</Button>}
-                    {firstAvailableDeviceId && (
-                      <Button
-                        key={firstAvailableDeviceId}
-                        onClick={() => {
-                          if (!baseModelName || !finetuneName) {
-                            alert('new model name은 필수 값입니다.');
-                            return;
-                          }
-                          onTrainStart(
-                            datasetId,
-                            Number(firstAvailableDeviceId),
-                            baseModelName,
-                            finetuneName,
-                          );
-                          handleClose();
-                        }}
-                      >
-                        TRAIN
-                      </Button>
-                    )}
-                  </TrainContainer>
-                </FieldContainer>
-              </Fragment>
-            )}
-          </div>
-          <ModalFooter>
-            <Button color="warning" onClick={handleClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalWrapper>
-      )}
+      <ModalWrapper open={open} handleClose={handleClose} title="Train Model">
+        <div>
+          <FieldContainer>
+            <Typography>New Model Name</Typography>
+            <TextField
+              type="text"
+              value={finetuneName}
+              size="small"
+              onChange={(event) => {
+                setFinetuneName(event.target.value);
+              }}
+            ></TextField>
+          </FieldContainer>
+          <FieldContainer>
+            <Typography>Directory</Typography>
+            <TextField
+              type="text"
+              value={`/${baseModelName}/${finetuneName}`}
+              disabled
+              size="small"
+            />
+            <TrainContainer>
+              <Button onClick={onClickTrainButton}>TRAIN</Button>
+            </TrainContainer>
+          </FieldContainer>
+        </div>
+        <ModalFooter>
+          <Button color="warning" onClick={handleClose}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </ModalWrapper>
     </Container>
   );
 }
