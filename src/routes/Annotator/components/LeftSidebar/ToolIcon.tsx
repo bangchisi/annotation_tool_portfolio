@@ -1,8 +1,8 @@
 import { IconButton, Tooltip } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { ReactNode, useMemo } from 'react';
-import { Tool } from 'routes/Annotator/Annotator';
 import { setTool } from 'routes/Annotator/slices/annotatorSlice';
+import { Tool } from 'types';
 
 export default function ToolIcon(props: {
   toolName: string;

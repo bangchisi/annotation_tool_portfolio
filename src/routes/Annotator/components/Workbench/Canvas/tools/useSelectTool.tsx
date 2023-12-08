@@ -1,22 +1,28 @@
-import { useRef, useState } from 'react';
 import paper from 'paper';
+import { useMemo, useRef, useState } from 'react';
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import { Tool } from 'types';
 
 const useSelectTool = () => {
   const { currentCategory } = useReloadAnnotator();
   const { selectAnnotation } = useManageAnnotation();
   const [isDrag, setIsDrag] = useState(false);
+
   // delta 구하기 위한 마우스 시작 지점
   const startingPoint = useRef<paper.Point>();
 
+  const tool = useMemo(() => new AnnotationTool(Tool.Select), []);
+
   // 마우스 다운
-  const onMouseDown = (event: paper.MouseEvent) => {
+  tool.onMouseDown = function (event: paper.MouseEvent) {
     startingPoint.current = event.point;
+    this.startDrawing();
   };
 
   // 마우스 드래그
-  const onMouseDrag = (event: paper.MouseEvent) => {
+  tool.onMouseDrag = function (event: paper.MouseEvent) {
     setIsDrag(true);
     // view.center를 마우스 delta만큼 옮김
     if (!startingPoint.current) return;
@@ -28,12 +34,7 @@ const useSelectTool = () => {
     paper.view.center = new_center;
   };
 
-  const onMouseMove = (event: paper.MouseEvent) => {
-    //..
-  };
-
-  const onMouseUp = (event: paper.MouseEvent) => {
-    //..
+  tool.onMouseUp = function (event: paper.MouseEvent) {
     if (!isDrag) {
       // get compoundPath from hitResult and make it selected
       const hitResult = paper.project.hitTest(event.point, {
@@ -69,21 +70,13 @@ const useSelectTool = () => {
         }
         selectAnnotation(currentCategory.categoryId, -1);
       }
+
+      this.endDrawing();
     }
     setIsDrag(false);
   };
 
-  const onMouseLeave = (event: paper.MouseEvent) => {
-    //..
-  };
-
-  return {
-    onMouseDown,
-    onMouseDrag,
-    onMouseUp,
-    onMouseMove,
-    onMouseLeave,
-  };
+  return tool;
 };
 
 export default useSelectTool;

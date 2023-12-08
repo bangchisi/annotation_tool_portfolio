@@ -1,14 +1,18 @@
-import paper from 'paper';
-import { Fragment, useEffect, useState, useRef, useLayoutEffect } from 'react';
-import { onCanvasWheel } from './helpers/canvasHelper';
-import { Editor } from './Canvas.style';
-import { useAppSelector, useAppDispatch } from 'App.hooks';
-import { getCanvasImage } from 'helpers/ImagesHelpers';
-import { useParams } from 'react-router-dom';
-import { Tool } from 'routes/Annotator/Annotator';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import SAMModel from 'routes/Annotator/models/SAM.model';
+import { useAppDispatch, useAppSelector } from 'App.hooks';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { getCanvasImage } from 'helpers/ImagesHelpers';
+import paper from 'paper';
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useParams } from 'react-router-dom';
+import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
   selectSAM,
   setSAMEmbeddingId,
@@ -17,11 +21,14 @@ import {
   setSAMModelLoaded,
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
-import useTools from './hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import { Tool } from 'types';
+import { Editor } from './Canvas.style';
+import { onCanvasWheel } from './helpers/canvasHelper';
+import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
-import { eraserCursor, brushCursor } from './tools';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import { brushCursor, eraserCursor } from './tools';
 
 let canvasChildren: paper.Item[];
 
@@ -30,8 +37,8 @@ interface CanvasProps {
   height?: number;
 }
 
-import { tempRect as clickRect } from './tools/useSAMTool';
 import { tempRect as everythingRect } from '../../RightSidebar/Preferences/SAMToolPanel/SAMToolPanel';
+import { tempRect as clickRect } from './tools/useSAMTool';
 
 // TODO: paper init to another file?
 export default function Canvas(props: CanvasProps) {
@@ -54,61 +61,88 @@ export default function Canvas(props: CanvasProps) {
   } = useAppSelector(selectSAM);
 
   // SAM model 로드
-  async function loadSAM(modelType?: string) {
-    dispatch(setSAMModelLoading(true));
-    try {
-      const response = await SAMModel.loadModel(
-        modelType ? modelType : 'vit_l',
-      );
-      dispatch(setSAMModelLoaded(true));
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to load SAM');
-      // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
-      dispatch(setSAMModelLoaded(false));
+  const loadSAM = useCallback(
+    async (modelType?: string) => {
+      dispatch(setSAMModelLoading(true));
+      try {
+        const response = await SAMModel.loadModel(
+          modelType ? modelType : 'vit_l',
+        );
+        if (response.status !== 200) throw new Error('Failed to load SAM');
 
-      alert(
-        'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
-      );
-    } finally {
-      dispatch(setSAMModelLoading(false));
-    }
-  }
+        dispatch(setSAMModelLoaded(true));
+      } catch (error) {
+        axiosErrorHandler(error, 'Failed to load SAM');
+        // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
+        dispatch(setSAMModelLoaded(false));
 
-  async function embedImage(imageId: number) {
-    if (!image) return;
-    if (image.width >= 4096 || image.height >= 4096) {
-      dispatch(setSAMEmbeddingId(null));
-      dispatch(setSAMEmbeddingLoaded(false));
-      alert(
-        '이미지의 크기가 너무 큽니다. 4096 * 4096 이하의 이미지를 사용해주세요.',
-      );
-      return;
-    }
+        alert(
+          'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
+        );
+      } finally {
+        dispatch(setSAMModelLoading(false));
+      }
+    },
+    [dispatch],
+  );
 
-    dispatch(setSAMEmbeddingLoading(true));
+  const embedImage = useCallback(
+    async (imageId: number) => {
+      if (!image) return;
+      if (image.width >= 4096 || image.height >= 4096) {
+        dispatch(setSAMEmbeddingId(null));
+        dispatch(setSAMEmbeddingLoaded(false));
+        alert(
+          '이미지의 크기가 너무 큽니다. 4096 * 4096 이하의 이미지를 사용해주세요.',
+        );
+        return;
+      }
 
-    try {
-      // 이건 첫 embed 생성이다.
-      // (0, 0)과 (image.width, image.height)를 보내는 이유는
-      // embed image가 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
-      const response = await SAMModel.embedImage(
-        imageId,
-        new paper.Point(0, 0),
-        new paper.Point(image.width, image.height),
-      );
-      if (response.status !== 200)
-        throw new Error('Failed to get image embedding');
-      dispatch(setSAMEmbeddingId(imageId));
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to get image embedding');
-      dispatch(setSAMEmbeddingId(null));
-    } finally {
-      dispatch(setSAMEmbeddingLoading(false));
-    }
-  }
+      dispatch(setSAMEmbeddingLoading(true));
 
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
+      try {
+        // 이건 첫 embed 생성이다.
+        // (0, 0)과 (image.width, image.height)를 보내는 이유는
+        // embed image가 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
+        const response = await SAMModel.embedImage(
+          imageId,
+          new paper.Point(0, 0),
+          new paper.Point(image.width, image.height),
+        );
+        if (response.status !== 200)
+          throw new Error('Failed to get image embedding');
+        dispatch(setSAMEmbeddingId(imageId));
+      } catch (error) {
+        axiosErrorHandler(error, 'Failed to get image embedding');
+        dispatch(setSAMEmbeddingId(null));
+      } finally {
+        dispatch(setSAMEmbeddingLoading(false));
+      }
+    },
+    [dispatch, image],
+  );
+
+  const selectedToolInstances = useTools({
+    selectedTool,
+    canvasChildren,
+    imageId,
+    image,
+  });
+
+  // 선택된 툴이 바뀔 때마다 activate
+  useEffect(() => {
+    const selectedToolInstance = selectedToolInstances[selectedTool];
+    selectedToolInstance?.activate();
+  }, [selectedToolInstances, selectedTool]);
+
+  // 캔버스 초기 설정 시, 캔버스 히스토리 초기리
+  useEffect(() => {
+    AnnotationTool.history.undo = [];
+    AnnotationTool.history.redo = [];
+  }, []);
+
   // 캔버스 초기 설정 useEffect (이미지 로드 후)
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -146,7 +180,7 @@ export default function Canvas(props: CanvasProps) {
       canvas.onwheel = null;
       canvas.onmouseleave = null;
     };
-  }, []);
+  }, [imageId]);
 
   useEffect(() => {
     if (width && height) {
@@ -164,30 +198,7 @@ export default function Canvas(props: CanvasProps) {
     if (!isImageLoaded) return;
 
     drawPaths(categories);
-  }, [categories, isImageLoaded]);
-
-  const selectedToolsHandlers = useTools({
-    selectedTool,
-    canvasChildren,
-    imageId,
-    image,
-  });
-  const { onMouseMove, onMouseDown, onMouseUp, onMouseDrag } =
-    selectedToolsHandlers;
-
-  useEffect(() => {
-    paper.view.onMouseDown = onMouseDown;
-    paper.view.onMouseUp = onMouseUp;
-    paper.view.onMouseMove = onMouseMove;
-    paper.view.onMouseDrag = onMouseDrag;
-
-    return () => {
-      paper.view.onMouseDown = null;
-      paper.view.onMouseUp = null;
-      paper.view.onMouseMove = null;
-      paper.view.onMouseDrag = null;
-    };
-  }, [selectedTool, selectedToolsHandlers, currentAnnotation]);
+  }, [categories, isImageLoaded, drawPaths]);
 
   // SAM 로딩 했는지 검사
   useEffect(() => {
@@ -205,7 +216,7 @@ export default function Canvas(props: CanvasProps) {
         embedImage(imageId);
       });
     }
-  }, [selectedTool]);
+  }, [selectedTool, SAMModelLoaded, embeddingId, imageId, embedImage, loadSAM]);
 
   // remove eraser cursor and brush cursor on tool change
   useEffect(() => {

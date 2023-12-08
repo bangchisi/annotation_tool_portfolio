@@ -1,13 +1,12 @@
-import { useEffect, useState, useRef } from 'react';
-import { Container } from './Models.style';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import FinetuneModel from 'models/Finetune.model';
 import { useAppSelector } from 'App.hooks';
-import { Typography } from '@mui/material';
-import ModelCard from './ModelCard/ModelCard';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { useModal } from 'components/ModalWrapper/ModalWrapper';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import FinetuneModel from 'models/Finetune.model';
+import { useEffect, useState } from 'react';
 import NewModelCard from './ModelCard/NewModelCard';
 import ModelDeleteModal from './ModelDeleteModal/ModelDeleteModal';
+import { Container } from './Models.style';
 
 export interface LogType {
   finetuneId: number;
@@ -58,9 +57,7 @@ export default function Models() {
   const [logs, setLogs] = useState<LogType[]>();
   const [deleteModelName, setDeleteModelName] = useState('');
   const [finetuneId, setFinetuneId] = useState<number[]>([]);
-
-  // modal state
-  const [open, setOpen] = useState(false);
+  const { open, setOpen } = useModal();
 
   async function getLogs(userId: string) {
     setIsLogsLoading(true);
@@ -89,20 +86,13 @@ export default function Models() {
     getLogs(userId);
   }, []);
 
+  console.table(logs);
+
   return (
     <Container>
       {logs &&
         logs.map((log) => (
           <div key={log.finetuneName}>
-            {/* <Typography
-              variant="h3"
-              sx={{
-                fontSize: '36px',
-                marginBottom: '9px',
-              }}
-            >
-              {log.vitModelType}
-            </Typography> */}
             <NewModelCard
               key={log.finetuneId}
               log={log}

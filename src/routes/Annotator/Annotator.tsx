@@ -1,9 +1,7 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import paper from 'paper';
-import { useCallback, useEffect, useState } from 'react';
-import type { unstable_BlockerFunction as BlockerFunction } from 'react-router-dom';
-import { useBlocker, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Container } from './Annotator.style';
 import LeftSidebar from './components/LeftSidebar/LeftSidebar';
 import RightSidebar from './components/RightSidebar/RightSidebar';
@@ -18,14 +16,6 @@ import {
   setCurrentCategory,
   setCurrentCategoryByCategoryId,
 } from './slices/annotatorSlice';
-
-export enum Tool {
-  Select,
-  Box,
-  Brush,
-  Eraser,
-  SAM,
-}
 
 const unsavedChangeMessage =
   '페이지를 벗어나면 작업한 내용이 저장되지 않습니다.';

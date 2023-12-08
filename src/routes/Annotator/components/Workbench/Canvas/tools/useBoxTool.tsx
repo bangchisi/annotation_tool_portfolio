@@ -1,25 +1,31 @@
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
+import { useMemo } from 'react';
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import { Tool } from 'types';
 
 // preferece에서 가져올 값인가?
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
 let tempPath: paper.CompoundPath | null;
-// let tempData: { categoryId: number; annotationId: number; color: string };
 let startPoint: paper.Point | null;
 let endPoint: paper.Point | null;
-let guideBox: paper.Path.Rectangle | null;
+export let guideBox: paper.Path.Rectangle | null;
 
 const useBoxTool = (compounds: paper.Item[]) => {
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
+  const tool = useMemo(() => new AnnotationTool(Tool.Box), []);
+
   // 마우스 클릭
-  const onMouseDown = (event: paper.MouseEvent) => {
+  tool.onMouseDown = function (event: paper.MouseEvent) {
     if (!currentCategory || !currentAnnotation) return;
+
+    this.startDrawing();
 
     const { annotationId: currentAnnotationId } = currentAnnotation;
     const { categoryId: currentCategoryId } = currentCategory;
@@ -47,7 +53,7 @@ const useBoxTool = (compounds: paper.Item[]) => {
   };
 
   // 마우스 움직임
-  const onMouseMove = (event: paper.MouseEvent) => {
+  tool.onMouseMove = function (event: paper.MouseEvent) {
     if (!startPoint) return;
 
     if (guideBox) {
@@ -65,7 +71,7 @@ const useBoxTool = (compounds: paper.Item[]) => {
   };
 
   // 마우스 클릭 해제
-  const onMouseUp = (event: paper.MouseEvent) => {
+  tool.onMouseUp = function () {
     if (!tempPath) return;
 
     // 두 번째 점이 없으면 무시
@@ -85,23 +91,11 @@ const useBoxTool = (compounds: paper.Item[]) => {
     // children 바꿔치기고 pathToSwitch 삭제
     tempPath.children = pathToSwitch.children;
     pathToSwitch.remove();
+
+    this.endDrawing();
   };
 
-  const onMouseDrag = (event: paper.MouseEvent) => {
-    //..
-  };
-
-  const onMouseLeave = (event: paper.MouseEvent) => {
-    //..
-  };
-
-  return {
-    onMouseUp,
-    onMouseDown,
-    onMouseMove,
-    onMouseDrag,
-    onMouseLeave,
-  };
+  return tool;
 };
 
 export default useBoxTool;

@@ -5,8 +5,8 @@ import FinetuneModel from 'models/Finetune.model';
 import ImagesModel from 'models/Images.model';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Tool } from 'routes/Annotator/Annotator';
 import { setTool } from 'routes/Annotator/slices/annotatorSlice';
+import { Tool } from 'types';
 import Controls from './Controls/Controls';
 import { Container, Content } from './Dataset.style';
 import ImageList from './ImageList/ImageList';
@@ -102,10 +102,6 @@ export default function Dataset() {
     }
   }
 
-  useEffect(() => {
-    setDeviceStatus();
-  }, []);
-
   const onCurrentpageChange = (
     event: React.ChangeEvent<unknown>,
     page: number,
@@ -119,13 +115,10 @@ export default function Dataset() {
     getDataset(Number(datasetId));
   }, []);
 
-  // train 중인지 확인
   useEffect(() => {
     getIsOnTrain(userId, datasetId).then((flag) => {
       setIsOnTrain(flag);
     });
-    // test용 true
-    // setIsOnTrain(true);
   }, []);
 
   const isImageListEmpty = useMemo(() => {
