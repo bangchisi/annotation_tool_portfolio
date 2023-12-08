@@ -71,7 +71,7 @@ const useSelectTool = () => {
         selectAnnotation(currentCategory.categoryId, -1);
       }
 
-      this.endDrawing();
+      this.endDrawing(0);
     }
     setIsDrag(false);
   };

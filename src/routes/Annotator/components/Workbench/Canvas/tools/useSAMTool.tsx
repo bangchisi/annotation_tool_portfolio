@@ -207,7 +207,7 @@ const useSAMTool = () => {
           x,
           y,
         ]).then(() => {
-          this.endDrawing();
+          this.endDrawing(currentAnnotation?.annotationId || 0);
         });
 
         // draw SAM Region

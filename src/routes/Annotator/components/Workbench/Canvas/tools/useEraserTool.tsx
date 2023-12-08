@@ -88,7 +88,7 @@ const useEraserTool = (compounds: paper.Item[]) => {
 
   tool.onMouseUp = function () {
     tempPath = null;
-    this.endDrawing();
+    this.endDrawing(currentAnnotation?.annotationId || 0);
   };
 
   tool.onMouseMove = function (event: paper.MouseEvent) {
