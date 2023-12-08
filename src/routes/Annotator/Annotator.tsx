@@ -17,14 +17,6 @@ import {
   setCurrentCategoryByCategoryId,
 } from './slices/annotatorSlice';
 
-export enum Tool {
-  Select,
-  Box,
-  Brush,
-  Eraser,
-  SAM,
-}
-
 const unsavedChangeMessage =
   '페이지를 벗어나면 작업한 내용이 저장되지 않습니다.';
 

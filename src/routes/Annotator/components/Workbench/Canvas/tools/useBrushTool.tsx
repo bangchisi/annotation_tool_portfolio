@@ -3,10 +3,10 @@ import paper from 'paper';
 import { useMemo } from 'react';
 
 import { useAppSelector } from 'App.hooks';
-import { Tool } from 'routes/Annotator/Annotator';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { selectAuth } from 'routes/Auth/slices/authSlice';
+import { Tool } from 'types';
 
 export let brushCursor: paper.Path.Circle | null = null;
 const strokeColor = new paper.Color(1, 1, 1, 1);

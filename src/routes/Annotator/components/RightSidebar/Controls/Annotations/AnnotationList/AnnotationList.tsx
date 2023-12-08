@@ -1,28 +1,28 @@
-import {
-  AddButton,
-  Container,
-  DeleteAllButton,
-  ButtonsContainer,
-} from './AnnotationList.style';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
+import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
+import {
+  deleteAnnotations,
+  selectAnnotator,
+  setCurrentAnnotationByAnnotationId,
+  setCurrentCategoryByCategoryId,
+  setTool,
+} from 'routes/Annotator/slices/annotatorSlice';
+import { Tool } from 'types';
 import { Annotation } from './Annotation/Annotation';
 import {
-  selectAnnotator,
-  deleteAnnotations,
-  setTool,
-  setCurrentCategoryByCategoryId,
-  setCurrentAnnotationByAnnotationId,
-} from 'routes/Annotator/slices/annotatorSlice';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
-import { useParams } from 'react-router-dom';
-import { useEffect, useMemo } from 'react';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
-import { Tool } from 'routes/Annotator/Annotator';
-import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
+  AddButton,
+  ButtonsContainer,
+  Container,
+  DeleteAllButton,
+} from './AnnotationList.style';
 
 export default function AnnotationList() {
   // const [isLoading, setIsLoading] = useState(false);

@@ -12,7 +12,6 @@ import {
   useState,
 } from 'react';
 import { useParams } from 'react-router-dom';
-import { Tool } from 'routes/Annotator/Annotator';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
   selectSAM,
@@ -23,6 +22,7 @@ import {
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import { Tool } from 'types';
 import { Editor } from './Canvas.style';
 import { onCanvasWheel } from './helpers/canvasHelper';
 import useTools, { AnnotationTool } from './hooks/useTools';

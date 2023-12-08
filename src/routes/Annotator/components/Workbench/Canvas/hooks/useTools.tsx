@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { Tool } from 'routes/Annotator/Annotator';
 
 // tools
 import { ImageType } from 'routes/Annotator/Annotator.types';
@@ -10,14 +9,15 @@ import useSAMTool from '../tools/useSAMTool';
 import useSelectTool from '../tools/useSelectTool';
 
 import paper from 'paper';
-import { Tool as ToolType } from 'routes/Annotator/Annotator';
 
 import hash from 'object-hash';
-import { compoundPathToSegmentation } from 'routes/Annotator/helpers/Annotator.helper';
+import { Tool } from 'types';
+
+const MutationTypeTool = [Tool.Brush, Tool.Box, Tool.Eraser, Tool.SAM];
 
 type ToolCommandArgs = {
   // reserved
-  toolType: ToolType | -1;
+  toolType: Tool | -1;
 
   // undo, redo를 위한 이전 상태
   serializedLayer: string;
@@ -27,7 +27,7 @@ type ToolCommandArgs = {
 };
 
 class ToolCommand {
-  toolType: ToolType | -1;
+  toolType: Tool | -1;
   serializedLayer: string;
   layerHash: string;
 
@@ -50,16 +50,18 @@ export class ToolHistory {
 
 // Canvas unmount 시, 히스토리 초기화
 export class AnnotationTool extends paper.Tool {
-  toolType: ToolType;
+  toolType: Tool;
   isDrawing: boolean;
+  private initialLayerState = '';
   static history: ToolHistory = new ToolHistory();
 
-  constructor(toolType: ToolType) {
+  constructor(toolType: Tool) {
     super();
     this.toolType = toolType;
     this.isDrawing = false;
 
     this.on('keydown', (event: paper.KeyEvent) => {
+      console.log(AnnotationTool.history);
       if (event.key === 'z' && event.modifiers.control) {
         this.undo();
       } else if (event.key === 'y' && event.modifiers.control) {
@@ -69,96 +71,66 @@ export class AnnotationTool extends paper.Tool {
   }
 
   startDrawing() {
+    // 레이어를 편집하는 툴이 아닐 경우, 아무 것도 하지 않음
+    if (!MutationTypeTool.includes(this.toolType)) return;
+
     this.isDrawing = true;
+
+    if (AnnotationTool.history.undo.length === 0) {
+      this.initializeHistory();
+    }
   }
 
   endDrawing() {
+    // 레이어를 편집하는 툴이 아닐 경우, 아무 것도 하지 않음
+    if (!MutationTypeTool.includes(this.toolType)) return;
+
     this.isDrawing = false;
 
-    // 데이터 복구를 위해 Layer 전체를 serialize
-    const serializedLayer = paper.project.activeLayer.exportJSON({
-      asString: true,
-    });
+    const { history } = AnnotationTool;
 
-    // 모든 CompoundPath를 가져옴
-    const compoundPaths = paper.project.activeLayer.children || [];
+    // 복구를 위해, 마지막 편집 후의 레이어 상태를 저장
+    const serializedLayer = this.serializeLayer();
 
-    // CompoundPath들을 segmentation으로 변환
-    const segmentations = compoundPaths
-      // CompoundPath만 가져옴
-      .filter((compoundPath) => {
-        if (compoundPath instanceof paper.CompoundPath) {
-          return true;
-        } else {
-          return false;
-        }
-      })
-      // 빈 CompoundPath는 제거
-      .filter((compoundPath) => compoundPath.children.length > 0)
-      // annotationId를 기준으로 Ascending order로 정렬
-      .sort(
-        (a, b) =>
-          Number(a.data.annotationId) - Number(b.data.annotationId) ?? 0,
-      )
-      // CompoundPath를 segmentation으로 변환
-      .map((compoundPath) =>
-        compoundPathToSegmentation(compoundPath as paper.CompoundPath),
-      );
+    // 현재 레이어 상태를 해시값으로 환산
+    const layerHash = this.getLayerHash();
 
-    // segmentations 해시값을 통해 레이어 해시값 생성
-    const segmentationStrings = segmentations.map((segmentation) =>
-      JSON.stringify(segmentation),
-    );
-    const layerHash = hash.MD5(JSON.stringify(segmentationStrings));
-
+    // 툴커맨드 생성
     const toolCommand = new ToolCommand({
       toolType: this.toolType,
       serializedLayer,
       layerHash,
     });
 
-    // 히스토리에 저장
-    const { history } = AnnotationTool;
-
-    // undo가 비어있을 경우 (초기 상태), 현재 상태를 저장
+    // 히스토리가 비어있으면 히스토리에 저장
     if (history.undo.length === 0) {
-      const initialLayer = paper.project.activeLayer.exportJSON({
-        asString: true,
-      });
-      history.undo.push(
-        new ToolCommand({
-          toolType: -1,
-          serializedLayer: initialLayer,
-          layerHash: '',
-        }),
-      );
+      history.undo.push(toolCommand);
+      return;
     }
 
     // 상태 변경이 있을 시, 히스토리에 저장
     const lastCommand = history.undo[history.undo.length - 1];
-
     const lastLayerHash = lastCommand.layerHash;
     if (layerHash !== lastLayerHash) {
       history.undo.push(toolCommand);
-
       // redo 히스토리 초기화
       if (history.redo.length > 0) {
         history.redo = [];
       }
+      return;
     }
+
     // 상태 변경이 없을 시, 히스토리에 저장하지 않음
     else {
       return;
     }
   }
+
   // @Todo: undo, redo count 제한
   undo() {
     const { history } = AnnotationTool;
-
     // undo 히스토리가 비어있으면 아무 것도 하지 않음
-    if (history.undo.length === 0) {
-      return;
-    }
+    if (history.undo.length === 0) return;
 
     // undo 히스토리에서 마지막 상태를 가져옴
     const lastUndoCommand = history.undo.pop();
@@ -167,17 +139,13 @@ export class AnnotationTool extends paper.Tool {
     history.redo.push(lastUndoCommand as ToolCommand);
 
     // 마지막 상태로 캔버스를 복구
-    const lastSerializedLayer = lastUndoCommand?.serializedLayer;
-    paper.project.activeLayer.removeChildren();
-    paper.project.activeLayer.importJSON(lastSerializedLayer as string);
+    this.restoreLastLayer();
   }
+
   redo() {
     const { history } = AnnotationTool;
-
     // redo 히스토리가 비어있으면 아무 것도 하지 않음
-    if (history.redo.length === 0) {
-      return;
-    }
+    if (history.redo.length === 0) return;
 
     // redo 히스토리에서 마지막 상태를 가져옴
     const lastRedoCommand = history.redo.pop();
@@ -186,9 +154,89 @@ export class AnnotationTool extends paper.Tool {
     history.undo.push(lastRedoCommand as ToolCommand);
 
     // 마지막 상태로 캔버스를 복구
-    const lastSerializedLayer = lastRedoCommand?.serializedLayer;
+    this.restoreLastLayer();
+  }
+
+  private restoreLastLayer() {
+    const { history } = AnnotationTool;
+    // undo 히스토리가 비어있으면 초기에 저장한 레이어 상태로 복구
+    if (history.undo.length === 0) {
+      paper.project.activeLayer.removeChildren();
+      paper.project.activeLayer.importJSON(this.initialLayerState);
+      return;
+    }
+
+    // 마지막 상태로 캔버스를 복구
+    const lastLayerState = history.undo[history.undo.length - 1];
+    const lastSerializedLayer = lastLayerState?.serializedLayer;
     paper.project.activeLayer.removeChildren();
     paper.project.activeLayer.importJSON(lastSerializedLayer as string);
+  }
+
+  private getLayerHash() {
+    // 모든 CompoundPath를 가져옴
+    const compoundPaths = paper.project.activeLayer.children || [];
+
+    // 각각의 CompoundPath를 해시로 환산한 값을 배열로 저장
+    const compoundPathsHashes =
+      compoundPaths
+        // 빈 CompoundPath는 제거
+        .filter((compoundPath) => compoundPath.children?.length > 0)
+        // annotationId를 기준으로 Ascending order로 정렬
+        .sort(
+          (a, b) =>
+            Number(a.data.annotationId) - Number(b.data.annotationId) ?? 0,
+        )
+        // 각각의 CompoundPath를 해시로 환산
+        .map((compoundPath) =>
+          hash.MD5(
+            JSON.stringify(
+              compoundPath.exportJSON({
+                asString: true,
+              }),
+            ),
+          ),
+        ) ||
+      // 현재 레이어 위에 마스킹이 없을 경우, 빈 배열을 반환
+      [];
+    // 결과값을 통해 레이어 해시값 생값
+    const layerHash = hash.MD5(JSON.stringify(compoundPathsHashes));
+
+    return layerHash;
+  }
+
+  private serializeLayer() {
+    // 레이어를 클론하고 visible을 false로 설정
+    const clonedLayer = paper.project.activeLayer.clone();
+    // clonedLayer.visible = false;
+
+    // 레이어 위에서 Path를 삭제함 (Raster, CompoundPath는 남겨둠)
+    const clonedLayerChildren = clonedLayer.children || [];
+    clonedLayerChildren.forEach((child) => {
+      console.log(child instanceof paper.Raster);
+      if (
+        child instanceof paper.Raster ||
+        child instanceof paper.CompoundPath
+      ) {
+        return;
+      }
+      child.remove();
+    });
+
+    const serializedLayer = clonedLayer.exportJSON({
+      asString: true,
+    });
+
+    clonedLayer.remove();
+
+    return serializedLayer;
+  }
+
+  private initializeHistory() {
+    // 초기 레이어 상태 저장
+    if (AnnotationTool.history.undo.length === 0) {
+      this.initialLayerState = this.serializeLayer();
+    }
   }
 }
 

@@ -10,9 +10,9 @@ import SaveIcon from '@mui/icons-material/Save';
 import { useAppSelector } from 'App.hooks';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useParams } from 'react-router-dom';
-import { Tool } from 'routes/Annotator/Annotator';
 import { createCategoriesToUpdate } from 'routes/Annotator/helpers/Annotator.helper';
 import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
+import { Tool } from 'types';
 import FunctionIcon from './FunctionIcon';
 import { Container } from './LeftSidebar.style';
 

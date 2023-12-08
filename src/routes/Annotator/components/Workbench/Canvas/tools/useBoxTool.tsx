@@ -2,9 +2,9 @@ import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
 import { useMemo } from 'react';
-import { Tool } from 'routes/Annotator/Annotator';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import { Tool } from 'types';
 
 // preferece에서 가져올 값인가?
 const strokeColor = new paper.Color(1, 1, 1, 1);

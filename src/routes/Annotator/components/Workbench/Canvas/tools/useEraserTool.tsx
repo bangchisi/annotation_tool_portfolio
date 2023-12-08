@@ -2,10 +2,10 @@ import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
 import { useCallback, useMemo } from 'react';
-import { Tool } from 'routes/Annotator/Annotator';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { selectAuth } from 'routes/Auth/slices/authSlice';
+import { Tool } from 'types';
 
 export let eraserCursor: paper.Path.Circle | null = null;
 let tempPath: paper.CompoundPath | null;

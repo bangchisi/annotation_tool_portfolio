@@ -1,6 +1,6 @@
 import { IconButton, Tooltip } from '@mui/material';
 import { ReactNode } from 'react';
-import { Tool } from 'routes/Annotator/Annotator';
+import { Tool } from 'types';
 
 export default function FunctionIcon(props: {
   functionName: string;

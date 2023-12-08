@@ -7,7 +7,6 @@ import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
-import { Tool } from 'routes/Annotator/Annotator';
 import { ImageType } from 'routes/Annotator/Annotator.types';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import SAMModel from 'routes/Annotator/models/SAM.model';
@@ -18,6 +17,7 @@ import {
   setSAMEmbeddingLoading,
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
+import { Tool } from 'types';
 
 export let tempRect: paper.Path.Rectangle;
 
