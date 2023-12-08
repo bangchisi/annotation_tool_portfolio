@@ -264,21 +264,15 @@ export class AnnotationTool extends paper.Tool {
      * ToolCommand를 정리하는 함수:
      * CommandHistory에서 annotation id가 없는 command를 삭제
      */
-    const removeCommandsWithoutAnnotationId = (
-      command: ToolCommand,
-      index: number,
-      commands: ToolCommand[],
-    ) => {
+    const removeCommandsWithoutAnnotationId = (command: ToolCommand) => {
       const annotationId = command.annotationId;
       const isAnnotationIdExists = annotationIds.includes(annotationId);
-      if (!isAnnotationIdExists) {
-        // 히스토리에서 삭제
-        commands.splice(index, 1);
 
-        return true;
-      }
+      // annotation id가 없는 command를 삭제
+      if (!isAnnotationIdExists) return false;
 
-      return false;
+      // annotation id가 있는 command는 유지
+      return true;
     };
 
     /**
@@ -312,9 +306,6 @@ export class AnnotationTool extends paper.Tool {
         },
       );
 
-      console.log('3');
-      print(filteredLayerChildren);
-
       // 새로운 CompoundPaths를 가지고 다시 layerHash를 생성
       const compoundPathsHashes = filteredLayerChildren
         .map(([_, data]: [_: string, data: any]) => {
@@ -330,32 +321,22 @@ export class AnnotationTool extends paper.Tool {
       parsedLayer[1].children = filteredLayerChildren;
 
       command.serializedLayer = JSON.stringify(parsedLayer);
+
+      return command;
     };
 
-    const trimHistory = (
-      command: ToolCommand,
-      index: number,
-      commands: ToolCommand[],
-    ) => {
-      // 1. 커맨드 히스토리에서 annotation id가 없는 커맨드를 삭제
-      const isRemoved = removeCommandsWithoutAnnotationId(
-        command,
-        index,
-        commands,
-      );
-
-      if (isRemoved) return;
-
-      // 2. 커맨드 히스토리에서 serialized된 데이터 중, annotation id가 없는 CompoundPath를 삭제
-      console.log('2');
-      print(history.undo);
-      removeCompoundPathsWithoutAnnotationId(command);
+    const trimHistory = (direction: ('undo' | 'redo')[]) => {
+      direction.forEach((dir) => {
+        history[dir] = history[dir]
+          // 1. 커맨드 히스토리에서 annotation id가 없는 커맨드를 삭제
+          //    (삭제 될 annotation의 데이터를 확인할 필요가 없음)
+          .filter(removeCommandsWithoutAnnotationId)
+          // 2. 커맨드 히스토리에서 serialized된 데이터 중, annotation id가 없는 CompoundPath를 삭제
+          .map(removeCompoundPathsWithoutAnnotationId);
+      });
     };
 
-    console.log('1');
-    print(history.undo);
-    history.undo.forEach(trimHistory);
-    history.redo.forEach(trimHistory);
+    trimHistory(['undo', 'redo']);
   }
 }
 
