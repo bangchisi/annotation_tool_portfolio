@@ -1,5 +1,10 @@
-import paper from 'paper';
+import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { getRandomHexColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import paper from 'paper';
+import { useState } from 'react';
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
+import AnnotatorModel from '../models/Annotator.model';
 import {
   addAnnotation,
   deleteAnnotation,
@@ -8,10 +13,6 @@ import {
   setCurrentCategoryByCategoryId,
 } from '../slices/annotatorSlice';
 import useReloadAnnotator from './useReloadAnnotator';
-import { useAppDispatch, useAppSelector } from 'App.hooks';
-import AnnotatorModel from '../models/Annotator.model';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { useState } from 'react';
 
 const useManageAnnotation = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -91,6 +92,12 @@ const useManageAnnotation = () => {
     annotationId: number,
   ) => {
     setIsLoading(true);
+
+    const annotationsList = Object.values(currentCategory?.annotations ?? {});
+    const annotationIds =
+      annotationsList.map((annotation) => Number(annotation.annotationId)) ??
+      [];
+
     try {
       const response = await AnnotatorModel.deleteAnnotation(annotationId);
       if (response.status !== 200)
@@ -108,10 +115,6 @@ const useManageAnnotation = () => {
       }
 
       // case 1: annotation 많이 있을 때
-      const annotationsList = Object.values(currentCategory?.annotations ?? {});
-      const annotationIds =
-        annotationsList.map((annotation) => Number(annotation.annotationId)) ??
-        [];
       const nextAnnotationIds = annotationIds.filter(
         (nextAnnotationId) => nextAnnotationId < Number(annotationId),
       );
@@ -135,6 +138,10 @@ const useManageAnnotation = () => {
       axiosErrorHandler(error, 'Failed to delete annotation');
       alert('annotation 삭제 실패. 다시 시도 해주세요.');
     } finally {
+      AnnotationTool.removeCommandsWithoutAnnotationIdFromHistory(
+        annotationIds,
+        annotationId,
+      );
       setIsLoading(false);
     }
   };

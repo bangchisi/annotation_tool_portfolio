@@ -92,7 +92,7 @@ const useBoxTool = (compounds: paper.Item[]) => {
     tempPath.children = pathToSwitch.children;
     pathToSwitch.remove();
 
-    this.endDrawing();
+    this.endDrawing(currentAnnotation?.annotationId || 0);
   };
 
   return tool;

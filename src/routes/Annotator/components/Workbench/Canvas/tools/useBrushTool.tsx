@@ -91,7 +91,7 @@ const useBrushTool = (compounds: paper.Item[]) => {
   };
 
   tool.onMouseUp = function () {
-    this.endDrawing();
+    this.endDrawing(currentAnnotation?.annotationId || 0);
   };
 
   return tool;
