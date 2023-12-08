@@ -102,9 +102,10 @@ export default function Dataset() {
     }
   }
 
-  useEffect(() => {
-    setDeviceStatus();
-  }, []);
+  // device 체크 할 필요 없기 때문에 지울것.
+  // useEffect(() => {
+  //   setDeviceStatus();
+  // }, []);
 
   const onCurrentpageChange = (
     event: React.ChangeEvent<unknown>,

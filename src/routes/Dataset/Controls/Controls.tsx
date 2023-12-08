@@ -94,9 +94,15 @@ export default function Controls(props: ControlsProps) {
     if (!isEnoughSamples(datasetId)) return;
 
     try {
-      const response = await FinetuneModel.start(
+      // DELETE: start가 아닌 queue로 할 것이기 때문에 지울것.
+      // const response = await FinetuneModel.start(
+      //   datasetId,
+      //   deviceId,
+      //   modelType,
+      //   finetuneName,
+      // );
+      const response = await FinetuneModel.queue(
         datasetId,
-        deviceId,
         modelType,
         finetuneName,
       );
@@ -110,8 +116,6 @@ export default function Controls(props: ControlsProps) {
       setIsOnTrain(true);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to start train');
-    } finally {
-      setDeviceStatus();
     }
   };
 

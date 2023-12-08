@@ -32,6 +32,22 @@ const FinetuneModel = {
       // num_epochs: process.env.NODE_ENV === 'development' ? 1 : null,
     });
   },
+  queue: (
+    datasetId: number, // int
+    vitModelType: string, // 현재 "vit_b" 만 사용한다. 나중을 위해 넣어둠
+    finetuneName: string, // 사용자가 정의하는 값, 생성할 모델 이름
+  ) => {
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `${DEV_URL}/finetune/queue`
+        : `${SERVER_URL}/finetune/queue`;
+
+    return axios.post(url, {
+      dataset_id: datasetId,
+      vit_model_type: 'vit_b',
+      finetune_name: finetuneName,
+    });
+  },
   getLogs: (userId: string) => {
     const url =
       process.env.NODE_ENV === 'development'
