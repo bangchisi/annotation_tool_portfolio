@@ -23,7 +23,14 @@ const useManageAnnotation = () => {
   // empty annotation 생성
   async function createEmptyAnnotation() {
     // 항목 2. categories 업데이트
-    if (!image || !datasetId || !categories || !currentCategory) return;
+    if (categories && Object.keys(categories).length < 1) {
+      alert(
+        '현재 Dataset에 추가된 카테고리가 없습니다. Dataset 페이지에서 카테고리를 추가해주세요.',
+      );
+    }
+    if (!image || !datasetId || !categories || !currentCategory) {
+      return;
+    }
 
     // 랜덤 색상 생성
     const annotationColor = getRandomHexColor();
