@@ -1,16 +1,16 @@
 import { AxiosError } from 'axios';
-import { Container, FilesLabel } from './Controls.style';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { useRef, useState } from 'react';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import ImagesModel from 'models/Images.model';
-import { useParams } from 'react-router-dom';
-import DatasetModel from '../models/Dataset.model';
-import FinetuneModel from 'models/Finetune.model';
-import TrainStartModal from './TrainStartModal/TrainStartModal';
-import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
 import DriveFolderUploadOutlinedIcon from '@mui/icons-material/DriveFolderUploadOutlined';
+import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import FinetuneModel from 'models/Finetune.model';
+import ImagesModel from 'models/Images.model';
+import { useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import DatasetModel from '../models/Dataset.model';
+import { Container, FilesLabel } from './Controls.style';
+import TrainStartModal from './TrainStartModal/TrainStartModal';
 
 declare module 'react' {
   interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -132,6 +132,7 @@ export default function Controls(props: ControlsProps) {
         baseModelName={baseModelName}
         setBaseModelName={setBaseModelName}
         finetuneName={finetuneName}
+        setDeviceStatus={setDeviceStatus}
         setFinetuneName={setFinetuneName}
         datasetId={datasetId}
       />

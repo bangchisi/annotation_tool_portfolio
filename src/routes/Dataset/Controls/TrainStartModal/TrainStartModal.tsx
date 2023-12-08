@@ -1,14 +1,12 @@
-import { Button, Modal, TextField, Typography } from '@mui/material';
-import { useState } from 'react';
+import { Button, TextField, Typography } from '@mui/material';
+import DeferComponent from 'components/DeferComponent';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import ModalWrapper, { useModal } from 'components/ModalWrapper/ModalWrapper';
+import { useCallback } from 'react';
 import {
   Container,
   FieldContainer,
-  ModalBody,
-  ModalContent,
   ModalFooter,
-  ModalHeader,
-  ModalShadow,
-  ModalShadowContainer,
   TrainContainer,
   TrainModelButton,
 } from './TrainStartModal.style';
@@ -36,19 +34,24 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
     onTrainStart,
   } = props;
 
-  const [open, setOpen] = useState(false);
   let debounceTimerId: NodeJS.Timeout;
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    resetForm();
-    setOpen(false);
-  };
+  const { open, handleOpen: onOpen, handleClose: onClose } = useModal();
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setBaseModelName('vit_l');
     setFinetuneName('');
-  };
+  }, [setBaseModelName, setFinetuneName]);
+
+  const handleOpen = useCallback(() => {
+    onOpen();
+    setDeviceStatus();
+  }, [onOpen, setDeviceStatus]);
+
+  const handleClose = useCallback(() => {
+    onClose();
+    resetForm();
+  }, [onClose, resetForm]);
 
   const onClickTrainButton = () => {
     clearTimeout(debounceTimerId);
@@ -72,68 +75,38 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
       >
         TRAIN MODEL
       </TrainModelButton>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        disableScrollLock={true}
-        closeAfterTransition
-        slotProps={{
-          backdrop: {
-            timeout: 350,
-          },
-        }}
-      >
-        <ModalShadowContainer>
-          <ModalShadow>
-            <ModalBody>
-              <ModalHeader>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontSize: '22px',
-                  }}
-                >
-                  Train Model
-                </Typography>
-              </ModalHeader>
-              <ModalContent>
-                <div>
-                  <FieldContainer>
-                    <Typography>New Model Name</Typography>
-                    <TextField
-                      type="text"
-                      value={finetuneName}
-                      size="small"
-                      onChange={(event) => {
-                        setFinetuneName(event.target.value);
-                      }}
-                    ></TextField>
-                  </FieldContainer>
-                  <FieldContainer>
-                    <Typography>Directory</Typography>
-                    <TextField
-                      type="text"
-                      value={`/${baseModelName}/${finetuneName}`}
-                      disabled
-                      size="small"
-                    />
-                    <TrainContainer>
-                      <Button onClick={onClickTrainButton}>TRAIN</Button>
-                    </TrainContainer>
-                  </FieldContainer>
-                </div>
-                <ModalFooter>
-                  <Button color="warning" onClick={handleClose}>
-                    Cancel
-                  </Button>
-                </ModalFooter>
-              </ModalContent>
-            </ModalBody>
-          </ModalShadow>
-        </ModalShadowContainer>
-      </Modal>
+      <ModalWrapper open={open} handleClose={handleClose} title="Train Model">
+        <div>
+          <FieldContainer>
+            <Typography>New Model Name</Typography>
+            <TextField
+              type="text"
+              value={finetuneName}
+              size="small"
+              onChange={(event) => {
+                setFinetuneName(event.target.value);
+              }}
+            ></TextField>
+          </FieldContainer>
+          <FieldContainer>
+            <Typography>Directory</Typography>
+            <TextField
+              type="text"
+              value={`/${baseModelName}/${finetuneName}`}
+              disabled
+              size="small"
+            />
+            <TrainContainer>
+              <Button onClick={onClickTrainButton}>TRAIN</Button>
+            </TrainContainer>
+          </FieldContainer>
+        </div>
+        <ModalFooter>
+          <Button color="warning" onClick={handleClose}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </ModalWrapper>
     </Container>
   );
 }

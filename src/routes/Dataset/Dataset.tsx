@@ -4,8 +4,8 @@ import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import ImagesModel from 'models/Images.model';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Tool } from 'routes/Annotator/Annotator';
 import { setTool } from 'routes/Annotator/slices/annotatorSlice';
+import { Tool } from 'types';
 import Controls from './Controls/Controls';
 import { Container, Content } from './Dataset.style';
 import ImageList from './ImageList/ImageList';
@@ -14,6 +14,7 @@ import { getIsOnTrain } from './helpers/DatasetHelpers';
 import DatasetModel from './models/Dataset.model';
 
 export interface DatasetType {
+  superDatasetName: string;
   datasetId: number;
   datasetName: string;
   lastUpdate: string;
@@ -50,7 +51,6 @@ export default function Dataset() {
       const dataset = response.data;
 
       setDataset(dataset);
-      return dataset;
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get dataset information.');
     } finally {
@@ -97,7 +97,6 @@ export default function Dataset() {
     getDataset(Number(datasetId));
   }, []);
 
-  // train 중인지 확인
   useEffect(() => {
     getIsOnTrain(userId, datasetId).then((flag) => {
       setIsOnTrain(flag);
@@ -130,6 +129,7 @@ export default function Dataset() {
             handleCategoryDeleted={handleCategoryDeleted}
             handleCategoryAdded={handleCategoryAdded}
             isOnTrain={isOnTrain}
+            getDataset={getDataset}
           />
           <Content>
             {!isImageListEmpty && (

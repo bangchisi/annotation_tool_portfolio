@@ -1,18 +1,13 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
-import { Tool } from '../Annotator';
-import {
-  selectAnnotator,
-  setCurrentAnnotation,
-  setCurrentCategory,
-  setTool,
-} from '../slices/annotatorSlice';
-import useKeyEvent from './useKeyEvent';
-import useManageAnnotation from './useManageAnnotation';
 import {
   selectAuth,
   setBrushRadius,
   setEraserRadius,
 } from 'routes/Auth/slices/authSlice';
+import { Tool } from 'types';
+import { selectAnnotator, setTool } from '../slices/annotatorSlice';
+import useKeyEvent from './useKeyEvent';
+import useManageAnnotation from './useManageAnnotation';
 
 export const useKeyEvents = () => {
   const dispatch = useAppDispatch();
