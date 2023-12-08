@@ -1,7 +1,6 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import PaginationPanel from 'components/PaginationPanel/PaginationPanel';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import FinetuneModel from 'models/Finetune.model';
 import ImagesModel from 'models/Images.model';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -37,10 +36,6 @@ export interface CategoryType {
 export default function Dataset() {
   const userId = useAppSelector((state) => state.auth.user.userId);
   const [dataset, setDataset] = useState<DatasetType>();
-  const [availableDevices, setAvailableDevices] = useState<{
-    [key: string]: boolean;
-  }>();
-  const [isDeviceLoading, setIsDeviceLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const datasetId = Number(useParams().datasetId);
@@ -89,24 +84,6 @@ export default function Dataset() {
     }
   }
 
-  async function setDeviceStatus() {
-    setIsDeviceLoading(true);
-    try {
-      const response = await FinetuneModel.checkAvailableDevice();
-
-      setAvailableDevices(response.data);
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to check device status');
-    } finally {
-      setIsDeviceLoading(false);
-    }
-  }
-
-  // device 체크 할 필요 없기 때문에 지울것.
-  // useEffect(() => {
-  //   setDeviceStatus();
-  // }, []);
-
   const onCurrentpageChange = (
     event: React.ChangeEvent<unknown>,
     page: number,
@@ -125,8 +102,6 @@ export default function Dataset() {
     getIsOnTrain(userId, datasetId).then((flag) => {
       setIsOnTrain(flag);
     });
-    // test용 true
-    // setIsOnTrain(true);
   }, []);
 
   const isImageListEmpty = useMemo(() => {
@@ -145,17 +120,9 @@ export default function Dataset() {
     }
   }, [dataset, currentPage]);
 
-  // TODO: descripttion에서 category 편집 가능하게
-
   return (
     <Container id="dataset">
-      <Controls
-        setDeviceStatus={setDeviceStatus}
-        availableDevices={availableDevices}
-        isOnTrain={isOnTrain}
-        setIsOnTrain={setIsOnTrain}
-        isDeviceLoading={isDeviceLoading}
-      />
+      <Controls isOnTrain={isOnTrain} setIsOnTrain={setIsOnTrain} />
       {dataset && (
         <Fragment>
           <Information

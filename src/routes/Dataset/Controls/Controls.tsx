@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { Container, FilesLabel } from './Controls.style';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useRef, useState } from 'react';
@@ -19,25 +20,15 @@ declare module 'react' {
 }
 
 interface ControlsProps {
-  setDeviceStatus: () => Promise<void>;
   isOnTrain: boolean;
   setIsOnTrain: React.Dispatch<React.SetStateAction<boolean>>;
-  isDeviceLoading: boolean;
-  availableDevices?: { [key: number]: boolean };
 }
 
 export default function Controls(props: ControlsProps) {
-  const {
-    setDeviceStatus,
-    availableDevices,
-    isOnTrain,
-    setIsOnTrain,
-    isDeviceLoading,
-  } = props;
+  const { isOnTrain, setIsOnTrain } = props;
   const datasetId = Number(useParams().datasetId);
   const [isLoading, setIsLoading] = useState(false);
   const filesInput = useRef<HTMLInputElement>(null);
-  const formData = new FormData();
   const [finetuneName, setFinetuneName] = useState('');
   const [baseModelName, setBaseModelName] = useState('vit_b');
 
@@ -87,26 +78,17 @@ export default function Controls(props: ControlsProps) {
 
   const onTrainStart = async (
     datasetId: number,
-    deviceId: number,
     modelType: string,
     finetuneName: string,
   ) => {
     if (!isEnoughSamples(datasetId)) return;
 
     try {
-      // DELETE: start가 아닌 queue로 할 것이기 때문에 지울것.
-      // const response = await FinetuneModel.start(
-      //   datasetId,
-      //   deviceId,
-      //   modelType,
-      //   finetuneName,
-      // );
       const response = await FinetuneModel.queue(
         datasetId,
         modelType,
         finetuneName,
       );
-
       if (response.status !== 200) {
         throw new Error('Failed to start train');
       }
@@ -115,6 +97,12 @@ export default function Controls(props: ControlsProps) {
 
       setIsOnTrain(true);
     } catch (error) {
+      if (error instanceof AxiosError && error.code === 'ERR_BAD_REQUEST') {
+        alert('중복된 모델 이름입니다. 다른 이름을 사용해주세요.');
+      } else {
+        alert('학습 시작에 실패했습니다. 다시 시도해주세요.');
+      }
+
       axiosErrorHandler(error, 'Failed to start train');
     }
   };
@@ -140,14 +128,12 @@ export default function Controls(props: ControlsProps) {
     <Container>
       {isOnTrain && <ComponentBlocker message="" />}
       <TrainStartModal
-        availableDevices={availableDevices}
         onTrainStart={onTrainStart}
         baseModelName={baseModelName}
         setBaseModelName={setBaseModelName}
         finetuneName={finetuneName}
         setFinetuneName={setFinetuneName}
         datasetId={datasetId}
-        isDeviceLoading={isDeviceLoading}
       />
       <form>
         <label htmlFor=""></label>
