@@ -1,4 +1,5 @@
 import { useAppSelector } from 'App.hooks';
+import paper from 'paper';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   unstable_BlockerFunction as BlockerFunction,
@@ -6,69 +7,116 @@ import {
 } from 'react-router-dom';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
+import { MutationTypeTool } from 'types';
 
 const unsavedChangeMessage =
   '페이지를 벗어나면 작업한 내용이 저장되지 않습니다.';
 
 const useWarningOnUnsavedChange = () => {
-  const { currentCategory } = useAppSelector(selectAnnotator);
+  // 마지막으로 저장된 레이어의 해시값
+  const [lastSavedLayerHash, setLastSavedLayerHash] = useState<string | null>(
+    null,
+  );
+
+  // 브라우저 네비게이션을 막아야 하는지 여부를 위한 상태
+  const [shouldBlock, setShouldBlock] = useState<boolean>(false);
 
   // 현재 목록에 있는 어노테이션들이 바뀌면
   // 브라우저 네비게이션 막아야하는지 확인하기
   // 어노테이션이 삭제 될 경우, 레이어 해시값이 바뀔 수도 있기 때문
+  const { currentCategory } = useAppSelector(selectAnnotator);
   const annotationList = useMemo(() => {
     return Object.keys(currentCategory?.annotations ?? {});
   }, [currentCategory]);
 
-  const [shouldBlock, setShouldBlock] = useState<boolean>(false);
+  // 세이브 버튼을 누르면 현재 레이어의 해시값을
+  // 마지막으로 저장된 레이어의 해시값으로 바꿈
+  const handleSave = useCallback(() => {
+    const currentLayerHash = AnnotationTool.getLayerHash();
 
-  // 마지막으로 저장된 레이어의 해시값
-  const [lastSavedLayerHash, setLastSavedLayerHash] = useState<string>('');
-
-  useEffect(() => {
-    const { history } = AnnotationTool;
-    const shouldBlock =
-      // 초기 상태면 막지 않음
-      history.undo.length > 0 ||
-      // 저장하지 않은 변경사항이 있으면 막음
-      lastSavedLayerHash !== AnnotationTool.getLayerHash();
-    setShouldBlock(shouldBlock);
-  }, [lastSavedLayerHash, setShouldBlock, annotationList]);
+    setShouldBlock(false);
+    setLastSavedLayerHash(currentLayerHash);
+  }, [setLastSavedLayerHash, setShouldBlock]);
 
   useEffect(() => {
-    const checkShouldBlock = () => {
-      const { history } = AnnotationTool;
-      const shouldBlock =
-        history.undo.length > 0 &&
-        lastSavedLayerHash !== AnnotationTool.getLayerHash();
-
-      console.log('history.undo.length: ', history.undo.length);
-      console.log('lastSavedLayerHash: ', lastSavedLayerHash);
-      console.log(
-        'AnnotationTool.getLayerHash(): ',
-        AnnotationTool.getLayerHash(),
-      );
-
-      console.log('shouldBlock: ', shouldBlock);
-
-      setShouldBlock(shouldBlock);
-    };
-
-    window.addEventListener('mouseup', checkShouldBlock);
-    return () => {
-      window.removeEventListener('mouseup', checkShouldBlock);
-    };
-  }, [lastSavedLayerHash, setShouldBlock]);
-
-  useEffect(() => {
-    console.log('shouldBlock: ', shouldBlock);
+    console.log('shouldBlock', shouldBlock);
   }, [shouldBlock]);
 
-  // 마운트 시, 초기 레이어의 해시값을 저장
+  // AnnotationList가 바뀔 때마다,
+  // Save 버튼을 누를 때마다
+  // 변경을 감지하여 shouldBlock을 업데이트
   useEffect(() => {
-    const initialLayerHash = AnnotationTool.getLayerHash();
-    setLastSavedLayerHash(initialLayerHash);
-  }, []);
+    const currentLayerHash = AnnotationTool.getLayerHash();
+
+    const hasChange =
+      lastSavedLayerHash !== null && lastSavedLayerHash !== currentLayerHash;
+
+    if (shouldBlock !== hasChange) {
+      setShouldBlock(hasChange);
+    }
+  }, [
+    annotationList,
+    lastSavedLayerHash,
+    shouldBlock,
+    setShouldBlock,
+    setLastSavedLayerHash,
+  ]);
+
+  useEffect(() => {
+    const checkLastSavedLayerHash = () => {
+      if (lastSavedLayerHash === null) {
+        const currentLayerHash = AnnotationTool.getLayerHash();
+        setLastSavedLayerHash(currentLayerHash);
+      }
+    };
+    const handleStartDrawing = () => {
+      checkLastSavedLayerHash();
+    };
+    // 그림 그리기가 끝나면, 레이어가 바뀌었는지 확인
+    const handleEndDrawing = () => {
+      const hasChange =
+        lastSavedLayerHash !== null &&
+        lastSavedLayerHash !== AnnotationTool.getLayerHash();
+
+      if (shouldBlock !== hasChange) {
+        setShouldBlock(hasChange);
+      }
+    };
+
+    // 이벤트 등록
+    paper.tools.forEach((tool) => {
+      // 그림 그리기 툴이 아니면 무시
+      const { toolType } = tool as AnnotationTool;
+      if (!MutationTypeTool.includes(toolType)) return;
+
+      tool.on('mousedown', handleStartDrawing);
+      tool.on('mouseup', handleEndDrawing);
+    });
+    return () => {
+      // 이벤트 제거
+      paper.tools.forEach((tool) => {
+        // 그림 그리기 툴이 아니면 무시
+        const { toolType } = tool as AnnotationTool;
+        if (!MutationTypeTool.includes(toolType)) return;
+
+        tool.off('mousedown', handleStartDrawing);
+        tool.off('mouseup', handleEndDrawing);
+      });
+    };
+  }, [lastSavedLayerHash, shouldBlock, setShouldBlock]);
+
+  /**************************************
+   ****** 브라우저 네비게이션 막기 ********
+   *************************************/
+
+  /**
+   * #1. react-router-dom의 useBlocker를 사용하여
+   * 브라우저의 소프트 네비게이션을 막음
+   *
+   * #2. 브라우저에 직접 이벤트를 동록하여
+   * 브라우저의 닫기, 새로고침을 막음 같은
+   * 브라우저의 하드 네비게이션을 막음
+   */
 
   // #1. 브라우저 네비게이션 막기
   const blockerFunction = useCallback<BlockerFunction>(
@@ -94,27 +142,19 @@ const useWarningOnUnsavedChange = () => {
     }
   }, [shouldBlock, blocker]);
 
-  // # 브라우저 닫기, 새로고침 막침
+  // #2. 브라우저 닫기, 새로고침 막침
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!shouldBlock) return;
-
       event.preventDefault();
       event.returnValue = unsavedChangeMessage;
       return unsavedChangeMessage;
     };
-
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [shouldBlock]);
-
-  // 세이브 버튼을 누르거나
-  const handleSave = useCallback(() => {
-    const currentLayerHash = AnnotationTool.getLayerHash();
-    setLastSavedLayerHash(currentLayerHash);
-  }, [setLastSavedLayerHash]);
 
   return {
     shouldBlock,

@@ -5,3 +5,5 @@ export enum Tool {
   Eraser,
   SAM,
 }
+
+export const MutationTypeTool = [Tool.Brush, Tool.Box, Tool.Eraser, Tool.SAM];

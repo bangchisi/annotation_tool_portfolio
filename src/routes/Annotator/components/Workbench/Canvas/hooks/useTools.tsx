@@ -1,5 +1,3 @@
-const print = (msg: any) => console.log(JSON.parse(JSON.stringify(msg)));
-
 import { useMemo } from 'react';
 
 // tools
@@ -13,9 +11,7 @@ import useSelectTool from '../tools/useSelectTool';
 import paper from 'paper';
 
 import hash from 'object-hash';
-import { Tool } from 'types';
-
-const MutationTypeTool = [Tool.Brush, Tool.Box, Tool.Eraser, Tool.SAM];
+import { MutationTypeTool, Tool } from 'types';
 
 type ToolCommandArgs = {
   // reserved
@@ -177,6 +173,9 @@ export class AnnotationTool extends paper.Tool {
     paper.project.activeLayer.importJSON(layerStateToRestore as string);
   }
 
+  // 이렇게 복잡한 로직이 필요한 이유는,
+  // 객체 데이터가 일정하지 않기 때문 그래서
+  // 순수 segment 데이터만 가지고 해시를 생성함
   static getLayerHash() {
     // 모든 CompoundPath를 가져옴
     const compoundPaths = paper.project.activeLayer.children || [];
@@ -193,18 +192,39 @@ export class AnnotationTool extends paper.Tool {
           (a, b) =>
             Number(a.data.annotationId) - Number(b.data.annotationId) ?? 0,
         )
-        // 각각의 CompoundPath를 해시로 환산
+        // CompoundPath를 JSON으로 변환 후, 다시 수동으로 파싱하여
+        // 객체로 변환(importJSON을 쓰면 paper.Item이 되어버림)
         .map((compoundPath) =>
-          hash.MD5(
-            JSON.stringify(
-              compoundPath.exportJSON({
-                asString: true,
-              }),
-            ),
+          JSON.parse(
+            compoundPath.exportJSON({
+              asString: true,
+            }),
           ),
-        ) ||
+        )
+        .map((compoundPath: any) => {
+          // 이렇게 접근하면 serialized된 Path에 접근 가능
+          const [_, obj] = compoundPath;
+          const children = obj.children || [];
+
+          // Path에서 또 다시 segment 데이터만 가져옴
+          const pathData = children.map((pathData: any) => {
+            const [_, data] = pathData;
+            return data?.segments;
+          }) as [number, number][];
+
+          // 각각의 serialized 된 CompoundPath에서 segments 데이터만
+          // 추출하여 새로운 배열을 만들어 반환
+          return pathData;
+        })
+        .filter((e) => {
+          const containsUndefined = e.some((item) => item === undefined);
+          return !containsUndefined;
+        })
+        // 순수 segment 데이터만 가지고 해시를 생성함
+        .map((segments) => hash.MD5(JSON.stringify(segments))) ||
       // 현재 레이어 위에 마스킹이 없을 경우, 빈 배열을 반환
       [];
+
     // 결과값을 통해 레이어 해시값 생값
     const layerHash = hash.MD5(JSON.stringify(compoundPathsHashes));
 
