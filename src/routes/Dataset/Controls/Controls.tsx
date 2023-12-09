@@ -1,6 +1,6 @@
-import { AxiosError } from 'axios';
 import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
 import DriveFolderUploadOutlinedIcon from '@mui/icons-material/DriveFolderUploadOutlined';
+import { AxiosError } from 'axios';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
@@ -132,7 +132,6 @@ export default function Controls(props: ControlsProps) {
         baseModelName={baseModelName}
         setBaseModelName={setBaseModelName}
         finetuneName={finetuneName}
-        setDeviceStatus={setDeviceStatus}
         setFinetuneName={setFinetuneName}
         datasetId={datasetId}
       />
