@@ -11,7 +11,7 @@ import { DatasetType } from '../Dataset';
 import { getFormattedDate } from 'helpers/DateHelpers';
 import CategoryPanel from './CategoryPanel/CategoryPanel';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import DatasetModel from '../models/Dataset.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 
@@ -37,30 +37,89 @@ export default function Information(props: InformationProps) {
   } = props;
   const [isEdit, setIsEdit] = useState(false);
 
-  const onDatasetUpdate = async (datasetId: number) => {
-    if (!editSuperDatasetName || !editDatasetName) {
-      alert('super dataset과 dataset의 이름을 입력해주세요.');
-      setEditSuperDatasetName(superDatasetName);
-      setEditDatasetName(datasetName);
-      setEditDescription(description);
-      return;
-    }
-    try {
-      await DatasetModel.updateDataset(
-        datasetId,
-        editSuperDatasetName,
-        editDatasetName,
-        editDescription,
-      );
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to update dataset information.');
-    }
-  };
-
   const [editSuperDatasetName, setEditSuperDatasetName] =
     useState(superDatasetName);
   const [editDatasetName, setEditDatasetName] = useState(datasetName);
   const [editDescription, setEditDescription] = useState(description);
+
+  const resetForm = useCallback(() => {
+    setEditDatasetName(datasetName);
+    setEditSuperDatasetName(superDatasetName);
+    setEditDescription(description);
+  }, [
+    setEditDatasetName,
+    setEditSuperDatasetName,
+    setEditDescription,
+    datasetName,
+    superDatasetName,
+    description,
+  ]);
+
+  const hasEmpty = useCallback(() => {
+    if (!editSuperDatasetName || !editDatasetName) return true;
+    return false;
+  }, [editSuperDatasetName, editDatasetName]);
+
+  const onDatasetUpdate = useCallback(
+    async (datasetId: number) => {
+      if (!editSuperDatasetName.trim() || !editDatasetName.trim()) return;
+      if (
+        datasetName === editDatasetName &&
+        superDatasetName === editSuperDatasetName &&
+        description === editDescription
+      )
+        return;
+
+      try {
+        await DatasetModel.updateDataset(
+          datasetId,
+          editSuperDatasetName,
+          editDatasetName,
+          editDescription,
+        );
+      } catch (error) {
+        axiosErrorHandler(error, 'Failed to update dataset information.');
+      } finally {
+        getDataset(datasetId);
+      }
+    },
+    [
+      editSuperDatasetName,
+      editDatasetName,
+      editDescription,
+      getDataset,
+      datasetName,
+      superDatasetName,
+      description,
+    ],
+  );
+
+  const onEscapeKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Escape') {
+        setIsEdit(false);
+        resetForm();
+      } else if (e.key === 'Enter') {
+        setIsEdit(false);
+        if (hasEmpty()) {
+          resetForm();
+          return;
+        }
+        onDatasetUpdate(datasetId);
+      }
+    },
+    [setIsEdit, onDatasetUpdate, datasetId, resetForm, hasEmpty],
+  );
+
+  const onClick = useCallback(() => {
+    setIsEdit((prev) => !prev);
+    if (hasEmpty()) {
+      resetForm();
+      return;
+    }
+    if (!isEdit) return;
+    onDatasetUpdate(datasetId);
+  }, [isEdit, setIsEdit, onDatasetUpdate, datasetId, hasEmpty, resetForm]);
 
   return (
     <Container>
@@ -72,18 +131,16 @@ export default function Information(props: InformationProps) {
               value={editSuperDatasetName}
               placeholder="super dataset name"
               size="small"
-              label="super dataset name"
               onChange={(e) => setEditSuperDatasetName(e.target.value)}
+              onKeyDown={onEscapeKeyDown}
             />
-            <Typography variant="h6" className="slash">
-              /
-            </Typography>
+            /
             <NameField
               value={editDatasetName}
               placeholder="dataset name"
               size="small"
-              label="dataset name"
               onChange={(e) => setEditDatasetName(e.target.value)}
+              onKeyDown={onEscapeKeyDown}
             />
           </Fragment>
         )}
@@ -102,12 +159,7 @@ export default function Information(props: InformationProps) {
             padding: 0,
             marginLeft: '8px',
           }}
-          onClick={() => {
-            if (isEdit) {
-              onDatasetUpdate(datasetId).then(() => getDataset(datasetId));
-            }
-            setIsEdit((prev) => !prev);
-          }}
+          onClick={onClick}
         >
           <EditOutlinedIcon
             sx={{
@@ -127,7 +179,7 @@ export default function Information(props: InformationProps) {
           <DescriptionField
             value={editDescription}
             onChange={(e) => setEditDescription(e.target.value)}
-            size="small"
+            onKeyDown={onEscapeKeyDown}
             multiline
           />
         )}
