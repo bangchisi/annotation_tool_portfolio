@@ -31,7 +31,7 @@ const useEraserTool = (compounds: paper.Item[]) => {
   const tool = useMemo(() => new AnnotationTool(Tool.Eraser), []);
 
   // 마우스 클릭
-  tool.onMouseDown = function () {
+  tool.onMouseDown = function (event: paper.MouseEvent) {
     if (!currentCategory || !currentAnnotation) return;
 
     this.startDrawing();
@@ -51,6 +51,29 @@ const useEraserTool = (compounds: paper.Item[]) => {
         return compound;
       }
     }) as paper.CompoundPath;
+
+    if (!tempPath) return;
+
+    let eraser: paper.Path | null = new paper.Path.Circle({
+      center: event.point,
+      radius: eraserRadius,
+    });
+
+    eraser.smooth({
+      type: 'continuous',
+    });
+    eraser.simplify(3);
+    eraser.flatten(0.65);
+
+    const pathToSwitch = new paper.CompoundPath(
+      tempPath.subtract(eraser) as paper.CompoundPath,
+    );
+
+    tempPath.children = pathToSwitch.children;
+    pathToSwitch.remove();
+
+    eraser.remove();
+    eraser = null;
   };
 
   // 마우스 드래그

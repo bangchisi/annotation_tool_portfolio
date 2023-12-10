@@ -37,7 +37,7 @@ const useBrushTool = (compounds: paper.Item[]) => {
 
   // 마우스 클릭
   // TODO: 클릭 하자마자 해당 위치에 브러쉬 생성 시작
-  tool.onMouseDown = function () {
+  tool.onMouseDown = function (event: paper.MouseEvent) {
     if (!currentCategory || !currentAnnotation) return;
 
     this.startDrawing();
@@ -55,6 +55,29 @@ const useBrushTool = (compounds: paper.Item[]) => {
         return compound;
       }
     }) as paper.CompoundPath;
+
+    if (!tempPath) return;
+
+    let brush: paper.Path | null = new paper.Path.Circle({
+      center: event.point,
+      radius: brushRadius,
+    });
+
+    brush.smooth({
+      type: 'continuous',
+    });
+    brush.simplify(3);
+    brush.flatten(0.65);
+
+    const pathToSwitch = new paper.CompoundPath(
+      tempPath.unite(brush) as paper.CompoundPath,
+    );
+
+    tempPath.children = pathToSwitch.children;
+    pathToSwitch.remove();
+
+    brush.remove();
+    brush = null;
   };
 
   // 마우스 드래그
