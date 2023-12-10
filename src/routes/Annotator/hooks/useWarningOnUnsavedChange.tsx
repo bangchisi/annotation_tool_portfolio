@@ -19,7 +19,10 @@ const useWarningOnUnsavedChange = () => {
   );
 
   // 브라우저 네비게이션을 막아야 하는지 여부를 위한 상태
-  const [shouldBlock, setShouldBlock] = useState<boolean>(false);
+  const [shouldBlock, setShouldBlock] = useState(false);
+  useEffect(() => {
+    console.log('shouldBlock', shouldBlock);
+  }, [shouldBlock]);
 
   // 현재 목록에 있는 어노테이션들이 바뀌면
   // 브라우저 네비게이션 막아야하는지 확인하기
@@ -38,14 +41,8 @@ const useWarningOnUnsavedChange = () => {
     setLastSavedLayerHash(currentLayerHash);
   }, [setLastSavedLayerHash, setShouldBlock]);
 
-  useEffect(() => {
-    console.log('shouldBlock', shouldBlock);
-  }, [shouldBlock]);
-
-  // AnnotationList가 바뀔 때마다,
-  // Save 버튼을 누를 때마다
-  // 변경을 감지하여 shouldBlock을 업데이트
-  useEffect(() => {
+  // 캔버스 변경을 감지함
+  const detectChanges = useCallback(() => {
     const currentLayerHash = AnnotationTool.getLayerHash();
 
     const hasChange =
@@ -54,14 +51,22 @@ const useWarningOnUnsavedChange = () => {
     if (shouldBlock !== hasChange) {
       setShouldBlock(hasChange);
     }
-  }, [
-    annotationList,
-    lastSavedLayerHash,
-    shouldBlock,
-    setShouldBlock,
-    setLastSavedLayerHash,
-  ]);
+  }, [lastSavedLayerHash, shouldBlock, setShouldBlock]);
 
+  // 어노테이션 변경사항을 감지함
+  useEffect(() => {
+    AnnotationTool.observeChange(detectChanges);
+    return () => {
+      AnnotationTool.stopObserve(detectChanges);
+    };
+  }, [annotationList, detectChanges]);
+
+  // AnnotationList가 바뀔 때마다,
+  // Save 버튼을 누를 때마다
+  // 변경을 감지하여 shouldBlock을 업데이트
+  useEffect(detectChanges, [annotationList, detectChanges]);
+
+  // 툴을 사용할 때마다, 변경을 감지하여 shouldBlock을 업데이툴
   useEffect(() => {
     const checkLastSavedLayerHash = () => {
       if (lastSavedLayerHash === null) {
@@ -69,19 +74,10 @@ const useWarningOnUnsavedChange = () => {
         setLastSavedLayerHash(currentLayerHash);
       }
     };
-    const handleStartDrawing = () => {
-      checkLastSavedLayerHash();
-    };
+    // 그림 그리기 시작 전, 초기값 설정 (만약 초기값이 없다면)
+    const handleStartDrawing = checkLastSavedLayerHash;
     // 그림 그리기가 끝나면, 레이어가 바뀌었는지 확인
-    const handleEndDrawing = () => {
-      const hasChange =
-        lastSavedLayerHash !== null &&
-        lastSavedLayerHash !== AnnotationTool.getLayerHash();
-
-      if (shouldBlock !== hasChange) {
-        setShouldBlock(hasChange);
-      }
-    };
+    const handleEndDrawing = detectChanges;
 
     // 이벤트 등록
     paper.tools.forEach((tool) => {
@@ -103,7 +99,7 @@ const useWarningOnUnsavedChange = () => {
         tool.off('mouseup', handleEndDrawing);
       });
     };
-  }, [lastSavedLayerHash, shouldBlock, setShouldBlock]);
+  }, [lastSavedLayerHash, shouldBlock, setShouldBlock, detectChanges]);
 
   /**************************************
    ****** 브라우저 네비게이션 막기 ********

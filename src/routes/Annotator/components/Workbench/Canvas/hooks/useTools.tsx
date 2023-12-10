@@ -51,12 +51,53 @@ export class ToolHistory {
   }
 }
 
+type ObserverCallback = () => void;
+class Observer {
+  startObservers: ObserverCallback[];
+  endObservers: ObserverCallback[];
+  changeObservers: ObserverCallback[];
+
+  constructor() {
+    this.startObservers = [];
+    this.endObservers = [];
+    this.changeObservers = [];
+  }
+
+  subscribeEventStart(observer: ObserverCallback) {
+    this.startObservers.push(observer);
+  }
+  subscribeEventEnd(observer: ObserverCallback) {
+    this.endObservers.push(observer);
+  }
+  subscribeEventChange(observer: ObserverCallback) {
+    this.changeObservers.push(observer);
+  }
+  unsubscribeEvent(observer: ObserverCallback) {
+    let idx = this.startObservers.findIndex((obs) => obs === observer);
+    if (idx !== undefined) this.startObservers.splice(idx, 1);
+    idx = this.endObservers.findIndex((obs) => obs === observer);
+    if (idx !== undefined) this.endObservers.splice(idx, 1);
+    idx = this.changeObservers.findIndex((obs) => obs === observer);
+    if (idx !== undefined) this.changeObservers.splice(idx, 1);
+  }
+  notifyObservers(observers: ObserverCallback[]) {
+    observers.forEach((observer) => observer());
+  }
+  clearObservers() {
+    this.startObservers = [];
+    this.endObservers = [];
+    this.changeObservers = [];
+  }
+}
+
 // Canvas unmount 시, 히스토리 초기화
 export class AnnotationTool extends paper.Tool {
   toolType: Tool;
   isDrawing: boolean;
   private static initialLayerState = '';
   static history: ToolHistory = new ToolHistory();
+  // 변화가 있을 때마다, 이벤트를 감지받을 수 있도록 옵저버를 등버
+  static observer = new Observer();
 
   constructor(toolType: Tool) {
     super();
@@ -81,6 +122,9 @@ export class AnnotationTool extends paper.Tool {
     if (AnnotationTool.history.undo.length === 0) {
       this.initializeHistory();
     }
+
+    // 변경 사항을 observer에게 알림
+    AnnotationTool.notifyStartObservers();
   }
 
   endDrawing(annotationId: number) {
@@ -114,12 +158,18 @@ export class AnnotationTool extends paper.Tool {
     // 상태 변경이 있을 시, 히스토리에 저장
     const lastCommand = history.undo[history.undo.length - 1];
     const lastLayerHash = lastCommand?.layerHash;
-    if (layerHash !== lastLayerHash) {
+
+    const hasChange = layerHash !== lastLayerHash;
+    if (hasChange) {
       history.undo.push(toolCommand);
+
       // redo 히스토리 초기화
       if (history.redo.length > 0) {
         history.redo = [];
       }
+      // 변경 사항을 observer에게 알림
+      AnnotationTool.notifyChangeObservers();
+      AnnotationTool.notifyEndObservers();
       return;
     }
 
@@ -171,6 +221,9 @@ export class AnnotationTool extends paper.Tool {
 
     paper.project.activeLayer.removeChildren();
     paper.project.activeLayer.importJSON(layerStateToRestore as string);
+
+    // 변경 사항을 observer에게 알림
+    AnnotationTool.notifyChangeObservers();
   }
 
   // 이렇게 복잡한 로직이 필요한 이유는,
@@ -353,6 +406,37 @@ export class AnnotationTool extends paper.Tool {
     };
 
     trimHistory(['undo', 'redo']);
+  }
+
+  static observerStartDrawing(observer: () => void) {
+    AnnotationTool.observer.startObservers.push(observer);
+  }
+  static observeEndDrawing(observer: () => void) {
+    AnnotationTool.observer.endObservers.push(observer);
+  }
+  static observeChange(observer: () => void) {
+    AnnotationTool.observer.changeObservers.push(observer);
+  }
+  static stopObserve(observer: () => void) {
+    AnnotationTool.observer.unsubscribeEvent(observer);
+  }
+  static notifyStartObservers() {
+    AnnotationTool.observer.notifyObservers(
+      AnnotationTool.observer.startObservers,
+    );
+  }
+  static notifyEndObservers() {
+    AnnotationTool.observer.notifyObservers(
+      AnnotationTool.observer.endObservers,
+    );
+  }
+  static notifyChangeObservers() {
+    AnnotationTool.observer.notifyObservers(
+      AnnotationTool.observer.changeObservers,
+    );
+  }
+  static clearObservers() {
+    AnnotationTool.observer.clearObservers();
   }
 }
 
