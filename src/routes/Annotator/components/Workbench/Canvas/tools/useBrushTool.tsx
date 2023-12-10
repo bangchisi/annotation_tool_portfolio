@@ -74,7 +74,11 @@ const useBrushTool = (compounds: paper.Item[]) => {
       radius: brushRadius,
     });
 
-    brush.flatten(0.1);
+    brush.smooth({
+      type: 'continuous',
+    });
+    brush.simplify(3);
+    brush.flatten(0.65);
 
     // 바꿔치기 할 children 생성
     const pathToSwitch = new paper.CompoundPath(

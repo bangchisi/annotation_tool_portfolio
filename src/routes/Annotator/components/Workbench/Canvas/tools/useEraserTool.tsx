@@ -70,7 +70,11 @@ const useEraserTool = (compounds: paper.Item[]) => {
       radius: eraserRadius,
     });
 
-    eraser.flatten(0.1);
+    eraser.smooth({
+      type: 'continuous',
+    });
+    eraser.simplify(3);
+    eraser.flatten(0.65);
 
     // 바꿔치기 할 children 생성
     const pathToSwitch = new paper.CompoundPath(
