@@ -1,12 +1,9 @@
-import { Container } from './Workbench.style';
-import Canvas from './Canvas/Canvas';
 import { useRef } from 'react';
+import Canvas from './Canvas/Canvas';
+import { Container } from './Workbench.style';
 
 export default function Workbench() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-
-  const width = containerRef.current?.clientWidth;
-  const height = containerRef.current?.clientHeight;
 
   const handleRightClick = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -14,7 +11,7 @@ export default function Workbench() {
 
   return (
     <Container ref={containerRef} onContextMenu={handleRightClick}>
-      <Canvas width={width} height={height} />
+      <Canvas containerRef={containerRef} />
     </Container>
   );
 }
