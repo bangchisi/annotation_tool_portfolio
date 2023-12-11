@@ -230,16 +230,15 @@ export default function Canvas(props: CanvasProps) {
     everythingRect.remove();
   }, [selectedTool, currentAnnotation]);
 
+  const { containerRef } = props;
   useEffect(() => {
-    if (!props?.containerRef?.current) return;
+    if (!containerRef || !containerRef?.current) return;
 
-    const { width, height } =
-      props.containerRef.current.getBoundingClientRect();
+    const { width, height } = containerRef.current.getBoundingClientRect();
     paper.view.viewSize = new paper.Size(width, height);
     paper.view.center = new paper.Point(width / 2, height / 2);
-  }, [props?.containerRef]);
+  }, [containerRef]);
 
-  const { containerRef } = props;
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
 
@@ -259,7 +258,7 @@ export default function Canvas(props: CanvasProps) {
         canvas.height = height;
 
         paper.view.viewSize = new paper.Size(width, height);
-      }, 150);
+      }, 75);
     };
 
     window.addEventListener('resize', resizeCanvas);
