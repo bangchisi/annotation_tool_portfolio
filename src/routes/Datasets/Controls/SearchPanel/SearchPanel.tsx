@@ -1,7 +1,7 @@
 import { TextField } from '@mui/material';
-import { FormContainer } from './SearchPanel.style';
-import { DatasetType } from 'routes/Datasets/Datasets';
 import { useRef, useState } from 'react';
+import { DatasetType } from 'routes/Datasets/Datasets';
+import { FormContainer } from './SearchPanel.style';
 
 interface SearchPanelProps {
   datasets: DatasetType[];
@@ -9,9 +9,23 @@ interface SearchPanelProps {
 }
 
 export default function SearchPanel(props: SearchPanelProps) {
+  const searchRef = useRef<HTMLInputElement>(null);
   const { datasets, setFilteredDatasets } = props;
   const [searchText, setSearchText] = useState('');
-  const searchRef = useRef<HTMLInputElement>(null);
+  const lowerCasedSearchText = searchText
+    .toLocaleLowerCase()
+    .replace(/\s/g, '');
+
+  const hasMatchingWord = (dataset: DatasetType) => {
+    const { superDatasetName, datasetName, categories } = dataset;
+    const categoriesStr = categories.map(({ name }) => name).join('★^오^★');
+
+    return [superDatasetName, datasetName, categoriesStr]
+      .join('★^오^★')
+      .replace(/\s/g, '')
+      .toLocaleLowerCase()
+      .includes(lowerCasedSearchText);
+  };
 
   return (
     <FormContainer onSubmit={(e) => e.preventDefault()}>
@@ -25,22 +39,7 @@ export default function SearchPanel(props: SearchPanelProps) {
         onChange={(e) => setSearchText(e.target.value)}
         inputProps={{ ref: searchRef }}
         onKeyUp={() => {
-          const filtered = datasets.filter(
-            (dataset) =>
-              dataset.superDatasetName
-                .toLocaleLowerCase()
-                .includes(searchText.toLocaleLowerCase()) ||
-              dataset.datasetName
-                .toLocaleLowerCase()
-                .includes(searchText.toLocaleLowerCase()) ||
-              dataset.categories.some((category) =>
-                category.name
-                  .toLocaleLowerCase()
-                  .includes(searchText.toLocaleLowerCase()),
-              ),
-          );
-
-          console.log(filtered);
+          const filtered = datasets.filter(hasMatchingWord);
           setFilteredDatasets(filtered);
         }}
       />
