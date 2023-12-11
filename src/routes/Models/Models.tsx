@@ -4,7 +4,6 @@ import { useModal } from 'components/ModalWrapper/ModalWrapper';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { useEffect, useState } from 'react';
-import NewModelCard from './ModelCard/NewModelCard';
 import ModelDeleteModal from './ModelDeleteModal/ModelDeleteModal';
 import { Container } from './Models.style';
 
@@ -90,20 +89,6 @@ export default function Models() {
 
   return (
     <Container>
-      {logs &&
-        logs.map((log) => (
-          <div key={log.finetuneName}>
-            <NewModelCard
-              key={log.finetuneId}
-              log={log}
-              getLogs={() => getLogs(userId)}
-              onDelete={onDelete}
-              setOpen={setOpen}
-              setDeleteModelName={setDeleteModelName}
-              setFinetuneId={setFinetuneId}
-            />
-          </div>
-        ))}
       <ModelDeleteModal
         open={open}
         setOpen={setOpen}

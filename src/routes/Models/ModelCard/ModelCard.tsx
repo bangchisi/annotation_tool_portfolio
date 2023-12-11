@@ -6,8 +6,6 @@ import {
   PropertyValue,
 } from './ModelCard.style';
 
-import NewModelCard from './NewModelCard';
-
 interface ModelCardProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setDeleteModelName: React.Dispatch<React.SetStateAction<string>>;
