@@ -1,6 +1,4 @@
-import React, { useRef, useEffect } from 'react';
-import { Grid } from 'gridjs-react';
-import 'gridjs/dist/theme/mermaid.css';
+import React from 'react';
 import { Container, DeleteButton } from './ModelCard.style';
 
 interface ModelCardProps {
@@ -85,25 +83,6 @@ const NewModelCard = (props: ModelCardProps) => {
 
   return (
     <Container>
-      <Grid
-        data={[
-          [
-            finetuneId,
-            finetuneName,
-            datasetName,
-            new Date(finetuneStartTime).toLocaleString(),
-            remainingTime ? remainingTimeToString(remainingTime) : '-',
-            isDone ? '완료' : '진행중',
-          ],
-        ]}
-        columns={['ID', '이름', 'Dataset', '학습시작', '남은시간', '완료여부']}
-        style={{
-          td: {
-            'font-size': '14px',
-            'text-align': 'center',
-          },
-        }}
-      />
       <DeleteButton
         variant="contained"
         color="warning"
