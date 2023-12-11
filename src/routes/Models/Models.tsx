@@ -4,50 +4,9 @@ import { useModal } from 'components/ModalWrapper/ModalWrapper';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { useEffect, useState } from 'react';
+import { LogType, extractLogAsTableData } from 'routes/Models/logTypes';
 import ModelDeleteModal from './ModelDeleteModal/ModelDeleteModal';
 import { Container } from './Models.style';
-
-export interface LogType {
-  finetuneId: number;
-  datasetId: number;
-  finetuneName: string;
-  vitModelType: string;
-  modelDir: string;
-  finetuneStartTime: Date;
-  finetuneEndTime?: Date; // 학습 진행 중일 시 공백일 수 있음
-  isDone: boolean;
-  numTrainImages: number;
-  numTestImages: number;
-  trainImageIds: number[];
-  testImageIds: number[];
-  status: string;
-  detail: {
-    // 학습 진행 전, 후일 시 공백
-    percentage?: number;
-    iteration?: number;
-    total?: number;
-    remainingTime?: number;
-  };
-  result: {
-    datasetName: string;
-    deviceId: number;
-    expName: string;
-    train: {
-      // 학습 진행 중일 시 공백일 수 있음
-      bestEpoch?: number;
-      bestTestLoss?: number;
-    };
-    evaluation: {
-      // 학습 진행 중일 시 공백일 수 있음
-      meanDiceCoefficient?: number;
-      stdDiceCoefficient?: number;
-      meanHausdorffDistance?: number;
-      stdHausdorffDistance?: number;
-      meanAssd?: number;
-      stdAssd?: number;
-    };
-  };
-}
 
 export default function Models() {
   const userId = useAppSelector((state) => state.auth.user.userId);
@@ -83,9 +42,17 @@ export default function Models() {
 
   useEffect(() => {
     getLogs(userId);
-  }, []);
+  }, [userId]);
 
-  console.table(logs);
+  useEffect(() => {
+    if (logs && logs.length > 0) {
+      // use functions inside ./logTypes.ts to extract each groups
+      const log = logs[0];
+      const extracted = extractLogAsTableData(log);
+      console.dir(log);
+      console.dir(extracted);
+    }
+  }, [logs]);
 
   return (
     <Container>

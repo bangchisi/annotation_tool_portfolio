@@ -1,6 +1,6 @@
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
-import { LogType } from 'routes/Models/Models';
+import { LogType } from 'routes/Models/logTypes';
 
 export async function getIsOnTrain(userId: string, datasetId: number) {
   try {
