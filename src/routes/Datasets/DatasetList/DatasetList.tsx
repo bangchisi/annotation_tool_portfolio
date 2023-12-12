@@ -7,6 +7,8 @@ import ExportDatasetModal from './ExportDatasetModal/ExportDatasetModal';
 
 interface DatasetListProps {
   datasets: DatasetType[];
+  filteredDatasets: DatasetType[];
+  setFilteredDatasets: React.Dispatch<React.SetStateAction<DatasetType[]>>;
   setDatasetList: (userId: string) => Promise<void>;
 }
 
@@ -15,15 +17,22 @@ export default function DatasetList(props: DatasetListProps) {
   const [exportId, setExportId] = useState<number>();
   const [open, setOpen] = useState(false);
 
-  const { datasets, setDatasetList } = props;
+  const { datasets, filteredDatasets, setFilteredDatasets, setDatasetList } =
+    props;
+  // const list = filteredDatasets.length > 0 ? filteredDatasets : datasets;
+  const list = filteredDatasets;
 
   useEffect(() => {
     setDatasetList(user.userId);
   }, []);
 
+  useEffect(() => {
+    setFilteredDatasets(datasets);
+  }, [datasets]);
+
   return (
     <Container className="dataset-list">
-      {datasets.map((dataset) => {
+      {list.map((dataset) => {
         return (
           <DatasetCard
             key={dataset.datasetId}

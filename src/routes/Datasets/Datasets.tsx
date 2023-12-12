@@ -1,5 +1,5 @@
 import DatasetList from './DatasetList/DatasetList';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import DatasetsModel from './models/Datasets.model';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
@@ -10,6 +10,7 @@ import { useAppSelector } from 'App.hooks';
 
 export interface DatasetType {
   datasetId: number; // Dataset 고유 ID
+  superDatasetName: string;
   datasetName: string; // Dataset 이름. 중복 가능?
   lastUpdate: string; // 마지막 변경시간. or Date
   created: string; // 생성 날짜. or Date
@@ -28,6 +29,7 @@ export interface DatasetType {
 
 export default function Datasets() {
   const [datasets, setDatasets] = useState<DatasetType[]>([]);
+  const [filteredDatasets, setFilteredDatasets] = useState<DatasetType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const user = useAppSelector((state) => state.auth.user);
@@ -50,9 +52,18 @@ export default function Datasets() {
   // TODO: style dataset-search
   return (
     <Container id="datasets">
-      <Controls setDatasetList={setDatasetList} />
+      <Controls
+        datasets={datasets}
+        setFilteredDatasets={setFilteredDatasets}
+        setDatasetList={setDatasetList}
+      />
       {!isError && (
-        <DatasetList datasets={datasets} setDatasetList={setDatasetList} />
+        <DatasetList
+          datasets={datasets}
+          filteredDatasets={filteredDatasets || []}
+          setFilteredDatasets={setFilteredDatasets}
+          setDatasetList={setDatasetList}
+        />
       )}
       {isError && (
         <Reload setDatasetList={setDatasetList} userId={user.userId} />
