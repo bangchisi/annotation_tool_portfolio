@@ -43,69 +43,69 @@ export type LogType = {
 // Function to extract FirstVisibleRow
 export function extractFirstVisibleRow(log: LogType) {
   return {
-    finetuneId: log.finetuneId,
-    finetuneName: log.finetuneName,
-    datasetName: log.result.datasetName,
-    status: log.status,
-    isDone: log.isDone,
-    finetuneStartTime: log.finetuneStartTime,
-    remainingTime: log.detail.remainingTime,
+    finetuneId: log?.finetuneId,
+    finetuneName: log?.finetuneName,
+    datasetName: log?.result?.datasetName,
+    status: log?.status,
+    isDone: log?.isDone,
+    finetuneStartTime: log?.finetuneStartTime,
+    remainingTime: log?.detail?.remainingTime,
   };
 }
 
 // Function to extract SecondVisibleRow
 export function extractSecondVisibleRow(log: LogType) {
   return {
-    numTrainImages: log.numTrainImages,
-    numTestImages: log.numTestImages,
-    numTotalImages: log.numTrainImages + log.numTestImages,
+    numTrainImages: log?.numTrainImages,
+    numTestImages: log?.numTestImages,
+    numTotalImages: log?.numTrainImages + log?.numTestImages,
     trainProgress: '',
     evaluationProgress: '',
-    deviceId: log.result.deviceId,
+    deviceId: log?.result?.deviceId,
   };
 }
 
 // Function to extract FirstCollapsibleRow
 export function extractFirstCollapsibleRow(log: LogType) {
   return {
-    datasetId: log.datasetId,
-    vitModelType: log.vitModelType,
-    modelDir: log.modelDir,
-    finetuneStartTime: log.finetuneStartTime,
-    finetuneEndTime: log.finetuneEndTime,
+    datasetId: log?.datasetId,
+    vitModelType: log?.vitModelType,
+    modelDir: log?.modelDir,
+    finetuneStartTime: log?.finetuneStartTime,
+    finetuneEndTime: log?.finetuneEndTime,
   };
 }
 
 // Function to extract SecondCollapsibleRow
 export function extractSecondCollapsibleRow(log: LogType) {
   return {
-    detailPercentage: log.detail.percentage,
-    detailIteration: log.detail.iteration,
-    detailTotal: log.detail.total,
-    detailRemainingTime: log.detail.remainingTime,
+    detailPercentage: log?.detail?.percentage,
+    detailIteration: log?.detail?.iteration,
+    detailTotal: log?.detail?.total,
+    detailRemainingTime: log?.detail?.remainingTime,
   };
 }
 
 // Function to extract ThirddCollapsibleRow
 export function extractThirdCollapsibleRow(log: LogType) {
   return {
-    meanDiceCoefficient: log.result.evaluation.meanDiceCoefficient,
-    stdDiceCoefficient: log.result.evaluation.stdDiceCoefficient,
-    meanHausdorffDistance: log.result.evaluation.meanHausdorffDistance,
-    stdHausdorffDistance: log.result.evaluation.stdHausdorffDistance,
-    meanAssd: log.result.evaluation.meanAssd,
-    stdAssd: log.result.evaluation.stdAssd,
+    meanDiceCoefficient: log?.result?.evaluation?.meanDiceCoefficient,
+    stdDiceCoefficient: log?.result?.evaluation?.stdDiceCoefficient,
+    meanHausdorffDistance: log?.result?.evaluation?.meanHausdorffDistance,
+    stdHausdorffDistance: log?.result?.evaluation?.stdHausdorffDistance,
+    meanAssd: log?.result?.evaluation?.meanAssd,
+    stdAssd: log?.result?.evaluation?.stdAssd,
   };
 }
 
 // Function to extract FourthCollapsibleRow
 export function extractFourthCollapsibleRow(log: LogType) {
   return {
-    datasetName: log.result.datasetName,
-    deviceId: log.result.deviceId,
-    expName: log.result.expName,
-    bestEpoch: log.result.train.bestEpoch,
-    bestTestLoss: log.result.train.bestTestLoss,
+    datasetName: log?.result?.datasetName,
+    deviceId: log?.result?.deviceId,
+    expName: log?.result?.expName,
+    bestEpoch: log?.result?.train?.bestEpoch,
+    bestTestLoss: log?.result?.train?.bestTestLoss,
   };
 }
 
