@@ -33,8 +33,7 @@ import { brushCursor, eraserCursor } from './tools';
 let canvasChildren: paper.Item[];
 
 interface CanvasProps {
-  width?: number;
-  height?: number;
+  containerRef: React.RefObject<HTMLDivElement>;
 }
 
 import { tempRect as everythingRect } from '../../RightSidebar/Preferences/SAMToolPanel/SAMToolPanel';
@@ -42,7 +41,6 @@ import { tempRect as clickRect } from './tools/useSAMTool';
 
 // TODO: paper init to another file?
 export default function Canvas(props: CanvasProps) {
-  const { width, height } = props;
   const dispatch = useAppDispatch();
   const imageId = Number(useParams().imageId);
   const { selectedTool, categories, currentAnnotation, image } =
@@ -183,13 +181,6 @@ export default function Canvas(props: CanvasProps) {
   }, [imageId]);
 
   useEffect(() => {
-    if (width && height) {
-      paper.view.viewSize = new paper.Size(width, height);
-      paper.view.center = new paper.Point(width / 2, height / 2);
-    }
-  }, [width, height]);
-
-  useEffect(() => {
     // 데이터셋이 아직 없으면 마스크를 그리지 않는다.
     if (!categories) return;
 
@@ -238,6 +229,51 @@ export default function Canvas(props: CanvasProps) {
     if (!everythingRect) return;
     everythingRect.remove();
   }, [selectedTool, currentAnnotation]);
+
+  const { containerRef } = props;
+  useEffect(() => {
+    if (!containerRef || !containerRef?.current) return;
+
+    const { width, height } = containerRef.current.getBoundingClientRect();
+    paper.view.viewSize = new paper.Size(width, height);
+    paper.view.center = new paper.Point(width / 2, height / 2);
+  }, [containerRef]);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+
+    const resizeCanvas = () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      timer = setTimeout(() => {
+        const canvas = canvasRef.current;
+        const container = containerRef?.current;
+
+        if (!canvas || !container) return;
+
+        const { width, height } = container.getBoundingClientRect();
+
+        canvas.width = width;
+        canvas.height = height;
+
+        paper.view.viewSize = new paper.Size(width, height);
+      }, 75);
+    };
+
+    window.addEventListener('resize', resizeCanvas);
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, [canvasRef, containerRef]);
+
+  useEffect(() => {
+    const isVisible = paper.view.isVisible();
+
+    if (!isVisible) {
+      paper.view.update();
+    }
+  }, []);
 
   return (
     <Fragment>
