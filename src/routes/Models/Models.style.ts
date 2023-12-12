@@ -5,3 +5,11 @@ export const Container = styled(Box)(() => {
     padding: '45px 80px',
   };
 });
+
+export const TableWrapper = styled('div')`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 1rem;
+  border: none;
+`;

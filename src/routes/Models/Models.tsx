@@ -3,10 +3,11 @@ import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { useModal } from 'components/ModalWrapper/ModalWrapper';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
-import { useEffect, useState } from 'react';
-import { LogType, extractLogAsTableData } from 'routes/Models/logTypes';
-import ModelDeleteModal from './ModelDeleteModal/ModelDeleteModal';
-import { Container } from './Models.style';
+import { useCallback, useEffect, useState } from 'react';
+import FlexTable from 'routes/Models/Components/FlexTable';
+import { LogType } from 'routes/Models/logTypes';
+import ModelDeleteModal from './Components/ModelDeleteModal/ModelDeleteModal';
+import { Container, TableWrapper } from './Models.style';
 
 export default function Models() {
   const userId = useAppSelector((state) => state.auth.user.userId);
@@ -17,7 +18,18 @@ export default function Models() {
   const [finetuneId, setFinetuneId] = useState<number[]>([]);
   const { open, setOpen } = useModal();
 
-  async function getLogs(userId: string) {
+  const onDelete = useCallback(async (finetuneIds: number[]) => {
+    setIsDeleteLoading(true);
+    try {
+      await FinetuneModel.deleteLogs(finetuneIds);
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to delete finetune model');
+    } finally {
+      setIsDeleteLoading(false);
+    }
+  }, []);
+
+  const getLogs = useCallback(async (userId: string) => {
     setIsLogsLoading(true);
     try {
       const response = await FinetuneModel.getLogs(userId);
@@ -27,35 +39,17 @@ export default function Models() {
     } finally {
       setIsLogsLoading(false);
     }
-  }
-
-  async function onDelete(finetuneIds: number[]) {
-    setIsDeleteLoading(true);
-    try {
-      await FinetuneModel.deleteLogs(finetuneIds);
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to delete finetune model');
-    } finally {
-      setIsDeleteLoading(false);
-    }
-  }
+  }, []);
 
   useEffect(() => {
     getLogs(userId);
-  }, [userId]);
-
-  useEffect(() => {
-    if (logs && logs.length > 0) {
-      // use functions inside ./logTypes.ts to extract each groups
-      const log = logs[0];
-      const extracted = extractLogAsTableData(log);
-      console.dir(log);
-      console.dir(extracted);
-    }
-  }, [logs]);
+  }, [getLogs, userId]);
 
   return (
     <Container>
+      <TableWrapper>
+        {logs && logs.map((log, index) => <FlexTable key={index} log={log} />)}
+      </TableWrapper>
       <ModelDeleteModal
         open={open}
         setOpen={setOpen}
@@ -64,9 +58,6 @@ export default function Models() {
         onDelete={onDelete}
         finetuneId={finetuneId}
       />
-      {isLogsLoading && (
-        <LoadingSpinner message="모델 리스트를 불러오는 중입니다..." />
-      )}
       {isDeleteLoading && (
         <LoadingSpinner message="모델을 삭제하는 중입니다..." />
       )}

@@ -1,6 +1,6 @@
 import { Box, styled } from '@mui/material';
 import { useCallback, useMemo } from 'react';
-import { CollapsibleRowType } from 'routes/Models/logTypes';
+import { VisibleRowType } from 'routes/Models/logTypes';
 import { formatStringForTable } from 'utils';
 
 const headerClassName = 'flex-header';
@@ -13,9 +13,22 @@ const Row = styled(Box)`
   flex-grow: 1;
   flex-shrink: 1;
   width: 100%;
+  border-bottom: 1px solid rgb(224, 224, 224);
+  color: #0e1116;
 
-  &:last-of-type > .td {
-    border-bottom: none !important;
+  &.flex-header {
+    /*  */
+  }
+
+  &:first-of-type > .th:first-of-type {
+    border-top-left-radius: 12px;
+  }
+  &:first-of-type > .th:last-of-type {
+    border-top-right-radius: 12px;
+  }
+
+  &:last-of-type {
+    border-bottom: none;
   }
 `;
 
@@ -24,34 +37,31 @@ const Cell = styled(Box)`
   justify-content: center;
   align-items: center;
   text-align: center;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  overflow: hidden;
   min-height: 8px;
-  color: #0e1116;
+  border-left: 1px solid rgba(0, 0, 0, 0.04);
+
+  &:last-of-type {
+    border-left: none;
+  }
 
   &.th {
+    background-color: rgba(243, 246, 249, 0.75);
     font-weight: 500;
     padding: 8px;
-    background-color: rgba(0, 0, 0, 0.05);
     user-select: none;
   }
 
   &.td {
     box-sizing: initial;
-    padding: 16px;
-  }
-
-  &:last-of-type {
-    border-right: none;
+    padding: 12px;
   }
 `;
 
-type CollapsibleRowProps = {
-  rowData: CollapsibleRowType;
+type VisibleRowProps = {
+  rowData: VisibleRowType;
 };
 
-const CollapsibleRow = ({ rowData }: CollapsibleRowProps) => {
+const FlexTableRow = ({ rowData }: VisibleRowProps) => {
   const headers = useMemo(() => Object.keys(rowData), [rowData]);
   const values = useMemo(() => Object.values(rowData), [rowData]);
   const rows = useMemo(() => [headers, values], [headers, values]);
@@ -89,4 +99,4 @@ const CollapsibleRow = ({ rowData }: CollapsibleRowProps) => {
   );
 };
 
-export default CollapsibleRow;
+export default FlexTableRow;

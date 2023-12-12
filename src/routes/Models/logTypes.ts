@@ -109,14 +109,15 @@ export function extractFourthCollapsibleRow(log: LogType) {
   };
 }
 
-export const extractLogAsTableData = (log: LogType) => ({
-  firstVisibleRow: extractFirstVisibleRow(log),
-  secondVisibleRow: extractSecondVisibleRow(log),
-  firstCollapsibleRow: extractFirstCollapsibleRow(log),
-  secondCollapsibleRow: extractSecondCollapsibleRow(log),
-  thirdCollapsibleRow: extractThirdCollapsibleRow(log),
-  fourthCollapsibleRow: extractFourthCollapsibleRow(log),
-});
+export const groupLogToTableData = (log: LogType) =>
+  [
+    extractFirstVisibleRow(log),
+    extractSecondVisibleRow(log),
+    extractFirstCollapsibleRow(log),
+    extractSecondCollapsibleRow(log),
+    extractThirdCollapsibleRow(log),
+    extractFourthCollapsibleRow(log),
+  ] as const;
 
 // Types based on the return values of the functions
 export type FirstVisibleRowType = ReturnType<typeof extractFirstVisibleRow>;
@@ -133,3 +134,10 @@ export type ThirdCollapsibleRowType = ReturnType<
 export type FourthCollapsibleRowType = ReturnType<
   typeof extractFourthCollapsibleRow
 >;
+
+export type VisibleRowType = FirstVisibleRowType | SecondVisibleRowType;
+export type CollapsibleRowType =
+  | FirstCollapsibleRowType
+  | SecondCollapsibleRowType
+  | ThirdCollapsibleRowType
+  | FourthCollapsibleRowType;
