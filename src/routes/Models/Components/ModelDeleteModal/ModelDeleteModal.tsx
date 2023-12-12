@@ -33,7 +33,13 @@ export default function ModelDeleteModal(props: ModelDeleteModalProps) {
       <Typography variant="body1">
         지울 모델 이름을 정확히 입력해주세요.
       </Typography>
-      <Typography variant="h6" color={modelNameColor}>
+      <Typography
+        variant="h6"
+        color={modelNameColor}
+        sx={{
+          marginBottom: '10px',
+        }}
+      >
         {deleteModelName}{' '}
       </Typography>
       {modelNameColor === 'red' && (

@@ -29,6 +29,15 @@ export default function Models() {
     }
   }, []);
 
+  const handleDelete = useCallback(
+    (finetuneId: number, finetuneName: string) => {
+      setDeleteModelName(finetuneName);
+      setFinetuneId([finetuneId]);
+      setOpen(true);
+    },
+    [setDeleteModelName, setFinetuneId, setOpen],
+  );
+
   const getLogs = useCallback(async (userId: string) => {
     setIsLogsLoading(true);
     try {
@@ -48,7 +57,10 @@ export default function Models() {
   return (
     <Container>
       <TableWrapper>
-        {logs && logs.map((log, index) => <FlexTable key={index} log={log} />)}
+        {logs &&
+          logs.map((log, index) => (
+            <FlexTable key={index} log={log} handleDelete={handleDelete} />
+          ))}
       </TableWrapper>
       <ModelDeleteModal
         open={open}

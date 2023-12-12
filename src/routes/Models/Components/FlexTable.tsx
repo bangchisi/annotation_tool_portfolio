@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Box, Container, IconButton, Paper } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import CollapsibleTable from 'routes/Models/Components/CollapsibleTable';
 import DeleteButton from 'routes/Models/Components/DeleteButton';
 import FlexTableRow from 'routes/Models/Components/FlexTableRow';
@@ -61,9 +61,10 @@ const TableHeader = styled(Box)`
 
 type VisibleTableProps = {
   log: LogType;
+  handleDelete: (finetuneId: number, finetuneName: string) => void;
 };
 
-const FlexTable = ({ log }: VisibleTableProps) => {
+const FlexTable = ({ log, handleDelete }: VisibleTableProps) => {
   const groupedLog = useMemo(() => groupLogToTableData(log), [log]);
 
   const visibleTableData = useMemo(
@@ -78,11 +79,15 @@ const FlexTable = ({ log }: VisibleTableProps) => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen((prev) => !prev);
 
+  const onDeleteClick = useCallback(() => {
+    handleDelete(log.finetuneId, log.finetuneName);
+  }, [handleDelete, log.finetuneId, log.finetuneName]);
+
   return (
     <Wrapper className="flex-table-container">
       <TableHeader>
         <h2>{log.finetuneName}</h2>
-        <DeleteButton disableFocusRipple>
+        <DeleteButton onClick={onDeleteClick}>
           <span>삭제</span>
         </DeleteButton>
       </TableHeader>
