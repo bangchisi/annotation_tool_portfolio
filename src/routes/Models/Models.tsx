@@ -55,24 +55,26 @@ export default function Models() {
   }, [getLogs, userId]);
 
   return (
-    <Container>
-      <TableWrapper>
-        {logs &&
-          logs.map((log, index) => (
-            <FlexTable key={index} log={log} handleDelete={handleDelete} />
-          ))}
-      </TableWrapper>
-      <ModelDeleteModal
-        open={open}
-        setOpen={setOpen}
-        deleteModelName={deleteModelName}
-        getLogs={() => getLogs(userId)}
-        onDelete={onDelete}
-        finetuneId={finetuneId}
-      />
-      {isDeleteLoading && (
-        <LoadingSpinner message="모델을 삭제하는 중입니다..." />
-      )}
-    </Container>
+    <>
+      <Container>
+        <TableWrapper>
+          {logs &&
+            logs.map((log, index) => (
+              <FlexTable key={index} log={log} handleDelete={handleDelete} />
+            ))}
+        </TableWrapper>
+        <ModelDeleteModal
+          open={open}
+          setOpen={setOpen}
+          deleteModelName={deleteModelName}
+          getLogs={() => getLogs(userId)}
+          onDelete={onDelete}
+          finetuneId={finetuneId}
+        />
+        {isDeleteLoading && (
+          <LoadingSpinner message="모델을 삭제하는 중입니다..." />
+        )}
+      </Container>
+    </>
   );
 }
