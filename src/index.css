@@ -34,4 +34,5 @@ on all page by above property but not removed just in case */
   MUI Theme Provider를 사용으로 전환하면 삭제 */
 :root {
   --border-color: #d0d7de;
+  --editor-bg: #d0d7de;
 }
