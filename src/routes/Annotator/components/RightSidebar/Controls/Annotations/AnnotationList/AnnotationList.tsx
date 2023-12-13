@@ -1,3 +1,4 @@
+import paper from 'paper';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
@@ -26,7 +27,8 @@ import {
 
 export default function AnnotationList() {
   // const [isLoading, setIsLoading] = useState(false);
-  const { isLoading, createEmptyAnnotation } = useManageAnnotation();
+  const { isLoading, createEmptyAnnotation, selectAnnotation } =
+    useManageAnnotation();
   const dispatch = useAppDispatch();
   const { categories, currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
@@ -58,16 +60,25 @@ export default function AnnotationList() {
   }
 
   // annotation 선택
-  function selectAnnotation(categoryId: number, annotationId: number) {
+  function selectMask(categoryId: number, annotationId: number) {
     if (!categories) return;
+    selectAnnotation(categoryId, annotationId);
 
-    const selectedCategory = categories[categoryId];
+    const { children } = paper.project.activeLayer;
 
-    if (!selectedCategory) return;
+    // loop through all children of the active layer and set selected to false
+    children.forEach((child) => {
+      child.selected = false;
+    });
 
-    dispatch(setCurrentCategoryByCategoryId(categoryId));
+    const selectedMask = children.find(
+      (child) =>
+        child.data.categoryId === categoryId &&
+        child.data.annotationId === annotationId,
+    );
 
-    dispatch(setCurrentAnnotationByAnnotationId(annotationId));
+    if (!selectedMask) return;
+    selectedMask.selected = true;
   }
 
   // category의 모든 annotation 삭제
@@ -123,7 +134,7 @@ export default function AnnotationList() {
             categoryId={currentCategory.categoryId}
             annotationId={Number(annotationId)}
             annotationcolor={annotation.color}
-            onClick={selectAnnotation}
+            onClick={selectMask}
           />
         ))}
     </Container>
