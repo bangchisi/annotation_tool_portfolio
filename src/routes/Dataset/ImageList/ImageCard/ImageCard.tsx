@@ -58,6 +58,7 @@ export default function ImageCard(props: ImageCardProps) {
     fetchImageInfo();
   }, [imageId]);
 
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
     // Binding event handler directly to img tag sometimes,
@@ -74,6 +75,7 @@ export default function ImageCard(props: ImageCardProps) {
       const ratio = 200 / originalHeight;
 
       imgRef.current.style.transform = `scale(${ratio})`;
+      setIsImageLoaded(true);
     };
   }, [imagePath]);
 
@@ -100,7 +102,13 @@ export default function ImageCard(props: ImageCardProps) {
         )}
         <ImageLink to={link}>
           <ImageContainer>
-            <img src={imagePath} ref={imgRef} />
+            <img
+              src={imagePath}
+              ref={imgRef}
+              style={{
+                visibility: isImageLoaded ? 'visible' : 'hidden',
+              }}
+            />
           </ImageContainer>
           <TitleContainer className="image-title-container">
             <Title ref={imgTitleRef} className={imageTitleClassName}>
