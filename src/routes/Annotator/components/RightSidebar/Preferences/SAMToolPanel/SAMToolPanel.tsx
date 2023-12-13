@@ -1,26 +1,11 @@
-import paper from 'paper';
-import { useEffect, useState } from 'react';
-import {
-  ButtonGroup,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Slider,
-  Typography,
-} from '@mui/material';
-import {
-  Container,
-  EverythingButton,
-  ModelContainer,
-  SelectModel,
-  ParameterContainer,
-  ParameterContent,
-  RangeLabelContainer,
-} from './SAMToolPanel.style';
+import { MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
-import { LogType } from 'routes/Models/Models';
+import paper from 'paper';
+import { useEffect, useState } from 'react';
+import useSAMTool from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
+import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
   selectSAM,
@@ -28,11 +13,19 @@ import {
   setSAMModel,
 } from 'routes/Annotator/slices/SAMSlice';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
-import useSAMTool from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
-import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import { LogType } from 'routes/Models/logTypes';
 import ParameterButtonGroup, {
   ParameterType,
 } from './ParameterButtons/ParameterButtonGroup';
+import {
+  Container,
+  EverythingButton,
+  ModelContainer,
+  ParameterContainer,
+  ParameterContent,
+  RangeLabelContainer,
+  SelectModel,
+} from './SAMToolPanel.style';
 import useSAMParameter from './hooks/useSAMParameter';
 
 export let tempRect: paper.Path.Rectangle;
