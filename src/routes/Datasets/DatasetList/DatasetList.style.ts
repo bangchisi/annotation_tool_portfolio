@@ -19,13 +19,13 @@ export const StyledAccordion = styled(Accordion)(() => {
   return {
     backgroundColor: 'var(--surface-bg)',
     border: '1px solid var(--border-color)',
+    boxShadow: 'none',
   };
 });
 
 export const StyledAccordionSummary = styled(AccordionSummary)(() => {
   return {
-    margin: '0',
-    padding: '12px 8px',
+    padding: '16px 8px',
 
     '& .MuiAccordionSummary-content': {
       margin: '0',
@@ -36,6 +36,7 @@ export const StyledAccordionSummary = styled(AccordionSummary)(() => {
       fontWeight: '500',
       margin: '0',
       color: 'var(--light-gray)',
+      marginLeft: '16px',
     },
   };
 });

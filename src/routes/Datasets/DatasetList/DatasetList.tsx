@@ -1,5 +1,4 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { IconButton } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DatasetType } from '../Datasets';
@@ -43,7 +42,7 @@ export default function DatasetList(props: DatasetListProps) {
   const [expanded, setExpanded] = useState<string | false>(false);
   const handleChange = useCallback(
     (id: string) => () => {
-      setExpanded(id);
+      setExpanded((prev) => (prev === id ? false : id));
     },
     [],
   );
@@ -70,26 +69,18 @@ export default function DatasetList(props: DatasetListProps) {
           expanded={expanded === superDataSetKey}
           onChange={handleChange(superDataSetKey)}
         >
-          <StyledAccordionSummary expandIcon="a">
-            <IconButton
-              disableFocusRipple
-              disableRipple
-              sx={{
-                borderRadius: '555px',
-                '&:hover': {
-                  backgroundColor: 'transparent',
-                },
-              }}
-            >
+          <StyledAccordionSummary
+            expandIcon={
               <ArrowDropDownIcon
                 fontSize="large"
                 htmlColor="var(--light-gray)"
                 sx={{
-                  marginTop: '2px',
+                  marginRight: '7px',
                 }}
               />
-              <h2>{superDataSetKey}</h2>
-            </IconButton>
+            }
+          >
+            <h2>{superDataSetKey}</h2>
           </StyledAccordionSummary>
           <StyledAccordionDetails>
             {list.map((dataset) => {
