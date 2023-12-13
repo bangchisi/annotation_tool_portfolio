@@ -1,1 +1,1 @@
-export { default } from './DeferComponent';
+export { default as DeferComponent } from './DeferComponent';

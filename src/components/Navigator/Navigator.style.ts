@@ -27,12 +27,11 @@ export const NavMenuList = styled('ul')`
   flex-direction: row;
   list-style: none;
   margin: 0;
+  gap: 8px;
 `;
 
 export const NavMenuItem = styled('li')`
   a {
-    font-size: 14px;
-    color: #0e1116;
     padding: 6px;
   }
   a:hover {
@@ -42,6 +41,14 @@ export const NavMenuItem = styled('li')`
   }
   a.active {
     font-weight: 500;
+  }
+  span {
+    font-size: 14px;
+    color: #57606a;
+  }
+  svg {
+    color: #57606a;
+    margin-right: 4px;
   }
 `;
 

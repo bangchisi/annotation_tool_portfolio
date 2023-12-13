@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { RouteMode } from 'App';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
+import { DatasetsIcon, ModelsIcon } from 'Icons';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { clearSAM } from 'routes/Annotator/slices/SAMSlice';
@@ -93,11 +94,12 @@ export default function Navigator(props: NavigatorProps) {
     }
   }
 
-  // return focus to the button when we transitioned from !open -> open
   const prevOpen = useRef(open);
   useEffect(() => {
+    if (anchorRef.current === null) return;
+
     if (prevOpen.current === true && open === false) {
-      anchorRef.current!.focus();
+      anchorRef.current.focus();
     }
 
     prevOpen.current = open;
@@ -116,12 +118,22 @@ export default function Navigator(props: NavigatorProps) {
         <NavMenuList>
           <NavMenuItem>
             <NavLink className="nav-link" to="/datasets">
-              Datasets
+              <DatasetsIcon
+                sx={{
+                  fontSize: '19px',
+                }}
+              />
+              <span>Datasets</span>
             </NavLink>
           </NavMenuItem>
           <NavMenuItem>
             <NavLink className="nav-link" to="models">
-              Models
+              <ModelsIcon
+                sx={{
+                  fontSize: '21px',
+                }}
+              />
+              <span>Models</span>
             </NavLink>
           </NavMenuItem>
         </NavMenuList>
