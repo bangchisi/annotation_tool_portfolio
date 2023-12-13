@@ -47,27 +47,16 @@ const useSelectTool = () => {
       let categoryId: number;
       let annotationId: number;
 
-      // if hitResult is not null and is CompoundPath, disable previous selected item and select new item
-      // set currentAnnotation with selected item's data.annotationId property
+      paper.project.selectedItems.forEach((item) => (item.selected = false));
       if (hitResult && hitResult.item instanceof paper.CompoundPath) {
-        // disable previous selected item
-        if (paper.project.selectedItems.length > 0) {
-          paper.project.selectedItems[0].selected = false;
-        }
-        // select new item
         hitResult.item.selected = true;
 
-        // set currentAnnotation with selected item's data property
         categoryId = hitResult.item.data.categoryId;
         annotationId = hitResult.item.data.annotationId;
         selectAnnotation(categoryId, annotationId);
       } else {
-        // disable previous selected item and set currentAnnotation to null
         if (!currentCategory) return;
 
-        if (paper.project.selectedItems.length > 0) {
-          paper.project.selectedItems[0].selected = false;
-        }
         selectAnnotation(currentCategory.categoryId, -1);
       }
 
