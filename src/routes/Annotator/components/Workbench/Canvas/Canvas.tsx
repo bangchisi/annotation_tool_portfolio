@@ -36,9 +36,6 @@ interface CanvasProps {
   containerRef: React.RefObject<HTMLDivElement>;
 }
 
-import { tempRect as everythingRect } from '../../RightSidebar/Preferences/SAMToolPanel/SAMToolPanel';
-import { tempRect as clickRect } from './tools/useSAMTool';
-
 // TODO: paper init to another file?
 export default function Canvas(props: CanvasProps) {
   const dispatch = useAppDispatch();
@@ -174,11 +171,18 @@ export default function Canvas(props: CanvasProps) {
       },
     });
 
+    // @Issue: temporary fix
+    // Annotator page: 왼쪽 사각 빈공간 #16
+    setTimeout(() => {
+      const tempPath = new paper.Path();
+      tempPath.remove();
+    });
+
     return () => {
       canvas.onwheel = null;
       canvas.onmouseleave = null;
     };
-  }, [imageId]);
+  }, [imageId, canvasRef]);
 
   useEffect(() => {
     // 데이터셋이 아직 없으면 마스크를 그리지 않는다.
@@ -218,17 +222,6 @@ export default function Canvas(props: CanvasProps) {
       if (eraserCursor) eraserCursor.remove();
     }
   }, [selectedTool]);
-
-  // selectedTool 변경 시 clickRect, everythingRect 삭제
-  useEffect(() => {
-    if (!clickRect) return;
-    clickRect.remove();
-  }, [selectedTool, currentAnnotation]);
-
-  useEffect(() => {
-    if (!everythingRect) return;
-    everythingRect.remove();
-  }, [selectedTool, currentAnnotation]);
 
   const { containerRef } = props;
   useEffect(() => {
