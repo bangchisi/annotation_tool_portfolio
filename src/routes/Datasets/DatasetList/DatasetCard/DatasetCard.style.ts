@@ -4,7 +4,7 @@ export const Container = styled('div')(() => {
   return {
     width: '90%',
     display: 'flex',
-    border: '2px solid rgba(0, 0, 0, 0.3)',
+    border: '2px solid var(--border-color)',
     margin: '0 auto',
     marginBottom: '15px',
     backgroundColor: 'rgba(255, 255, 255, 1)',

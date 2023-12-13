@@ -23,7 +23,7 @@ export const Container = styled('div')(() => {
     padding: '5px 5px 3px 5px',
     width: '200px',
     height: '275px',
-    border: '2px solid rgba(0, 0, 0, 0.3)',
+    border: '2px solid var(--border-color)',
     boxShadow: 'rgba(136, 146, 157, 0.15) 0px 3px 6px 0px',
     borderRadius: '6px',
     marginBottom: '12px',

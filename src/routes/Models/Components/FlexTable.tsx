@@ -23,13 +23,13 @@ import {
 const Wrapper = styled(Container)`
   background-color: rgb(243, 246, 249);
   border: 1px solid rgb(216, 222, 228);
-  border-radius: 12px;
+  border-radius: 7px;
   padding: 12px 36px 0px 36px;
   margin-bottom: 12px;
   transition: all 0.15s ease-in-out;
 
   &:hover {
-    box-shadow: rgba(136, 146, 157, 0.2) 2px 2px 4px 1px;
+    box-shadow: rgba(136, 146, 157, 0.15) 0px 3px 6px 0px;
   }
 `;
 const FlexTableContainer = styled(Box)`

@@ -9,7 +9,7 @@ export const Select = styled(NativeSelect)(() => {
     padding: '5px 15px',
     backgroundColor: 'rgba(255, 255, 255, 1)',
     outline: 'none',
-    borderBottom: '1px solid #20252c',
+    borderBottom: '1px solid var(--border-color)',
 
     '&:hover::before': {
       border: 'none !important',
