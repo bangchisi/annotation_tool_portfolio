@@ -44,8 +44,6 @@ const useSelectTool = () => {
         tolerance: 5,
       });
 
-      console.dir(hitResult.item);
-
       if (
         !hitResult ||
         hitResult.item instanceof paper.Raster ||
