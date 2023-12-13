@@ -119,6 +119,15 @@ export default function Dataset() {
     }
   }, [dataset, currentPage]);
 
+  const [hasScroll, setHasScroll] = useState(false);
+  useEffect(() => {
+    const { scrollHeight, clientHeight } = document.body;
+
+    if (scrollHeight > clientHeight) {
+      setHasScroll(true);
+    }
+  }, [dataset?.imageIds]);
+
   return (
     <>
       {isLoading && (
@@ -148,7 +157,7 @@ export default function Dataset() {
                 deleteImage={deleteImage}
                 isOnTrain={isOnTrain}
               />
-              {!isImageListEmpty && (
+              {!isImageListEmpty && hasScroll && (
                 <PaginationPanel
                   onCurrentPageChange={onCurrentpageChange}
                   currentPage={currentPage}
