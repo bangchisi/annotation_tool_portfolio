@@ -4,7 +4,7 @@ import { useModal } from 'components/ModalWrapper/ModalWrapper';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { useCallback, useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import FlexTable from 'routes/Models/Components/FlexTable';
 import { LogType } from 'routes/Models/logTypes';
 import ModelDeleteModal from './Components/ModelDeleteModal/ModelDeleteModal';
