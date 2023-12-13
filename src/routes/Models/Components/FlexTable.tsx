@@ -9,6 +9,7 @@ import {
   IconButton,
   Paper,
 } from '@mui/material';
+import { ProgressBar } from 'components';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import CollapsibleTable from 'routes/Models/Components/CollapsibleTable';
 import DeleteButton from 'routes/Models/Components/DeleteButton';
@@ -75,6 +76,32 @@ const TableHeader = styled(Box)`
   }
 `;
 
+const FlexGroup = styled(Box)`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 24px;
+`;
+
+const STATUS_COLOR = {
+  done: '#B0BEC5',
+  waiting: '#FFD600',
+  progress: '#2196F3',
+  failed: '#ef1c1c',
+} as const;
+
+type STATUS = keyof typeof STATUS_COLOR;
+
+const STATUS_TEXT = {
+  done: '완료',
+  waiting: '대기 중',
+  progress: '진행 중',
+  failed: '실패',
+} as {
+  [key in STATUS]: '완료' | '대기 중' | '진행 중' | '실패';
+};
+
 type VisibleTableProps = {
   index: number;
   log: LogType;
@@ -112,6 +139,51 @@ const FlexTable = ({ index, log, handleDelete }: VisibleTableProps) => {
     [],
   );
 
+  // 모델의 현재 러닝 상태
+  const status = useMemo(() => {
+    if (!log) return;
+
+    return Object.entries(STATUS_COLOR).find(([status]) => {
+      if (log.status.toLocaleLowerCase().includes(status)) {
+        return true;
+      }
+    }) as [status: STATUS, color: string];
+  }, [log]);
+
+  // 모델의 진행 정도
+  const progress = useMemo(() => {
+    if (!log) return;
+
+    if (status && status[0] === 'done') return '100';
+    if (status && status[0] === 'waiting') return '100';
+
+    const startDate = new Date(log.finetuneStartTime).getTime();
+    const leftTimeInMilliseconds = Number(log.detail.remainingTime) * 1000;
+    const currentDate = new Date().getTime();
+
+    const elapsedTimeInMilliseconds = currentDate - startDate;
+    const totalTimeInMilliseconds =
+      leftTimeInMilliseconds + elapsedTimeInMilliseconds;
+    const progressPercentage =
+      (elapsedTimeInMilliseconds / totalTimeInMilliseconds) * 100;
+
+    return progressPercentage.toFixed(0);
+  }, [log, status]);
+
+  const progressText = useMemo(() => {
+    if (!status || !progress) return null;
+
+    const statusText = status[0];
+    const koreanStatusText = STATUS_TEXT[statusText];
+
+    const isStillRunning = statusText === 'progress';
+    if (progress === '100' && isStillRunning) {
+      return '마무리 중';
+    }
+
+    return koreanStatusText;
+  }, [progress, status]);
+
   return (
     <Wrapper className="flex-table-container">
       <Box>
@@ -123,9 +195,20 @@ const FlexTable = ({ index, log, handleDelete }: VisibleTableProps) => {
           >
             <h2>{log.finetuneName}</h2>
           </Button>
-          <DeleteButton onClick={onDeleteClick} className="delete-button">
-            <span>삭제</span>
-          </DeleteButton>
+          <FlexGroup>
+            <ProgressBar
+              width={250}
+              height={15}
+              speed={0.6}
+              active={status && status[0] === 'progress'}
+              progress={progress ? Number(progress) : 0}
+              primarycolor={status ? status[1] : 'transparent'}
+              text={progressText ? progressText : ''}
+            />
+            <DeleteButton onClick={onDeleteClick} className="delete-button">
+              <span>삭제</span>
+            </DeleteButton>
+          </FlexGroup>
         </TableHeader>
       </Box>
 

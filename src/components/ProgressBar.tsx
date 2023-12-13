@@ -5,13 +5,18 @@ type ContainerProps = {
   width: number;
   height: number;
   isAnimating?: boolean;
-  primaryColor?: string;
+  primarycolor?: string;
   backgroundColor?: string;
   speed?: number;
   vertical?: boolean;
+  active?: boolean;
 };
 
 const Container = styled(Box)<ContainerProps>`
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.1);
+
   --stripe: linear-gradient(
     45deg,
     rgba(255, 255, 255, 0.15) 25%,
@@ -26,15 +31,6 @@ const Container = styled(Box)<ContainerProps>`
     const size = Math.min(height, width);
     return `--stripe-size: ${size}px ${size}px`;
   }};
-
-  ${({ vertical, height }) =>
-    vertical
-      ? {
-          // transformOrigin: 'top left',
-          // transform: `rotate(-90deg) translate3d(0, ${height + 'px'}, 0)`,
-        }
-      : '{}'};
-  overflow: hidden;
 
   .progress-background {
     display: flex;
@@ -75,7 +71,16 @@ const Container = styled(Box)<ContainerProps>`
     z-index: 0;
 
     /* var */
-    background-color: ${(props) => props?.primaryColor || '#4caf50'};
+    background-color: ${(props) => props?.primarycolor || '#4caf50'};
+
+    ${({ active, speed }) => {
+      return active
+        ? `
+        animation: progress-bar-stripes ${(speed || 2) + 's'}
+          linear infinite;
+      `
+        : '';
+    }}
   }
   .progress-bar.active {
     /* var */
@@ -90,7 +95,7 @@ const Container = styled(Box)<ContainerProps>`
     align-items: center;
     flex: 1;
     z-index: 1;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     line-height: 1;
     letter-spacing: 0.01rem;
@@ -117,19 +122,29 @@ type ProgressBarProps = {
   width: number;
   height: number;
   isAnimating?: boolean;
-  primaryColor?: string;
+  primarycolor?: string;
   backgroundColor?: string;
   speed?: number;
   vertical?: boolean;
   text?: string;
+  active?: boolean;
 } & BoxProps;
 
-const ProgressBar = ({ text, vertical, ...rest }: ProgressBarProps) => {
+const ProgressBar = ({
+  text,
+  vertical,
+  progress,
+  ...rest
+}: ProgressBarProps) => {
   return (
-    <Container {...rest} vertical={vertical}>
+    <Container {...rest} vertical={vertical} progress={progress}>
       <div className="progress-background">
-        <div className="progress-bar active"></div>
-        {!vertical && <span className="text">{text || ''}</span>}
+        <div className="progress-bar"></div>
+        {!vertical && (
+          <span className="text">
+            {text === '진행 중' ? progress && progress + '%' : text || ''}
+          </span>
+        )}
       </div>
     </Container>
   );
