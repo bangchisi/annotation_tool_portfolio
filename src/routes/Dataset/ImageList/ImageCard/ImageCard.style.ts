@@ -41,10 +41,11 @@ export const ImageContainer = styled('div')(() => {
     width: '180px',
     height: '200px',
     backgroundColor: 'black',
-    '& img': {
-      height: '100%',
-      width: '100%',
-      objectFit: 'contain',
+    overflow: 'hidden',
+
+    '&:hover img': {
+      transition: 'transform 0.15s ease-in-out',
+      transform: 'scale(1) !important',
     },
   };
 });
@@ -69,6 +70,7 @@ export const Title = styled('span')(() => {
     textAlign: 'center',
     fontSize: '14px',
     fontWeight: 500,
+
     '&:hover': {
       width: '100%',
       overflow: 'visible',
