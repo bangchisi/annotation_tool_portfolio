@@ -1,10 +1,10 @@
-import { styled } from '@mui/material';
+import { Button, styled } from '@mui/material';
 
 export const Container = styled('header')`
   display: flex;
   justify-content: center;
-  border-bottom: 1px solid #20252c !important;
-  padding: 10px 32px 10px 16px !important;
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px 32px 10px 16px;
 `;
 
 export const Nav = styled('nav')`
@@ -53,10 +53,30 @@ export const NavMenuItem = styled('li')`
 `;
 
 export const DropDownContainer = styled('div')`
+  display: flex;
+  align-items: center;
   margin-left: auto;
 
   .user-info {
+    line-height: 1;
     font-size: 14px;
     color: #0e1116;
+  }
+`;
+
+export const UserInfoButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+
+  .user-info {
+    margin-top: 2px;
+    color: #57606a;
+  }
+
+  svg {
+    color: #57606a;
+    margin-right: 4px;
   }
 `;

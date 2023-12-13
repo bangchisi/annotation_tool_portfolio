@@ -2,7 +2,6 @@ import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import {
-  Button,
   ClickAwayListener,
   Divider,
   Grow,
@@ -16,7 +15,7 @@ import {
 } from '@mui/material';
 import { RouteMode } from 'App';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
-import { DatasetsIcon, ModelsIcon } from 'Icons';
+import { DatasetsIcon, ModelsIcon, ProfileIcon } from 'Icons';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { clearSAM } from 'routes/Annotator/slices/SAMSlice';
@@ -34,6 +33,7 @@ import {
   Nav,
   NavMenuItem,
   NavMenuList,
+  UserInfoButton,
 } from './Navigator.style';
 
 interface NavigatorProps {
@@ -139,18 +139,20 @@ export default function Navigator(props: NavigatorProps) {
         </NavMenuList>
 
         <DropDownContainer>
-          <Button
+          <UserInfoButton
             ref={anchorRef}
             id="composition-button"
             aria-controls={open ? 'composition-menu' : undefined}
             aria-expanded={open ? 'true' : undefined}
             aria-haspopup="true"
             onClick={handleToggle}
+            sx={{}}
           >
+            <ProfileIcon />
             <Typography display="inline" variant="button" className="user-info">
               {user.userId}
             </Typography>
-          </Button>
+          </UserInfoButton>
           <Popper
             open={open}
             anchorEl={anchorRef.current}
@@ -158,7 +160,7 @@ export default function Navigator(props: NavigatorProps) {
             placement="bottom-end"
             transition
           >
-            {({ TransitionProps, placement }) => (
+            {({ TransitionProps }) => (
               <Grow
                 {...TransitionProps}
                 style={{
