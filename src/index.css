@@ -15,20 +15,23 @@ code {
     monospace;
 }
 
-html,
-body,
-#root,
-#app,
-#main,
-#main > div {
-  height: 100%;
-}
-
 header {
   width: 100%;
-  height: 54px;
+  height: 64px;
 }
 
+body {
+  overflow-y: scroll;
+}
+
+/* Not necessary since scrollbar is visible 
+on all page by above property but not removed just in case */
 .models-page {
   overflow-y: scroll;
+}
+
+/* 임시로 사용하는 css global variable
+  MUI Theme Provider를 사용으로 전환하면 삭제 */
+:root {
+  --border-color: #d0d7de;
 }
