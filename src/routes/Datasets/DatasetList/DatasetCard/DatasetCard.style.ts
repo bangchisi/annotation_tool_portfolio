@@ -6,7 +6,7 @@ export const Container = styled('div')(() => {
     display: 'flex',
     border: '2px solid var(--border-color)',
     margin: '0 auto',
-    marginBottom: '15px',
+    marginBottom: '16px',
     backgroundColor: 'rgba(255, 255, 255, 1)',
     justifyContent: 'space-between',
     flexDirection: 'row',
@@ -20,6 +20,9 @@ export const Container = styled('div')(() => {
 
     '&:hover': {
       boxShadow: 'rgba(136, 146, 157, 0.25) 0px 3px 6px 3px',
+    },
+    '&:last-of-type': {
+      marginBottom: '24px',
     },
   };
 });

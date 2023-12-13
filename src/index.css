@@ -34,5 +34,8 @@ on all page by above property but not removed just in case */
   MUI Theme Provider를 사용으로 전환하면 삭제 */
 :root {
   --border-color: #d0d7de;
+  --surface-bg: #f3f6f9;
   --editor-bg: #d0d7de;
+  --light-gray: #57606a;
+  --card-box-shadow: rgba(136, 146, 157, 0.15) 0px 3px 6px 0px;
 }
