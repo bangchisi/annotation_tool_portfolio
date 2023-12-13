@@ -25,7 +25,7 @@ const Wrapper = styled(Container)`
   border: 1px solid rgb(216, 222, 228);
   border-radius: 12px;
   padding: 12px 36px 0px 36px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   transition: all 0.15s ease-in-out;
 
   &:hover {
@@ -58,15 +58,15 @@ const TableHeader = styled(Box)`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin: 0 12px 18px 16px;
+  margin: 0 12px 12px 16px;
 
   h2 {
-    font-weight: 500;
-    font-size: 30px;
+    font-size: 18px;
     color: rgb(33, 43, 54);
+    margin: 0;
   }
 
-  button {
+  button.header {
     padding: 0;
     border-radius: 12px;
     &:hover {
@@ -76,12 +76,15 @@ const TableHeader = styled(Box)`
 `;
 
 type VisibleTableProps = {
+  index: number;
   log: LogType;
   handleDelete: (finetuneId: number, finetuneName: string) => void;
 };
 
-const FlexTable = ({ log, handleDelete }: VisibleTableProps) => {
-  const [openModelTable, setOpenModelTable] = useState(false);
+const FlexTable = ({ index, log, handleDelete }: VisibleTableProps) => {
+  const [openModelTable, setOpenModelTable] = useState(
+    index === 0 ? true : false,
+  );
   const groupedLog = useMemo(() => groupLogToTableData(log), [log]);
 
   const visibleTableData = useMemo(
@@ -100,10 +103,11 @@ const FlexTable = ({ log, handleDelete }: VisibleTableProps) => {
     handleDelete(log.finetuneId, log.finetuneName);
   }, [handleDelete, log.finetuneId, log.finetuneName]);
 
-  const onTableHeaderClick = useCallback(
-    (event: MouseEvent<HTMLDivElement>) => {
+  const handleTableHeaderClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
       event.stopPropagation();
+      setOpenModelTable((prev) => !prev);
     },
     [],
   );
@@ -114,11 +118,12 @@ const FlexTable = ({ log, handleDelete }: VisibleTableProps) => {
         <TableHeader>
           <Button
             disableRipple
-            onClick={() => setOpenModelTable((prev) => !prev)}
+            onClick={handleTableHeaderClick}
+            className="header"
           >
             <h2>{log.finetuneName}</h2>
           </Button>
-          <DeleteButton onClick={onDeleteClick}>
+          <DeleteButton onClick={onDeleteClick} className="delete-button">
             <span>삭제</span>
           </DeleteButton>
         </TableHeader>
@@ -133,11 +138,26 @@ const FlexTable = ({ log, handleDelete }: VisibleTableProps) => {
             <CollapsibleTable rowData={collapsibleTableData} open={open} />
             <FlexTableFooter>
               <IconButton
+                id="details-button"
                 aria-label="expand row"
                 size="medium"
                 onClick={handleOpen}
+                sx={{
+                  borderRadius: '7px',
+                  padding: '5px',
+                }}
+                disableFocusRipple={true}
               >
                 {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                <span
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    marginLeft: '5px',
+                  }}
+                >
+                  디테일 {open ? '닫기' : '열기'}
+                </span>
               </IconButton>
             </FlexTableFooter>
           </FlexTableBody>

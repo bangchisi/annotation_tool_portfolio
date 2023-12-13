@@ -4,6 +4,7 @@ import { useModal } from 'components/ModalWrapper/ModalWrapper';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { useCallback, useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet';
 import FlexTable from 'routes/Models/Components/FlexTable';
 import { LogType } from 'routes/Models/logTypes';
 import ModelDeleteModal from './Components/ModelDeleteModal/ModelDeleteModal';
@@ -56,11 +57,19 @@ export default function Models() {
 
   return (
     <>
+      <Helmet>
+        <body className="models-page" />
+      </Helmet>
       <Container>
         <TableWrapper>
           {logs &&
             logs.map((log, index) => (
-              <FlexTable key={index} log={log} handleDelete={handleDelete} />
+              <FlexTable
+                key={index}
+                index={index}
+                log={log}
+                handleDelete={handleDelete}
+              />
             ))}
         </TableWrapper>
         <ModelDeleteModal

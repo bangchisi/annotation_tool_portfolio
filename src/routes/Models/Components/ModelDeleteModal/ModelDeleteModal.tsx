@@ -35,9 +35,9 @@ export default function ModelDeleteModal(props: ModelDeleteModalProps) {
       </Typography>
       <Typography
         variant="h6"
-        color={modelNameColor}
         sx={{
           marginBottom: '10px',
+          color: '#FA4549',
         }}
       >
         {deleteModelName}{' '}
@@ -55,8 +55,20 @@ export default function ModelDeleteModal(props: ModelDeleteModalProps) {
         }}
       />
       <ModalFooter>
-        <Button onClick={handleClose}>Cancel</Button>
         <Button
+          onClick={handleClose}
+          sx={{
+            borderRadius: '4px',
+            marginRight: '7px',
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          sx={{
+            color: '#FA4549',
+            borderRadius: '4px',
+          }}
           color="warning"
           onClick={() => {
             if (deleteModelName !== deleteModelNameConfirm) {
