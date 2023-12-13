@@ -36,6 +36,7 @@ const FlexTableContainer = styled(Box)`
   border: 1px solid rgb(216, 222, 228);
   border-radius: 12px;
   margin-bottom: 36px;
+  overflow: hidden;
 `;
 const FlexTableBody = styled(Paper)`
   border: 1px solid rgb(216, 222, 228);

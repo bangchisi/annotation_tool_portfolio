@@ -17,6 +17,7 @@ export const Container = styled('div')(() => {
     gap: '16px',
     padding: '10px',
     transition: 'all 0.15s ease-in-out',
+    overflow: 'hidden',
 
     '&:hover': {
       boxShadow: 'rgba(136, 146, 157, 0.25) 0px 3px 6px 3px',

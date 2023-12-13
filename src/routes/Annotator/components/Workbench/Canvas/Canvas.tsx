@@ -267,14 +267,6 @@ export default function Canvas(props: CanvasProps) {
     };
   }, [canvasRef, containerRef]);
 
-  useEffect(() => {
-    const isVisible = paper.view.isVisible();
-
-    if (!isVisible) {
-      paper.view.update();
-    }
-  }, []);
-
   return (
     <Fragment>
       {isSAMModelLoading && (
