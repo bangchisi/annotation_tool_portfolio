@@ -2,6 +2,7 @@ import { useAppDispatch, useAppSelector } from 'App.hooks';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import PaginationPanel from 'components/PaginationPanel/PaginationPanel';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { debounce } from 'lodash';
 import ImagesModel from 'models/Images.model';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -121,12 +122,25 @@ export default function Dataset() {
 
   const [hasScroll, setHasScroll] = useState(false);
   useEffect(() => {
-    const { scrollHeight, clientHeight } = document.body;
+    const detectScroll = () => {
+      const { scrollHeight } = document.body;
+      const viewportHeight = window.innerHeight;
 
-    if (scrollHeight > clientHeight) {
-      setHasScroll(true);
-    }
-  }, [dataset?.imageIds]);
+      if (scrollHeight > viewportHeight) {
+        setHasScroll(true);
+      } else {
+        setHasScroll(false);
+      }
+    };
+
+    detectScroll();
+
+    const debounceDetectScroll = debounce(detectScroll, 50);
+    window.addEventListener('resize', debounceDetectScroll);
+    return () => {
+      window.removeEventListener('resize', debounceDetectScroll);
+    };
+  }, [dataset, dataset?.imageIds]);
 
   return (
     <>
