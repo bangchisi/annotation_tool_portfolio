@@ -174,6 +174,11 @@ export default function Navigator(props: NavigatorProps) {
                       id="composition-menu"
                       aria-labelledby="composition-button"
                       onKeyDown={handleListKeyDown}
+                      dense
+                      sx={{
+                        border: '1px solid rgba(0, 0, 0, 0.125)',
+                        marginTop: '8px',
+                      }}
                     >
                       <MenuItem onClick={handleClose}>
                         <ListItemIcon>
