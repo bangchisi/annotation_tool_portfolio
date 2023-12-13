@@ -66,11 +66,11 @@ export default function AnnotationList() {
 
     const { children } = paper.project.activeLayer;
 
-    // loop through all children of the active layer and set selected to false
     children.forEach((child) => {
       child.selected = false;
     });
 
+    paper.project.selectedItems.forEach((item) => (item.selected = false));
     const selectedMask = children.find(
       (child) =>
         child.data.categoryId === categoryId &&
