@@ -60,6 +60,9 @@ export default function Models() {
       <Helmet>
         <body className="models-page" />
       </Helmet>
+      {isLogsLoading && (
+        <LoadingSpinner message="모델 로그를 불러오는 중입니다. 잠시만 기다려주세요." />
+      )}
       <Container>
         <TableWrapper>
           {logs &&
