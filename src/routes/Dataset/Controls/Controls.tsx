@@ -81,7 +81,8 @@ export default function Controls(props: ControlsProps) {
     modelType: string,
     finetuneName: string,
   ) => {
-    if (!isEnoughSamples(datasetId)) return;
+    const validation = await isEnoughSamples(datasetId);
+    if (!validation) return;
 
     try {
       const response = await FinetuneModel.queue(
