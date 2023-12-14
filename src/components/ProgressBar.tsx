@@ -9,7 +9,7 @@ type ContainerProps = {
   backgroundColor?: string;
   speed?: number;
   vertical?: boolean;
-  active?: boolean;
+  isactive?: string;
 };
 
 const Container = styled(Box)<ContainerProps>`
@@ -73,8 +73,8 @@ const Container = styled(Box)<ContainerProps>`
     /* var */
     background-color: ${(props) => props?.primarycolor || '#4caf50'};
 
-    ${({ active, speed }) => {
-      return active
+    ${({ isactive, speed }) => {
+      return isactive !== 'false'
         ? `
         animation: progress-bar-stripes ${(speed || 2) + 's'}
           linear infinite;
@@ -122,7 +122,7 @@ type ProgressBarProps = {
   speed?: number;
   vertical?: boolean;
   text?: string;
-  active?: boolean;
+  isactive?: string;
 } & BoxProps;
 
 const ProgressBar = ({
