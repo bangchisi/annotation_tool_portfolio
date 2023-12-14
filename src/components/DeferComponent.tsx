@@ -6,7 +6,7 @@ type UseDeferredComponentProps = {
 
 const DeferComponent = ({
   children,
-  delay = 350,
+  delay = 250,
 }: UseDeferredComponentProps) => {
   const [isMounted, setIsMounted] = useState(false);
 

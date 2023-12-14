@@ -4,7 +4,7 @@ export const Container = styled('div')(() => {
   return {
     position: 'relative',
     backgroundColor: 'rgba(255, 255, 255, 1)',
-    border: '1px solid #20252c',
+    border: '1px solid var(--border-color)',
     padding: '10px 20px',
     borderRadius: '3px',
   };

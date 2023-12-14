@@ -13,3 +13,11 @@ export const TableWrapper = styled('div')`
   margin: 0 1rem;
   border: none;
 `;
+
+export const QueueBox = styled('div')`
+  h3 {
+    display: flex;
+    margin: 24px 18px 18px;
+    font-size: 36px;
+  }
+`;

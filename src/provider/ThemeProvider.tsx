@@ -13,6 +13,11 @@ import {
 } from 'react';
 
 const defaultTheme = {
+  palette: {
+    light: {
+      border: '#d0d7de',
+    },
+  },
   typography: [
     '-apple-system',
     'BlinkMacSystemFont',
@@ -43,16 +48,7 @@ export const CustomThemeProvider = ({ children }: PropsWithChildren) => {
     setColorMode(() => colorMode);
   }, []);
 
-  const theme = useMemo(
-    () =>
-      createTheme({
-        ...defaultTheme,
-        palette: {
-          mode: colorMode,
-        },
-      }),
-    [colorMode],
-  );
+  const theme = useMemo(() => createTheme(defaultTheme), []);
 
   const value = useMemo(
     () => ({

@@ -3,7 +3,6 @@ import Navigator from 'components/Navigator/Navigator';
 import Provider from 'provider';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import './App.css';
 
 export enum RouteMode {
   DATASET,

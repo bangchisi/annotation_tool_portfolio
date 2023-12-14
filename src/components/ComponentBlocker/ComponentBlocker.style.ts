@@ -19,15 +19,12 @@ export const Blocker = styled('div')(() => {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    // backgroundColor: 'rgba(255, 255, 255, 0.9)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     padding: '20px 10px',
     borderRadius: '16px',
-    // boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-    // border: '1px solid rgba(255, 255, 255, 0.3)',
   };
 });
 

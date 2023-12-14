@@ -1,5 +1,6 @@
 import { LinearProgress, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
+import { AxiosError } from 'axios';
 import CategoryTag from 'components/CategoryTag/CategoryTag';
 import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
@@ -24,7 +25,6 @@ import {
   UpdatedAt,
 } from './DatasetCard.style';
 import DatasetMenu from './DatasetMenu/DatasetMenu';
-import { AxiosError } from 'axios';
 
 interface DatasetCardProps {
   datasetId: number; // Dataset 고유 ID

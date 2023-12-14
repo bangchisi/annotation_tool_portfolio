@@ -1,14 +1,15 @@
+import { Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { useModal } from 'components/ModalWrapper/ModalWrapper';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import FlexTable from 'routes/Models/Components/FlexTable';
 import { LogType } from 'routes/Models/logTypes';
 import ModelDeleteModal from './Components/ModelDeleteModal/ModelDeleteModal';
-import { Container, TableWrapper } from './Models.style';
+import { Container, QueueBox, TableWrapper } from './Models.style';
 
 export default function Models() {
   const userId = useAppSelector((state) => state.auth.user.userId);
@@ -55,22 +56,61 @@ export default function Models() {
     getLogs(userId);
   }, [getLogs, userId]);
 
+  const runningModels = useMemo(
+    () =>
+      logs?.filter(
+        (log) => !log.status.toLocaleLowerCase().includes('waiting'),
+      ),
+    [logs],
+  );
+
+  const queuedModels = useMemo(
+    () =>
+      logs?.filter((log) => log.status.toLocaleLowerCase().includes('waiting')),
+    [logs],
+  );
+
+  const renderFlexTable = useCallback(
+    (log: LogType, index: number) => (
+      <FlexTable
+        key={index}
+        index={index}
+        log={log}
+        handleDelete={handleDelete}
+      />
+    ),
+    [handleDelete],
+  );
+
+  const RunningModels = useMemo(
+    () => runningModels && runningModels.map(renderFlexTable),
+    [runningModels, renderFlexTable],
+  );
+
+  const QueuedModels = useMemo(
+    () => queuedModels && queuedModels.map(renderFlexTable),
+    [queuedModels, renderFlexTable],
+  );
+
   return (
     <>
       <Helmet>
         <body className="models-page" />
       </Helmet>
+      {isLogsLoading && (
+        <LoadingSpinner message="모델 로그를 불러오는 중입니다. 잠시만 기다려주세요." />
+      )}
       <Container>
+        {/* 테이블 렌더링 */}
         <TableWrapper>
-          {logs &&
-            logs.map((log, index) => (
-              <FlexTable
-                key={index}
-                index={index}
-                log={log}
-                handleDelete={handleDelete}
-              />
-            ))}
+          {RunningModels}
+
+          <QueueBox>
+            <Typography variant="h3">
+              Queue:{QueuedModels?.length !== 0 ? '' : ' is now empty.'}
+            </Typography>
+            {QueuedModels}
+          </QueueBox>
         </TableWrapper>
         <ModelDeleteModal
           open={open}

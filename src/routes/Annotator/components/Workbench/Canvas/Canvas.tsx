@@ -4,7 +4,6 @@ import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { getCanvasImage } from 'helpers/ImagesHelpers';
 import paper from 'paper';
 import {
-  Fragment,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -27,6 +26,7 @@ import { Editor } from './Canvas.style';
 import { onCanvasWheel } from './helpers/canvasHelper';
 import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
+import { Helmet } from 'react-helmet-async';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import { brushCursor, eraserCursor } from './tools';
 
@@ -35,9 +35,6 @@ let canvasChildren: paper.Item[];
 interface CanvasProps {
   containerRef: React.RefObject<HTMLDivElement>;
 }
-
-import { tempRect as everythingRect } from '../../RightSidebar/Preferences/SAMToolPanel/SAMToolPanel';
-import { tempRect as clickRect } from './tools/useSAMTool';
 
 // TODO: paper init to another file?
 export default function Canvas(props: CanvasProps) {
@@ -178,11 +175,18 @@ export default function Canvas(props: CanvasProps) {
     raster.shadowBlur = 12;
     raster.shadowOffset = new paper.Point(3, 3);
 
+    // @Issue: temporary fix
+    // Annotator page: 왼쪽 사각 빈공간 #16
+    setTimeout(() => {
+      const tempPath = new paper.Path();
+      tempPath.remove();
+    });
+
     return () => {
       canvas.onwheel = null;
       canvas.onmouseleave = null;
     };
-  }, [imageId]);
+  }, [imageId, canvasRef]);
 
   useEffect(() => {
     // 데이터셋이 아직 없으면 마스크를 그리지 않는다.
@@ -223,17 +227,6 @@ export default function Canvas(props: CanvasProps) {
     }
   }, [selectedTool]);
 
-  // selectedTool 변경 시 clickRect, everythingRect 삭제
-  useEffect(() => {
-    if (!clickRect) return;
-    clickRect.remove();
-  }, [selectedTool, currentAnnotation]);
-
-  useEffect(() => {
-    if (!everythingRect) return;
-    everythingRect.remove();
-  }, [selectedTool, currentAnnotation]);
-
   const { containerRef } = props;
   useEffect(() => {
     if (!containerRef || !containerRef?.current) return;
@@ -245,15 +238,14 @@ export default function Canvas(props: CanvasProps) {
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
 
     const resizeCanvas = () => {
       if (timer) {
         clearTimeout(timer);
       }
       timer = setTimeout(() => {
-        const canvas = canvasRef.current;
-        const container = containerRef?.current;
-
         if (!canvas || !container) return;
 
         const { width, height } = container.getBoundingClientRect();
@@ -265,14 +257,55 @@ export default function Canvas(props: CanvasProps) {
       }, 75);
     };
 
+    // 이거랑 밑에랑 같은 함수인데... 여기서 실행하면 안 되고 밑에서 실행해야 함
+    // setTimeout interval 때문인가 싶기도 하고... 그냥 이렇게 해놓고 밑에서 실행하자
+    // resize()
     window.addEventListener('resize', resizeCanvas);
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
   }, [canvasRef, containerRef]);
 
+  // 저기 위의 tempPath는 사진이 안 나오는 걸 방지하기 위해 임시로 만든 미봉책이고
+  // 지금 여기 있는 건, 전체 캔버스 크기를 조정하는 미봉책이다.
+  // 이게 없으면 캔버스 사이즈가 제대로 안 나옴 왜냐하면
+  // 상위 HTML Element의 height:100%를 여기서 주는데 초반에 렌더링 될 시
+  // height들이 작기 때문에 Canvas사이즈도 작아지고
+  // 그걸 해결하기 위해 마운트 된 뒤에, 다시 한번 캔버스 사이즈를 조정해주는 것이다.
+
+  // 근데 이거랑 위에랑 같은 함수인데 왜인지 이게 없으면 초반 렌더링이 제대로 안 되는 중...
+  useEffect(() => {
+    if (canvasRef.current === null || containerRef.current == null) return;
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+
+    setTimeout(() => {
+      const { width, height } = container.getBoundingClientRect();
+
+      canvas.width = width;
+      canvas.height = height;
+
+      paper.view.viewSize = new paper.Size(width, height);
+    });
+  }, [canvasRef, containerRef]);
+
   return (
-    <Fragment>
+    <>
+      <Helmet
+        style={[
+          {
+            cssText: `
+            html, body, #root, #app, #main, #main > div {
+                height: 100%;
+                overflow: hidden;
+            }
+            #main {
+              height: calc(100% - 64px);
+            }
+        `,
+          },
+        ]}
+      />
       {isSAMModelLoading && (
         <LoadingSpinner message="SAM을 불러오는 중입니다. 조금만 기다려주세요." />
       )}
@@ -284,6 +317,6 @@ export default function Canvas(props: CanvasProps) {
       )}
       {clickLoading && <LoadingSpinner message="SAM Click 생성중입니다..." />}
       <Editor ref={canvasRef} id="canvas" selectedTool={selectedTool}></Editor>
-    </Fragment>
+    </>
   );
 }

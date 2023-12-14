@@ -18,6 +18,6 @@ export const DeleteAllButton = styled(FunctionIcon)(() => {
 export const ButtonsContainer = styled('div')(() => {
   return {
     display: 'flex',
-    borderBottom: '1px solid #20252c',
+    borderBottom: '1px solid var(--border-color)',
   };
 });

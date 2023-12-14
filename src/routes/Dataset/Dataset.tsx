@@ -1,8 +1,10 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import PaginationPanel from 'components/PaginationPanel/PaginationPanel';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { debounce } from 'lodash';
 import ImagesModel from 'models/Images.model';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { setTool } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'types';
@@ -40,7 +42,6 @@ export default function Dataset() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const datasetId = Number(useParams().datasetId);
-  const selectedTool = useAppSelector((state) => state.annotator.selectedTool);
   const dispatch = useAppDispatch();
   const [isOnTrain, setIsOnTrain] = useState(false);
 
@@ -119,41 +120,68 @@ export default function Dataset() {
     }
   }, [dataset, currentPage]);
 
+  const [hasScroll, setHasScroll] = useState(false);
+  useEffect(() => {
+    const detectScroll = () => {
+      const { scrollHeight } = document.body;
+      const viewportHeight = window.innerHeight;
+
+      if (scrollHeight > viewportHeight) {
+        setHasScroll(true);
+      } else {
+        setHasScroll(false);
+      }
+    };
+
+    detectScroll();
+
+    const debounceDetectScroll = debounce(detectScroll, 50);
+    window.addEventListener('resize', debounceDetectScroll);
+    return () => {
+      window.removeEventListener('resize', debounceDetectScroll);
+    };
+  }, [dataset, dataset?.imageIds]);
+
   return (
-    <Container id="dataset">
-      <Controls isOnTrain={isOnTrain} setIsOnTrain={setIsOnTrain} />
-      {dataset && (
-        <Fragment>
-          <Information
-            {...dataset}
-            handleCategoryDeleted={handleCategoryDeleted}
-            handleCategoryAdded={handleCategoryAdded}
-            isOnTrain={isOnTrain}
-            getDataset={getDataset}
-          />
-          <Content>
-            {!isImageListEmpty && (
-              <PaginationPanel
-                onCurrentPageChange={onCurrentpageChange}
-                currentPage={currentPage}
-                lastPage={dataset.imageIds.length}
-              />
-            )}
-            <ImageList
-              imageIds={dataset.imageIds[currentPage - 1]}
-              deleteImage={deleteImage}
-              isOnTrain={isOnTrain}
-            />
-            {!isImageListEmpty && (
-              <PaginationPanel
-                onCurrentPageChange={onCurrentpageChange}
-                currentPage={currentPage}
-                lastPage={dataset.imageIds.length}
-              />
-            )}
-          </Content>
-        </Fragment>
+    <>
+      {isLoading && (
+        <LoadingSpinner message="데이터셋을 불러오는 중입니다. 잠시만 기다려주세요." />
       )}
-    </Container>
+      <Container id="dataset">
+        <Controls isOnTrain={isOnTrain} setIsOnTrain={setIsOnTrain} />
+        {dataset && (
+          <>
+            <Information
+              {...dataset}
+              handleCategoryDeleted={handleCategoryDeleted}
+              handleCategoryAdded={handleCategoryAdded}
+              isOnTrain={isOnTrain}
+              getDataset={getDataset}
+            />
+            <Content>
+              {!isImageListEmpty && (
+                <PaginationPanel
+                  onCurrentPageChange={onCurrentpageChange}
+                  currentPage={currentPage}
+                  lastPage={dataset.imageIds.length}
+                />
+              )}
+              <ImageList
+                imageIds={dataset.imageIds[currentPage - 1]}
+                deleteImage={deleteImage}
+                isOnTrain={isOnTrain}
+              />
+              {!isImageListEmpty && hasScroll && (
+                <PaginationPanel
+                  onCurrentPageChange={onCurrentpageChange}
+                  currentPage={currentPage}
+                  lastPage={dataset.imageIds.length}
+                />
+              )}
+            </Content>
+          </>
+        )}
+      </Container>
+    </>
   );
 }

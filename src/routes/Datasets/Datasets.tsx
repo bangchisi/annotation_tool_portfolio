@@ -1,12 +1,12 @@
-import DatasetList from './DatasetList/DatasetList';
-import { useEffect, useState } from 'react';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import DatasetsModel from './models/Datasets.model';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { Container } from './Datasets.style';
-import Controls from './Controls/Controls';
-import Reload from './Reload/Reload';
 import { useAppSelector } from 'App.hooks';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { useState } from 'react';
+import Reload from 'routes/Datasets/Reload/Reload';
+import Controls from './Controls/Controls';
+import DatasetList from './DatasetList/DatasetList';
+import { Container } from './Datasets.style';
+import DatasetsModel from './models/Datasets.model';
 
 export interface DatasetType {
   datasetId: number; // Dataset 고유 ID
@@ -49,28 +49,28 @@ export default function Datasets() {
     }
   };
 
-  // TODO: style dataset-search
+  if (isError) {
+    return <Reload setDatasetList={setDatasetList} userId={user.userId} />;
+  }
+
   return (
-    <Container id="datasets">
-      <Controls
-        datasets={datasets}
-        setFilteredDatasets={setFilteredDatasets}
-        setDatasetList={setDatasetList}
-      />
-      {!isError && (
+    <>
+      {isLoading && (
+        <LoadingSpinner message="Dataset 목록을 불러오는 중입니다. 잠시만 기다려주세요." />
+      )}
+      <Container id="datasets">
+        <Controls
+          datasets={datasets}
+          setFilteredDatasets={setFilteredDatasets}
+          setDatasetList={setDatasetList}
+        />
         <DatasetList
           datasets={datasets}
           filteredDatasets={filteredDatasets || []}
           setFilteredDatasets={setFilteredDatasets}
           setDatasetList={setDatasetList}
         />
-      )}
-      {isError && (
-        <Reload setDatasetList={setDatasetList} userId={user.userId} />
-      )}
-      {isLoading && (
-        <LoadingSpinner message="Dataset 목록을 불러오는 중입니다. 잠시만 기다려주세요." />
-      )}
-    </Container>
+      </Container>
+    </>
   );
 }

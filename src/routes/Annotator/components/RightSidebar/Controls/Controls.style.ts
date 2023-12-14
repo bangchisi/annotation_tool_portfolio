@@ -18,7 +18,7 @@ export const Container = styled('div')(() => {
 export const TabContainer = styled('div')(() => {
   return {
     display: 'flex',
-    borderBottom: '1px solid #20252c',
+    borderBottom: '1px solid var(--border-color)',
   };
 });
 
@@ -27,14 +27,16 @@ export const TabButton = styled(Typography)<TabButtonProps>((props) => {
 
   return {
     display: 'inline-flex',
+    justifyContent: 'center',
     backgroundColor: selected ? '#E7ECF0' : 'none',
     color: selected ? '#0e1116' : 'rgb(0, 0, 0, 0.7)',
     cursor: 'pointer',
     padding: '3px 5px',
     flexBasis: '50%',
+    userSelect: 'none',
 
     '&:nth-of-type(2n-1)': {
-      borderRight: '1px solid #20252c',
+      borderRight: '1px solid var(--border-color)',
     },
   };
 });
