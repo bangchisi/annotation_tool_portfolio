@@ -44,6 +44,13 @@ const useSelectTool = () => {
         tolerance: 5,
       });
 
+      if (
+        !hitResult ||
+        hitResult.item instanceof paper.Raster ||
+        hitResult.item instanceof paper.Path
+      )
+        return;
+
       let categoryId: number;
       let annotationId: number;
 
@@ -54,10 +61,6 @@ const useSelectTool = () => {
         categoryId = hitResult.item.data.categoryId;
         annotationId = hitResult.item.data.annotationId;
         selectAnnotation(categoryId, annotationId);
-      } else {
-        if (!currentCategory) return;
-
-        selectAnnotation(currentCategory.categoryId, -1);
       }
 
       this.endDrawing(0);

@@ -84,7 +84,15 @@ const useManageAnnotation = () => {
       compoundPathToAdd.data = dataToAdd;
 
       // 항목 3. currentAnnotation 업데이트
-      dispatch(setCurrentAnnotationByAnnotationId(newAnnotationId));
+      selectAnnotation(currentCategory.categoryId, newAnnotationId);
+      paper.project.selectedItems.forEach((item) => (item.selected = false));
+      const newMask = paper.project.activeLayer.children.find(
+        (child) =>
+          child.data.annotationId === newAnnotationId &&
+          child.data.categoryId === currentCategory.categoryId,
+      );
+      if (!newMask) return;
+      newMask.selected = true;
     } catch (error) {
       axiosErrorHandler(error, 'Failed to create annotation');
       alert('annotation 생성에 실패했습니다. 다시 시도해주세요.');
