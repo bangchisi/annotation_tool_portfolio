@@ -173,6 +173,10 @@ export default function Canvas(props: CanvasProps) {
         setIsImageLoaded(true);
       },
     });
+    // 박스 쉐도우 추가
+    raster.shadowColor = new paper.Color('rgba(0, 0, 0, 0.4)');
+    raster.shadowBlur = 12;
+    raster.shadowOffset = new paper.Point(3, 3);
 
     return () => {
       canvas.onwheel = null;
