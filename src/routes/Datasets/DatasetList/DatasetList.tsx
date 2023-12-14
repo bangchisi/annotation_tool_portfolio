@@ -63,40 +63,43 @@ export default function DatasetList(props: DatasetListProps) {
 
   return (
     <Container className="dataset-list">
-      {Object.entries(groupedDatasets).map(([superDataSetKey, list], index) => (
-        <StyledAccordion
-          key={superDataSetKey}
-          expanded={index === 0 ? true : expanded === superDataSetKey}
-          onChange={handleChange(superDataSetKey)}
-        >
-          <StyledAccordionSummary
-            expandIcon={
-              <ArrowDropDownIcon
-                fontSize="large"
-                htmlColor="var(--light-gray)"
-                sx={{
-                  marginRight: '7px',
-                }}
-              />
-            }
+      {Object.entries(groupedDatasets).map(([superDataSetKey, list]) => {
+        return (
+          <StyledAccordion
+            key={superDataSetKey}
+            expanded={expanded === superDataSetKey}
+            onChange={handleChange(superDataSetKey)}
           >
-            <h2>{superDataSetKey}</h2>
-          </StyledAccordionSummary>
-          <StyledAccordionDetails>
-            {list.map((dataset) => {
-              return (
-                <DatasetCard
-                  key={dataset.datasetId}
-                  {...dataset}
-                  setDatasetList={setDatasetList}
-                  setExportId={setExportId}
-                  setOpen={setOpen}
+            <StyledAccordionSummary
+              expandIcon={
+                <ArrowDropDownIcon
+                  fontSize="large"
+                  htmlColor="var(--light-gray)"
+                  sx={{
+                    marginRight: '7px',
+                  }}
                 />
-              );
-            })}
-          </StyledAccordionDetails>
-        </StyledAccordion>
-      ))}
+              }
+            >
+              <h2>{superDataSetKey}</h2>
+            </StyledAccordionSummary>
+            <StyledAccordionDetails>
+              {list.map((dataset) => {
+                return (
+                  <DatasetCard
+                    key={dataset.datasetId}
+                    {...dataset}
+                    setDatasetList={setDatasetList}
+                    setExportId={setExportId}
+                    setOpen={setOpen}
+                  />
+                );
+              })}
+            </StyledAccordionDetails>
+          </StyledAccordion>
+        );
+      })}
+
       <ExportDatasetModal open={open} exportId={exportId} setOpen={setOpen} />
     </Container>
   );
