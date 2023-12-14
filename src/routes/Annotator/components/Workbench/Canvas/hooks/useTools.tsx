@@ -56,11 +56,13 @@ class Observer {
   startObservers: ObserverCallback[];
   endObservers: ObserverCallback[];
   changeObservers: ObserverCallback[];
+  undoRedoObservers: ObserverCallback[];
 
   constructor() {
     this.startObservers = [];
     this.endObservers = [];
     this.changeObservers = [];
+    this.undoRedoObservers = [];
   }
 
   subscribeEventStart(observer: ObserverCallback) {
@@ -79,6 +81,8 @@ class Observer {
     if (idx !== undefined) this.endObservers.splice(idx, 1);
     idx = this.changeObservers.findIndex((obs) => obs === observer);
     if (idx !== undefined) this.changeObservers.splice(idx, 1);
+    idx = this.undoRedoObservers.findIndex((obs) => obs === observer);
+    if (idx !== undefined) this.undoRedoObservers.splice(idx, 1);
   }
   notifyObservers(observers: ObserverCallback[]) {
     observers.forEach((observer) => observer());
@@ -87,6 +91,7 @@ class Observer {
     this.startObservers = [];
     this.endObservers = [];
     this.changeObservers = [];
+    this.undoRedoObservers = [];
   }
 }
 
@@ -222,8 +227,12 @@ export class AnnotationTool extends paper.Tool {
     paper.project.activeLayer.removeChildren();
     paper.project.activeLayer.importJSON(layerStateToRestore as string);
 
+    // Undo, Redo시 변경이 있음으로,
     // 변경 사항을 observer에게 알림
     AnnotationTool.notifyChangeObservers();
+
+    // Undo, Redo 발생을 알림
+    AnnotationTool.notifyUndoRedoObservers();
   }
 
   // 이렇게 복잡한 로직이 필요한 이유는,
@@ -408,35 +417,55 @@ export class AnnotationTool extends paper.Tool {
     trimHistory(['undo', 'redo']);
   }
 
+  // 옵저버 클린업 함수
+  static stopObserve(observer: () => void) {
+    AnnotationTool.observer.unsubscribeEvent(observer);
+  }
+  static clearObservers() {
+    AnnotationTool.observer.clearObservers();
+  }
+
+  // 드로잉 중인지 확인하는 옵저버
   static observerStartDrawing(observer: () => void) {
     AnnotationTool.observer.startObservers.push(observer);
   }
   static observeEndDrawing(observer: () => void) {
     AnnotationTool.observer.endObservers.push(observer);
   }
+  // 툴을 통해 캔버스 데이터가 바꼈을 경우, 변경을 감지하는 옵저버
   static observeChange(observer: () => void) {
     AnnotationTool.observer.changeObservers.push(observer);
   }
-  static stopObserve(observer: () => void) {
-    AnnotationTool.observer.unsubscribeEvent(observer);
-  }
+
+  // 드로잉 시작을 알리는 옵저버
   static notifyStartObservers() {
     AnnotationTool.observer.notifyObservers(
       AnnotationTool.observer.startObservers,
     );
   }
+  // 드로잉 종료를 알리는 옵저버
   static notifyEndObservers() {
     AnnotationTool.observer.notifyObservers(
       AnnotationTool.observer.endObservers,
     );
   }
+
+  // 옵저버 상태 발생 시, 알림 함수
   static notifyChangeObservers() {
     AnnotationTool.observer.notifyObservers(
       AnnotationTool.observer.changeObservers,
     );
   }
-  static clearObservers() {
-    AnnotationTool.observer.clearObservers();
+
+  // Undo, Redo를 감지하는 옵저버
+  static observeUndoRedo(observer: () => void) {
+    AnnotationTool.observer.undoRedoObservers.push(observer);
+  }
+  // Undo, Redo 발생 시, 알림 함수
+  static notifyUndoRedoObservers() {
+    AnnotationTool.observer.notifyObservers(
+      AnnotationTool.observer.undoRedoObservers,
+    );
   }
 }
 
