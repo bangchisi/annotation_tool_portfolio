@@ -104,15 +104,12 @@ const STATUS_TEXT = {
 };
 
 type VisibleTableProps = {
-  index: number;
   log: LogType;
   handleDelete: (finetuneId: number, finetuneName: string) => void;
 };
 
-const FlexTable = ({ index, log, handleDelete }: VisibleTableProps) => {
-  const [openModelTable, setOpenModelTable] = useState(
-    index === 0 ? true : false,
-  );
+const FlexTable = ({ log, handleDelete }: VisibleTableProps) => {
+  const [openModelTable, setOpenModelTable] = useState(false);
   const groupedLog = useMemo(() => groupLogToTableData(log), [log]);
 
   const visibleTableData = useMemo(

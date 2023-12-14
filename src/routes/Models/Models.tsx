@@ -72,12 +72,7 @@ export default function Models() {
 
   const renderFlexTable = useCallback(
     (log: LogType, index: number) => (
-      <FlexTable
-        key={index}
-        index={index}
-        log={log}
-        handleDelete={handleDelete}
-      />
+      <FlexTable key={index} log={log} handleDelete={handleDelete} />
     ),
     [handleDelete],
   );
@@ -104,13 +99,12 @@ export default function Models() {
         {/* 테이블 렌더링 */}
         <TableWrapper>
           {RunningModels}
-
-          <QueueBox>
-            <Typography variant="h3">
-              Queue:{QueuedModels?.length !== 0 ? '' : ' is now empty.'}
-            </Typography>
-            {QueuedModels}
-          </QueueBox>
+          {QueuedModels && QueuedModels.length > 0 && !isLogsLoading ? (
+            <QueueBox>
+              <Typography variant="h3">Queue:</Typography>
+              {QueuedModels}
+            </QueueBox>
+          ) : null}
         </TableWrapper>
         <ModelDeleteModal
           open={open}

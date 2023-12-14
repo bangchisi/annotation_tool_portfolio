@@ -275,11 +275,12 @@ export default function Canvas(props: CanvasProps) {
 
   // 근데 이거랑 위에랑 같은 함수인데 왜인지 이게 없으면 초반 렌더링이 제대로 안 되는 중...
   useEffect(() => {
-    if (canvasRef.current === null || containerRef.current == null) return;
     const canvas = canvasRef.current;
     const container = containerRef.current;
 
     setTimeout(() => {
+      if (!canvas || !container) return;
+
       const { width, height } = container.getBoundingClientRect();
 
       canvas.width = width;

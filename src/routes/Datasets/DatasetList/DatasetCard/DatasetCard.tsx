@@ -160,7 +160,7 @@ export default function DatasetCard(props: DatasetCardProps) {
           </CategoriesContainer>
           <ProgressContainer>
             <LinearProgress
-              sx={{ my: 1 }}
+              sx={{ my: 1, height: '8px', borderRadius: '3px' }}
               variant="determinate"
               value={progress * 100}
             />

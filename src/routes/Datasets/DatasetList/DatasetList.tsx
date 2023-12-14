@@ -63,10 +63,10 @@ export default function DatasetList(props: DatasetListProps) {
 
   return (
     <Container className="dataset-list">
-      {Object.entries(groupedDatasets).map(([superDataSetKey, list]) => (
+      {Object.entries(groupedDatasets).map(([superDataSetKey, list], index) => (
         <StyledAccordion
           key={superDataSetKey}
-          expanded={expanded === superDataSetKey}
+          expanded={index === 0 ? true : expanded === superDataSetKey}
           onChange={handleChange(superDataSetKey)}
         >
           <StyledAccordionSummary
