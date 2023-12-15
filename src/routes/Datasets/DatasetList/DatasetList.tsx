@@ -10,6 +10,7 @@ import {
   StyledAccordionSummary,
 } from './DatasetList.style';
 import ExportDatasetModal from './ExportDatasetModal/ExportDatasetModal';
+import { useModal } from 'components/ModalWrapper/ModalWrapper';
 
 interface DatasetListProps {
   datasets: DatasetType[];
@@ -21,7 +22,7 @@ interface DatasetListProps {
 export default function DatasetList(props: DatasetListProps) {
   const user = useAppSelector((state) => state.auth.user);
   const [exportId, setExportId] = useState<number>();
-  const [open, setOpen] = useState(false);
+  const { open, handleOpen, handleClose } = useModal();
 
   const { datasets, filteredDatasets, setFilteredDatasets, setDatasetList } =
     props;
@@ -91,7 +92,7 @@ export default function DatasetList(props: DatasetListProps) {
                     {...dataset}
                     setDatasetList={setDatasetList}
                     setExportId={setExportId}
-                    setOpen={setOpen}
+                    handleOpen={handleOpen}
                   />
                 );
               })}
@@ -99,8 +100,11 @@ export default function DatasetList(props: DatasetListProps) {
           </StyledAccordion>
         );
       })}
-
-      <ExportDatasetModal open={open} exportId={exportId} setOpen={setOpen} />
+      <ExportDatasetModal
+        open={open}
+        exportId={exportId}
+        handleClose={handleClose}
+      />
     </Container>
   );
 }

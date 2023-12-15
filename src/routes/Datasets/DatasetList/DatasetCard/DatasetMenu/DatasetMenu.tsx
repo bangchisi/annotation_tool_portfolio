@@ -8,11 +8,11 @@ interface DatasetMenuProps {
   userId: string;
   datasetId: number;
   setExportId: React.Dispatch<React.SetStateAction<number | undefined>>;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  handleOpen: () => void;
 }
 
 export default function DatasetMenu(props: DatasetMenuProps) {
-  const { deleteDataset, userId, datasetId, setExportId, setOpen } = props;
+  const { deleteDataset, userId, datasetId, setExportId, handleOpen } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -44,7 +44,7 @@ export default function DatasetMenu(props: DatasetMenuProps) {
           <Button
             onClick={() => {
               setExportId(datasetId);
-              setOpen(true);
+              handleOpen();
             }}
           >
             Export Dataset
