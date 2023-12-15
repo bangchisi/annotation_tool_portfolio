@@ -82,11 +82,6 @@ const Container = styled(Box)<ContainerProps>`
         : '';
     }}
   }
-  .progress-bar.active {
-    /* var */
-    animation: progress-bar-stripes ${(props) => (props?.speed || 2) + 's'}
-      linear infinite;
-  }
 
   .text {
     display: flex;
