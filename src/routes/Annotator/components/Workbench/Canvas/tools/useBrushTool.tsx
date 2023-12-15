@@ -1,7 +1,5 @@
 import paper from 'paper';
 
-import { useMemo } from 'react';
-
 import { useAppSelector } from 'App.hooks';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
@@ -22,7 +20,7 @@ const useBrushTool = () => {
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
-  const tool = useMemo(() => new AnnotationTool(Tool.Brush), []);
+  const tool = new AnnotationTool(Tool.Brush);
 
   // 마우스 움직임
   tool.onMouseMove = function (event: paper.MouseEvent) {
@@ -39,6 +37,8 @@ const useBrushTool = () => {
   // TODO: 클릭 하자마자 해당 위치에 브러쉬 생성 시작
   tool.onMouseDown = function (event: paper.MouseEvent) {
     if (!currentCategory || !currentAnnotation) return;
+
+    console.log(currentCategory.categoryId);
 
     this.startDrawing(() => {
       const { annotationId: currentAnnotationId } = currentAnnotation;

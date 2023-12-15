@@ -10,6 +10,7 @@ import useSelectTool from '../tools/useSelectTool';
 import paper from 'paper';
 
 import hash from 'object-hash';
+import { CurrentCategoryType } from 'routes/Annotator/Annotator.types';
 import { MutationTypeTool, Tool } from 'types';
 
 type ToolCommandArgs = {
@@ -217,6 +218,36 @@ export class AnnotationTool extends paper.Tool {
 
     // 마지막 상태로 캔버스를 복구
     AnnotationTool.restoreLastLayer();
+  }
+
+  // Undo, Redo 후에 현재 category에는 있는 annotation들에
+  // 대응되는 CompoundPath를 캔버스에 복구
+  // categories 전체를 복구하는 것이 아닌, 현재 category에는 있지만
+  // compounds로 존재하지 않는 annotation들만 복구
+  restoreCompoundPaths(currentCategory: CurrentCategoryType) {
+    const { categoryId, annotations: annotationsObjs } = currentCategory;
+    const annotations = Object.values(annotationsObjs || []);
+
+    const compounds = paper.project.activeLayer.children;
+    const existingAnnotationIds = compounds?.map((compound) => {
+      return compound.data.annotationId;
+    }) as number[];
+
+    annotations.forEach((annotation) => {
+      const { annotationId, color: annotationColor } = annotation;
+      const data = {
+        categoryId,
+        annotationId,
+        annotationColor,
+      };
+
+      // CompoundPath로 존재하는 annotation은 복구하지 않음
+      if (existingAnnotationIds.includes(annotationId)) return;
+      // CompoundPath로 존재하지 않는 annotation은 복구
+      new paper.CompoundPath({
+        data,
+      });
+    });
   }
 
   static restoreLastLayer() {
@@ -432,6 +463,9 @@ export class AnnotationTool extends paper.Tool {
     그리기 도구로 캔버스 데이터가 바뀌었을 때,
     Undo, Redo 발생 시,
     이벤트를 감지하는 옵저버
+    
+    # paper.Tool의 자체 이벤트로 구현할 수 있을 듯
+    아래 코드는 나중에 리팩토링 후 삭제 가능
   */
 
   // 옵저버 클린업 함수
