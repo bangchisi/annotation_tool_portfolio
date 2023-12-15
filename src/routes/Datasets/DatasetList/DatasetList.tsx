@@ -48,7 +48,7 @@ export default function DatasetList(props: DatasetListProps) {
   );
   const groupedDatasets = useMemo(
     () =>
-      datasets.reduce(
+      filteredDatasets.reduce(
         (group, dataset) => {
           if (!group[dataset.superDatasetName]) {
             group[dataset.superDatasetName] = [];
@@ -58,7 +58,7 @@ export default function DatasetList(props: DatasetListProps) {
         },
         {} as { [key: string]: DatasetType[] },
       ),
-    [datasets],
+    [filteredDatasets],
   );
 
   return (
