@@ -23,7 +23,7 @@ export default function Annotator() {
   const { isLoading, initData } = useReloadAnnotator();
   const imageId = Number(useParams().imageId);
   const categories = useAppSelector((state) => state.annotator.categories);
-  const { selectedTool, currentCategory, currentAnnotation } =
+  const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
   const SAMEverythingLoading = useAppSelector(
     (state) => state.sam.everythingLoading,

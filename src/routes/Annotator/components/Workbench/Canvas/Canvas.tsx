@@ -30,8 +30,6 @@ import { Helmet } from 'react-helmet-async';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import { brushCursor, eraserCursor } from './tools';
 
-let canvasChildren: paper.Item[];
-
 interface CanvasProps {
   containerRef: React.RefObject<HTMLDivElement>;
 }
@@ -40,8 +38,7 @@ interface CanvasProps {
 export default function Canvas(props: CanvasProps) {
   const dispatch = useAppDispatch();
   const imageId = Number(useParams().imageId);
-  const { selectedTool, categories, currentAnnotation, image } =
-    useAppSelector(selectAnnotator);
+  const { selectedTool, categories, image } = useAppSelector(selectAnnotator);
   const { drawPaths } = useReloadAnnotator();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -117,12 +114,7 @@ export default function Canvas(props: CanvasProps) {
     [dispatch, image],
   );
 
-  const selectedToolInstances = useTools({
-    selectedTool,
-    canvasChildren,
-    imageId,
-    image,
-  });
+  const selectedToolInstances = useTools();
 
   // 선택된 툴이 바뀔 때마다 activate
   useEffect(() => {
@@ -145,8 +137,6 @@ export default function Canvas(props: CanvasProps) {
     if (paper.project) paper.project.clear();
     paper.setup(canvas);
     paper.activate();
-
-    canvasChildren = paper.project.activeLayer.children;
 
     canvas.onwheel = onCanvasWheel;
     canvas.onmouseleave = () => {
@@ -197,6 +187,8 @@ export default function Canvas(props: CanvasProps) {
     if (!isImageLoaded) return;
 
     drawPaths(categories);
+
+    AnnotationTool.initializeHistory();
   }, [categories, isImageLoaded, drawPaths]);
 
   // SAM 로딩 했는지 검사
@@ -259,7 +251,7 @@ export default function Canvas(props: CanvasProps) {
 
     // 이거랑 밑에랑 같은 함수인데... 여기서 실행하면 안 되고 밑에서 실행해야 함
     // setTimeout interval 때문인가 싶기도 하고... 그냥 이렇게 해놓고 밑에서 실행하자
-    // resize()
+    // resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     return () => {
       window.removeEventListener('resize', resizeCanvas);

@@ -162,66 +162,66 @@ const useSAMTool = () => {
     event.preventDefault();
     if (!image || !currentCategory || !currentAnnotation) return;
 
-    this.startDrawing();
+    this.startDrawing(() => {
+      const viewBounds = paper.view.bounds;
+      const raster = paper.project.activeLayer.children.find(
+        (child) => child instanceof paper.Raster,
+      ) as paper.Raster;
+      if (!raster) return;
+      const rasterBounds = raster.bounds;
+      const { x, y } = rasterBounds.topLeft;
 
-    const viewBounds = paper.view.bounds;
-    const raster = paper.project.activeLayer.children.find(
-      (child) => child instanceof paper.Raster,
-    ) as paper.Raster;
-    if (!raster) return;
-    const rasterBounds = raster.bounds;
-    const { x, y } = rasterBounds.topLeft;
+      const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
 
-    const { topLeft, bottomRight } = getRegion(viewBounds, rasterBounds);
+      const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
+        topLeft,
+        bottomRight,
+        raster,
+      );
 
-    const [calculatedTopLeft, calculatedBottomRight] = getConvertedCoordinate(
-      topLeft,
-      bottomRight,
-      raster,
-    );
+      // TODO: click mode 구현
 
-    // TODO: click mode 구현
+      const clickMode = (event as any).event.button === 0 ? 1 : 0;
+      const [clickedX, clickedY] = [
+        (Math.round(event.point.x - x) * 100) / 100,
+        (Math.round(event.point.y - y) * 100) / 100,
+      ];
 
-    const clickMode = (event as any).event.button === 0 ? 1 : 0;
-    const [clickedX, clickedY] = [
-      (Math.round(event.point.x - x) * 100) / 100,
-      (Math.round(event.point.y - y) * 100) / 100,
-    ];
+      // clicked x와 y가 0보다 작거나 이미지 크기보다 크면 return
+      if (
+        clickedX < 0 ||
+        clickedY < 0 ||
+        clickedX > image.width ||
+        clickedY > image.height
+      )
+        return;
 
-    // clicked x와 y가 0보다 작거나 이미지 크기보다 크면 return
-    if (
-      clickedX < 0 ||
-      clickedY < 0 ||
-      clickedX > image.width ||
-      clickedY > image.height
-    )
-      return;
+      labels.current = [...labels.current, clickMode];
+      coords.current = [...coords.current, [clickedX, clickedY]];
 
-    labels.current = [...labels.current, clickMode];
-    coords.current = [...coords.current, [clickedX, clickedY]];
+      embedImage(image, calculatedTopLeft, calculatedBottomRight).then(
+        (result) => {
+          if (result instanceof Error) return;
+          click(image.imageId, calculatedTopLeft, calculatedBottomRight, [
+            x,
+            y,
+          ]).then(() => {
+            this.endDrawing(currentAnnotation?.annotationId || 0);
+          });
 
-    embedImage(image, calculatedTopLeft, calculatedBottomRight).then(
-      (result) => {
-        if (result instanceof Error) return;
-        click(image.imageId, calculatedTopLeft, calculatedBottomRight, [
-          x,
-          y,
-        ]).then(() => {
-          this.endDrawing(currentAnnotation?.annotationId || 0);
-        });
+          // draw SAM Region
+          if (tempRect) tempRect.remove();
 
-        // draw SAM Region
-        if (tempRect) tempRect.remove();
-
-        tempRect = new paper.Path.Rectangle({
-          from: topLeft,
-          to: bottomRight,
-          strokeColor: new paper.Color('red'),
-          strokeWidth: 5,
-          guide: true,
-        });
-      },
-    );
+          tempRect = new paper.Path.Rectangle({
+            from: topLeft,
+            to: bottomRight,
+            strokeColor: new paper.Color('red'),
+            strokeWidth: 5,
+            guide: true,
+          });
+        },
+      );
+    });
   };
 
   const loadSAM = async (modelType: string) => {

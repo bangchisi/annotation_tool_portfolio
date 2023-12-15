@@ -33,6 +33,11 @@ const useManageAnnotation = () => {
       return;
     }
 
+    const { initialLayerState } = AnnotationTool;
+    if (initialLayerState === '') {
+      AnnotationTool.initializeHistory();
+    }
+
     // 랜덤 색상 생성
     const annotationColor = getRandomHexColor();
 

@@ -15,7 +15,7 @@ let startPoint: paper.Point | null;
 let endPoint: paper.Point | null;
 export let guideBox: paper.Path.Rectangle | null;
 
-const useBoxTool = (compounds: paper.Item[]) => {
+const useBoxTool = () => {
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
@@ -25,31 +25,32 @@ const useBoxTool = (compounds: paper.Item[]) => {
   tool.onMouseDown = function (event: paper.MouseEvent) {
     if (!currentCategory || !currentAnnotation) return;
 
-    this.startDrawing();
+    this.startDrawing(() => {
+      const { annotationId: currentAnnotationId } = currentAnnotation;
+      const { categoryId: currentCategoryId } = currentCategory;
 
-    const { annotationId: currentAnnotationId } = currentAnnotation;
-    const { categoryId: currentCategoryId } = currentCategory;
+      // tempPath를 현재 compound로 선택
+      const compounds = paper.project.activeLayer.children;
+      tempPath = compounds.find((compound) => {
+        const { categoryId, annotationId } = compound.data;
+        if (
+          categoryId === currentCategoryId &&
+          annotationId === currentAnnotationId
+        ) {
+          // data를 넣어줌
+          // tempData = compound.data;
+          return compound;
+        }
+      }) as paper.CompoundPath;
 
-    // tempPath를 현재 compound로 선택
-    tempPath = compounds.find((compound) => {
-      const { categoryId, annotationId } = compound.data;
-      if (
-        categoryId === currentCategoryId &&
-        annotationId === currentAnnotationId
-      ) {
-        // data를 넣어줌
-        // tempData = compound.data;
-        return compound;
+      if (!startPoint) {
+        // set start point
+        startPoint = event.point;
+      } else {
+        // set end point
+        endPoint = event.point;
       }
-    }) as paper.CompoundPath;
-
-    if (!startPoint) {
-      // set start point
-      startPoint = event.point;
-    } else {
-      // set end point
-      endPoint = event.point;
-    }
+    });
   };
 
   // 마우스 움직임

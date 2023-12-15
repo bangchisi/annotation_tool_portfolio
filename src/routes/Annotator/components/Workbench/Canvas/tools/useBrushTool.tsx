@@ -15,7 +15,7 @@ const strokeWidth = 2;
 // 최종 tempPath를 paper..children에 추가
 let tempPath: paper.CompoundPath | null;
 
-const useBrushTool = (compounds: paper.Item[]) => {
+const useBrushTool = () => {
   // Brush radius
   const { brushRadius } = useAppSelector(selectAuth).preference;
 
@@ -40,44 +40,46 @@ const useBrushTool = (compounds: paper.Item[]) => {
   tool.onMouseDown = function (event: paper.MouseEvent) {
     if (!currentCategory || !currentAnnotation) return;
 
-    this.startDrawing();
+    this.startDrawing(() => {
+      const { annotationId: currentAnnotationId } = currentAnnotation;
+      const { categoryId: currentCategoryId } = currentCategory;
 
-    const { annotationId: currentAnnotationId } = currentAnnotation;
-    const { categoryId: currentCategoryId } = currentCategory;
+      // tempPath를 현재 compound로 선택
+      const compounds = paper.project.activeLayer.children;
+      window['paper'] = paper;
+      tempPath = compounds.find((compound) => {
+        const { categoryId, annotationId } = compound.data;
+        if (
+          categoryId === currentCategoryId &&
+          annotationId === currentAnnotationId
+        ) {
+          return compound;
+        }
+      }) as paper.CompoundPath;
 
-    // tempPath를 현재 compound로 선택
-    tempPath = compounds.find((compound) => {
-      const { categoryId, annotationId } = compound.data;
-      if (
-        categoryId === currentCategoryId &&
-        annotationId === currentAnnotationId
-      ) {
-        return compound;
-      }
-    }) as paper.CompoundPath;
+      if (!tempPath) return;
 
-    if (!tempPath) return;
+      let brush: paper.Path | null = new paper.Path.Circle({
+        center: event.point,
+        radius: brushRadius,
+      });
 
-    let brush: paper.Path | null = new paper.Path.Circle({
-      center: event.point,
-      radius: brushRadius,
+      brush.smooth({
+        type: 'continuous',
+      });
+      brush.simplify(3);
+      brush.flatten(0.65);
+
+      const pathToSwitch = new paper.CompoundPath(
+        tempPath.unite(brush) as paper.CompoundPath,
+      );
+
+      tempPath.children = pathToSwitch.children;
+      pathToSwitch.remove();
+
+      brush.remove();
+      brush = null;
     });
-
-    brush.smooth({
-      type: 'continuous',
-    });
-    brush.simplify(3);
-    brush.flatten(0.65);
-
-    const pathToSwitch = new paper.CompoundPath(
-      tempPath.unite(brush) as paper.CompoundPath,
-    );
-
-    tempPath.children = pathToSwitch.children;
-    pathToSwitch.remove();
-
-    brush.remove();
-    brush = null;
   };
 
   // 마우스 드래그

@@ -20,9 +20,6 @@ const useWarningOnUnsavedChange = () => {
 
   // 브라우저 네비게이션을 막아야 하는지 여부를 위한 상태
   const [shouldBlock, setShouldBlock] = useState(false);
-  useEffect(() => {
-    console.log('shouldBlock', shouldBlock);
-  }, [shouldBlock]);
 
   // 현재 목록에 있는 어노테이션들이 바뀌면
   // 브라우저 네비게이션 막아야하는지 확인하기

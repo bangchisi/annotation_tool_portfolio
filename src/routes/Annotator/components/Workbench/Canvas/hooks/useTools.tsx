@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 // tools
-import { ImageType } from 'routes/Annotator/Annotator.types';
 import useBoxTool from '../tools/useBoxTool';
 import useBrushTool from '../tools/useBrushTool';
 import useEraserTool from '../tools/useEraserTool';
@@ -99,7 +98,7 @@ class Observer {
 export class AnnotationTool extends paper.Tool {
   toolType: Tool;
   isDrawing: boolean;
-  private static initialLayerState = '';
+  static initialLayerState = '';
   static history: ToolHistory = new ToolHistory();
   // 변화가 있을 때마다, 이벤트를 감지받을 수 있도록 옵저버를 등버
   static observer = new Observer();
@@ -118,15 +117,20 @@ export class AnnotationTool extends paper.Tool {
     });
   }
 
-  startDrawing() {
+  startDrawing(drawingCallback: () => void) {
     // 레이어를 편집하는 툴이 아닐 경우, 아무 것도 하지 않음
     if (!MutationTypeTool.includes(this.toolType)) return;
 
+    // 초기 레이어 상태가 없다면 아무 것도 하지 않음
+    // 초기 데이터가 로딩되기 전에 툴을 사용하면,
+    // 초기 레이어 값이 바뀌니 히스토리가 꼬이게 됨
+    if (AnnotationTool.initialLayerState === '') {
+      return;
+    }
+
     this.isDrawing = true;
 
-    if (AnnotationTool.history.undo.length === 0) {
-      this.initializeHistory();
-    }
+    drawingCallback();
 
     // 변경 사항을 observer에게 알림
     AnnotationTool.notifyStartObservers();
@@ -141,7 +145,7 @@ export class AnnotationTool extends paper.Tool {
     const { history } = AnnotationTool;
 
     // 복구를 위해, 마지막 편집 후의 레이어 상태를 저장
-    const serializedLayer = this.serializeLayer();
+    const serializedLayer = AnnotationTool.serializeLayer();
 
     // 현재 레이어 상태를 해시값으로 환산
     const layerHash = AnnotationTool.getLayerHash();
@@ -197,7 +201,7 @@ export class AnnotationTool extends paper.Tool {
     history.redo.push(lastUndoCommand as ToolCommand);
 
     // 마지막 상태로 캔버스를 복구
-    this.restoreLastLayer();
+    AnnotationTool.restoreLastLayer();
   }
 
   redo() {
@@ -212,10 +216,10 @@ export class AnnotationTool extends paper.Tool {
     history.undo.push(lastRedoCommand as ToolCommand);
 
     // 마지막 상태로 캔버스를 복구
-    this.restoreLastLayer();
+    AnnotationTool.restoreLastLayer();
   }
 
-  private restoreLastLayer() {
+  static restoreLastLayer() {
     const { history } = AnnotationTool;
     const layerStateToRestore =
       history.undo.length === 0
@@ -293,7 +297,7 @@ export class AnnotationTool extends paper.Tool {
     return layerHash;
   }
 
-  private serializeLayer() {
+  static serializeLayer() {
     const clonedLayer = paper.project.activeLayer.clone();
 
     // 레이어 위에서 Path를 삭제함 (Raster, CompoundPath는 남겨둠)
@@ -317,10 +321,15 @@ export class AnnotationTool extends paper.Tool {
     return serializedLayer;
   }
 
-  private initializeHistory() {
+  static initializeHistory() {
     // 초기 레이어 상태 저장
-    if (AnnotationTool.history.undo.length === 0) {
+    if (
+      AnnotationTool.history.undo.length === 0 &&
+      AnnotationTool.initialLayerState === ''
+    ) {
       AnnotationTool.initialLayerState = this.serializeLayer();
+      console.log('initializing history');
+      console.log(AnnotationTool.initialLayerState);
     }
   }
 
@@ -417,6 +426,14 @@ export class AnnotationTool extends paper.Tool {
     trimHistory(['undo', 'redo']);
   }
 
+  /*
+    그림 그리시 시작,
+    그림 그리시 종료,
+    그리기 도구로 캔버스 데이터가 바뀌었을 때,
+    Undo, Redo 발생 시,
+    이벤트를 감지하는 옵저버
+  */
+
   // 옵저버 클린업 함수
   static stopObserve(observer: () => void) {
     AnnotationTool.observer.unsubscribeEvent(observer);
@@ -424,7 +441,6 @@ export class AnnotationTool extends paper.Tool {
   static clearObservers() {
     AnnotationTool.observer.clearObservers();
   }
-
   // 드로잉 중인지 확인하는 옵저버
   static observerStartDrawing(observer: () => void) {
     AnnotationTool.observer.startObservers.push(observer);
@@ -436,7 +452,6 @@ export class AnnotationTool extends paper.Tool {
   static observeChange(observer: () => void) {
     AnnotationTool.observer.changeObservers.push(observer);
   }
-
   // 드로잉 시작을 알리는 옵저버
   static notifyStartObservers() {
     AnnotationTool.observer.notifyObservers(
@@ -449,14 +464,12 @@ export class AnnotationTool extends paper.Tool {
       AnnotationTool.observer.endObservers,
     );
   }
-
   // 옵저버 상태 발생 시, 알림 함수
   static notifyChangeObservers() {
     AnnotationTool.observer.notifyObservers(
       AnnotationTool.observer.changeObservers,
     );
   }
-
   // Undo, Redo를 감지하는 옵저버
   static observeUndoRedo(observer: () => void) {
     AnnotationTool.observer.undoRedoObservers.push(observer);
@@ -469,20 +482,10 @@ export class AnnotationTool extends paper.Tool {
   }
 }
 
-interface UseToolsProps {
-  selectedTool: Tool;
-  canvasChildren: paper.Item[];
-  datasetId?: number;
-  imageId?: number;
-  image?: ImageType;
-}
-
-const useTools = (props: UseToolsProps) => {
-  const { canvasChildren } = props;
-
-  const brushTool = useBrushTool(canvasChildren);
-  const boxTool = useBoxTool(canvasChildren);
-  const eraserTool = useEraserTool(canvasChildren);
+const useTools = () => {
+  const brushTool = useBrushTool();
+  const boxTool = useBoxTool();
+  const eraserTool = useEraserTool();
   const selectTool = useSelectTool();
   const samTool = useSAMTool().tool;
 

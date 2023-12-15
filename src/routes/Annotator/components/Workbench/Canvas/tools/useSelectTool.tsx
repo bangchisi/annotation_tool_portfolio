@@ -2,11 +2,9 @@ import paper from 'paper';
 import { useMemo, useRef, useState } from 'react';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
-import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import { Tool } from 'types';
 
 const useSelectTool = () => {
-  const { currentCategory } = useReloadAnnotator();
   const { selectAnnotation } = useManageAnnotation();
   const [isDrag, setIsDrag] = useState(false);
 
@@ -18,7 +16,7 @@ const useSelectTool = () => {
   // 마우스 다운
   tool.onMouseDown = function (event: paper.MouseEvent) {
     startingPoint.current = event.point;
-    this.startDrawing();
+    this.startDrawing(() => void 0);
   };
 
   // 마우스 드래그

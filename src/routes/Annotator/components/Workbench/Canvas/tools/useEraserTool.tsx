@@ -12,7 +12,7 @@ let tempPath: paper.CompoundPath | null;
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
-const useEraserTool = (compounds: paper.Item[]) => {
+const useEraserTool = () => {
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
@@ -34,46 +34,47 @@ const useEraserTool = (compounds: paper.Item[]) => {
   tool.onMouseDown = function (event: paper.MouseEvent) {
     if (!currentCategory || !currentAnnotation) return;
 
-    this.startDrawing();
+    this.startDrawing(() => {
+      const { annotationId: currentAnnotationId } = currentAnnotation;
+      const { categoryId: currentCategoryId } = currentCategory;
 
-    const { annotationId: currentAnnotationId } = currentAnnotation;
-    const { categoryId: currentCategoryId } = currentCategory;
+      // tempPath를 현재 compound로 선택
+      const compounds = paper.project.activeLayer.children;
+      tempPath = compounds.find((compound) => {
+        const { categoryId, annotationId } = compound.data;
+        if (
+          categoryId === currentCategoryId &&
+          annotationId === currentAnnotationId
+        ) {
+          // data를 넣어줌
+          // tempData = compound.data;
+          return compound;
+        }
+      }) as paper.CompoundPath;
 
-    // tempPath를 현재 compound로 선택
-    tempPath = compounds.find((compound) => {
-      const { categoryId, annotationId } = compound.data;
-      if (
-        categoryId === currentCategoryId &&
-        annotationId === currentAnnotationId
-      ) {
-        // data를 넣어줌
-        // tempData = compound.data;
-        return compound;
-      }
-    }) as paper.CompoundPath;
+      if (!tempPath) return;
 
-    if (!tempPath) return;
+      let eraser: paper.Path | null = new paper.Path.Circle({
+        center: event.point,
+        radius: eraserRadius,
+      });
 
-    let eraser: paper.Path | null = new paper.Path.Circle({
-      center: event.point,
-      radius: eraserRadius,
+      eraser.smooth({
+        type: 'continuous',
+      });
+      eraser.simplify(3);
+      eraser.flatten(0.65);
+
+      const pathToSwitch = new paper.CompoundPath(
+        tempPath.subtract(eraser) as paper.CompoundPath,
+      );
+
+      tempPath.children = pathToSwitch.children;
+      pathToSwitch.remove();
+
+      eraser.remove();
+      eraser = null;
     });
-
-    eraser.smooth({
-      type: 'continuous',
-    });
-    eraser.simplify(3);
-    eraser.flatten(0.65);
-
-    const pathToSwitch = new paper.CompoundPath(
-      tempPath.subtract(eraser) as paper.CompoundPath,
-    );
-
-    tempPath.children = pathToSwitch.children;
-    pathToSwitch.remove();
-
-    eraser.remove();
-    eraser = null;
   };
 
   // 마우스 드래그
