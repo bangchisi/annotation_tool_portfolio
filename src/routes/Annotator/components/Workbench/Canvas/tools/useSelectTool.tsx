@@ -1,6 +1,6 @@
 import paper from 'paper';
-import { useMemo, useRef, useState } from 'react';
-import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
+import { useRef, useState } from 'react';
+import useManageTool from 'routes/Annotator/components/Workbench/Canvas/tools/useManageTool';
 import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
 import { Tool } from 'types';
 
@@ -11,7 +11,7 @@ const useSelectTool = () => {
   // delta 구하기 위한 마우스 시작 지점
   const startingPoint = useRef<paper.Point>();
 
-  const tool = useMemo(() => new AnnotationTool(Tool.Select), []);
+  const tool = useManageTool(Tool.Select);
 
   // 마우스 다운
   tool.onMouseDown = function (event: paper.MouseEvent) {

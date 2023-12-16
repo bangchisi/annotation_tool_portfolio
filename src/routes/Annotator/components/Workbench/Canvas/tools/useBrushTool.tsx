@@ -1,17 +1,24 @@
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
-import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
+import { restoreCompoundPaths } from 'routes/Annotator/components/Workbench/Canvas/tools';
+import useManageTool from 'routes/Annotator/components/Workbench/Canvas/tools/useManageTool';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { selectAuth } from 'routes/Auth/slices/authSlice';
 import { Tool } from 'types';
 
-export let brushCursor: paper.Path.Circle | null = null;
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
-// 최종 tempPath를 paper..children에 추가
-let tempPath: paper.CompoundPath | null;
+const createBrush = (point: paper.Point, radius: number) => {
+  return new paper.Path.Circle({
+    center: point,
+    radius,
+    strokeColor,
+    strokeWidth,
+    guide: true,
+  });
+};
 
 const useBrushTool = () => {
   // Brush radius
@@ -20,17 +27,18 @@ const useBrushTool = () => {
   const { currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
-  const tool = new AnnotationTool(Tool.Brush);
+  const tool = useManageTool(Tool.Brush);
+  tool.minDistance = 3;
 
   // 마우스 움직임
   tool.onMouseMove = function (event: paper.MouseEvent) {
     // brush cursor 이미 있으면 제거
-    if (brushCursor) {
-      brushCursor.remove();
+    if (this.cursor) {
+      this.cursor.remove();
     }
 
     // brush cursor 생성
-    brushCursor = createBrush(event.point, brushRadius);
+    this.cursor = createBrush(event.point, brushRadius);
   };
 
   // 마우스 클릭
@@ -38,16 +46,14 @@ const useBrushTool = () => {
   tool.onMouseDown = function (event: paper.MouseEvent) {
     if (!currentCategory || !currentAnnotation) return;
 
-    console.log(currentCategory.categoryId);
-
     this.startDrawing(() => {
       const { annotationId: currentAnnotationId } = currentAnnotation;
       const { categoryId: currentCategoryId } = currentCategory;
 
       // tempPath를 현재 compound로 선택
-      const compounds = paper.project.activeLayer.children;
-      window['paper'] = paper;
-      tempPath = compounds.find((compound) => {
+      const compounds = paper.project.activeLayer
+        .children as paper.CompoundPath[];
+      this.tempPath = compounds.find((compound) => {
         const { categoryId, annotationId } = compound.data;
         if (
           categoryId === currentCategoryId &&
@@ -55,11 +61,18 @@ const useBrushTool = () => {
         ) {
           return compound;
         }
-      }) as paper.CompoundPath;
+      });
 
-      if (!tempPath) return;
+      // CompoundPath가 존재하지 않는다면
+      // (Undo, Redo에 의해 CompoundPath가 삭제된 경우를 뜻 함)
+      this.tempPath =
+        this.tempPath === undefined
+          ? restoreCompoundPaths(currentCategory, currentAnnotationId)
+          : this.tempPath;
 
-      let brush: paper.Path | null = new paper.Path.Circle({
+      if (!this.tempPath) return;
+
+      const brush = new paper.Path.Circle({
         center: event.point,
         radius: brushRadius,
       });
@@ -70,31 +83,28 @@ const useBrushTool = () => {
       brush.simplify(3);
       brush.flatten(0.65);
 
-      const pathToSwitch = new paper.CompoundPath(
-        tempPath.unite(brush) as paper.CompoundPath,
-      );
+      const pathToSwitch = new paper.CompoundPath(this.tempPath.unite(brush));
 
-      tempPath.children = pathToSwitch.children;
+      this.tempPath.children = pathToSwitch.children;
       pathToSwitch.remove();
 
       brush.remove();
-      brush = null;
     });
   };
 
   // 마우스 드래그
   tool.onMouseDrag = function (event: paper.MouseEvent) {
-    if (!tempPath) return;
+    if (!this.tempPath) return;
 
     // // brush cursor 이미 있으면 제거
-    if (brushCursor) {
-      brushCursor.remove();
+    if (this.cursor) {
+      this.cursor.remove();
     }
 
     // brush cursor 생성
-    brushCursor = createBrush(event.point, brushRadius);
+    this.cursor = createBrush(event.point, brushRadius);
 
-    let brush: paper.Path | null = new paper.Path.Circle({
+    const brush = new paper.Path.Circle({
       center: event.point,
       radius: brushRadius,
     });
@@ -106,17 +116,14 @@ const useBrushTool = () => {
     brush.flatten(0.65);
 
     // 바꿔치기 할 children 생성
-    const pathToSwitch = new paper.CompoundPath(
-      tempPath.unite(brush) as paper.CompoundPath,
-    );
+    const pathToSwitch = new paper.CompoundPath(this.tempPath.unite(brush));
 
     // children 바꿔치기고 pathToSwitch 삭제
-    tempPath.children = pathToSwitch.children;
+    this.tempPath.children = pathToSwitch.children;
     pathToSwitch.remove();
 
     // 임시 원 삭제
     brush.remove();
-    brush = null;
   };
 
   tool.onMouseUp = function () {
@@ -124,16 +131,6 @@ const useBrushTool = () => {
   };
 
   return tool;
-};
-
-const createBrush = (point: paper.Point, radius: number) => {
-  return new paper.Path.Circle({
-    center: point,
-    radius,
-    strokeColor,
-    strokeWidth,
-    guide: true,
-  });
 };
 
 export default useBrushTool;

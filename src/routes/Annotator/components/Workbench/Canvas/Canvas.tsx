@@ -28,7 +28,6 @@ import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import { Helmet } from 'react-helmet-async';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
-import { brushCursor, eraserCursor } from './tools';
 
 interface CanvasProps {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -114,13 +113,8 @@ export default function Canvas(props: CanvasProps) {
     [dispatch, image],
   );
 
-  const selectedToolInstances = useTools();
-
-  // 선택된 툴이 바뀔 때마다 activate
-  useEffect(() => {
-    const selectedToolInstance = selectedToolInstances[selectedTool];
-    selectedToolInstance?.activate();
-  }, [selectedToolInstances, selectedTool]);
+  // 툴 초기화
+  useTools();
 
   // 캔버스 초기 설정 시, 캔버스 히스토리 초기리
   useEffect(() => {
@@ -139,10 +133,6 @@ export default function Canvas(props: CanvasProps) {
     paper.activate();
 
     canvas.onwheel = onCanvasWheel;
-    canvas.onmouseleave = () => {
-      if (brushCursor) brushCursor.remove();
-      if (eraserCursor) eraserCursor.remove();
-    };
 
     const { children } = paper.project.activeLayer;
 
@@ -164,13 +154,6 @@ export default function Canvas(props: CanvasProps) {
     raster.shadowColor = new paper.Color('rgba(0, 0, 0, 0.4)');
     raster.shadowBlur = 12;
     raster.shadowOffset = new paper.Point(3, 3);
-
-    // @Issue: temporary fix
-    // Annotator page: 왼쪽 사각 빈공간 #16
-    setTimeout(() => {
-      const tempPath = new paper.Path();
-      tempPath.remove();
-    });
 
     return () => {
       canvas.onwheel = null;
@@ -209,16 +192,6 @@ export default function Canvas(props: CanvasProps) {
     }
   }, [selectedTool, SAMModelLoaded, embeddingId, imageId, embedImage, loadSAM]);
 
-  // remove eraser cursor and brush cursor on tool change
-  useEffect(() => {
-    if (selectedTool !== Tool.Brush) {
-      if (brushCursor) brushCursor.remove();
-    }
-    if (selectedTool !== Tool.Eraser) {
-      if (eraserCursor) eraserCursor.remove();
-    }
-  }, [selectedTool]);
-
   const { containerRef } = props;
   useEffect(() => {
     if (!containerRef || !containerRef?.current) return;
@@ -230,6 +203,7 @@ export default function Canvas(props: CanvasProps) {
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
+
     const canvas = canvasRef.current;
     const container = containerRef.current;
 

@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 // tools
 import useBoxTool from '../tools/useBoxTool';
 import useBrushTool from '../tools/useBrushTool';
@@ -10,7 +8,6 @@ import useSelectTool from '../tools/useSelectTool';
 import paper from 'paper';
 
 import hash from 'object-hash';
-import { CurrentCategoryType } from 'routes/Annotator/Annotator.types';
 import { MutationTypeTool, Tool } from 'types';
 
 type ToolCommandArgs = {
@@ -101,6 +98,8 @@ export class AnnotationTool extends paper.Tool {
   isDrawing: boolean;
   static initialLayerState = '';
   static history: ToolHistory = new ToolHistory();
+  cursor: paper.Path | undefined;
+  tempPath: paper.CompoundPath | undefined;
   // 변화가 있을 때마다, 이벤트를 감지받을 수 있도록 옵저버를 등버
   static observer = new Observer();
 
@@ -220,36 +219,6 @@ export class AnnotationTool extends paper.Tool {
     AnnotationTool.restoreLastLayer();
   }
 
-  // Undo, Redo 후에 현재 category에는 있는 annotation들에
-  // 대응되는 CompoundPath를 캔버스에 복구
-  // categories 전체를 복구하는 것이 아닌, 현재 category에는 있지만
-  // compounds로 존재하지 않는 annotation들만 복구
-  restoreCompoundPaths(currentCategory: CurrentCategoryType) {
-    const { categoryId, annotations: annotationsObjs } = currentCategory;
-    const annotations = Object.values(annotationsObjs || []);
-
-    const compounds = paper.project.activeLayer.children;
-    const existingAnnotationIds = compounds?.map((compound) => {
-      return compound.data.annotationId;
-    }) as number[];
-
-    annotations.forEach((annotation) => {
-      const { annotationId, color: annotationColor } = annotation;
-      const data = {
-        categoryId,
-        annotationId,
-        annotationColor,
-      };
-
-      // CompoundPath로 존재하는 annotation은 복구하지 않음
-      if (existingAnnotationIds.includes(annotationId)) return;
-      // CompoundPath로 존재하지 않는 annotation은 복구
-      new paper.CompoundPath({
-        data,
-      });
-    });
-  }
-
   static restoreLastLayer() {
     const { history } = AnnotationTool;
     const layerStateToRestore =
@@ -340,6 +309,7 @@ export class AnnotationTool extends paper.Tool {
       ) {
         return;
       }
+      console.log('removing child');
       child.remove();
     });
 
@@ -359,8 +329,6 @@ export class AnnotationTool extends paper.Tool {
       AnnotationTool.initialLayerState === ''
     ) {
       AnnotationTool.initialLayerState = this.serializeLayer();
-      console.log('initializing history');
-      console.log(AnnotationTool.initialLayerState);
     }
   }
 
@@ -517,24 +485,11 @@ export class AnnotationTool extends paper.Tool {
 }
 
 const useTools = () => {
-  const brushTool = useBrushTool();
-  const boxTool = useBoxTool();
-  const eraserTool = useEraserTool();
-  const selectTool = useSelectTool();
-  const samTool = useSAMTool().tool;
-
-  const selectedToolInstances = useMemo(
-    () => ({
-      [Tool.Brush]: brushTool,
-      [Tool.Box]: boxTool,
-      [Tool.Eraser]: eraserTool,
-      [Tool.Select]: selectTool,
-      [Tool.SAM]: samTool,
-    }),
-    [brushTool, boxTool, eraserTool, selectTool, samTool],
-  );
-
-  return selectedToolInstances;
+  useBrushTool();
+  useBoxTool();
+  useEraserTool();
+  useSelectTool();
+  useSAMTool().tool;
 };
 
 export default useTools;

@@ -1,6 +1,6 @@
 import paper from 'paper';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
@@ -8,7 +8,7 @@ import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
 import { ImageType } from 'routes/Annotator/Annotator.types';
-import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
+import useManageTool from 'routes/Annotator/components/Workbench/Canvas/tools/useManageTool';
 import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
   setSAMClickLoading,
@@ -19,9 +19,8 @@ import {
 } from 'routes/Annotator/slices/SAMSlice';
 import { Tool } from 'types';
 
-export let tempRect: paper.Path.Rectangle;
-
 const useSAMTool = () => {
+  const tempRect = useRef<paper.Path.Rectangle | null>(null);
   const coords = useRef<[number, number][]>([]);
   const labels = useRef<number[]>([]);
 
@@ -29,7 +28,7 @@ const useSAMTool = () => {
   const { selectedTool, image, currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
-  const tool = useMemo(() => new AnnotationTool(Tool.SAM), []);
+  const tool = useManageTool(Tool.SAM);
 
   useEffect(() => {
     coords.current = [];
@@ -40,12 +39,14 @@ const useSAMTool = () => {
     segmentation: number[][][],
     correction: number[],
   ) => {
-    const { children } = paper.project.activeLayer;
+    const children = paper.project.activeLayer.children as paper.CompoundPath[];
     const compound = children.find(
       (child) =>
         child.data.annotationId === currentAnnotation?.annotationId &&
         child.data.categoryId === currentCategory?.categoryId,
-    ) as paper.CompoundPath;
+    );
+
+    if (!compound) return;
 
     compound.removeChildren();
     const correctedSegmentation = segmentation.map((path) => {
@@ -210,9 +211,10 @@ const useSAMTool = () => {
           });
 
           // draw SAM Region
-          if (tempRect) tempRect.remove();
+          const SAMGuideBox = tempRect.current;
+          if (SAMGuideBox) SAMGuideBox.remove();
 
-          tempRect = new paper.Path.Rectangle({
+          tempRect.current = new paper.Path.Rectangle({
             from: topLeft,
             to: bottomRight,
             strokeColor: new paper.Color('red'),
@@ -265,8 +267,8 @@ const useSAMTool = () => {
   };
 
   useEffect(() => {
-    if (!tempRect) return;
-    tempRect.remove();
+    if (!tempRect || !tempRect.current) return;
+    tempRect.current.remove();
   }, [selectedTool, currentAnnotation]);
 
   return {
