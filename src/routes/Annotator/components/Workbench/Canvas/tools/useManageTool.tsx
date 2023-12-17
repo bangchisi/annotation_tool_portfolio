@@ -1,5 +1,5 @@
 import { useAppSelector } from 'App.hooks';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'types';
@@ -21,20 +21,16 @@ const useManageTool = (currentTool: Tool) => {
   const { categories, selectedTool, currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
 
-  const toolRef = useRef(new AnnotationTool(Tool.Box));
+  const tool = useRef(new AnnotationTool(currentTool)).current;
+  const currentToolPreserved = useRef(currentTool).current;
 
-  useEffect(() => {
-    const tool = toolRef.current;
+  const removeTool = useCallback(() => {
+    if (currentToolPreserved === selectedTool) {
+      tool?.cursor?.remove();
+    }
+  }, [currentToolPreserved, selectedTool, tool]);
 
-    const removeTool = () => {
-      console.log(selectedTool !== currentTool);
-
-      if (selectedTool !== currentTool) {
-        tool.remove();
-        tool.cursor?.remove();
-        tool.tempPath?.remove();
-      }
-    };
+  const shouldBeActivated = useMemo(() => {
     const disableCases: (() => boolean)[] = [
       // 1. categories가 없는 경우
       // 2. annotation이 없는 경우
@@ -49,19 +45,9 @@ const useManageTool = (currentTool: Tool) => {
     const isNotDisable = !disableCases.some((disableTool) => disableTool());
     const isSelected = selectedTool === currentTool;
 
-    if (isNotDisable && isSelected) {
-      tool.activate();
-    }
+    const shouldBeActivated = isNotDisable && isSelected;
 
-    return () => {
-      // 6. 현재 툴이 박스 툴이지만, 현재 어노테이션의 카테고리와 다른 경우 (마우스 찍고 다른 카테고리로 이동) -> useEffect에서 마운트 후, cursor 제거
-      // 7. 현재 툴이 박스 툴이지만, 현재 어노테이션의 카테고리와 같지만, (마우스 찍고 다른 어노테이션으로 이동) -> useEffect에서 마운트 후, cursor 제거
-      // 현재 어노테이션의 어노테이션 아이디와 다른 경우
-      if (isNotDisable && !isSelected) {
-        removeTool();
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return shouldBeActivated;
   }, [
     currentCategory,
     currentAnnotation,
@@ -70,7 +56,23 @@ const useManageTool = (currentTool: Tool) => {
     currentTool,
   ]);
 
-  return toolRef.current;
+  useEffect(() => {
+    // 6. 현재 툴이 박스 툴이지만, 현재 어노테이션의 카테고리와 다른 경우 (마우스 찍고 다른 카테고리로 이동) -> useEffect에서 마운트 후, cursor 제거
+    // 7. 현재 툴이 박스 툴이지만, 현재 어노테이션의 카테고리와 같지만, (마우스 찍고 다른 어노테이션으로 이동) -> useEffect에서 마운트 후, cursor 제거
+    // 현재 어노테이션의 어노테이션 아이디와 다른 경우
+    if (!shouldBeActivated) {
+      return;
+    }
+
+    tool.activate();
+
+    return () => {
+      removeTool();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldBeActivated]);
+
+  return tool;
 };
 
 export default useManageTool;

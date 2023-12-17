@@ -28,6 +28,7 @@ import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import { Helmet } from 'react-helmet-async';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import { initializePaper } from 'utils';
 
 interface CanvasProps {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -128,9 +129,7 @@ export default function Canvas(props: CanvasProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    if (paper.project) paper.project.clear();
-    paper.setup(canvas);
-    paper.activate();
+    initializePaper(canvas);
 
     canvas.onwheel = onCanvasWheel;
 
@@ -154,11 +153,6 @@ export default function Canvas(props: CanvasProps) {
     raster.shadowColor = new paper.Color('rgba(0, 0, 0, 0.4)');
     raster.shadowBlur = 12;
     raster.shadowOffset = new paper.Point(3, 3);
-
-    return () => {
-      canvas.onwheel = null;
-      canvas.onmouseleave = null;
-    };
   }, [imageId, canvasRef]);
 
   useEffect(() => {

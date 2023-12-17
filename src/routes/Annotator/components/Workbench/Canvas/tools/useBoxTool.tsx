@@ -1,6 +1,7 @@
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
+import { useRef } from 'react';
 import { restoreCompoundPaths } from 'routes/Annotator/components/Workbench/Canvas/tools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'types';
@@ -30,8 +31,8 @@ const useBoxTool = () => {
 
   const tool = useManageTool(Tool.Box);
 
-  let startPoint: paper.Point | undefined;
-  let endPoint: paper.Point | undefined;
+  const startPointRef = useRef<paper.Point>();
+  const endPointRef = useRef<paper.Point>();
 
   // 마우스 클릭
   tool.onMouseDown = function (event: paper.MouseEvent) {
@@ -63,19 +64,19 @@ const useBoxTool = () => {
           ? restoreCompoundPaths(currentCategory, currentAnnotationId)
           : this.tempPath;
 
-      if (!startPoint) {
+      if (!startPointRef.current) {
         // set start point
-        startPoint = event.point;
+        startPointRef.current = event.point;
       } else {
         // set end point
-        endPoint = event.point;
+        endPointRef.current = event.point;
       }
     });
   };
 
   // 마우스 움직임
   tool.onMouseMove = function (event: paper.MouseEvent) {
-    if (!startPoint) return;
+    if (!startPointRef.current) return;
 
     if (this.cursor) {
       // remove guide box
@@ -84,7 +85,7 @@ const useBoxTool = () => {
 
     // create guide box again which will be used as a cursor fore box tool
     this.cursor = new paper.Path.Rectangle({
-      from: startPoint,
+      from: startPointRef.current,
       to: event.point,
       strokeWidth,
       strokeColor,
@@ -96,7 +97,7 @@ const useBoxTool = () => {
     if (!this.tempPath) return;
 
     // 두 번째 점이 없으면 무시
-    if (!endPoint || !this.cursor) return;
+    if (!endPointRef.current || !this.cursor) return;
 
     // 바꿔치기 할 children 생성
     const unitedPath = this.tempPath.unite(this.cursor) as paper.CompoundPath;
@@ -105,8 +106,8 @@ const useBoxTool = () => {
     // guide box 삭제
     this.cursor.remove();
 
-    startPoint = undefined;
-    endPoint = undefined;
+    startPointRef.current = undefined;
+    endPointRef.current = undefined;
 
     // children 바꿔치기고 pathToSwitch 삭제
     this.tempPath.children = pathToSwitch.children;

@@ -1,32 +1,72 @@
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
+import { restoreCompoundPaths } from 'routes/Annotator/components/Workbench/Canvas/tools';
 import useManageTool from 'routes/Annotator/components/Workbench/Canvas/tools/useManageTool';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { selectAuth } from 'routes/Auth/slices/authSlice';
 import { Tool } from 'types';
+import { optimizePathItem } from 'utils';
 
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
+const createEraser = (point: paper.Point, radius: number) => {
+  return new paper.Path.Circle({
+    center: point,
+    radius,
+    strokeColor,
+    strokeWidth,
+    guide: true,
+  });
+};
+
 const useEraserTool = () => {
-  const { currentCategory, currentAnnotation } =
+  const { currentCategory, currentAnnotation, selectedTool } =
     useAppSelector(selectAnnotator);
 
   const { eraserRadius } = useAppSelector(selectAuth).preference;
 
-  const createEraser = useCallback((point: paper.Point, radius: number) => {
-    return new paper.Path.Circle({
-      center: point,
-      radius,
-      strokeColor,
-      strokeWidth,
-      guide: true,
-    });
-  }, []);
-
   const tool = useManageTool(Tool.Eraser);
+  tool.minDistance = 3;
+
+  const eraseArea = useCallback(
+    (center: paper.Point) => {
+      if (!tool.tempPath) return;
+
+      const eraser = new paper.Path.Circle({
+        center,
+        radius: eraserRadius,
+      });
+
+      optimizePathItem(eraser);
+
+      const pathToSwitch = new paper.CompoundPath(
+        tool.tempPath.subtract(eraser),
+      );
+
+      tool.tempPath.children = pathToSwitch.children;
+      pathToSwitch.remove();
+
+      eraser.remove();
+    },
+    [tool, eraserRadius],
+  );
+
+  const paintEraserCursor = useCallback(
+    (event: paper.MouseEvent) => {
+      // brush cursor 이미 있으면 제거
+      tool?.cursor?.remove();
+      // brush cursor 생성
+      tool.cursor = createEraser(event.point, eraserRadius);
+    },
+    [tool, eraserRadius],
+  );
+
+  // 마우스 움직임
+  tool.onMouseMove = paintEraserCursor;
 
   // 마우스 클릭
   tool.onMouseDown = function (event: paper.MouseEvent) {
@@ -51,77 +91,33 @@ const useEraserTool = () => {
         }
       });
 
-      if (!this.tempPath) return;
+      // CompoundPath가 존재하지 않는다면
+      // (Undo, Redo에 의해 CompoundPath가 삭제된 경우를 뜻 함)
+      this.tempPath =
+        this.tempPath === undefined
+          ? restoreCompoundPaths(currentCategory, currentAnnotationId)
+          : this.tempPath;
 
-      const eraser = new paper.Path.Circle({
-        center: event.point,
-        radius: eraserRadius,
-      });
-
-      eraser.smooth({
-        type: 'continuous',
-      });
-      eraser.simplify(3);
-      eraser.flatten(0.65);
-
-      const pathToSwitch = new paper.CompoundPath(
-        this.tempPath.subtract(eraser),
-      );
-
-      this.tempPath.children = pathToSwitch.children;
-      pathToSwitch.remove();
-
-      eraser.remove();
+      eraseArea(event.point);
     });
   };
 
   // 마우스 드래그
   tool.onMouseDrag = function (event: paper.MouseEvent) {
-    if (!this.tempPath) return;
-
-    // // eraser cursor 이미 있으면 제거
-    if (this.cursor) {
-      this.cursor.remove();
-    }
-    // eraser cursor 생성
-    this.cursor = createEraser(event.point, eraserRadius);
-
-    const eraser = new paper.Path.Circle({
-      center: event.point,
-      radius: eraserRadius,
-    });
-
-    eraser.smooth({
-      type: 'continuous',
-    });
-    eraser.simplify(3);
-    eraser.flatten(0.65);
-
-    // 바꿔치기 할 children 생성
-    const pathToSwitch = new paper.CompoundPath(this.tempPath.subtract(eraser));
-
-    // children 바꿔치기고 pathToSwitch 삭제
-    this.tempPath.children = pathToSwitch.children;
-    pathToSwitch.remove();
-
-    // 임시 원 삭제
-    eraser.remove();
+    paintEraserCursor(event);
+    eraseArea(event.point);
   };
 
   tool.onMouseUp = function () {
-    this.tempPath = undefined;
     this.endDrawing(currentAnnotation?.annotationId || 0);
   };
 
-  tool.onMouseMove = function (event: paper.MouseEvent) {
-    // eraser cursor 이미 있으면 제거
-    if (this.cursor) {
-      this.cursor.remove();
+  useEffect(() => {
+    if (selectedTool === Tool.Eraser) {
+      const point = AnnotationTool.mousePoint;
+      paintEraserCursor({ point } as paper.MouseEvent);
     }
-
-    // eraser cursor 생성
-    this.cursor = createEraser(event.point, eraserRadius);
-  };
+  }, [selectedTool, paintEraserCursor, tool]);
 
   return tool;
 };

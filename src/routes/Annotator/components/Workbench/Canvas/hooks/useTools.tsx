@@ -96,12 +96,13 @@ class Observer {
 export class AnnotationTool extends paper.Tool {
   toolType: Tool;
   isDrawing: boolean;
+  tempPath: paper.CompoundPath | undefined;
+  cursor: paper.Path | undefined;
   static initialLayerState = '';
   static history: ToolHistory = new ToolHistory();
-  cursor: paper.Path | undefined;
-  tempPath: paper.CompoundPath | undefined;
   // 변화가 있을 때마다, 이벤트를 감지받을 수 있도록 옵저버를 등버
   static observer = new Observer();
+  static mousePoint: paper.Point | undefined;
 
   constructor(toolType: Tool) {
     super();
@@ -115,6 +116,9 @@ export class AnnotationTool extends paper.Tool {
         this.redo();
       }
     });
+    this.on('mousemove', (event: paper.MouseEvent) => {
+      AnnotationTool.mousePoint = event.point;
+    });
   }
 
   startDrawing(drawingCallback: () => void) {
@@ -125,6 +129,7 @@ export class AnnotationTool extends paper.Tool {
     // 초기 데이터가 로딩되기 전에 툴을 사용하면,
     // 초기 레이어 값이 바뀌니 히스토리가 꼬이게 됨
     if (AnnotationTool.initialLayerState === '') {
+      console.log('init');
       return;
     }
 
@@ -309,7 +314,6 @@ export class AnnotationTool extends paper.Tool {
       ) {
         return;
       }
-      console.log('removing child');
       child.remove();
     });
 
