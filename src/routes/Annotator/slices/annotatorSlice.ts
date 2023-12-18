@@ -63,12 +63,15 @@ const annotatorSlice = createSlice({
     },
     setCurrentAnnotationByAnnotationId: (
       state,
-      action: PayloadAction<number>,
+      action: PayloadAction<number | undefined>,
     ) => {
       if (!state.currentCategory) return;
 
       const annotationId = action.payload;
-      state.currentAnnotation = state.currentCategory.annotations[annotationId];
+      if (annotationId === undefined) state.currentAnnotation = undefined;
+      else
+        state.currentAnnotation =
+          state.currentCategory.annotations[annotationId];
     },
     setCurrentAnnotation: (
       state,
@@ -79,6 +82,17 @@ const annotatorSlice = createSlice({
     updateCategories: (state, action: PayloadAction<CategoryType>) => {
       if (!state.categories) return;
       state.categories[`${action.payload.categoryId}`] = action.payload;
+    },
+    setLastSelectedAnnotationByCategoryId: (
+      state,
+      action: PayloadAction<{
+        categoryId: number;
+        annotationId: number;
+      }>,
+    ) => {
+      const { categoryId, annotationId } = action.payload;
+      if (!state.categories) return;
+      state.categories[categoryId].lastSelectedAnnotation = annotationId;
     },
     addAnnotation: (
       state,
@@ -129,6 +143,7 @@ export const {
   setCurrentCategory,
   setCurrentAnnotationByAnnotationId,
   setCurrentAnnotation,
+  setLastSelectedAnnotationByCategoryId,
   updateCategories,
   addAnnotation,
   deleteAnnotation,

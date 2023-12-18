@@ -1,4 +1,3 @@
-import paper from 'paper';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
@@ -13,7 +12,6 @@ import {
   deleteAnnotations,
   selectAnnotator,
   setCurrentAnnotationByAnnotationId,
-  setCurrentCategoryByCategoryId,
   setTool,
 } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'types';
@@ -40,8 +38,8 @@ export default function AnnotationList() {
   const sortedAnnotations = useMemo(() => {
     if (!annotations) return [];
 
-    return Object.entries(annotations).sort(
-      (prev, next) => Number(next[0]) - Number(prev[0]),
+    return Object.values(annotations).sort(
+      (prev, next) => Number(next.annotationId) - Number(prev.annotationId),
     );
   }, [annotations]);
 
@@ -59,28 +57,6 @@ export default function AnnotationList() {
     }
   }
 
-  // annotation 선택
-  function selectMask(categoryId: number, annotationId: number) {
-    if (!categories) return;
-    selectAnnotation(categoryId, annotationId);
-
-    const { children } = paper.project.activeLayer;
-
-    children.forEach((child) => {
-      child.selected = false;
-    });
-
-    paper.project.selectedItems.forEach((item) => (item.selected = false));
-    const selectedMask = children.find(
-      (child) =>
-        child.data.categoryId === categoryId &&
-        child.data.annotationId === annotationId,
-    );
-
-    if (!selectedMask) return;
-    selectedMask.selected = true;
-  }
-
   // category의 모든 annotation 삭제
   function deleteAllAnnotationInCategories(categoryId: number) {
     if (!categories) return;
@@ -88,18 +64,31 @@ export default function AnnotationList() {
     dispatch(deleteAnnotations({ categoryId }));
   }
 
+  // annotation이 없다면 Select Tool로 변경
+  // currentAnnotation을 undefined로 변경
   useEffect(() => {
-    if (currentAnnotation) return;
-    if (sortedAnnotations.length <= 0) {
+    if (!currentAnnotation || sortedAnnotations.length === 0) {
       dispatch(setTool(Tool.Select));
-      return;
+      dispatch(setCurrentAnnotationByAnnotationId(undefined));
     }
+  }, [sortedAnnotations, currentAnnotation, dispatch]);
 
-    const annotationIdOnTop = sortedAnnotations[0][1].annotationId;
-    if (!annotationIdOnTop) return;
-
-    dispatch(setCurrentAnnotationByAnnotationId(annotationIdOnTop));
-  }, [sortedAnnotations]);
+  // 마지막으로 선택된 annotation의 id를 가져와서
+  // currentAnnotation을 업데이트
+  const lastSelectedAnnotationId = useMemo(
+    () => currentCategory?.lastSelectedAnnotation,
+    [currentCategory?.lastSelectedAnnotation],
+  );
+  useEffect(() => {
+    // 만약 lastSelectedAnnotation이 없다면
+    // annotation이 없다면 아무것도 선택하지 않음 (currentAnnotation = undefined)
+    let annotationIdToSelect = lastSelectedAnnotationId;
+    if (!lastSelectedAnnotationId) {
+      // sortedAnnotations의 첫번째 annotation을 선택
+      annotationIdToSelect = sortedAnnotations?.[0]?.annotationId || undefined;
+    }
+    dispatch(setCurrentAnnotationByAnnotationId(annotationIdToSelect));
+  }, [dispatch, sortedAnnotations, lastSelectedAnnotationId]);
 
   return (
     <Container>
@@ -128,13 +117,13 @@ export default function AnnotationList() {
       </ButtonsContainer>
       {currentCategory &&
         sortedAnnotations &&
-        sortedAnnotations.map(([annotationId, annotation]) => (
+        sortedAnnotations.map(({ annotationId, color }) => (
           <Annotation
-            key={annotation.annotationId}
+            key={annotationId}
             categoryId={currentCategory.categoryId}
             annotationId={Number(annotationId)}
-            annotationcolor={annotation.color}
-            onClick={selectMask}
+            annotationcolor={color}
+            onClick={selectAnnotation}
           />
         ))}
     </Container>

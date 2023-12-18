@@ -98,6 +98,8 @@ export class AnnotationTool extends paper.Tool {
   isDrawing: boolean;
   tempPath: paper.CompoundPath | undefined;
   cursor: paper.Path | undefined;
+  // 커서를 그리는 콜백 함수를 저장함
+  cursorFunc: (() => void) | undefined;
   static initialLayerState = '';
   static history: ToolHistory = new ToolHistory();
   // 변화가 있을 때마다, 이벤트를 감지받을 수 있도록 옵저버를 등버
@@ -129,7 +131,6 @@ export class AnnotationTool extends paper.Tool {
     // 초기 데이터가 로딩되기 전에 툴을 사용하면,
     // 초기 레이어 값이 바뀌니 히스토리가 꼬이게 됨
     if (AnnotationTool.initialLayerState === '') {
-      console.log('init');
       return;
     }
 

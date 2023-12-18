@@ -3,6 +3,7 @@ export interface CategoryType {
   name: string;
   color: string;
   annotations: { [key: number]: AnnotationType };
+  lastSelectedAnnotation: number;
 }
 
 export interface AnnotationType {

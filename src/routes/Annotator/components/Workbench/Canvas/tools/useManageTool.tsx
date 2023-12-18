@@ -1,5 +1,5 @@
 import { useAppSelector } from 'App.hooks';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'types';
@@ -22,13 +22,6 @@ const useManageTool = (currentTool: Tool) => {
     useAppSelector(selectAnnotator);
 
   const tool = useRef(new AnnotationTool(currentTool)).current;
-  const currentToolPreserved = useRef(currentTool).current;
-
-  const removeTool = useCallback(() => {
-    if (currentToolPreserved === selectedTool) {
-      tool?.cursor?.remove();
-    }
-  }, [currentToolPreserved, selectedTool, tool]);
 
   const shouldBeActivated = useMemo(() => {
     const disableCases: (() => boolean)[] = [
@@ -38,8 +31,9 @@ const useManageTool = (currentTool: Tool) => {
       // 3. current annotation이 없는 경우 (초기 로딩)
       // 4. current category가 없는 경우 (초기 로딩)
       () => !currentCategory,
-      () => !currentAnnotation,
-      // 5. selectedTool이 Tool.Box가 아닌 경우 -> useEffect에서 마운트 후, cursor 제거
+      // Select 툴의 경우, currentAnnotation이 없어도 activate 되어야 함
+      () => !currentAnnotation && currentTool !== Tool.Select,
+      // 5. selectedTool이 Tool.Box가 아닌 경우 -> activate 되지 않음
       () => selectedTool !== currentTool,
     ];
     const isNotDisable = !disableCases.some((disableTool) => disableTool());
@@ -67,7 +61,9 @@ const useManageTool = (currentTool: Tool) => {
     tool.activate();
 
     return () => {
-      removeTool();
+      // tool.deactivate() 혹은 tool.remove()를 안 해줘도 되는 이유되
+      // 마지막으로 activate된 툴이 paperjs가 인식하는 active tool이기 때문
+      tool.cursor?.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldBeActivated]);

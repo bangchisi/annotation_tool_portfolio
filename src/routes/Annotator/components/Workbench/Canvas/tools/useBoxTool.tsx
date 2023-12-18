@@ -1,7 +1,7 @@
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { restoreCompoundPaths } from 'routes/Annotator/components/Workbench/Canvas/tools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'types';
@@ -10,23 +10,8 @@ import useManageTool from './useManageTool';
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
 
-/*
-
-  툴이 안 되어야 하는 경우
-
-  1. categories가 없는 경우 -> useEffect에서 마운트 후 확인
-  1. annotation이 없는 경우 -> useEffect에서 마운트 후 확인
-  2. current annotation이 없는 경우 (초기 로딩) -> 위의 useEffect에서 dependency array에 추가로
-  3. current category가 없는 경우 (초기 로딩) -> 위의 useEffect에서 dependency array에 추가로
-  4. selectedTool이 Tool.Box가 아닌 경우 -> useEffect에서 마운트 후, cursor 제거
-  5. 현재 툴이 박스 툴이지만, 현재 어노테이션의 카테고리와 다른 경우 (마우스 찍고 다른 카테고리로 이동) -> useEffect에서 마운트 후, cursor 제거
-  6. 현재 툴이 박스 툴이지만, 현재 어노테이션의 카테고리와 같지만, (마우스 찍고 다른 어노테이션으로 이동) -> useEffect에서 마운트 후, cursor 제거
-  현재 어노테이션의 어노테이션 아이디와 다른 경우
-
-*/
-
 const useBoxTool = () => {
-  const { currentCategory, currentAnnotation } =
+  const { currentCategory, currentAnnotation, selectedTool } =
     useAppSelector(selectAnnotator);
 
   const tool = useManageTool(Tool.Box);
@@ -115,6 +100,13 @@ const useBoxTool = () => {
 
     this.endDrawing(currentAnnotation?.annotationId || 0);
   };
+
+  // 다른 툴로 이동할 때, start point와 end point를 초기화
+  useEffect(() => {
+    startPointRef.current = undefined;
+    endPointRef.current = undefined;
+    tool.cursor?.remove();
+  }, [tool, selectedTool, currentCategory, currentAnnotation]);
 
   return tool;
 };
