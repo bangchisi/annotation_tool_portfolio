@@ -23,7 +23,6 @@ import {
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'types';
 import { Editor } from './Canvas.style';
-import { onCanvasWheel } from './helpers/canvasHelper';
 import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import { Helmet } from 'react-helmet-async';
@@ -113,6 +112,39 @@ export default function Canvas(props: CanvasProps) {
     },
     [dispatch, image],
   );
+
+  const onCanvasWheel = useCallback((event: WheelEvent): void => {
+    event.preventDefault();
+    const dragAmount = 30;
+
+    if (event.ctrlKey) {
+      if (event.deltaY < 0) {
+        paper.view.center = paper.view.center.subtract(
+          new paper.Point(0, dragAmount),
+        );
+      } else {
+        paper.view.center = paper.view.center.add(
+          new paper.Point(0, dragAmount),
+        );
+      }
+    } else if (event.shiftKey) {
+      if (event.deltaY < 0) {
+        paper.view.center = paper.view.center.subtract(
+          new paper.Point(dragAmount, 0),
+        );
+      } else {
+        paper.view.center = paper.view.center.add(
+          new paper.Point(dragAmount, 0),
+        );
+      }
+    } else {
+      if (event.deltaY < 0) {
+        paper.view.zoom += 0.1;
+      } else if (paper.view.zoom > 0.2 && event.deltaY > 0) {
+        paper.view.zoom -= 0.1;
+      }
+    }
+  }, []);
 
   // 툴 초기화
   useTools();
