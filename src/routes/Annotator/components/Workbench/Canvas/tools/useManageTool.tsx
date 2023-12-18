@@ -49,22 +49,6 @@ const useManageTool = (currentTool: Tool) => {
     };
   }, [tool.cursor]);
 
-  // 툴이 캔버스 밖으로 나갈 때, 마우스 커서 제거
-  useEffect(() => {
-    const handleCursorLeave = (event: MouseEvent) => {
-      event.stopPropagation();
-      event.preventDefault();
-
-      tool.cursor?.remove();
-      tool.cursor = undefined;
-    };
-    paper.project.view.on('mouseleave', handleCursorLeave);
-
-    return () => {
-      paper.project.view.off('mouseleave', handleCursorLeave);
-    };
-  }, [tool]);
-
   const shouldBeActivated = useMemo(() => {
     const disableCases: (() => boolean)[] = [
       // 1. categories가 없는 경우
