@@ -1,5 +1,6 @@
 import { LinearProgress, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
+import { AxiosError } from 'axios';
 import CategoryTag from 'components/CategoryTag/CategoryTag';
 import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
@@ -24,7 +25,6 @@ import {
   UpdatedAt,
 } from './DatasetCard.style';
 import DatasetMenu from './DatasetMenu/DatasetMenu';
-import { AxiosError } from 'axios';
 
 interface DatasetCardProps {
   datasetId: number; // Dataset 고유 ID
@@ -44,7 +44,7 @@ interface DatasetCardProps {
   ];
   setDatasetList: (userId: string) => Promise<void>;
   setExportId: React.Dispatch<React.SetStateAction<number | undefined>>;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  handleOpen: () => void;
 }
 
 export default function DatasetCard(props: DatasetCardProps) {
@@ -58,7 +58,7 @@ export default function DatasetCard(props: DatasetCardProps) {
     progress,
     setDatasetList,
     setExportId,
-    setOpen,
+    handleOpen,
   } = props;
 
   const deleteDataset = async (userId: string, datasetId: number) => {
@@ -160,7 +160,7 @@ export default function DatasetCard(props: DatasetCardProps) {
           </CategoriesContainer>
           <ProgressContainer>
             <LinearProgress
-              sx={{ my: 1 }}
+              sx={{ my: 1, height: '8px', borderRadius: '3px' }}
               variant="determinate"
               value={progress * 100}
             />
@@ -176,7 +176,7 @@ export default function DatasetCard(props: DatasetCardProps) {
           datasetId={datasetId}
           deleteDataset={deleteDataset}
           setExportId={setExportId}
-          setOpen={setOpen}
+          handleOpen={handleOpen}
         />
       </MenuButtonContainer>
     </Container>

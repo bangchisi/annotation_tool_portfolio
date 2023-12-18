@@ -1,26 +1,33 @@
-import { useRef, useState } from 'react';
 import paper from 'paper';
-import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
-import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import { useRef } from 'react';
+import useManageTool from 'routes/Annotator/components/Workbench/Canvas/tools/useManageTool';
+import useManageAnnotation, {
+  deselectPathSegments,
+} from 'routes/Annotator/hooks/useManageAnnotation';
+import { Tool } from 'types';
 
 const useSelectTool = () => {
-  const { currentCategory } = useReloadAnnotator();
   const { selectAnnotation } = useManageAnnotation();
-  const [isDrag, setIsDrag] = useState(false);
+
+  const tool = useManageTool(Tool.Select);
+
   // delta 구하기 위한 마우스 시작 지점
   const startingPoint = useRef<paper.Point>();
+  const isDragging = useRef(false);
 
   // 마우스 다운
-  const onMouseDown = (event: paper.MouseEvent) => {
+  tool.onMouseDown = function (event: paper.MouseEvent) {
     startingPoint.current = event.point;
+
+    this.startDrawing(() => void 0);
   };
 
   // 마우스 드래그
-  const onMouseDrag = (event: paper.MouseEvent) => {
-    setIsDrag(true);
-    // view.center를 마우스 delta만큼 옮김
+  tool.onMouseDrag = function (event: paper.MouseEvent) {
     if (!startingPoint.current) return;
+    isDragging.current = true;
 
+    // view.center를 마우스 delta만큼 옮김
     const delta_x: number | null = startingPoint.current.x - event.point.x;
     const delta_y: number | null = startingPoint.current.y - event.point.y;
     const center_delta = new paper.Point(delta_x, delta_y);
@@ -28,62 +35,59 @@ const useSelectTool = () => {
     paper.view.center = new_center;
   };
 
-  const onMouseMove = (event: paper.MouseEvent) => {
-    //..
-  };
-
-  const onMouseUp = (event: paper.MouseEvent) => {
-    //..
-    if (!isDrag) {
-      // get compoundPath from hitResult and make it selected
-      const hitResult = paper.project.hitTest(event.point, {
-        fill: true,
-        stroke: true,
-        segments: true,
-        tolerance: 5,
-      });
-
-      let categoryId: number;
-      let annotationId: number;
-
-      // if hitResult is not null and is CompoundPath, disable previous selected item and select new item
-      // set currentAnnotation with selected item's data.annotationId property
-      if (hitResult && hitResult.item instanceof paper.CompoundPath) {
-        // disable previous selected item
-        if (paper.project.selectedItems.length > 0) {
-          paper.project.selectedItems[0].selected = false;
-        }
-        // select new item
-        hitResult.item.selected = true;
-
-        // set currentAnnotation with selected item's data property
-        categoryId = hitResult.item.data.categoryId;
-        annotationId = hitResult.item.data.annotationId;
-        selectAnnotation(categoryId, annotationId);
-      } else {
-        // disable previous selected item and set currentAnnotation to null
-        if (!currentCategory) return;
-
-        if (paper.project.selectedItems.length > 0) {
-          paper.project.selectedItems[0].selected = false;
-        }
-        selectAnnotation(currentCategory.categoryId, -1);
-      }
+  tool.onMouseUp = function (event: paper.MouseEvent) {
+    if (isDragging.current) {
+      isDragging.current = false;
+      this.endDrawing(0);
+      return;
     }
-    setIsDrag(false);
+    const hasHitImage = hitImage(event.point);
+    // 빈 공간을 클릭하면 deselect
+    if (hasHitImage) {
+      deselectPathSegments();
+      return;
+    }
+
+    // get compoundPath from hitResult and make it selected
+    const hitResult = hitPathItem(event.point);
+
+    if (
+      !hitResult ||
+      hitResult.item instanceof paper.Raster ||
+      hitResult.item instanceof paper.Path
+    )
+      return;
+
+    let categoryId: number;
+    let annotationId: number;
+
+    paper.project.selectedItems.forEach((item) => (item.selected = false));
+    if (hitResult && hitResult.item instanceof paper.CompoundPath) {
+      hitResult.item.selected = true;
+
+      categoryId = hitResult.item.data.categoryId;
+      annotationId = hitResult.item.data.annotationId;
+      selectAnnotation(categoryId, annotationId);
+    }
   };
 
-  const onMouseLeave = (event: paper.MouseEvent) => {
-    //..
-  };
+  return tool;
+};
 
-  return {
-    onMouseDown,
-    onMouseDrag,
-    onMouseUp,
-    onMouseMove,
-    onMouseLeave,
-  };
+const hitPathItem = (point: paper.Point) => {
+  return paper.project.hitTest(point, {
+    fill: true,
+    stroke: true,
+    segments: true,
+    tolerance: 5,
+  });
+};
+
+const hitImage = (point: paper.Point) => {
+  const hitResult = hitPathItem(point);
+
+  if (hitResult && hitResult.item instanceof paper.Raster) return true;
+  else return false;
 };
 
 export default useSelectTool;

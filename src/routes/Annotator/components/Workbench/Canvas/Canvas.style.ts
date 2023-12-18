@@ -13,18 +13,16 @@ enum Tool {
 }
 
 const CursorTypes = {
-  [Tool.Select]: 'pointer',
+  [Tool.Select]: 'grabbing',
   [Tool.Box]: 'crosshair',
   [Tool.Brush]: 'none',
   [Tool.Eraser]: 'none',
   [Tool.SAM]: 'crosshair',
 };
 
-// export const Editor = styled('canvas')<EditorProps>(() => {
 export const Editor = styled('canvas')<EditorProps>(({ selectedTool }) => {
   return {
-    backgroundColor: '#E7ECF0',
-    // backgroundColor: 'white',
+    backgroundColor: 'var(--editor-bg)',
     cursor: CursorTypes[selectedTool] ?? 'default',
   };
 });

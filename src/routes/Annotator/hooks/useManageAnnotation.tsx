@@ -1,17 +1,43 @@
-import paper from 'paper';
+import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { getRandomHexColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import paper from 'paper';
+import { useState } from 'react';
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
+import AnnotatorModel from '../models/Annotator.model';
 import {
   addAnnotation,
   deleteAnnotation,
   selectAnnotator,
   setCurrentAnnotationByAnnotationId,
   setCurrentCategoryByCategoryId,
+  setLastSelectedAnnotationByCategoryId,
 } from '../slices/annotatorSlice';
 import useReloadAnnotator from './useReloadAnnotator';
-import { useAppDispatch, useAppSelector } from 'App.hooks';
-import AnnotatorModel from '../models/Annotator.model';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { useState } from 'react';
+
+export const selectPathSegments = (
+  categoryId: number,
+  annotationId: number,
+) => {
+  const { children } = paper.project.activeLayer;
+
+  children.forEach((child) => {
+    child.selected = false;
+  });
+  paper.project.selectedItems.forEach((item) => (item.selected = false));
+  const selectedMask = children.find(
+    (child) =>
+      child.data.categoryId === categoryId &&
+      child.data.annotationId === annotationId,
+  );
+
+  if (!selectedMask) return;
+  selectedMask.selected = true;
+};
+
+export const deselectPathSegments = () => {
+  paper.project.selectedItems.forEach((item) => (item.selected = false));
+};
 
 const useManageAnnotation = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +49,19 @@ const useManageAnnotation = () => {
   // empty annotation 생성
   async function createEmptyAnnotation() {
     // 항목 2. categories 업데이트
-    if (!image || !datasetId || !categories || !currentCategory) return;
+    if (categories && Object.keys(categories).length < 1) {
+      alert(
+        '현재 Dataset에 추가된 카테고리가 없습니다. Dataset 페이지에서 카테고리를 추가해주세요.',
+      );
+    }
+    if (!image || !datasetId || !categories || !currentCategory) {
+      return;
+    }
+
+    const { initialLayerState } = AnnotationTool;
+    if (initialLayerState === '') {
+      AnnotationTool.initializeHistory();
+    }
 
     // 랜덤 색상 생성
     const annotationColor = getRandomHexColor();
@@ -76,7 +114,15 @@ const useManageAnnotation = () => {
       compoundPathToAdd.data = dataToAdd;
 
       // 항목 3. currentAnnotation 업데이트
-      dispatch(setCurrentAnnotationByAnnotationId(newAnnotationId));
+      selectAnnotation(currentCategory.categoryId, newAnnotationId);
+      paper.project.selectedItems.forEach((item) => (item.selected = false));
+      const newMask = paper.project.activeLayer.children.find(
+        (child) =>
+          child.data.annotationId === newAnnotationId &&
+          child.data.categoryId === currentCategory.categoryId,
+      );
+      if (!newMask) return;
+      newMask.selected = true;
     } catch (error) {
       axiosErrorHandler(error, 'Failed to create annotation');
       alert('annotation 생성에 실패했습니다. 다시 시도해주세요.');
@@ -91,6 +137,12 @@ const useManageAnnotation = () => {
     annotationId: number,
   ) => {
     setIsLoading(true);
+
+    const annotationsList = Object.values(currentCategory?.annotations ?? {});
+    const annotationIds =
+      annotationsList.map((annotation) => Number(annotation.annotationId)) ??
+      [];
+
     try {
       const response = await AnnotatorModel.deleteAnnotation(annotationId);
       if (response.status !== 200)
@@ -108,10 +160,6 @@ const useManageAnnotation = () => {
       }
 
       // case 1: annotation 많이 있을 때
-      const annotationsList = Object.values(currentCategory?.annotations ?? {});
-      const annotationIds =
-        annotationsList.map((annotation) => Number(annotation.annotationId)) ??
-        [];
       const nextAnnotationIds = annotationIds.filter(
         (nextAnnotationId) => nextAnnotationId < Number(annotationId),
       );
@@ -135,6 +183,10 @@ const useManageAnnotation = () => {
       axiosErrorHandler(error, 'Failed to delete annotation');
       alert('annotation 삭제 실패. 다시 시도 해주세요.');
     } finally {
+      AnnotationTool.removeCommandsWithoutAnnotationIdFromHistory(
+        annotationIds,
+        annotationId,
+      );
       setIsLoading(false);
     }
   };
@@ -170,12 +222,20 @@ const useManageAnnotation = () => {
     if (!categories) return;
 
     const selectedCategory = categories[categoryId];
-
     if (!selectedCategory) return;
 
-    dispatch(setCurrentCategoryByCategoryId(categoryId));
+    // Select path segments
+    selectPathSegments(categoryId, annotationId);
 
+    if (currentAnnotation && currentAnnotation.annotationId === annotationId) {
+      return;
+    }
+
+    dispatch(setCurrentCategoryByCategoryId(categoryId));
     dispatch(setCurrentAnnotationByAnnotationId(annotationId));
+    dispatch(
+      setLastSelectedAnnotationByCategoryId({ categoryId, annotationId }),
+    );
   };
 
   return {

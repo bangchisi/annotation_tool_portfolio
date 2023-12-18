@@ -1,2 +1,3 @@
-export { default as axios } from './axiosHelper';
-export { default as hashObject } from './hashHelper';
+export { default as axios } from './axios.helper';
+export * from './paper.helper';
+export * from './string.helper';

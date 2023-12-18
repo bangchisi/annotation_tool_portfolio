@@ -7,6 +7,7 @@ export const Container = styled('div')(() => {
     justifyContent: 'space-between',
     alignItems: 'center',
     margin: '0 auto',
+    padding: '0 9%',
   };
 });
 

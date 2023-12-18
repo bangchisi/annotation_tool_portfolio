@@ -1,10 +1,10 @@
 import { useAppSelector } from 'App.hooks';
 import { Container } from './Preferences.style';
 
-import { Tool } from 'routes/Annotator/Annotator';
-import SAMToolPanel from './SAMToolPanel/SAMToolPanel';
+import { Tool } from 'types';
 import BrushToolPanel from './BrushToolPanel/BrushToolPanel';
 import EraserToolPanel from './EraserToolPanel/EraserToolPanel';
+import SAMToolPanel from './SAMToolPanel/SAMToolPanel';
 
 export default function Preferences() {
   const seletedTool = useAppSelector((state) => state.annotator.selectedTool);

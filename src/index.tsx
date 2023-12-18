@@ -9,22 +9,23 @@ import '@fontsource/roboto/700.css';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 
-import App from './App';
-import Auth from 'routes/Auth/Auth';
-import Datasets from 'routes/Datasets/Datasets';
-import Dataset from 'routes/Dataset/Dataset';
 import Annotator from 'routes/Annotator/Annotator';
+import Auth from 'routes/Auth/Auth';
+import Dataset from 'routes/Dataset/Dataset';
+import Datasets from 'routes/Datasets/Datasets';
 import Models from 'routes/Models/Models';
+import App from './App';
 import ErrorPage from './error';
 
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Navigate,
-} from 'react-router-dom';
-import { Provider } from 'react-redux';
-import store from 'store';
 import Authenticated from 'components/Authenticated';
+import { Provider } from 'react-redux';
+import {
+  Navigate,
+  RouterProvider,
+  createBrowserRouter,
+} from 'react-router-dom';
+import Playground from 'routes/_Playground';
+import store from 'store';
 
 const router = createBrowserRouter([
   {
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
       {
         path: '/auth',
         element: <Auth />,
+      },
+      {
+        path: '/_playground',
+        element: <Playground />,
       },
     ],
   },

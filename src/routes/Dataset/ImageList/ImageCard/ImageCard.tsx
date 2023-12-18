@@ -1,16 +1,19 @@
+import { Button } from '@mui/material';
+import classnames from 'classnames';
+import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { getImagePath } from 'helpers/ImagesHelpers';
+import ImagesModel from 'models/Images.model';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Container,
   ImageContainer,
+  ImageContainerPadding,
   ImageLink,
   Title,
   TitleContainer,
+  Wrapper,
 } from './ImageCard.style';
-import { Button } from '@mui/material';
-import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
-import { useEffect, useState } from 'react';
-import ImagesModel from 'models/Images.model';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
 
 interface ImageCardProps {
   imageId: number;
@@ -55,37 +58,82 @@ export default function ImageCard(props: ImageCardProps) {
     fetchImageInfo();
   }, [imageId]);
 
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    // Binding event handler directly to img tag sometimes,
+    // doesn't fire the event handler. But making an instance of Image class
+    // and connecting image source to its src property, fires the event handler.
+    // Image instance doesn't actually do anything, but it exists to fire the event handler.
+    const img = new Image();
+    img.src = imagePath;
+
+    img.onload = () => {
+      if (imgRef.current === null) return;
+
+      const { naturalHeight: originalHeight } = imgRef.current;
+      const ratio = 200 / originalHeight;
+
+      imgRef.current.style.transform = `scale(${ratio})`;
+      setIsImageLoaded(true);
+    };
+  }, [imagePath]);
+
+  const [isTitleClipped, setIsTitleClipped] = useState(false);
+  const imgTitleRef = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (imgTitleRef.current === null) return;
+    const { offsetWidth, scrollWidth } = imgTitleRef.current;
+    if (offsetWidth < scrollWidth) {
+      setIsTitleClipped(true);
+    }
+  }, [imageInfo]);
+  const imageTitleClassName = useMemo(
+    () => classnames('image-title', isTitleClipped && 'clipped'),
+    [isTitleClipped],
+  );
+
   return (
-    <Container>
-      {isOnTrain && <ComponentBlocker message="현재 학습중인 이미지입니다." />}
-      <ImageLink to={link}>
-        <ImageContainer>
-          <img src={imagePath} />
-        </ImageContainer>
-        <TitleContainer>
-          <Title>
-            {imageInfo === undefined
-              ? // 초기 이미지 제목은 빈 문자열로 설정
-                ''
-              : // 이미지 정보 가져오기 이후 있으면 이미지 이름을 표시
-                imageInfo?.filename || 'No Image Name'}
-          </Title>
-        </TitleContainer>
-      </ImageLink>
-      <Button
-        onClick={() => deleteImage(imageId)}
-        disableFocusRipple={true}
-        sx={{
-          minWidth: '0px',
-          fontSize: '0.8rem',
-          padding: '4px 4px',
-          justifySelf: 'flex-end',
-          alignSelf: 'flex-end',
-          marginTop: '6px',
-        }}
-      >
-        삭제
-      </Button>
-    </Container>
+    <Wrapper>
+      <ImageContainerPadding />
+      <Container>
+        {isOnTrain && (
+          <ComponentBlocker message="현재 학습중인 이미지입니다." />
+        )}
+        <ImageLink to={link}>
+          <ImageContainer>
+            <img
+              src={imagePath}
+              ref={imgRef}
+              style={{
+                visibility: isImageLoaded ? 'visible' : 'hidden',
+              }}
+            />
+          </ImageContainer>
+          <TitleContainer className="image-title-container">
+            <Title ref={imgTitleRef} className={imageTitleClassName}>
+              {imageInfo === undefined
+                ? // 초기 이미지 제목은 빈 문자열로 설정
+                  ''
+                : // 이미지 정보 가져오기 이후 있으면 이미지 이름을 표시
+                  imageInfo?.filename || 'No Image Name'}
+            </Title>
+          </TitleContainer>
+        </ImageLink>
+        <Button
+          onClick={() => deleteImage(imageId)}
+          disableFocusRipple={true}
+          sx={{
+            minWidth: '0px',
+            fontSize: '0.8rem',
+            padding: '4px 4px',
+            justifySelf: 'flex-end',
+            alignSelf: 'flex-end',
+          }}
+        >
+          삭제
+        </Button>
+      </Container>
+    </Wrapper>
   );
 }

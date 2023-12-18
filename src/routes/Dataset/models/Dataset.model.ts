@@ -58,10 +58,10 @@ const DatasetModel = {
 
     return axios.delete(url);
   },
-  updateDatset: (
+  updateDataset: (
     datasetId: number, // int
-    datasetName: string,
     superdatasetName: string,
+    datasetName: string,
     description: string,
   ) => {
     const url =

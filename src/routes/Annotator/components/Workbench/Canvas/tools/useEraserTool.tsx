@@ -1,99 +1,17 @@
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
+import { useCallback, useEffect } from 'react';
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
+import { restoreCompoundPaths } from 'routes/Annotator/components/Workbench/Canvas/tools';
+import useManageTool from 'routes/Annotator/components/Workbench/Canvas/tools/useManageTool';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { selectAuth } from 'routes/Auth/slices/authSlice';
+import { Tool } from 'types';
+import { optimizePathItem } from 'utils';
 
-export let eraserCursor: paper.Path.Circle | null = null;
-// const radius = 20; // eraser 크기는 preferece에서 받아올 것.
 const strokeColor = new paper.Color(1, 1, 1, 1);
 const strokeWidth = 2;
-
-// 최종 tempPath를 paper..children에 추가
-let tempPath: paper.CompoundPath | null;
-
-const useEraserTool = (compounds: paper.Item[]) => {
-  const { currentCategory, currentAnnotation } =
-    useAppSelector(selectAnnotator);
-  const { eraserRadius } = useAppSelector(selectAuth).preference;
-
-  // 마우스 클릭
-  const onMouseDown = (event: paper.MouseEvent) => {
-    if (!currentCategory || !currentAnnotation) return;
-
-    const { annotationId: currentAnnotationId } = currentAnnotation;
-    const { categoryId: currentCategoryId } = currentCategory;
-
-    // tempPath를 현재 compound로 선택
-    tempPath = compounds.find((compound) => {
-      const { categoryId, annotationId } = compound.data;
-      if (
-        categoryId === currentCategoryId &&
-        annotationId === currentAnnotationId
-      ) {
-        // data를 넣어줌
-        // tempData = compound.data;
-        return compound;
-      }
-    }) as paper.CompoundPath;
-  };
-
-  // 마우스 드래그
-  const onMouseDrag = (event: paper.MouseEvent) => {
-    if (!tempPath) return;
-
-    // // eraser cursor 이미 있으면 제거
-    if (eraserCursor !== null) {
-      eraserCursor.remove();
-      eraserCursor = null;
-    }
-    // eraser cursor 생성
-    eraserCursor = createEraser(event.point, eraserRadius);
-
-    let eraser: paper.Path | null = new paper.Path.Circle({
-      center: event.point,
-      radius: eraserRadius,
-    });
-
-    eraser.flatten(0.1);
-
-    // 바꿔치기 할 children 생성
-    const pathToSwitch = new paper.CompoundPath(
-      tempPath.subtract(eraser) as paper.CompoundPath,
-    );
-
-    // children 바꿔치기고 pathToSwitch 삭제
-    tempPath.children = pathToSwitch.children;
-    pathToSwitch.remove();
-    // 임시 원 삭제
-    eraser.remove();
-    eraser = null;
-  };
-
-  // 마우스 버튼 뗌
-  const onMouseUp = (event: paper.MouseEvent) => {
-    tempPath = null;
-  };
-
-  const onMouseMove = (event: paper.MouseEvent) => {
-    // eraser cursor 이미 있으면 제거
-    if (eraserCursor !== null) {
-      eraserCursor.remove();
-      eraserCursor = null;
-    }
-
-    // eraser cursor 생성
-    eraserCursor = createEraser(event.point, eraserRadius);
-  };
-
-  // 마우스가 canvas 밖으로 나가면 brush cursor가 남아있음
-  // 그래서 Canvas에 직접 이벤트를 걸어서 해결
-  const onMouseLeave = (event: paper.MouseEvent) => {
-    //
-  };
-
-  return { onMouseDown, onMouseDrag, onMouseUp, onMouseMove, onMouseLeave };
-};
 
 const createEraser = (point: paper.Point, radius: number) => {
   return new paper.Path.Circle({
@@ -103,6 +21,110 @@ const createEraser = (point: paper.Point, radius: number) => {
     strokeWidth,
     guide: true,
   });
+};
+
+const useEraserTool = () => {
+  const { currentCategory, currentAnnotation, selectedTool } =
+    useAppSelector(selectAnnotator);
+
+  const { eraserRadius } = useAppSelector(selectAuth).preference;
+
+  const tool = useManageTool(Tool.Eraser);
+  tool.minDistance = 3;
+
+  const eraseArea = useCallback(
+    (center: paper.Point) => {
+      if (!tool.tempPath) return;
+
+      const eraser = new paper.Path.Circle({
+        center,
+        radius: eraserRadius,
+      });
+
+      optimizePathItem(eraser);
+
+      const pathToSwitch = new paper.CompoundPath(
+        tool.tempPath.subtract(eraser),
+      );
+
+      tool.tempPath.children = pathToSwitch.children;
+      pathToSwitch.remove();
+
+      eraser.remove();
+    },
+    [tool, eraserRadius],
+  );
+
+  const paintEraserCursor = useCallback(
+    (event: paper.MouseEvent) => {
+      if (!AnnotationTool.isMouseOnCanvas) return;
+      // 이전 cursor 제거
+      tool?.cursor?.remove();
+      // 새로운 cursor 생성
+      tool.cursor = createEraser(event.point, eraserRadius);
+    },
+    [tool, eraserRadius],
+  );
+
+  useEffect(() => {
+    tool.drawCursor = paintEraserCursor;
+  }, [tool, paintEraserCursor]);
+
+  // 마우스 움직임
+  tool.onMouseMove = paintEraserCursor;
+
+  // 마우스 클릭
+  tool.onMouseDown = function (event: paper.MouseEvent) {
+    if (!currentCategory || !currentAnnotation) return;
+
+    this.startDrawing(() => {
+      const { annotationId: currentAnnotationId } = currentAnnotation;
+      const { categoryId: currentCategoryId } = currentCategory;
+
+      // tempPath를 현재 compound로 선택
+      const compounds = paper.project.activeLayer
+        .children as paper.CompoundPath[];
+      this.tempPath = compounds.find((compound) => {
+        const { categoryId, annotationId } = compound.data;
+        if (
+          categoryId === currentCategoryId &&
+          annotationId === currentAnnotationId
+        ) {
+          // data를 넣어줌
+          // tempData = compound.data;
+          return compound;
+        }
+      });
+
+      // CompoundPath가 존재하지 않는다면
+      // (Undo, Redo에 의해 CompoundPath가 삭제된 경우를 뜻 함)
+      this.tempPath =
+        this.tempPath === undefined
+          ? restoreCompoundPaths(currentCategory, currentAnnotationId)
+          : this.tempPath;
+
+      eraseArea(event.point);
+    });
+  };
+
+  // 마우스 드래그
+  tool.onMouseDrag = function (event: paper.MouseEvent) {
+    paintEraserCursor(event);
+    eraseArea(event.point);
+  };
+
+  tool.onMouseUp = function () {
+    this.endDrawing(currentAnnotation?.annotationId || 0);
+  };
+
+  useEffect(() => {
+    if (selectedTool === Tool.Eraser) {
+      const point = AnnotationTool.mousePoint;
+      paintEraserCursor({ point } as paper.MouseEvent);
+    }
+  }, [selectedTool, paintEraserCursor, tool]);
+
+  return tool;
 };
 
 export default useEraserTool;

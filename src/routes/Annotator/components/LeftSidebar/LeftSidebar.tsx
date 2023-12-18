@@ -10,13 +10,17 @@ import SaveIcon from '@mui/icons-material/Save';
 import { useAppSelector } from 'App.hooks';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { useParams } from 'react-router-dom';
-import { Tool } from 'routes/Annotator/Annotator';
 import { createCategoriesToUpdate } from 'routes/Annotator/helpers/Annotator.helper';
 import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
+import { Tool } from 'types';
 import FunctionIcon from './FunctionIcon';
 import { Container } from './LeftSidebar.style';
 
-export default function LeftSidebar() {
+type LeftSidebarProps = {
+  onSave: () => void;
+};
+
+export default function LeftSidebar({ onSave: handleSave }: LeftSidebarProps) {
   const imageId = Number(useParams().imageId);
   const categories = useAppSelector((state) => state.annotator.categories);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
@@ -32,13 +36,13 @@ export default function LeftSidebar() {
         imageId,
         categoriesToUpdate,
       );
-      if (response.status === 200) {
-        console.log('Successfully saved annotator data');
+      if (response.status !== 200) {
+        throw new Error('Failed to save annotator data');
       }
+
+      handleSave();
     } catch (error) {
       axiosErrorHandler(error, 'Failed to save annotator data');
-    } finally {
-      //
     }
   }
 

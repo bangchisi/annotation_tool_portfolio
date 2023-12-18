@@ -27,6 +27,7 @@ const AnnotatorModel = {
       image_id: imageId,
       dataset_id: datasetId,
       categories,
+      serialized_data: '',
     });
   },
   createAnnotation: (

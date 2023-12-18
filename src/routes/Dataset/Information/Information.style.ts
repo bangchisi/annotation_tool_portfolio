@@ -1,10 +1,10 @@
-import { styled } from '@mui/material';
+import { TextField, styled } from '@mui/material';
 
 export const Container = styled('div')(() => {
   return {
     position: 'relative',
     backgroundColor: 'rgba(255, 255, 255, 1)',
-    border: '1px solid #20252c',
+    border: '1px solid var(--border-color)',
     padding: '10px 20px',
     borderRadius: '3px',
   };
@@ -14,7 +14,7 @@ export const TitleContainer = styled('div')(() => {
   return {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
 
     '& > .title': {
@@ -38,6 +38,24 @@ export const ContentContainer = styled('div')(() => {
       marginBottom: '-6px',
     },
     '& > .content': {
+      fontSize: '14px',
+    },
+  };
+});
+
+export const NameField = styled(TextField)(() => {
+  return {
+    '& .MuiInputBase-root': {
+      fontSize: '1.25rem',
+      fontWeight: 'bold',
+    },
+  };
+});
+
+export const DescriptionField = styled(TextField)(() => {
+  return {
+    marginTop: '8px',
+    '& .MuiInputBase-root': {
       fontSize: '14px',
     },
   };

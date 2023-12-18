@@ -21,6 +21,7 @@ export const Container = styled(Box)<AnnotationProps>(({
     color: textColor,
   };
   const backgroundColor = isCurrentAnnotation ? focusedAnnotationColor : {};
+
   return {
     display: 'flex',
     height: 45,
@@ -30,19 +31,28 @@ export const Container = styled(Box)<AnnotationProps>(({
     cursor: 'pointer',
     padding: '10px 8px 10px 14px',
     opacity: 0.9,
+
     // 현재 선택된 annotation의 하단 border를 제거
     borderBottom: `1px solid ${
-      isCurrentAnnotation ? 'transparent' : '#88929D'
+      isCurrentAnnotation ? 'transparent' : 'var(--border-color)'
     }`,
     ...backgroundColor,
 
     '&:hover': {
       ...focusedAnnotationColor,
+      borderBottom: '1px solid transparent',
     },
     // 현재 선택된 annotation의 상단 border를 제거
     '&:has(+ .current-annotation)': {
       borderBottom: '1px solid transparent',
     },
+
+    // 마우스 호버 시 위아래 border를 제거
+    // 윗쪽 border 제거
+    '&:has(+ div:hover)': {
+      borderBottom: '1px solid transparent',
+    },
+    // 아랫쪽 border 제거 (line: 43)
 
     // 목록 위에 호버를 감지하기 위해 스타일을 DeleteButton에서
     // 적용하지고않고 상위 컴포넌트에 적용

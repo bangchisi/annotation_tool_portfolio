@@ -1,15 +1,16 @@
-import DatasetList from './DatasetList/DatasetList';
-import { useState } from 'react';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import DatasetsModel from './models/Datasets.model';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { Container } from './Datasets.style';
-import Controls from './Controls/Controls';
-import Reload from './Reload/Reload';
 import { useAppSelector } from 'App.hooks';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { useState } from 'react';
+import Reload from 'routes/Datasets/Reload/Reload';
+import Controls from './Controls/Controls';
+import DatasetList from './DatasetList/DatasetList';
+import { Container } from './Datasets.style';
+import DatasetsModel from './models/Datasets.model';
 
 export interface DatasetType {
   datasetId: number; // Dataset 고유 ID
+  superDatasetName: string;
   datasetName: string; // Dataset 이름. 중복 가능?
   lastUpdate: string; // 마지막 변경시간. or Date
   created: string; // 생성 날짜. or Date
@@ -28,6 +29,7 @@ export interface DatasetType {
 
 export default function Datasets() {
   const [datasets, setDatasets] = useState<DatasetType[]>([]);
+  const [filteredDatasets, setFilteredDatasets] = useState<DatasetType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const user = useAppSelector((state) => state.auth.user);
@@ -47,19 +49,28 @@ export default function Datasets() {
     }
   };
 
-  // TODO: style dataset-search
+  if (isError) {
+    return <Reload setDatasetList={setDatasetList} userId={user.userId} />;
+  }
+
   return (
-    <Container id="datasets">
-      <Controls setDatasetList={setDatasetList} />
-      {!isError && (
-        <DatasetList datasets={datasets} setDatasetList={setDatasetList} />
-      )}
-      {isError && (
-        <Reload setDatasetList={setDatasetList} userId={user.userId} />
-      )}
+    <>
       {isLoading && (
         <LoadingSpinner message="Dataset 목록을 불러오는 중입니다. 잠시만 기다려주세요." />
       )}
-    </Container>
+      <Container id="datasets">
+        <Controls
+          datasets={datasets}
+          setFilteredDatasets={setFilteredDatasets}
+          setDatasetList={setDatasetList}
+        />
+        <DatasetList
+          datasets={datasets}
+          filteredDatasets={filteredDatasets || []}
+          setFilteredDatasets={setFilteredDatasets}
+          setDatasetList={setDatasetList}
+        />
+      </Container>
+    </>
   );
 }

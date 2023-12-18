@@ -2,7 +2,6 @@ import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import {
-  Button,
   ClickAwayListener,
   Divider,
   Grow,
@@ -16,6 +15,7 @@ import {
 } from '@mui/material';
 import { RouteMode } from 'App';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
+import { DatasetsIcon, ModelsIcon, ProfileIcon } from 'Icons';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { clearSAM } from 'routes/Annotator/slices/SAMSlice';
@@ -33,6 +33,7 @@ import {
   Nav,
   NavMenuItem,
   NavMenuList,
+  UserInfoButton,
 } from './Navigator.style';
 
 interface NavigatorProps {
@@ -93,11 +94,12 @@ export default function Navigator(props: NavigatorProps) {
     }
   }
 
-  // return focus to the button when we transitioned from !open -> open
   const prevOpen = useRef(open);
   useEffect(() => {
+    if (anchorRef.current === null) return;
+
     if (prevOpen.current === true && open === false) {
-      anchorRef.current!.focus();
+      anchorRef.current.focus();
     }
 
     prevOpen.current = open;
@@ -116,29 +118,41 @@ export default function Navigator(props: NavigatorProps) {
         <NavMenuList>
           <NavMenuItem>
             <NavLink className="nav-link" to="/datasets">
-              Datasets
+              <DatasetsIcon
+                sx={{
+                  fontSize: '19px',
+                }}
+              />
+              <span>Datasets</span>
             </NavLink>
           </NavMenuItem>
           <NavMenuItem>
             <NavLink className="nav-link" to="models">
-              Models
+              <ModelsIcon
+                sx={{
+                  fontSize: '21px',
+                }}
+              />
+              <span>Models</span>
             </NavLink>
           </NavMenuItem>
         </NavMenuList>
 
         <DropDownContainer>
-          <Button
+          <UserInfoButton
             ref={anchorRef}
             id="composition-button"
             aria-controls={open ? 'composition-menu' : undefined}
             aria-expanded={open ? 'true' : undefined}
             aria-haspopup="true"
             onClick={handleToggle}
+            sx={{}}
           >
+            <ProfileIcon />
             <Typography display="inline" variant="button" className="user-info">
               {user.userId}
             </Typography>
-          </Button>
+          </UserInfoButton>
           <Popper
             open={open}
             anchorEl={anchorRef.current}
@@ -146,7 +160,7 @@ export default function Navigator(props: NavigatorProps) {
             placement="bottom-end"
             transition
           >
-            {({ TransitionProps, placement }) => (
+            {({ TransitionProps }) => (
               <Grow
                 {...TransitionProps}
                 style={{
@@ -160,6 +174,11 @@ export default function Navigator(props: NavigatorProps) {
                       id="composition-menu"
                       aria-labelledby="composition-button"
                       onKeyDown={handleListKeyDown}
+                      dense
+                      sx={{
+                        border: '1px solid rgba(0, 0, 0, 0.125)',
+                        marginTop: '8px',
+                      }}
                     >
                       <MenuItem onClick={handleClose}>
                         <ListItemIcon>
