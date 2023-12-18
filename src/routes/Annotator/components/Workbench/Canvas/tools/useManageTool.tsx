@@ -1,4 +1,5 @@
 import { useAppSelector } from 'App.hooks';
+import paper from 'paper';
 import { useEffect, useMemo, useRef } from 'react';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
@@ -22,6 +23,47 @@ const useManageTool = (currentTool: Tool) => {
     useAppSelector(selectAnnotator);
 
   const tool = useRef(new AnnotationTool(currentTool)).current;
+
+  // Canvas에 mouseleave이벤트를 등록해도,
+  // 마우스 커서를 생성하는 이벤트 핸들러가 paper.Tool에 바인딩 되어 있기
+  // 때문에, canvas.mouseleave 이벤트 핸들러가 커서를 없애도
+  // paper.Tool의 mousemove에 바인딩 된 핸들러가 커서를 다시
+  // 만들어낸다. 이를 해결하기 위해, 전역처럼 사용할 수 있는
+  // 플래그를 사용한다. (AnnotationTool의 정적 변수)
+  useEffect(() => {
+    const handleMouseEnter = () => {
+      AnnotationTool.isMouseOnCanvas = true;
+    };
+    const handleMouseLeave = () => {
+      AnnotationTool.isMouseOnCanvas = false;
+      tool.cursor?.remove();
+    };
+
+    const target = paper.project.view.element;
+
+    target?.addEventListener('mouseenter', handleMouseEnter);
+    target?.addEventListener('mouseleave', handleMouseLeave);
+    return () => {
+      target?.removeEventListener('mouseenter', handleMouseEnter);
+      target?.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [tool.cursor]);
+
+  // 툴이 캔버스 밖으로 나갈 때, 마우스 커서 제거
+  useEffect(() => {
+    const handleCursorLeave = (event: MouseEvent) => {
+      event.stopPropagation();
+      event.preventDefault();
+
+      tool.cursor?.remove();
+      tool.cursor = undefined;
+    };
+    paper.project.view.on('mouseleave', handleCursorLeave);
+
+    return () => {
+      paper.project.view.off('mouseleave', handleCursorLeave);
+    };
+  }, [tool]);
 
   const shouldBeActivated = useMemo(() => {
     const disableCases: (() => boolean)[] = [

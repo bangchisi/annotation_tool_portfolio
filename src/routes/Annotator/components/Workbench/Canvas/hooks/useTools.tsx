@@ -99,12 +99,12 @@ export class AnnotationTool extends paper.Tool {
   tempPath: paper.CompoundPath | undefined;
   cursor: paper.Path | undefined;
   // 커서를 그리는 콜백 함수를 저장함
-  cursorFunc: (() => void) | undefined;
   static initialLayerState = '';
   static history: ToolHistory = new ToolHistory();
   // 변화가 있을 때마다, 이벤트를 감지받을 수 있도록 옵저버를 등버
   static observer = new Observer();
   static mousePoint: paper.Point | undefined;
+  static isMouseOnCanvas = false;
 
   constructor(toolType: Tool) {
     super();
