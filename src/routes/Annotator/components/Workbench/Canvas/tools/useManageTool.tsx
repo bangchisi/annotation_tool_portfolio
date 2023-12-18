@@ -36,6 +36,8 @@ const useManageTool = (currentTool: Tool) => {
     };
     const handleMouseLeave = () => {
       AnnotationTool.isMouseOnCanvas = false;
+      const CursorTypesToRemove = [Tool.Brush, Tool.Eraser];
+      if (!CursorTypesToRemove.includes(currentTool)) return;
       tool.cursor?.remove();
     };
 
@@ -47,7 +49,7 @@ const useManageTool = (currentTool: Tool) => {
       target?.removeEventListener('mouseenter', handleMouseEnter);
       target?.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [tool.cursor]);
+  }, [tool.cursor, currentTool]);
 
   // 툴이 캔버스 밖으로 나갈 때, 마우스 커서 제거
   useEffect(() => {
