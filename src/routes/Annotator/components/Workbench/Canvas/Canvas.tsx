@@ -26,8 +26,28 @@ import { Editor } from './Canvas.style';
 import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import { Helmet } from 'react-helmet-async';
+import { Editor } from 'routes/Annotator/components/Workbench/Canvas/Canvas.style';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import { initializePaper } from 'utils';
+
+const adjustCanvasSize = (
+  canvas: HTMLCanvasElement | null,
+  container: HTMLDivElement | null,
+) => {
+  if (!canvas || !container) return;
+
+  const { width, height } = container.getBoundingClientRect();
+
+  canvas.width = width;
+  canvas.height = height;
+
+  paper.view.viewSize = new paper.Size(width, height);
+
+  return {
+    width,
+    height,
+  };
+};
 
 interface CanvasProps {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -220,10 +240,13 @@ export default function Canvas(props: CanvasProps) {
 
   const { containerRef } = props;
   useEffect(() => {
-    if (!containerRef || !containerRef?.current) return;
-
-    const { width, height } = containerRef.current.getBoundingClientRect();
-    paper.view.viewSize = new paper.Size(width, height);
+    const { width, height } = adjustCanvasSize(
+      canvasRef.current,
+      containerRef.current,
+    ) || {
+      width: 0,
+      height: 0,
+    };
     paper.view.center = new paper.Point(width / 2, height / 2);
   }, [containerRef]);
 
@@ -238,14 +261,7 @@ export default function Canvas(props: CanvasProps) {
         clearTimeout(timer);
       }
       timer = setTimeout(() => {
-        if (!canvas || !container) return;
-
-        const { width, height } = container.getBoundingClientRect();
-
-        canvas.width = width;
-        canvas.height = height;
-
-        paper.view.viewSize = new paper.Size(width, height);
+        adjustCanvasSize(canvas, container);
       }, 75);
     };
 
@@ -271,14 +287,7 @@ export default function Canvas(props: CanvasProps) {
     const container = containerRef.current;
 
     setTimeout(() => {
-      if (!canvas || !container) return;
-
-      const { width, height } = container.getBoundingClientRect();
-
-      canvas.width = width;
-      canvas.height = height;
-
-      paper.view.viewSize = new paper.Size(width, height);
+      adjustCanvasSize(canvas, container);
     });
   }, [canvasRef, containerRef]);
 
