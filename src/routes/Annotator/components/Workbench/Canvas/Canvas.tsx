@@ -26,7 +26,6 @@ import { Editor } from './Canvas.style';
 import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import { Helmet } from 'react-helmet-async';
-import { Editor } from 'routes/Annotator/components/Workbench/Canvas/Canvas.style';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import { initializePaper } from 'utils';
 
