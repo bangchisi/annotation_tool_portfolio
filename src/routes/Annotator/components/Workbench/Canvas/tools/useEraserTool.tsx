@@ -57,9 +57,10 @@ const useEraserTool = () => {
 
   const paintEraserCursor = useCallback(
     (event: paper.MouseEvent) => {
-      // brush cursor 이미 있으면 제거
+      if (!AnnotationTool.isMouseOnCanvas) return;
+      // 이전 cursor 제거
       tool?.cursor?.remove();
-      // brush cursor 생성
+      // 새로운 cursor 생성
       tool.cursor = createEraser(event.point, eraserRadius);
     },
     [tool, eraserRadius],
