@@ -26,7 +26,6 @@ import { Editor } from './Canvas.style';
 import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import { Helmet } from 'react-helmet-async';
-import { Editor } from 'routes/Annotator/components/Workbench/Canvas/Canvas.style';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import { initializePaper } from 'utils';
 
@@ -205,7 +204,8 @@ export default function Canvas(props: CanvasProps) {
     raster.shadowColor = new paper.Color('rgba(0, 0, 0, 0.4)');
     raster.shadowBlur = 12;
     raster.shadowOffset = new paper.Point(3, 3);
-  }, [imageId, canvasRef]);
+    // onCanvasWheel dependency is added. remove if it causes problem
+  }, [imageId, canvasRef, onCanvasWheel]);
 
   useEffect(() => {
     // 데이터셋이 아직 없으면 마스크를 그리지 않는다.
