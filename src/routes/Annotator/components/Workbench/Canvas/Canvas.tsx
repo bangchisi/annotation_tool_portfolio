@@ -204,7 +204,8 @@ export default function Canvas(props: CanvasProps) {
     raster.shadowColor = new paper.Color('rgba(0, 0, 0, 0.4)');
     raster.shadowBlur = 12;
     raster.shadowOffset = new paper.Point(3, 3);
-  }, [imageId, canvasRef]);
+    // onCanvasWheel dependency is added. remove if it causes problem
+  }, [imageId, canvasRef, onCanvasWheel]);
 
   useEffect(() => {
     // 데이터셋이 아직 없으면 마스크를 그리지 않는다.
