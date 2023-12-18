@@ -61,15 +61,12 @@ const useSelectTool = () => {
     let categoryId: number;
     let annotationId: number;
 
-    console.log('hitResult', hitResult);
-
     paper.project.selectedItems.forEach((item) => (item.selected = false));
     if (hitResult && hitResult.item instanceof paper.CompoundPath) {
       hitResult.item.selected = true;
 
       categoryId = hitResult.item.data.categoryId;
       annotationId = hitResult.item.data.annotationId;
-      console.log('categoryId', categoryId, 'annotationId', annotationId);
       selectAnnotation(categoryId, annotationId);
     }
   };

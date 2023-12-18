@@ -24,6 +24,30 @@ const useManageTool = (currentTool: Tool) => {
 
   const tool = useRef(new AnnotationTool(currentTool)).current;
 
+  // Redraw cursor on undo and redo
+  // undo, redo 시에 cursor (paper.Path)는 레이어에 저장이 안 되기 때문에
+  // 뒤로가기, 앞으로 가기를 통해 커서가 계속 사라진다. 이를 해결하기 위해
+  // undo, redo 시에 커서를 다시 그려준다.
+  useEffect(() => {
+    const CursorTypesToRedraw = [Tool.Brush, Tool.Eraser, Tool.Box];
+    const handleUndoRedo = () => {
+      if (!CursorTypesToRedraw.includes(currentTool)) return;
+      tool.drawCursor?.({
+        point: AnnotationTool.mousePoint,
+      } as paper.MouseEvent);
+    };
+
+    tool.on('keydown', (event: paper.KeyEvent) => {
+      const isUndo = event.key === 'z' && event.modifiers.control;
+      const isRedo = event.key === 'y' && event.modifiers.control;
+      if (isUndo || isRedo) {
+        if (AnnotationTool.isMouseOnCanvas) {
+          handleUndoRedo();
+        }
+      }
+    });
+  }, [tool, currentTool]);
+
   // Canvas에 mouseleave이벤트를 등록해도,
   // 마우스 커서를 생성하는 이벤트 핸들러가 paper.Tool에 바인딩 되어 있기
   // 때문에, canvas.mouseleave 이벤트 핸들러가 커서를 없애도
@@ -36,6 +60,8 @@ const useManageTool = (currentTool: Tool) => {
     };
     const handleMouseLeave = () => {
       AnnotationTool.isMouseOnCanvas = false;
+      const CursorTypesToRemove = [Tool.Brush, Tool.Eraser];
+      if (!CursorTypesToRemove.includes(currentTool)) return;
       tool.cursor?.remove();
     };
 
@@ -47,7 +73,7 @@ const useManageTool = (currentTool: Tool) => {
       target?.removeEventListener('mouseenter', handleMouseEnter);
       target?.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [tool.cursor]);
+  }, [tool.cursor, currentTool]);
 
   const shouldBeActivated = useMemo(() => {
     const disableCases: (() => boolean)[] = [

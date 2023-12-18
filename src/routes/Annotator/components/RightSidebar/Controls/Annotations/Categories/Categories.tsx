@@ -1,5 +1,11 @@
+import {
+  FormControl,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
-import { Container, Select } from './Categories.style';
+import { useCallback } from 'react';
 import {
   selectAnnotator,
   setCurrentCategoryByCategoryId,
@@ -7,43 +13,67 @@ import {
 
 export default function Categories() {
   const dispatch = useAppDispatch();
-  const { categories } = useAppSelector(selectAnnotator);
+  const { categories, currentCategory } = useAppSelector(selectAnnotator);
 
   // 카테고리 선택 변경
-  const handleCategoryChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    if (!categories) return;
-    // select value
-    const selectedCategoryId = Number(event.target.value);
+  const handleCategoryChange = useCallback(
+    (event: SelectChangeEvent) => {
+      if (!categories) return;
+      // select value
+      const selectedCategoryId = Number(event.target.value);
 
-    // 선택한 id와 같은 category 검색
-    const selectedCategory = categories[`${selectedCategoryId}`];
+      // 선택한 id와 같은 category 검색
+      const selectedCategory = categories[`${selectedCategoryId}`];
 
-    if (selectedCategory) {
-      dispatch(setCurrentCategoryByCategoryId(selectedCategoryId));
-    }
-  };
+      if (selectedCategory) {
+        dispatch(setCurrentCategoryByCategoryId(selectedCategoryId));
+      }
+    },
+    [categories, dispatch],
+  );
 
   return (
-    <Container id="category-dropdown" fullWidth>
-      {categories && (
+    <FormControl
+      fullWidth
+      sx={{
+        '& .MuiInputBase-root': {
+          borderRadius: '0px',
+          outline: 'none',
+          borderBottom: '1px solid var(--border-color)',
+        },
+        '& .MuiOutlinedInput-notchedOutline': {
+          display: 'none',
+        },
+        '& .MuiPaper-root': {
+          top: '2rem !important',
+        },
+      }}
+    >
+      {currentCategory && categories && (
         <Select
-          defaultValue={'thing'}
-          inputProps={{
-            name: 'category',
-            id: 'uncontrolled-native',
-          }}
+          value={currentCategory.categoryId + '' || ''}
           onChange={handleCategoryChange}
-          disableUnderline={true}
+          size="small"
+          fullWidth
+          notched={false}
         >
-          {Object.entries(categories).map(([categoryId, category]) => (
-            <option key={categoryId} value={categoryId}>
-              {category.name}
-            </option>
-          ))}
+          {Object.entries(categories)
+            .filter((x) => x)
+            .map(([categoryId, category]) => (
+              <MenuItem
+                key={categoryId}
+                value={categoryId + ''}
+                sx={{
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {category.name}
+              </MenuItem>
+            ))}
         </Select>
       )}
-    </Container>
+    </FormControl>
   );
 }

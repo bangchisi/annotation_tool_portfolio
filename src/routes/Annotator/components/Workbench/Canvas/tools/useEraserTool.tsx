@@ -66,6 +66,10 @@ const useEraserTool = () => {
     [tool, eraserRadius],
   );
 
+  useEffect(() => {
+    tool.drawCursor = paintEraserCursor;
+  }, [tool, paintEraserCursor]);
+
   // 마우스 움직임
   tool.onMouseMove = paintEraserCursor;
 

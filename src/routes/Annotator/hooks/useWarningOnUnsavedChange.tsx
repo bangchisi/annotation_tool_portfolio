@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   unstable_BlockerFunction as BlockerFunction,
   useBlocker,
+  useNavigate,
 } from 'react-router-dom';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
@@ -112,6 +113,7 @@ const useWarningOnUnsavedChange = () => {
    */
 
   // #1. 브라우저 네비게이션 막기
+  const navigate = useNavigate();
   const blockerFunction = useCallback<BlockerFunction>(
     ({ currentLocation, nextLocation }) => {
       return (
@@ -129,18 +131,20 @@ const useWarningOnUnsavedChange = () => {
       const confirmLeave = window.confirm(unsavedChangeMessage);
       if (confirmLeave) {
         blocker.proceed();
+        setTimeout(() => {
+          navigate(blocker.location.pathname);
+        });
       } else {
         blocker.reset();
       }
     }
-  }, [shouldBlock, blocker]);
+  }, [shouldBlock, blocker, navigate]);
 
   // #2. 브라우저 닫기, 새로고침 막침
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!shouldBlock) return;
       event.preventDefault();
-      event.returnValue = unsavedChangeMessage;
       return unsavedChangeMessage;
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
