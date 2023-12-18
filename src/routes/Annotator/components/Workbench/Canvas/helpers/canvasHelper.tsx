@@ -129,21 +129,6 @@ export function drawAnnotation(
   }
 }
 
-export function compoundPathToSegmentations(
-  compoundPath: paper.CompoundPath,
-): number[][] {
-  const segmentations = [[0, 0]];
-  return segmentations;
-}
-
-export function segmentationsToCompoundPath(
-  segmentations: number[][],
-): paper.CompoundPath {
-  const compoundPath = new paper.CompoundPath({});
-
-  return compoundPath;
-}
-
 export function segmentationToPath(segmentation: number[]): paper.Path {
   const points: number[][] = [];
 

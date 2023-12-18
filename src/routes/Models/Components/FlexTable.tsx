@@ -198,7 +198,7 @@ const FlexTable = ({ log, handleDelete }: VisibleTableProps) => {
               width={250}
               height={15}
               speed={0.6}
-              active={status && status[0] === 'progress'}
+              isactive={status?.[0] === 'progress' ? 'true' : 'false'}
               progress={progress ? Number(progress) : 0}
               primarycolor={status ? status[1] : 'transparent'}
               text={progressText ? progressText : ''}

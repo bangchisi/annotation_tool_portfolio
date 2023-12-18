@@ -28,9 +28,7 @@ import useTools, { AnnotationTool } from './hooks/useTools';
 // 브러쉬 툴, 지우개 툴 등 툴브
 import { Helmet } from 'react-helmet-async';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
-import { brushCursor, eraserCursor } from './tools';
-
-let canvasChildren: paper.Item[];
+import { initializePaper } from 'utils';
 
 interface CanvasProps {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -40,8 +38,7 @@ interface CanvasProps {
 export default function Canvas(props: CanvasProps) {
   const dispatch = useAppDispatch();
   const imageId = Number(useParams().imageId);
-  const { selectedTool, categories, currentAnnotation, image } =
-    useAppSelector(selectAnnotator);
+  const { selectedTool, categories, image } = useAppSelector(selectAnnotator);
   const { drawPaths } = useReloadAnnotator();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -117,18 +114,8 @@ export default function Canvas(props: CanvasProps) {
     [dispatch, image],
   );
 
-  const selectedToolInstances = useTools({
-    selectedTool,
-    canvasChildren,
-    imageId,
-    image,
-  });
-
-  // 선택된 툴이 바뀔 때마다 activate
-  useEffect(() => {
-    const selectedToolInstance = selectedToolInstances[selectedTool];
-    selectedToolInstance?.activate();
-  }, [selectedToolInstances, selectedTool]);
+  // 툴 초기화
+  useTools();
 
   // 캔버스 초기 설정 시, 캔버스 히스토리 초기리
   useEffect(() => {
@@ -142,17 +129,9 @@ export default function Canvas(props: CanvasProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    if (paper.project) paper.project.clear();
-    paper.setup(canvas);
-    paper.activate();
-
-    canvasChildren = paper.project.activeLayer.children;
+    initializePaper(canvas);
 
     canvas.onwheel = onCanvasWheel;
-    canvas.onmouseleave = () => {
-      if (brushCursor) brushCursor.remove();
-      if (eraserCursor) eraserCursor.remove();
-    };
 
     const { children } = paper.project.activeLayer;
 
@@ -174,18 +153,6 @@ export default function Canvas(props: CanvasProps) {
     raster.shadowColor = new paper.Color('rgba(0, 0, 0, 0.4)');
     raster.shadowBlur = 12;
     raster.shadowOffset = new paper.Point(3, 3);
-
-    // @Issue: temporary fix
-    // Annotator page: 왼쪽 사각 빈공간 #16
-    setTimeout(() => {
-      const tempPath = new paper.Path();
-      tempPath.remove();
-    });
-
-    return () => {
-      canvas.onwheel = null;
-      canvas.onmouseleave = null;
-    };
   }, [imageId, canvasRef]);
 
   useEffect(() => {
@@ -197,6 +164,8 @@ export default function Canvas(props: CanvasProps) {
     if (!isImageLoaded) return;
 
     drawPaths(categories);
+
+    AnnotationTool.initializeHistory();
   }, [categories, isImageLoaded, drawPaths]);
 
   // SAM 로딩 했는지 검사
@@ -217,16 +186,6 @@ export default function Canvas(props: CanvasProps) {
     }
   }, [selectedTool, SAMModelLoaded, embeddingId, imageId, embedImage, loadSAM]);
 
-  // remove eraser cursor and brush cursor on tool change
-  useEffect(() => {
-    if (selectedTool !== Tool.Brush) {
-      if (brushCursor) brushCursor.remove();
-    }
-    if (selectedTool !== Tool.Eraser) {
-      if (eraserCursor) eraserCursor.remove();
-    }
-  }, [selectedTool]);
-
   const { containerRef } = props;
   useEffect(() => {
     if (!containerRef || !containerRef?.current) return;
@@ -238,6 +197,7 @@ export default function Canvas(props: CanvasProps) {
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
+
     const canvas = canvasRef.current;
     const container = containerRef.current;
 
@@ -259,7 +219,7 @@ export default function Canvas(props: CanvasProps) {
 
     // 이거랑 밑에랑 같은 함수인데... 여기서 실행하면 안 되고 밑에서 실행해야 함
     // setTimeout interval 때문인가 싶기도 하고... 그냥 이렇게 해놓고 밑에서 실행하자
-    // resize()
+    // resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     return () => {
       window.removeEventListener('resize', resizeCanvas);

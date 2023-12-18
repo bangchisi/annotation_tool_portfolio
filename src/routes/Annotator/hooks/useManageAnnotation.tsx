@@ -11,8 +11,33 @@ import {
   selectAnnotator,
   setCurrentAnnotationByAnnotationId,
   setCurrentCategoryByCategoryId,
+  setLastSelectedAnnotationByCategoryId,
 } from '../slices/annotatorSlice';
 import useReloadAnnotator from './useReloadAnnotator';
+
+export const selectPathSegments = (
+  categoryId: number,
+  annotationId: number,
+) => {
+  const { children } = paper.project.activeLayer;
+
+  children.forEach((child) => {
+    child.selected = false;
+  });
+  paper.project.selectedItems.forEach((item) => (item.selected = false));
+  const selectedMask = children.find(
+    (child) =>
+      child.data.categoryId === categoryId &&
+      child.data.annotationId === annotationId,
+  );
+
+  if (!selectedMask) return;
+  selectedMask.selected = true;
+};
+
+export const deselectPathSegments = () => {
+  paper.project.selectedItems.forEach((item) => (item.selected = false));
+};
 
 const useManageAnnotation = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +56,11 @@ const useManageAnnotation = () => {
     }
     if (!image || !datasetId || !categories || !currentCategory) {
       return;
+    }
+
+    const { initialLayerState } = AnnotationTool;
+    if (initialLayerState === '') {
+      AnnotationTool.initializeHistory();
     }
 
     // 랜덤 색상 생성
@@ -192,12 +222,20 @@ const useManageAnnotation = () => {
     if (!categories) return;
 
     const selectedCategory = categories[categoryId];
-
     if (!selectedCategory) return;
 
-    dispatch(setCurrentCategoryByCategoryId(categoryId));
+    // Select path segments
+    selectPathSegments(categoryId, annotationId);
 
+    if (currentAnnotation && currentAnnotation.annotationId === annotationId) {
+      return;
+    }
+
+    dispatch(setCurrentCategoryByCategoryId(categoryId));
     dispatch(setCurrentAnnotationByAnnotationId(annotationId));
+    dispatch(
+      setLastSelectedAnnotationByCategoryId({ categoryId, annotationId }),
+    );
   };
 
   return {
