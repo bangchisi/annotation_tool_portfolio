@@ -1,7 +1,7 @@
 import paper from 'paper';
 
 import { useAppSelector } from 'App.hooks';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { restoreCompoundPaths } from 'routes/Annotator/components/Workbench/Canvas/tools';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import { Tool } from 'types';
@@ -18,6 +18,30 @@ const useBoxTool = () => {
 
   const startPointRef = useRef<paper.Point>();
   const endPointRef = useRef<paper.Point>();
+
+  const drawGuideBox = useCallback(
+    (event: paper.MouseEvent) => {
+      if (!startPointRef.current) return;
+
+      if (tool.cursor) {
+        // remove guide box
+        tool.cursor.remove();
+      }
+
+      // create guide box again which will be used as a cursor fore box tool
+      tool.cursor = new paper.Path.Rectangle({
+        from: startPointRef.current,
+        to: event.point,
+        strokeWidth,
+        strokeColor,
+      });
+    },
+    [tool, startPointRef],
+  );
+
+  useEffect(() => {
+    tool.drawCursor = drawGuideBox;
+  }, [tool, drawGuideBox]);
 
   // 마우스 클릭
   tool.onMouseDown = function (event: paper.MouseEvent) {
@@ -60,22 +84,7 @@ const useBoxTool = () => {
   };
 
   // 마우스 움직임
-  tool.onMouseMove = function (event: paper.MouseEvent) {
-    if (!startPointRef.current) return;
-
-    if (this.cursor) {
-      // remove guide box
-      this.cursor.remove();
-    }
-
-    // create guide box again which will be used as a cursor fore box tool
-    this.cursor = new paper.Path.Rectangle({
-      from: startPointRef.current,
-      to: event.point,
-      strokeWidth,
-      strokeColor,
-    });
-  };
+  tool.onMouseMove = drawGuideBox;
 
   // 마우스 클릭 해제
   tool.onMouseUp = function () {

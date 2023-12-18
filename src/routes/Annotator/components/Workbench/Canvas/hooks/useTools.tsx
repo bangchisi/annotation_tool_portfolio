@@ -98,6 +98,7 @@ export class AnnotationTool extends paper.Tool {
   isDrawing: boolean;
   tempPath: paper.CompoundPath | undefined;
   cursor: paper.Path | undefined;
+  drawCursor: ((event: paper.MouseEvent) => void) | undefined;
   // 커서를 그리는 콜백 함수를 저장함
   static initialLayerState = '';
   static history: ToolHistory = new ToolHistory();

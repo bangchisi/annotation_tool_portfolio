@@ -65,6 +65,10 @@ const useBrushTool = () => {
     [tool, brushRadius],
   );
 
+  useEffect(() => {
+    tool.drawCursor = paintBrushCursor;
+  }, [tool, paintBrushCursor]);
+
   // 마우스 움직임
   tool.onMouseMove = paintBrushCursor;
 
