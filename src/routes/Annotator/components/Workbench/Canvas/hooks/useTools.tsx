@@ -256,7 +256,7 @@ export class AnnotationTool extends paper.Tool {
     const compoundPathsHashes =
       compoundPaths
         // CompoundPath만 가져옴
-        .filter((item) => item instanceof paper.CompoundPath)
+        .filter((item) => item && item instanceof paper.CompoundPath)
         // 빈 CompoundPath는 제거
         .filter((compoundPath) => compoundPath?.children?.length > 0)
         // annotationId를 기준으로 Ascending order로 정렬
