@@ -41,6 +41,7 @@ export default function SearchPanel(props: SearchPanelProps) {
         onKeyUp={() => {
           const filtered = datasets.filter(hasMatchingWord);
           setFilteredDatasets(filtered);
+          console.log(filtered);
         }}
       />
     </FormContainer>
