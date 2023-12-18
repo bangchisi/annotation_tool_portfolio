@@ -1,5 +1,6 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useAppSelector } from 'App.hooks';
+import { useModal } from 'components/ModalWrapper/ModalWrapper';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DatasetType } from '../Datasets';
 import DatasetCard from './DatasetCard/DatasetCard';
@@ -10,7 +11,6 @@ import {
   StyledAccordionSummary,
 } from './DatasetList.style';
 import ExportDatasetModal from './ExportDatasetModal/ExportDatasetModal';
-import { useModal } from 'components/ModalWrapper/ModalWrapper';
 
 interface DatasetListProps {
   datasets: DatasetType[];
@@ -70,6 +70,7 @@ export default function DatasetList(props: DatasetListProps) {
             key={superDataSetKey}
             expanded={expanded === superDataSetKey}
             onChange={handleChange(superDataSetKey)}
+            disableGutters
           >
             <StyledAccordionSummary
               expandIcon={

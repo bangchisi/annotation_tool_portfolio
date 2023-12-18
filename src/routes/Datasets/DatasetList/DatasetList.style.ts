@@ -17,8 +17,6 @@ export const Container = styled('div')(() => {
 
 export const StyledAccordion = styled(Accordion)(() => {
   return {
-    backgroundColor: 'var(--surface-bg)',
-    border: '1px solid var(--border-color)',
     boxShadow: 'none',
   };
 });
@@ -26,6 +24,8 @@ export const StyledAccordion = styled(Accordion)(() => {
 export const StyledAccordionSummary = styled(AccordionSummary)(() => {
   return {
     padding: '16px 8px',
+    border: '1px solid var(--border-color)',
+    backgroundColor: 'var(--surface-bg)',
 
     '& .MuiAccordionSummary-content': {
       margin: '0',
@@ -46,6 +46,10 @@ export const StyledAccordionDetails = styled(AccordionDetails)(() => {
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
-    padding: '0 7% 32px',
+    padding: '3% 32px',
+
+    '&:first-child': {
+      marginTop: '16px',
+    },
   };
 });
