@@ -7,8 +7,7 @@ import Controls from './Controls/Controls';
 import DatasetList from './DatasetList/DatasetList';
 import { Container } from './Datasets.style';
 import DatasetsModel from './models/Datasets.model';
-import { Button } from '@mui/material';
-import useOnboarding, { OnboardingButton } from 'hooks/useOnboarding';
+import { OnboardingButton } from 'hooks/useOnboarding';
 
 export interface DatasetType {
   datasetId: number; // Dataset 고유 ID
@@ -35,7 +34,6 @@ export default function Datasets() {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const user = useAppSelector((state) => state.auth.user);
-  const { startTour } = useOnboarding();
 
   const setDatasetList = async (userId: string) => {
     try {

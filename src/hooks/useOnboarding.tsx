@@ -19,15 +19,22 @@ const ButtonContainer = styled(HelpOutlinedIcon)(() => {
 export const OnboardingContent = (title: string, description: string) => {
   return (
     <>
-      <Typography variant="h4">{title}</Typography>
-      <Typography variant="caption">{description}</Typography>
+      <Typography variant="h5">{title}</Typography>
+      <Typography variant="body1">{description}</Typography>
     </>
   );
 };
 
 export const OnboardingButton = () => {
-  const { setIsOpen } = useTour();
-  return <ButtonContainer onClick={() => setIsOpen(true)} />;
+  const { setIsOpen, setCurrentStep } = useTour();
+  return (
+    <ButtonContainer
+      onClick={() => {
+        setCurrentStep(0);
+        setIsOpen(true);
+      }}
+    />
+  );
 };
 
 export const steps: { [key: string]: StepType[] } = {
@@ -35,20 +42,52 @@ export const steps: { [key: string]: StepType[] } = {
     {
       selector: '.search-step',
       content: OnboardingContent(
-        'Search',
-        'Search datasets by name, description, or category',
+        'Dataset 검색',
+        'Project, Dataset, 카테고리 이름으로 검색할 수 있습니다.',
       ),
+    },
+    {
+      selector: '.create-dataset-step',
+      content: OnboardingContent(
+        'Dataset 생성',
+        '새로운 Dataset을 생성할 수 있습니다.',
+      ),
+      action: clickElement,
+    },
+    {
+      selector: '.modal-step',
+      content: OnboardingContent(
+        'Dataset 생성을 위한 항목',
+        `Super Dataset Name: 프로젝트 이름
+        Dataset Name: Dataset 이름
+        Description: Dataset에 대한 설명
+        Categories: Dataset에 포함될 카테고리
+        `,
+      ),
+      highlightedSelectors: ['.modal-step'],
+      actionAfter: () => {
+        const target = document.querySelector(
+          '.close-modal-button',
+        ) as HTMLElement;
+
+        if (!target) return;
+        target.click();
+      },
+    },
+    {
+      selector: '.dataset-list-step',
+      content: OnboardingContent(
+        'Dataset 선택',
+        'Dataset을 선택하면 해당 Dataset의 Annotation 페이지로 이동합니다.',
+      ),
+      highlightedSelectors: ['.dataset-card'],
+      action: clickElement,
+      actionAfter: clickElement,
     },
   ],
 };
 
-const useOnboarding = () => {
-  const { setIsOpen } = useTour();
-
-  const startTour = () => {
-    setIsOpen(true);
-  };
-  return { startTour };
-};
-
-export default useOnboarding;
+function clickElement(node: Element | null) {
+  const element = node as HTMLElement;
+  element.click();
+}

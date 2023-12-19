@@ -72,6 +72,7 @@ export default function DatasetList(props: DatasetListProps) {
             onChange={handleChange(superDataSetKey)}
           >
             <StyledAccordionSummary
+              className="dataset-list-step"
               expandIcon={
                 <ArrowDropDownIcon
                   fontSize="large"
