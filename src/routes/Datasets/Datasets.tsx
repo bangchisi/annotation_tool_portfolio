@@ -59,7 +59,7 @@ export default function Datasets() {
       {isLoading && (
         <LoadingSpinner message="Dataset 목록을 불러오는 중입니다. 잠시만 기다려주세요." />
       )}
-      <OnboardingButton />
+      <OnboardingButton page="datasets" />
       <Container id="datasets">
         <Controls
           datasets={datasets}
