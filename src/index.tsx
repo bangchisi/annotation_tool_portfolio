@@ -26,8 +26,6 @@ import {
 } from 'react-router-dom';
 import Playground from 'routes/_Playground';
 import store from 'store';
-import { TourProvider } from '@reactour/tour';
-import { steps } from 'hooks/useOnboarding';
 
 const router = createBrowserRouter([
   {
@@ -43,9 +41,7 @@ const router = createBrowserRouter([
         path: '/datasets',
         element: (
           <Authenticated>
-            <TourProvider steps={steps.datasets}>
-              <Datasets />
-            </TourProvider>
+            <Datasets />
           </Authenticated>
         ),
       },
