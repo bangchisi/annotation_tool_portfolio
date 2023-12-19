@@ -2,6 +2,13 @@ import { Typography, styled } from '@mui/material';
 import { StepType, useTour } from '@reactour/tour';
 import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined';
 
+import AutoFixOffOutlinedIcon from '@mui/icons-material/AutoFixOffOutlined';
+import BackHandOutlinedIcon from '@mui/icons-material/BackHandOutlined';
+import BrushOutlinedIcon from '@mui/icons-material/BrushOutlined';
+import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
+import RectangleOutlinedIcon from '@mui/icons-material/RectangleOutlined';
+import SaveIcon from '@mui/icons-material/Save';
+
 const ButtonContainer = styled(HelpOutlinedIcon)(() => {
   return {
     position: 'fixed',
@@ -17,7 +24,11 @@ const ButtonContainer = styled(HelpOutlinedIcon)(() => {
   };
 });
 
-export const OnboardingContent = (title: string, descriptions: string[]) => {
+export const OnboardingContent = (
+  title: string,
+  descriptions: string[],
+  components?: React.ReactNode,
+) => {
   return (
     <>
       <Typography variant="h5">{title}</Typography>
@@ -27,6 +38,7 @@ export const OnboardingContent = (title: string, descriptions: string[]) => {
             {description}
           </Typography>
         ))}
+      {components && components}
     </>
   );
 };
@@ -121,6 +133,36 @@ export const steps: { [key: string]: StepType[] } = {
       },
     },
   ],
+  annotator: [
+    {
+      selector: '.toolbar-step',
+      content: OnboardingContent(
+        '툴바',
+        ['툴바에서 원하는 툴을 선택하거나 현재 상태를 저장할 수 있습니다.'],
+        <div>hello</div>,
+      ),
+      position: 'right',
+    },
+    {
+      selector: '.toolbar-step',
+      content: OnboardingContent(
+        '툴',
+        ['툴을 선택하면 해당 툴로 이미지를 수정할 수 있습니다.'],
+        <div>
+          <BackHandOutlinedIcon /> Select (S) ㅎ
+          <br />
+          <RectangleOutlinedIcon /> Box (R)
+          <br />
+          <BrushOutlinedIcon /> Brush (B)
+          <br />
+          <AutoFixOffOutlinedIcon /> Eraser (E)
+          <br />
+          <FacebookOutlinedIcon /> SAM (F)
+        </div>,
+      ),
+      position: 'right',
+    },
+  ],
 };
 
 export const OnboardingButton = (props: { page: string }) => {
@@ -141,11 +183,3 @@ function clickElement(node: Element | null) {
   const element = node as HTMLElement;
   element.click();
 }
-
-const useOnboarding = () => {
-  const { setSteps } = useTour();
-
-  return { setSteps };
-};
-
-export default useOnboarding;

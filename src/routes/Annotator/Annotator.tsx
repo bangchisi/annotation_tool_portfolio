@@ -17,6 +17,7 @@ import {
   setCurrentCategory,
   setCurrentCategoryByCategoryId,
 } from './slices/annotatorSlice';
+import { OnboardingButton } from 'hooks/useOnboarding';
 
 export default function Annotator() {
   const dispatch = useAppDispatch();
@@ -61,6 +62,7 @@ export default function Annotator() {
 
   return (
     <Container>
+      <OnboardingButton page="annotator" />
       <LeftSidebar onSave={handleSave} />
       <Workbench />
       <RightSidebar />
