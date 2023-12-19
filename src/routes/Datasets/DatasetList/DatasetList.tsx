@@ -73,6 +73,7 @@ export default function DatasetList(props: DatasetListProps) {
             disableGutters
           >
             <StyledAccordionSummary
+              className="dataset-list-step"
               expandIcon={
                 <ArrowDropDownIcon
                   fontSize="large"

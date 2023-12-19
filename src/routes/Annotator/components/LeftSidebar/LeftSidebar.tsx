@@ -49,6 +49,7 @@ export default function LeftSidebar({ onSave: handleSave }: LeftSidebarProps) {
   return (
     <Container id="annotator-left-sidebar">
       <Box
+        className="toolbar-step"
         sx={{
           pl: 0.5,
           paddingTop: 3,

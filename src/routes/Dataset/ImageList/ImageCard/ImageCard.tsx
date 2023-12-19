@@ -96,7 +96,7 @@ export default function ImageCard(props: ImageCardProps) {
   return (
     <Wrapper>
       <ImageContainerPadding />
-      <Container>
+      <Container className="image-card-step">
         {isOnTrain && (
           <ComponentBlocker message="현재 학습중인 이미지입니다." />
         )}

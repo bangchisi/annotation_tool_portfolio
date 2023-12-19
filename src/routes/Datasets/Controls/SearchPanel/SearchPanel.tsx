@@ -28,7 +28,7 @@ export default function SearchPanel(props: SearchPanelProps) {
   };
 
   return (
-    <FormContainer onSubmit={(e) => e.preventDefault()}>
+    <FormContainer className="search-step" onSubmit={(e) => e.preventDefault()}>
       <TextField
         ref={searchRef}
         type="text"

@@ -14,6 +14,7 @@ import ImageList from './ImageList/ImageList';
 import Information from './Information/Information';
 import { getIsOnTrain } from './helpers/DatasetHelpers';
 import DatasetModel from './models/Dataset.model';
+import { OnboardingButton } from 'hooks/useOnboarding';
 
 export interface DatasetType {
   superDatasetName: string;
@@ -147,6 +148,7 @@ export default function Dataset() {
       {isLoading && (
         <LoadingSpinner message="데이터셋을 불러오는 중입니다. 잠시만 기다려주세요." />
       )}
+      <OnboardingButton page="dataset" />
       <Container id="dataset">
         <Controls isOnTrain={isOnTrain} setIsOnTrain={setIsOnTrain} />
         {dataset && (
