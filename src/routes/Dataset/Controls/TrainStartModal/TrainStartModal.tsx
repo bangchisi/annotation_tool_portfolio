@@ -67,7 +67,7 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
     <Container>
       <TrainModelButton
         onClick={handleOpen}
-        className="train-model-button"
+        className="train-model-button train-step"
         disableFocusRipple={true}
       >
         TRAIN MODEL
@@ -93,15 +93,17 @@ export default function TrainStartModal(props: TrainStartModalModalProps) {
               disabled
               size="small"
             />
-            <TrainContainer>
-              <Button onClick={onClickTrainButton}>TRAIN</Button>
-            </TrainContainer>
           </FieldContainer>
         </div>
         <ModalFooter>
-          <Button color="warning" onClick={handleClose}>
+          <Button
+            className="close-modal-button"
+            color="warning"
+            onClick={handleClose}
+          >
             Cancel
           </Button>
+          <Button onClick={onClickTrainButton}>TRAIN</Button>
         </ModalFooter>
       </ModalWrapper>
     </Container>
