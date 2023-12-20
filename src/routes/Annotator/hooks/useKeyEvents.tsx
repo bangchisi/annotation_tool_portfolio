@@ -8,17 +8,19 @@ import {
 import { Tool } from 'types';
 import { selectAnnotator, setTool } from '../slices/annotatorSlice';
 import useManageAnnotation from './useManageAnnotation';
-import useReloadAnnotator from './useReloadAnnotator';
 
 type KeyboardEventHandler = (event: KeyboardEvent) => void;
 
-export const useKeyEvents = () => {
+type UseKeyEventsProps = {
+  [key: string]: (event: KeyboardEvent) => void;
+};
+
+export const useKeyEvents = (props?: UseKeyEventsProps) => {
   const dispatch = useAppDispatch();
   const { selectedTool, currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
   const { brushRadius, eraserRadius } = useAppSelector(selectAuth).preference;
   const { createEmptyAnnotation, onClickDeleteButton } = useManageAnnotation();
-  const { saveData } = useReloadAnnotator();
 
   const keyEvents = useMemo(
     () => ({
@@ -46,9 +48,8 @@ export const useKeyEvents = () => {
           currentAnnotation.annotationId,
         );
       },
-      KeyS: (isCtrl?: boolean) => {
-        if (!isCtrl) dispatch(setTool(Tool.Select));
-        else saveData();
+      KeyS: (event: KeyboardEvent) => {
+        if (!event.ctrlKey) dispatch(setTool(Tool.Select));
       },
       KeyR: () => {
         if (!currentCategory || !currentAnnotation) return;
@@ -76,7 +77,6 @@ export const useKeyEvents = () => {
       onClickDeleteButton,
       selectedTool,
       createEmptyAnnotation,
-      saveData,
     ],
   );
 
@@ -84,13 +84,12 @@ export const useKeyEvents = () => {
     // 이벤트 핸들러 함수를 만드는 팩토리 함수
     const eventHandlerFactory = (
       key: string,
-      callback: (isCtrl?: boolean) => void,
-      ctrlRequired = false,
+      callback: (event: KeyboardEvent) => void,
     ): KeyboardEventHandler => {
       return (event: KeyboardEvent) => {
-        if (event.code === key && (!ctrlRequired || event.ctrlKey)) {
+        if (event.code === key) {
           event.preventDefault();
-          callback(event.ctrlKey);
+          callback(event);
         }
       };
     };
@@ -106,8 +105,8 @@ export const useKeyEvents = () => {
     };
 
     // keyEvents 객체를 이용해 필요한 이벤트 핸들러 함수들을 만듦
-    const events = Object.entries(keyEvents).map(([key, callback]) =>
-      eventHandlerFactory(key, callback),
+    const events = Object.entries(props ? props : keyEvents).map(
+      ([key, callback]) => eventHandlerFactory(key, callback),
     );
 
     // registerKeyEvent, unregisterKeyEvent, events를 이용해
@@ -124,5 +123,5 @@ export const useKeyEvents = () => {
     return () => {
       manageKeyEvent(unregisterKeyEvent);
     };
-  }, [keyEvents]);
+  }, [keyEvents, props]);
 };

@@ -140,6 +140,7 @@ export const steps: { [key: string]: StepType[] } = {
         '툴바에서 원하는 툴을 선택하거나 현재 상태를 저장할 수 있습니다.',
       ]),
       position: 'right',
+      padding: 0,
     },
     {
       selector: '.toolbar-step',
@@ -261,11 +262,18 @@ export const steps: { [key: string]: StepType[] } = {
 
 export const OnboardingButton = (props: { page: string }) => {
   const { setIsOpen, setCurrentStep, setSteps } = useTour();
+  const styledSteps = steps[props.page].map((step) => {
+    return {
+      ...step,
+      padding: 0,
+    };
+  });
+
   return (
     <ButtonContainer
       onClick={() => {
         if (!setSteps) return;
-        setSteps(steps[props.page]);
+        setSteps(styledSteps);
         setCurrentStep(0);
         setIsOpen(true);
       }}

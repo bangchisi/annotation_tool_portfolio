@@ -10,10 +10,57 @@ import SaveIcon from '@mui/icons-material/Save';
 import { Tool } from 'types';
 import FunctionIcon from './FunctionIcon';
 import { Container } from './LeftSidebar.style';
-import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
+import { useCallback, useMemo } from 'react';
+import { useKeyEvents } from 'routes/Annotator/hooks/useKeyEvents';
+import { useParams } from 'react-router-dom';
+import { useAppSelector } from 'App.hooks';
+import { createCategoriesToUpdate } from 'routes/Annotator/helpers/Annotator.helper';
+import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
 
-export default function LeftSidebar() {
-  const { saveData } = useReloadAnnotator();
+type LeftSidebarProps = {
+  onSave: () => void;
+};
+
+export default function LeftSidebar({ onSave: handleSave }: LeftSidebarProps) {
+  const imageId = Number(useParams().imageId);
+  const categories = useAppSelector((state) => state.annotator.categories);
+  const datasetId = useAppSelector((state) => state.annotator.datasetId);
+
+  const saveData = useCallback(
+    async (datasetId: number | undefined, imageId: number) => {
+      if (!datasetId || !imageId) return;
+
+      try {
+        const categoriesToUpdate = createCategoriesToUpdate(categories);
+
+        const response = await AnnotatorModel.saveData(
+          datasetId,
+          imageId,
+          categoriesToUpdate,
+        );
+        if (response.status !== 200) {
+          throw new Error('Failed to save annotator data');
+        }
+
+        handleSave();
+      } catch (error) {
+        axiosErrorHandler(error, 'Failed to save annotator data');
+      }
+    },
+    [categories, handleSave],
+  );
+
+  const ctrlSKeyEvent = useMemo(
+    () => ({
+      KeyS: (event: KeyboardEvent) => {
+        if (event.ctrlKey) saveData(datasetId, imageId);
+      },
+    }),
+    [datasetId, imageId, saveData],
+  );
+
+  useKeyEvents(ctrlSKeyEvent);
 
   return (
     <Container id="annotator-left-sidebar">
@@ -54,9 +101,9 @@ export default function LeftSidebar() {
         <Divider />
         <List>
           <FunctionIcon
-            functionName="Save"
+            functionName="Save (Ctrl + S)"
             iconComponent={<SaveIcon />}
-            handleClick={saveData}
+            handleClick={() => saveData(datasetId, imageId)}
             isFunction={true}
           />
         </List>

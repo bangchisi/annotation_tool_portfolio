@@ -16,6 +16,7 @@ import {
   setCurrentCategory,
   setCurrentCategoryByCategoryId,
 } from './slices/annotatorSlice';
+import useWarningOnUnsavedChange from './hooks/useWarningOnUnsavedChange';
 
 export default function Annotator() {
   const dispatch = useAppDispatch();
@@ -27,6 +28,7 @@ export default function Annotator() {
   const SAMEverythingLoading = useAppSelector(
     (state) => state.sam.everythingLoading,
   );
+  const { handleSave } = useWarningOnUnsavedChange();
 
   // @이슈: redux의 categories가 뒤로 가기 했을 때 초기화되지 않는 문때
   // init data
@@ -60,7 +62,7 @@ export default function Annotator() {
 
   return (
     <Container>
-      <LeftSidebar />
+      <LeftSidebar onSave={handleSave} />
       <Workbench />
       <RightSidebar />
       {isLoading && (
