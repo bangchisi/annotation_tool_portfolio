@@ -47,7 +47,7 @@ export function extractFirstVisibleRow(log: LogType) {
     finetuneName: log?.finetuneName,
     datasetName: log?.result?.datasetName,
     status: log?.status,
-    isDone: log?.isDone,
+    // isDone: log?.isDone,
     finetuneStartTime: log?.finetuneStartTime,
     remainingTime: log?.detail?.remainingTime,
   };
@@ -59,20 +59,22 @@ export function extractSecondVisibleRow(log: LogType) {
     numTrainImages: log?.numTrainImages,
     numTestImages: log?.numTestImages,
     numTotalImages: log?.numTrainImages + log?.numTestImages,
-    trainProgress: '',
-    evaluationProgress: '',
-    deviceId: log?.result?.deviceId,
+    // trainProgress: '',
+    // evaluationProgress: '',
+    // deviceId: log?.result?.deviceId,
   };
 }
 
 // Function to extract FirstCollapsibleRow
 export function extractFirstCollapsibleRow(log: LogType) {
   return {
-    datasetId: log?.datasetId,
-    vitModelType: log?.vitModelType,
-    modelDir: log?.modelDir,
+    // datasetId: log?.datasetId,
+    // vitModelType: log?.vitModelType,
+    // modelDir: log?.modelDir,
     finetuneStartTime: log?.finetuneStartTime,
     finetuneEndTime: log?.finetuneEndTime,
+    bestEpoch: log?.result?.train?.bestEpoch,
+    bestTestLoss: log?.result?.train?.bestTestLoss,
   };
 }
 
@@ -101,9 +103,9 @@ export function extractThirdCollapsibleRow(log: LogType) {
 // Function to extract FourthCollapsibleRow
 export function extractFourthCollapsibleRow(log: LogType) {
   return {
-    datasetName: log?.result?.datasetName,
-    deviceId: log?.result?.deviceId,
-    expName: log?.result?.expName,
+    // datasetName: log?.result?.datasetName,
+    // deviceId: log?.result?.deviceId,
+    // expName: log?.result?.expName,
     bestEpoch: log?.result?.train?.bestEpoch,
     bestTestLoss: log?.result?.train?.bestTestLoss,
   };
@@ -114,9 +116,9 @@ export const groupLogToTableData = (log: LogType) =>
     extractFirstVisibleRow(log),
     extractSecondVisibleRow(log),
     extractFirstCollapsibleRow(log),
-    extractSecondCollapsibleRow(log),
+    // extractSecondCollapsibleRow(log),
     extractThirdCollapsibleRow(log),
-    extractFourthCollapsibleRow(log),
+    // extractFourthCollapsibleRow(log),
   ] as const;
 
 // Types based on the return values of the functions
