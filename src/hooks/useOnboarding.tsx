@@ -8,6 +8,7 @@ import BrushOutlinedIcon from '@mui/icons-material/BrushOutlined';
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import RectangleOutlinedIcon from '@mui/icons-material/RectangleOutlined';
 import SaveIcon from '@mui/icons-material/Save';
+import { Fragment } from 'react';
 
 const ButtonContainer = styled(HelpOutlinedIcon)(() => {
   return {
@@ -32,12 +33,10 @@ export const OnboardingContent = (
       <Typography variant="h5">{title}</Typography>
       {descriptions.length > 0 &&
         descriptions.map((description) => (
-          <>
+          <Fragment key={description}>
             <br />
-            <Typography key={description} variant="body1">
-              {description}
-            </Typography>
-          </>
+            <Typography variant="body1">{description}</Typography>
+          </Fragment>
         ))}
       {components && components}
     </>

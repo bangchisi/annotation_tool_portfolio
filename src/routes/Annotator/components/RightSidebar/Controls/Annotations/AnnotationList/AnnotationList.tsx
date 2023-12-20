@@ -115,17 +115,19 @@ export default function AnnotationList() {
           isFunction={true}
         />
       </ButtonsContainer>
-      {currentCategory &&
-        sortedAnnotations &&
-        sortedAnnotations.map(({ annotationId, color }) => (
-          <Annotation
-            key={annotationId}
-            categoryId={currentCategory.categoryId}
-            annotationId={Number(annotationId)}
-            annotationcolor={color}
-            onClick={selectAnnotation}
-          />
-        ))}
+      <div className="annotation-list-step">
+        {currentCategory &&
+          sortedAnnotations &&
+          sortedAnnotations.map(({ annotationId, color }) => (
+            <Annotation
+              key={annotationId}
+              categoryId={currentCategory.categoryId}
+              annotationId={Number(annotationId)}
+              annotationcolor={color}
+              onClick={selectAnnotation}
+            />
+          ))}
+      </div>
     </Container>
   );
 }
