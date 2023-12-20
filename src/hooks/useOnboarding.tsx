@@ -11,15 +11,13 @@ import SaveIcon from '@mui/icons-material/Save';
 
 const ButtonContainer = styled(HelpOutlinedIcon)(() => {
   return {
-    position: 'fixed',
-    bottom: '5%',
-    left: '2%',
     cursor: 'pointer',
-    width: '3rem',
-    height: '3rem',
-    zIndex: 1000,
+    width: '2rem',
+    height: '2rem',
+    marginRight: '10px',
+    color: '#57606A',
     '&:hover': {
-      color: '#3f51b5',
+      color: '#000000',
     },
   };
 });
