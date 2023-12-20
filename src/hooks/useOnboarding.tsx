@@ -246,6 +246,18 @@ export const steps: { [key: string]: StepType[] } = {
       ]),
     },
   ],
+  models: [
+    {
+      selector: '.model-step',
+      content: OnboardingContent('모델 목록', [
+        '각 모델을 클릭하면 자세한 정보를 볼 수 있습니다.',
+      ]),
+    },
+    {
+      selector: '.delete-button',
+      content: OnboardingContent('모델 삭제', ['모델을 삭제할 수 있습니다.']),
+    },
+  ],
 };
 
 export const OnboardingButton = (props: { page: string }) => {
