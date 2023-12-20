@@ -7,44 +7,13 @@ import BrushOutlinedIcon from '@mui/icons-material/BrushOutlined';
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import RectangleOutlinedIcon from '@mui/icons-material/RectangleOutlined';
 import SaveIcon from '@mui/icons-material/Save';
-import { useAppSelector } from 'App.hooks';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { useParams } from 'react-router-dom';
-import { createCategoriesToUpdate } from 'routes/Annotator/helpers/Annotator.helper';
-import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
 import { Tool } from 'types';
 import FunctionIcon from './FunctionIcon';
 import { Container } from './LeftSidebar.style';
+import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 
-type LeftSidebarProps = {
-  onSave: () => void;
-};
-
-export default function LeftSidebar({ onSave: handleSave }: LeftSidebarProps) {
-  const imageId = Number(useParams().imageId);
-  const categories = useAppSelector((state) => state.annotator.categories);
-  const datasetId = useAppSelector((state) => state.annotator.datasetId);
-
-  async function saveData(datasetId: number | undefined, imageId: number) {
-    if (!datasetId || !imageId) return;
-
-    try {
-      const categoriesToUpdate = createCategoriesToUpdate(categories);
-
-      const response = await AnnotatorModel.saveData(
-        datasetId,
-        imageId,
-        categoriesToUpdate,
-      );
-      if (response.status !== 200) {
-        throw new Error('Failed to save annotator data');
-      }
-
-      handleSave();
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to save annotator data');
-    }
-  }
+export default function LeftSidebar() {
+  const { saveData } = useReloadAnnotator();
 
   return (
     <Container id="annotator-left-sidebar">
@@ -87,7 +56,7 @@ export default function LeftSidebar({ onSave: handleSave }: LeftSidebarProps) {
           <FunctionIcon
             functionName="Save"
             iconComponent={<SaveIcon />}
-            handleClick={() => saveData(datasetId, imageId)}
+            handleClick={saveData}
             isFunction={true}
           />
         </List>

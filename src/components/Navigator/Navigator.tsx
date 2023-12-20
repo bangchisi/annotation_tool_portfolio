@@ -46,7 +46,6 @@ export default function Navigator(props: NavigatorProps) {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const route = useLocation().pathname.split('/')[1];
-  console.log(route);
 
   const onLogout = async (userId: string) => {
     if (!user.userId) return;

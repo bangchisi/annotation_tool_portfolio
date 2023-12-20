@@ -2,7 +2,6 @@ import { useAppDispatch, useAppSelector } from 'App.hooks';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import useWarningOnUnsavedChange from 'routes/Annotator/hooks/useWarningOnUnsavedChange';
 import { Container } from './Annotator.style';
 import LeftSidebar from './components/LeftSidebar/LeftSidebar';
 import RightSidebar from './components/RightSidebar/RightSidebar';
@@ -57,11 +56,11 @@ export default function Annotator() {
 
   // shouldBlock: 저장하지 않았을 경우, true
   //              저장했을 경우, false
-  const { shouldBlock, handleSave } = useWarningOnUnsavedChange();
+  // const { shouldBlock, handleSave } = useWarningOnUnsavedChange();
 
   return (
     <Container>
-      <LeftSidebar onSave={handleSave} />
+      <LeftSidebar />
       <Workbench />
       <RightSidebar />
       {isLoading && (

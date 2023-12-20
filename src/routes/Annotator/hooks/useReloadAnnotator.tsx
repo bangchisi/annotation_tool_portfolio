@@ -14,12 +14,15 @@ import AnnotatorModel from '../models/Annotator.model';
 
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { AnnotationType, CategoriesType } from '../Annotator.types';
+import { createCategoriesToUpdate } from '../helpers/Annotator.helper';
+import useWarningOnUnsavedChange from './useWarningOnUnsavedChange';
 
 const useReloadAnnotator = () => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const { categories, currentCategory, currentAnnotation, image } =
+  const { categories, currentCategory, currentAnnotation, image, datasetId } =
     useAppSelector(selectAnnotator);
+  const { handleSave } = useWarningOnUnsavedChange();
 
   const initData = async (imageId: number) => {
     setIsLoading(true);
@@ -39,6 +42,28 @@ const useReloadAnnotator = () => {
       axiosErrorHandler(error, 'Failed to get annotator data');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const saveData = async () => {
+    if (!datasetId || !image) return;
+    if (!categories) return;
+
+    try {
+      const categoriesToUpdate = createCategoriesToUpdate(categories);
+
+      const response = await AnnotatorModel.saveData(
+        datasetId,
+        image.imageId,
+        categoriesToUpdate,
+      );
+      if (response.status !== 200) {
+        throw new Error('Failed to save annotator data');
+      }
+
+      handleSave();
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to save annotator data');
     }
   };
 
@@ -147,6 +172,7 @@ const useReloadAnnotator = () => {
     initData,
     drawPaths,
     clearCanvas,
+    saveData,
   };
 };
 
