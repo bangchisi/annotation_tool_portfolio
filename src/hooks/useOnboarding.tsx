@@ -134,28 +134,83 @@ export const steps: { [key: string]: StepType[] } = {
   annotator: [
     {
       selector: '.toolbar-step',
-      content: OnboardingContent(
-        '툴바',
-        ['툴바에서 원하는 툴을 선택하거나 현재 상태를 저장할 수 있습니다.'],
-        <div>hello</div>,
-      ),
+      content: OnboardingContent('툴바', [
+        '툴바에서 원하는 툴을 선택하거나 현재 상태를 저장할 수 있습니다.',
+      ]),
       position: 'right',
     },
     {
       selector: '.toolbar-step',
       content: OnboardingContent(
-        '툴',
-        ['툴을 선택하면 해당 툴로 이미지를 수정할 수 있습니다.'],
+        '',
+        [],
         <div>
-          <BackHandOutlinedIcon /> Select (S) ㅎ
+          <Typography
+            display="inline-block"
+            variant="body1"
+            fontWeight={'bold'}
+          >
+            <BackHandOutlinedIcon />
+            Select 툴 (단축키 S)
+          </Typography>
           <br />
-          <RectangleOutlinedIcon /> Box (R)
+          mask를 선택하거나 드래그로 이미지를 움직이는 도구
           <br />
-          <BrushOutlinedIcon /> Brush (B)
+          <Typography
+            display="inline-block"
+            variant="body1"
+            fontWeight={'bold'}
+          >
+            <RectangleOutlinedIcon />
+            Box 툴 (단축키 R)
+          </Typography>
           <br />
-          <AutoFixOffOutlinedIcon /> Eraser (E)
+          직사각형 mask를 생성하는 도구
           <br />
-          <FacebookOutlinedIcon /> SAM (F)
+          <Typography
+            display="inline-block"
+            variant="body1"
+            fontWeight={'bold'}
+          >
+            <BrushOutlinedIcon />
+            Brush 툴 (단축키 B)
+          </Typography>
+          <br />
+          브러쉬로 그림을 그려 mask를 생성하는 도구
+          <br />
+          <Typography
+            display="inline-block"
+            variant="body1"
+            fontWeight={'bold'}
+          >
+            <AutoFixOffOutlinedIcon />
+            Eraser 툴 (단축키 E)
+          </Typography>
+          <br />
+          mask를 지우는 도구
+          <br />
+          <Typography
+            display="inline-block"
+            variant="body1"
+            fontWeight={'bold'}
+          >
+            <FacebookOutlinedIcon />
+            SAM 툴 (단축키 F)
+          </Typography>
+          <br />
+          AI를 이용한 mask 자동생성 도구
+          <br />
+          <Typography
+            display="inline-block"
+            variant="body1"
+            fontWeight={'bold'}
+          >
+            <SaveIcon />
+            저장 (단축키 Ctrl + S)
+          </Typography>
+          <br />
+          현재 상태를 저장
+          <br />
         </div>,
       ),
       position: 'right',

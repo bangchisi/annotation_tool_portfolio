@@ -8,6 +8,7 @@ import {
 import { Tool } from 'types';
 import { selectAnnotator, setTool } from '../slices/annotatorSlice';
 import useManageAnnotation from './useManageAnnotation';
+import useReloadAnnotator from './useReloadAnnotator';
 
 type KeyboardEventHandler = (event: KeyboardEvent) => void;
 
@@ -17,6 +18,7 @@ export const useKeyEvents = () => {
     useAppSelector(selectAnnotator);
   const { brushRadius, eraserRadius } = useAppSelector(selectAuth).preference;
   const { createEmptyAnnotation, onClickDeleteButton } = useManageAnnotation();
+  const { saveData } = useReloadAnnotator();
 
   const keyEvents = useMemo(
     () => ({
@@ -44,8 +46,9 @@ export const useKeyEvents = () => {
           currentAnnotation.annotationId,
         );
       },
-      KeyS: () => {
-        dispatch(setTool(Tool.Select));
+      KeyS: (isCtrl?: boolean) => {
+        if (!isCtrl) dispatch(setTool(Tool.Select));
+        else saveData();
       },
       KeyR: () => {
         if (!currentCategory || !currentAnnotation) return;
@@ -73,6 +76,7 @@ export const useKeyEvents = () => {
       onClickDeleteButton,
       selectedTool,
       createEmptyAnnotation,
+      saveData,
     ],
   );
 
@@ -80,12 +84,13 @@ export const useKeyEvents = () => {
     // 이벤트 핸들러 함수를 만드는 팩토리 함수
     const eventHandlerFactory = (
       key: string,
-      callback: () => void,
+      callback: (isCtrl?: boolean) => void,
+      ctrlRequired = false,
     ): KeyboardEventHandler => {
       return (event: KeyboardEvent) => {
-        if (event.code === key) {
+        if (event.code === key && (!ctrlRequired || event.ctrlKey)) {
           event.preventDefault();
-          callback();
+          callback(event.ctrlKey);
         }
       };
     };
