@@ -262,7 +262,7 @@ export const steps: { [key: string]: StepType[] } = {
 
 export const OnboardingButton = (props: { page: string }) => {
   const { setIsOpen, setCurrentStep, setSteps } = useTour();
-  const styledSteps = steps[props.page].map((step) => {
+  const styledSteps = (steps[props.page] || []).map((step) => {
     return {
       ...step,
       padding: 0,

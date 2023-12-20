@@ -35,7 +35,7 @@ import {
   NavMenuList,
   UserInfoButton,
 } from './Navigator.style';
-import { OnboardingButton } from 'hooks/useOnboarding';
+import { OnboardingButton } from 'components/Onboarding';
 
 interface NavigatorProps {
   currentMode: RouteMode;
