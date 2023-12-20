@@ -47,7 +47,11 @@ export function Annotation({
       annotationid={annotationId}
       currentannotationid={currentAnnotationId}
       onClick={() => onClick(categoryId, annotationId)}
-      className={isCurrentAnnotation ? 'current-annotation' : undefined}
+      className={
+        isCurrentAnnotation
+          ? 'current-annotation annotation-list-step'
+          : 'annotation-list-step'
+      }
     >
       <AnnotationColorTag
         annotationcolor={annotationcolor}
@@ -57,12 +61,13 @@ export function Annotation({
       <Typography variant="button" className="annotation-id">
         {annotationId}
       </Typography>
-      <SelectPanel>
+      {/* <SelectPanel>
         {categoriesList.length > 0 &&
           categoriesList.map((categoryName) => (
             <option key={categoryName}>{categoryName}</option>
           ))}
-      </SelectPanel>
+      </SelectPanel> */}
+      <div style={{ marginLeft: 'auto' }}></div>
       <DeleteButton
         annotationcolor={annotationcolor}
         onClick={() => onClickDeleteButton(categoryId, annotationId)}

@@ -32,9 +32,12 @@ export const OnboardingContent = (
       <Typography variant="h5">{title}</Typography>
       {descriptions.length > 0 &&
         descriptions.map((description) => (
-          <Typography key={description} variant="body1">
-            {description}
-          </Typography>
+          <>
+            <br />
+            <Typography key={description} variant="body1">
+              {description}
+            </Typography>
+          </>
         ))}
       {components && components}
     </>
@@ -178,6 +181,8 @@ export const steps: { [key: string]: StepType[] } = {
           <br />
           브러쉬로 그림을 그려 mask를 생성하는 도구
           <br />
+          브러쉬 크기는 [ 키와 ] 키로 조절할 수 있습니다.
+          <br />
           <Typography
             display="inline-block"
             variant="body1"
@@ -214,6 +219,31 @@ export const steps: { [key: string]: StepType[] } = {
         </div>,
       ),
       position: 'right',
+    },
+    {
+      selector: '.category-select-step',
+      content: OnboardingContent('카테고리 선택', [
+        '카테고리를 선택해 해당 카테고리에 대한 작업을 진행합니다.',
+      ]),
+    },
+    {
+      selector: '.annotation-buttons-step',
+      content: OnboardingContent('Annotation 버튼', [
+        'Annotation을 추가하거나 일괄 삭제할 수 있습니다.',
+      ]),
+    },
+    {
+      selector: '.annotation-list-step',
+      content: OnboardingContent('Annotation 목록', [
+        'Annotation을 선택해 해당 annotation에 masking 작업을 할 수 있습니다.',
+        '우측 쓰레기통 버튼을 클릭해 해당 annotation을 삭제할 수 있습니다.',
+      ]),
+    },
+    {
+      selector: '.canvas-step',
+      content: OnboardingContent('Canvas', [
+        '이미지에 대한 masking 작업을 할 수 있습니다.',
+      ]),
     },
   ],
 };

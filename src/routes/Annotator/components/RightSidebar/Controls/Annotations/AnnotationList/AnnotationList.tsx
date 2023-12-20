@@ -93,7 +93,7 @@ export default function AnnotationList() {
   return (
     <Container>
       {isLoading && <LoadingSpinner message="annotation 목록 갱신 중입니다." />}
-      <ButtonsContainer>
+      <ButtonsContainer className="annotation-buttons-step">
         <AddButton
           functionName="Add Annotation (Spacebar)"
           iconComponent={<AddCircleOutlineOutlinedIcon />}

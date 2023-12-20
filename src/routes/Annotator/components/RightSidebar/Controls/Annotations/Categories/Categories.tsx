@@ -34,6 +34,7 @@ export default function Categories() {
 
   return (
     <FormControl
+      className="category-select-step"
       fullWidth
       sx={{
         '& .MuiInputBase-root': {

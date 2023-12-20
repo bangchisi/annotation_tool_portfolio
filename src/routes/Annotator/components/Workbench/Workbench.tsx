@@ -10,7 +10,11 @@ export default function Workbench() {
   };
 
   return (
-    <Container ref={containerRef} onContextMenu={handleRightClick}>
+    <Container
+      className="canvas-step"
+      ref={containerRef}
+      onContextMenu={handleRightClick}
+    >
       <Canvas containerRef={containerRef} />
     </Container>
   );
