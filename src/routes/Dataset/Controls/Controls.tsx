@@ -148,7 +148,11 @@ export default function Controls(props: ControlsProps) {
           onChange={(event) => onFilesChange(event, true)}
           webkitdirectory=""
         />
-        <FilesLabel htmlFor="folderInput" sx={{ marginRight: '20px' }}>
+        <FilesLabel
+          className="folder-upload-step"
+          htmlFor="folderInput"
+          sx={{ marginRight: '20px' }}
+        >
           <div>
             <DriveFolderUploadOutlinedIcon fontSize="medium" />
             <span>폴더 업로드</span>
@@ -167,7 +171,7 @@ export default function Controls(props: ControlsProps) {
           multiple
           onChange={onFilesChange}
         />
-        <FilesLabel htmlFor="filesInput">
+        <FilesLabel className="upload-step" htmlFor="filesInput">
           <div>
             <CloudUploadRoundedIcon fontSize="medium" />
             <span>사진 업로드</span>

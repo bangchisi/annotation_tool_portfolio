@@ -30,7 +30,7 @@ const ModalWrapper = ({
     >
       <ModalShadowContainer>
         <ModalShadow>
-          <Container>
+          <Container className="modal-step">
             <Header>
               <Typography
                 variant="h5"

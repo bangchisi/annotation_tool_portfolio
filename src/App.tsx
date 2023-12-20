@@ -1,3 +1,4 @@
+import { TourProvider } from '@reactour/tour';
 import { useAppSelector } from 'App.hooks';
 import Navigator from 'components/Navigator/Navigator';
 import Provider from 'provider';
@@ -18,17 +19,19 @@ export default function App() {
 
   return (
     <Provider>
-      <div id="app">
-        {isAuthenticated && (
-          <Navigator
-            currentMode={currentMode}
-            setCurrentMode={setCurrentMode}
-          />
-        )}
-        <div id="main">
-          <Outlet />
+      <TourProvider steps={[]}>
+        <div id="app">
+          {isAuthenticated && (
+            <Navigator
+              currentMode={currentMode}
+              setCurrentMode={setCurrentMode}
+            />
+          )}
+          <div id="main">
+            <Outlet />
+          </div>
         </div>
-      </div>
+      </TourProvider>
     </Provider>
   );
 }

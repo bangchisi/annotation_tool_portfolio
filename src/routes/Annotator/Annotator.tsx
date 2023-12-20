@@ -2,7 +2,6 @@ import { useAppDispatch, useAppSelector } from 'App.hooks';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import useWarningOnUnsavedChange from 'routes/Annotator/hooks/useWarningOnUnsavedChange';
 import { Container } from './Annotator.style';
 import LeftSidebar from './components/LeftSidebar/LeftSidebar';
 import RightSidebar from './components/RightSidebar/RightSidebar';
@@ -17,6 +16,7 @@ import {
   setCurrentCategory,
   setCurrentCategoryByCategoryId,
 } from './slices/annotatorSlice';
+import useWarningOnUnsavedChange from './hooks/useWarningOnUnsavedChange';
 
 export default function Annotator() {
   const dispatch = useAppDispatch();
@@ -28,6 +28,7 @@ export default function Annotator() {
   const SAMEverythingLoading = useAppSelector(
     (state) => state.sam.everythingLoading,
   );
+  const { handleSave } = useWarningOnUnsavedChange();
 
   // @이슈: redux의 categories가 뒤로 가기 했을 때 초기화되지 않는 문때
   // init data
@@ -57,7 +58,7 @@ export default function Annotator() {
 
   // shouldBlock: 저장하지 않았을 경우, true
   //              저장했을 경우, false
-  const { shouldBlock, handleSave } = useWarningOnUnsavedChange();
+  // const { shouldBlock, handleSave } = useWarningOnUnsavedChange();
 
   return (
     <Container>

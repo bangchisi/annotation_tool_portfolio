@@ -17,7 +17,7 @@ import { RouteMode } from 'App';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { DatasetsIcon, ModelsIcon, ProfileIcon } from 'Icons';
 import { useEffect, useRef, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { clearSAM } from 'routes/Annotator/slices/SAMSlice';
 import { clearAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 import AuthModel from 'routes/Auth/models/Auth.model';
@@ -35,6 +35,7 @@ import {
   NavMenuList,
   UserInfoButton,
 } from './Navigator.style';
+import { OnboardingButton } from 'hooks/useOnboarding';
 
 interface NavigatorProps {
   currentMode: RouteMode;
@@ -44,6 +45,7 @@ interface NavigatorProps {
 export default function Navigator(props: NavigatorProps) {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
+  const route = useLocation().pathname.split('/')[1];
 
   const onLogout = async (userId: string) => {
     if (!user.userId) return;
@@ -137,8 +139,8 @@ export default function Navigator(props: NavigatorProps) {
             </NavLink>
           </NavMenuItem>
         </NavMenuList>
-
         <DropDownContainer>
+          <OnboardingButton page={route} />
           <UserInfoButton
             ref={anchorRef}
             id="composition-button"

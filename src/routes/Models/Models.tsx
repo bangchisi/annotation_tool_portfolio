@@ -95,7 +95,7 @@ export default function Models() {
       {isLogsLoading && (
         <LoadingSpinner message="모델 로그를 불러오는 중입니다. 잠시만 기다려주세요." />
       )}
-      <Container>
+      <Container className="model-step">
         {/* 테이블 렌더링 */}
         <TableWrapper>
           {RunningModels}

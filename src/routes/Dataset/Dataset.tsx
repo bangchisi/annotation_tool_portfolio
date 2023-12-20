@@ -14,6 +14,7 @@ import ImageList from './ImageList/ImageList';
 import Information from './Information/Information';
 import { getIsOnTrain } from './helpers/DatasetHelpers';
 import DatasetModel from './models/Dataset.model';
+import { OnboardingButton } from 'hooks/useOnboarding';
 
 export interface DatasetType {
   superDatasetName: string;

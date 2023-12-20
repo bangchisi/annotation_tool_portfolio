@@ -1,7 +1,7 @@
 import CreateDatasetModal from './CreateDatasetModal/CreateDatasetModal';
 import { Container, LeftControl } from './Controls.style';
 import SearchPanel from './SearchPanel/SearchPanel';
-import Sort from './Sort/Sort';
+// import Sort from './Sort/Sort';
 import { DatasetType } from '../Datasets';
 
 interface ControlsProps {
@@ -15,7 +15,7 @@ export default function Controls(props: ControlsProps) {
   return (
     <Container>
       <LeftControl>
-        <Sort />
+        {/* <Sort /> */}
         <SearchPanel
           datasets={datasets}
           setFilteredDatasets={setFilteredDatasets}

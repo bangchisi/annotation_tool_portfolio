@@ -122,7 +122,7 @@ export default function Information(props: InformationProps) {
   }, [isEdit, setIsEdit, onDatasetUpdate, datasetId, hasEmpty, resetForm]);
 
   return (
-    <Container>
+    <Container className="information-step">
       {isOnTrain && <ComponentBlocker message="현재 학습중인 Dataset입니다." />}
       <TitleContainer>
         {isEdit && (

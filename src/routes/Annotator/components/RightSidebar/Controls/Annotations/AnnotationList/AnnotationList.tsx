@@ -93,7 +93,7 @@ export default function AnnotationList() {
   return (
     <Container>
       {isLoading && <LoadingSpinner message="annotation 목록 갱신 중입니다." />}
-      <ButtonsContainer>
+      <ButtonsContainer className="annotation-buttons-step">
         <AddButton
           functionName="Add Annotation (Spacebar)"
           iconComponent={<AddCircleOutlineOutlinedIcon />}
@@ -115,17 +115,19 @@ export default function AnnotationList() {
           isFunction={true}
         />
       </ButtonsContainer>
-      {currentCategory &&
-        sortedAnnotations &&
-        sortedAnnotations.map(({ annotationId, color }) => (
-          <Annotation
-            key={annotationId}
-            categoryId={currentCategory.categoryId}
-            annotationId={Number(annotationId)}
-            annotationcolor={color}
-            onClick={selectAnnotation}
-          />
-        ))}
+      <div className="annotation-list-step">
+        {currentCategory &&
+          sortedAnnotations &&
+          sortedAnnotations.map(({ annotationId, color }) => (
+            <Annotation
+              key={annotationId}
+              categoryId={currentCategory.categoryId}
+              annotationId={Number(annotationId)}
+              annotationcolor={color}
+              onClick={selectAnnotation}
+            />
+          ))}
+      </div>
     </Container>
   );
 }

@@ -11,7 +11,11 @@ import useManageAnnotation from './useManageAnnotation';
 
 type KeyboardEventHandler = (event: KeyboardEvent) => void;
 
-export const useKeyEvents = () => {
+type UseKeyEventsProps = {
+  [key: string]: (event: KeyboardEvent) => void;
+};
+
+export const useKeyEvents = (props?: UseKeyEventsProps) => {
   const dispatch = useAppDispatch();
   const { selectedTool, currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
@@ -44,8 +48,8 @@ export const useKeyEvents = () => {
           currentAnnotation.annotationId,
         );
       },
-      KeyS: () => {
-        dispatch(setTool(Tool.Select));
+      KeyS: (event: KeyboardEvent) => {
+        if (!event.ctrlKey) dispatch(setTool(Tool.Select));
       },
       KeyR: () => {
         if (!currentCategory || !currentAnnotation) return;
@@ -80,12 +84,12 @@ export const useKeyEvents = () => {
     // 이벤트 핸들러 함수를 만드는 팩토리 함수
     const eventHandlerFactory = (
       key: string,
-      callback: () => void,
+      callback: (event: KeyboardEvent) => void,
     ): KeyboardEventHandler => {
       return (event: KeyboardEvent) => {
         if (event.code === key) {
           event.preventDefault();
-          callback();
+          callback(event);
         }
       };
     };
@@ -101,8 +105,8 @@ export const useKeyEvents = () => {
     };
 
     // keyEvents 객체를 이용해 필요한 이벤트 핸들러 함수들을 만듦
-    const events = Object.entries(keyEvents).map(([key, callback]) =>
-      eventHandlerFactory(key, callback),
+    const events = Object.entries(props ? props : keyEvents).map(
+      ([key, callback]) => eventHandlerFactory(key, callback),
     );
 
     // registerKeyEvent, unregisterKeyEvent, events를 이용해
@@ -119,5 +123,5 @@ export const useKeyEvents = () => {
     return () => {
       manageKeyEvent(unregisterKeyEvent);
     };
-  }, [keyEvents]);
+  }, [keyEvents, props]);
 };

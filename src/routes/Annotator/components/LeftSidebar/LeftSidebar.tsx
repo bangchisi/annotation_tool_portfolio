@@ -7,14 +7,16 @@ import BrushOutlinedIcon from '@mui/icons-material/BrushOutlined';
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import RectangleOutlinedIcon from '@mui/icons-material/RectangleOutlined';
 import SaveIcon from '@mui/icons-material/Save';
-import { useAppSelector } from 'App.hooks';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { useParams } from 'react-router-dom';
-import { createCategoriesToUpdate } from 'routes/Annotator/helpers/Annotator.helper';
-import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
 import { Tool } from 'types';
 import FunctionIcon from './FunctionIcon';
 import { Container } from './LeftSidebar.style';
+import { useCallback, useMemo } from 'react';
+import { useKeyEvents } from 'routes/Annotator/hooks/useKeyEvents';
+import { useParams } from 'react-router-dom';
+import { useAppSelector } from 'App.hooks';
+import { createCategoriesToUpdate } from 'routes/Annotator/helpers/Annotator.helper';
+import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
+import { axiosErrorHandler } from 'helpers/Axioshelpers';
 
 type LeftSidebarProps = {
   onSave: () => void;
@@ -25,30 +27,45 @@ export default function LeftSidebar({ onSave: handleSave }: LeftSidebarProps) {
   const categories = useAppSelector((state) => state.annotator.categories);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
 
-  async function saveData(datasetId: number | undefined, imageId: number) {
-    if (!datasetId || !imageId) return;
+  const saveData = useCallback(
+    async (datasetId: number | undefined, imageId: number) => {
+      if (!datasetId || !imageId) return;
 
-    try {
-      const categoriesToUpdate = createCategoriesToUpdate(categories);
+      try {
+        const categoriesToUpdate = createCategoriesToUpdate(categories);
 
-      const response = await AnnotatorModel.saveData(
-        datasetId,
-        imageId,
-        categoriesToUpdate,
-      );
-      if (response.status !== 200) {
-        throw new Error('Failed to save annotator data');
+        const response = await AnnotatorModel.saveData(
+          datasetId,
+          imageId,
+          categoriesToUpdate,
+        );
+        if (response.status !== 200) {
+          throw new Error('Failed to save annotator data');
+        }
+
+        handleSave();
+      } catch (error) {
+        axiosErrorHandler(error, 'Failed to save annotator data');
       }
+    },
+    [categories, handleSave],
+  );
 
-      handleSave();
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to save annotator data');
-    }
-  }
+  const ctrlSKeyEvent = useMemo(
+    () => ({
+      KeyS: (event: KeyboardEvent) => {
+        if (event.ctrlKey) saveData(datasetId, imageId);
+      },
+    }),
+    [datasetId, imageId, saveData],
+  );
+
+  useKeyEvents(ctrlSKeyEvent);
 
   return (
     <Container id="annotator-left-sidebar">
       <Box
+        className="toolbar-step"
         sx={{
           pl: 0.5,
           paddingTop: 3,
@@ -84,7 +101,7 @@ export default function LeftSidebar({ onSave: handleSave }: LeftSidebarProps) {
         <Divider />
         <List>
           <FunctionIcon
-            functionName="Save"
+            functionName="Save (Ctrl + S)"
             iconComponent={<SaveIcon />}
             handleClick={() => saveData(datasetId, imageId)}
             isFunction={true}

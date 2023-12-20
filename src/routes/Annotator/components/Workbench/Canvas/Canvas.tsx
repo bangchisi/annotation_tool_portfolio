@@ -7,6 +7,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -290,6 +291,14 @@ export default function Canvas(props: CanvasProps) {
       adjustCanvasSize(canvas, container);
     });
   }, [canvasRef, containerRef]);
+
+  // width, height for zoom
+  const { width, height } = useMemo(() => {
+    return containerRef.current?.getBoundingClientRect() || ({} as DOMRect);
+  }, [containerRef]);
+  useEffect(() => {
+    paper.view.viewSize = new paper.Size(width, height);
+  }, [width, height]);
 
   return (
     <>

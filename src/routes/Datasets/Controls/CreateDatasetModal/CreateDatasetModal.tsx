@@ -94,7 +94,7 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
       <CreateButton
         disableFocusRipple={true}
         onClick={handleOpen}
-        className="create-dataset-button"
+        className="create-dataset-button create-dataset-step"
       >
         Create Dataset
       </CreateButton>
@@ -174,7 +174,11 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
           })}
         </div>
         <ModalFooter>
-          <Button color="warning" onClick={handleClose}>
+          <Button
+            className="close-modal-button"
+            color="warning"
+            onClick={handleClose}
+          >
             Cancel
           </Button>
           <Button
