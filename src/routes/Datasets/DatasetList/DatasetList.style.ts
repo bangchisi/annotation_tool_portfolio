@@ -48,7 +48,7 @@ export const StyledAccordionDetails = styled(AccordionDetails)(() => {
     gap: '8px',
     padding: '3% 32px',
 
-    '&:first-child': {
+    '&:first-of-type': {
       marginTop: '16px',
     },
   };
