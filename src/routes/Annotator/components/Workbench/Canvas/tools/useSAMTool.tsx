@@ -18,9 +18,9 @@ import {
   setSAMModelLoading,
 } from 'routes/Annotator/slices/SAMSlice';
 import { Tool } from 'types';
+import { AnnotationTool } from '../hooks/useTools';
 
 const useSAMTool = () => {
-  const tempRect = useRef<paper.Path.Rectangle | null>(null);
   const coords = useRef<[number, number][]>([]);
   const labels = useRef<number[]>([]);
 
@@ -211,10 +211,10 @@ const useSAMTool = () => {
           });
 
           // draw SAM Region
-          const SAMGuideBox = tempRect.current;
+          const SAMGuideBox = AnnotationTool.tempRect;
           if (SAMGuideBox) SAMGuideBox.remove();
 
-          tempRect.current = new paper.Path.Rectangle({
+          AnnotationTool.tempRect = new paper.Path.Rectangle({
             from: topLeft,
             to: bottomRight,
             strokeColor: new paper.Color('red'),
@@ -267,9 +267,9 @@ const useSAMTool = () => {
   };
 
   useEffect(() => {
-    if (!tempRect || !tempRect.current) return;
-    tempRect.current.remove();
-  }, [selectedTool, currentAnnotation]);
+    if (!AnnotationTool.tempRect) return;
+    AnnotationTool.tempRect.remove();
+  }, [selectedTool, currentAnnotation, currentCategory]);
 
   return {
     tool,

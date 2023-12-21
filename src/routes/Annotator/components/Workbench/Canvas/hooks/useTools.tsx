@@ -106,6 +106,7 @@ export class AnnotationTool extends paper.Tool {
   static observer = new Observer();
   static mousePoint: paper.Point | undefined;
   static isMouseOnCanvas = false;
+  static tempRect: paper.Path.Rectangle | null;
 
   constructor(toolType: Tool) {
     super();
