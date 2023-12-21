@@ -1,3 +1,5 @@
+import { secondsToHMS } from 'helpers/DateHelpers';
+
 export type LogType = {
   finetuneId: number;
   datasetId: number;
@@ -42,14 +44,18 @@ export type LogType = {
 
 // Function to extract FirstVisibleRow
 export function extractFirstVisibleRow(log: LogType) {
+  const convertedStartTime =
+    log?.finetuneStartTime === null
+      ? '-'
+      : new Date(log?.finetuneStartTime).toLocaleString();
   return {
     finetuneId: log?.finetuneId,
     finetuneName: log?.finetuneName,
     datasetName: log?.result?.datasetName,
     status: log?.status,
     // isDone: log?.isDone,
-    finetuneStartTime: log?.finetuneStartTime,
-    remainingTime: log?.detail?.remainingTime,
+    finetuneStartTime: convertedStartTime,
+    remainingTime: secondsToHMS(log?.detail?.remainingTime?.toString() ?? ''),
   };
 }
 
@@ -67,12 +73,21 @@ export function extractSecondVisibleRow(log: LogType) {
 
 // Function to extract FirstCollapsibleRow
 export function extractFirstCollapsibleRow(log: LogType) {
+  const convertedStartTime =
+    log?.finetuneStartTime === null
+      ? '-'
+      : new Date(log?.finetuneStartTime).toLocaleString();
+  const convertedEndTime = new Date(
+    log?.finetuneEndTime ?? '',
+  ).toLocaleString();
+
   return {
     // datasetId: log?.datasetId,
     // vitModelType: log?.vitModelType,
     // modelDir: log?.modelDir,
-    finetuneStartTime: log?.finetuneStartTime,
-    finetuneEndTime: log?.finetuneEndTime,
+    finetuneStartTime: convertedStartTime,
+    finetuneEndTime:
+      convertedEndTime === 'Invalid Date' ? '-' : convertedEndTime,
     bestEpoch: log?.result?.train?.bestEpoch,
     bestTestLoss: log?.result?.train?.bestTestLoss,
   };
