@@ -76,25 +76,29 @@ const FlexTableRow = ({ rowData }: VisibleRowProps) => {
   return (
     <>
       {/* 헤더와 내용 각각 1줄씩 출력을 위해 rows 배열에 넣어 순회 */}
-      {rows.map((row, rowIndex) => (
+      {rows.map((row, rowIndex) => {
         // 실제 테이블의 행을 출력
-        <Row
-          key={rowIndex}
-          className={isHeader(rowIndex) ? headerClassName : contentClassName}
-        >
-          {row.map((content, columnIndex) => (
-            <Cell
-              key={columnIndex}
-              className={isHeader(rowIndex) ? 'th' : 'td'}
-              sx={{
-                width: getCellWidth(row),
-              }}
-            >
-              {formatStringForTable(String(content))}
-            </Cell>
-          ))}
-        </Row>
-      ))}
+        return (
+          <Row
+            key={rowIndex}
+            className={isHeader(rowIndex) ? headerClassName : contentClassName}
+          >
+            {row.map((content, columnIndex) => {
+              return (
+                <Cell
+                  key={columnIndex}
+                  className={isHeader(rowIndex) ? 'th' : 'td'}
+                  sx={{
+                    width: getCellWidth(row),
+                  }}
+                >
+                  {formatStringForTable(String(content))}
+                </Cell>
+              );
+            })}
+          </Row>
+        );
+      })}
     </>
   );
 };

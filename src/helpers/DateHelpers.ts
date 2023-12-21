@@ -1,4 +1,5 @@
-export function getFormattedDate(dateString: string) {
+export function getFormattedDate(dateString?: string) {
+  if (!dateString) return '';
   const date = new Date(dateString);
 
   const year = date.getFullYear();
@@ -31,4 +32,18 @@ export function getDifferenceDate(dateString: string) {
   } else {
     return 'now';
   }
+}
+
+export function secondsToHMS(secondsString?: string) {
+  if (!secondsString) return '-';
+  const totalSeconds = parseInt(secondsString, 10);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds - hours * 3600) / 60);
+  const seconds = totalSeconds - hours * 3600 - minutes * 60;
+
+  const hoursFormat = hours.toString().padStart(2, '0');
+  const minutesFormat = minutes.toString().padStart(2, '0');
+  const secondsFormat = seconds.toString().padStart(2, '0');
+
+  return `${hoursFormat}:${minutesFormat}:${secondsFormat}`;
 }
