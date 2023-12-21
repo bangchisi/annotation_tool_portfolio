@@ -27,8 +27,7 @@ import {
   SelectModel,
 } from './SAMToolPanel.style';
 import useSAMParameter from './hooks/useSAMParameter';
-
-export let tempRect: paper.Path.Rectangle;
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 
 export default function SAMToolPanel() {
   const userId = useAppSelector((state) => state.auth.user.userId);
@@ -135,9 +134,9 @@ export default function SAMToolPanel() {
     );
 
     // draw SAM Region
-    if (tempRect) tempRect.remove();
+    if (AnnotationTool.tempRect) AnnotationTool.tempRect.remove();
 
-    tempRect = new paper.Path.Rectangle({
+    AnnotationTool.tempRect = new paper.Path.Rectangle({
       from: topLeft,
       to: bottomRight,
       strokeColor: new paper.Color('red'),
