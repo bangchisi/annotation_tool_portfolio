@@ -8,6 +8,8 @@ services:
     build:
       context: .
       dockerfile: ./for_production/Dockerfile
+    image: annotator-frontend:latest
+    container_name: annotator-frontend
     ports:
       - "60144:60144"
     networks:
