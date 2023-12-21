@@ -70,7 +70,7 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
       handleClose();
     } catch (error) {
       axiosErrorHandler(error, 'Failed to create dataset');
-      alert('Dataset 생성 실패.');
+      alert('Dataset 생성 실패. Dataset 이름이 너무 깁니다 (45자 이하)');
     } finally {
       setDatasetList(userId);
     }
