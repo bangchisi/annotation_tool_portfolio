@@ -55,6 +55,19 @@ export default function Information(props: InformationProps) {
     description,
   ]);
 
+  const validation = useCallback(() => {
+    if (editSuperDatasetName.length > 255) {
+      alert('super dataset name은 255자 이하로 입력해주세요.');
+      return false;
+    }
+    if (editDatasetName.length > 45) {
+      alert('dataset name은 45자 이하로 입력해주세요.');
+      return false;
+    }
+
+    return true;
+  }, [editSuperDatasetName, editDatasetName]);
+
   const hasEmpty = useCallback(() => {
     if (!editSuperDatasetName || !editDatasetName) return true;
     return false;
@@ -101,6 +114,11 @@ export default function Information(props: InformationProps) {
         resetForm();
       } else if (e.key === 'Enter') {
         setIsEdit(false);
+        const validationCheck = validation();
+        if (!validationCheck) {
+          resetForm();
+          return;
+        }
         if (hasEmpty()) {
           resetForm();
           return;
@@ -108,18 +126,32 @@ export default function Information(props: InformationProps) {
         onDatasetUpdate(datasetId);
       }
     },
-    [setIsEdit, onDatasetUpdate, datasetId, resetForm, hasEmpty],
+    [setIsEdit, onDatasetUpdate, datasetId, resetForm, hasEmpty, validation],
   );
 
   const onClick = useCallback(() => {
     setIsEdit((prev) => !prev);
+    const validationCheck = validation();
+    if (!validationCheck) {
+      resetForm();
+      return;
+    }
+
     if (hasEmpty()) {
       resetForm();
       return;
     }
     if (!isEdit) return;
     onDatasetUpdate(datasetId);
-  }, [isEdit, setIsEdit, onDatasetUpdate, datasetId, hasEmpty, resetForm]);
+  }, [
+    isEdit,
+    setIsEdit,
+    onDatasetUpdate,
+    datasetId,
+    hasEmpty,
+    resetForm,
+    validation,
+  ]);
 
   return (
     <Container className="information-step">
