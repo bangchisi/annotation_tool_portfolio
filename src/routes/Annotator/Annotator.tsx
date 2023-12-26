@@ -39,26 +39,27 @@ export default function Annotator() {
     return () => {
       dispatch(setCategories(undefined));
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageId, dispatch]);
 
   useEffect(() => {
-    if (!categories) {
-      dispatch(setCurrentCategory(undefined));
-      dispatch(setCurrentAnnotation(undefined));
-    }
     if (!currentCategory) return;
     dispatch(setCurrentCategoryByCategoryId(currentCategory.categoryId));
     if (!currentAnnotation) return;
     dispatch(
       setCurrentAnnotationByAnnotationId(currentAnnotation.annotationId),
     );
-  }, [categories]);
+
+    return () => {
+      dispatch(setCurrentCategory(undefined));
+      dispatch(setCurrentAnnotation(undefined));
+    };
+  }, [categories, currentCategory, currentAnnotation, dispatch]);
 
   useKeyEvents();
 
   // shouldBlock: 저장하지 않았을 경우, true
   //              저장했을 경우, false
-  // const { shouldBlock, handleSave } = useWarningOnUnsavedChange();
 
   return (
     <Container>
