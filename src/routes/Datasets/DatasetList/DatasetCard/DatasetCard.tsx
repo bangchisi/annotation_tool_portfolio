@@ -3,12 +3,11 @@ import { useAppSelector } from 'App.hooks';
 import { AxiosError } from 'axios';
 import CategoryTag from 'components/CategoryTag/CategoryTag';
 import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, enhancedAxios } from 'helpers/Axioshelpers';
 import { getDifferenceDate } from 'helpers/DateHelpers';
 import { getThumbnailPath } from 'helpers/ImagesHelpers';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import DatasetsModel from '../../models/Datasets.model';
 import {
   CategoriesContainer,
   CategoriesPadding,
@@ -25,6 +24,8 @@ import {
   UpdatedAt,
 } from './DatasetCard.style';
 import DatasetMenu from './DatasetMenu/DatasetMenu';
+import { DatasetType } from 'routes/Datasets/Datasets';
+import { KeyedMutator } from 'swr';
 
 interface DatasetCardProps {
   datasetId: number; // Dataset 고유 ID
@@ -42,7 +43,7 @@ interface DatasetCardProps {
       supercategory: string; // 상위 카테고리
     },
   ];
-  setDatasetList: (userId: string) => Promise<void>;
+  updateDatasets: KeyedMutator<DatasetType[]>;
   setExportId: React.Dispatch<React.SetStateAction<number | undefined>>;
   handleOpen: () => void;
 }
@@ -56,7 +57,7 @@ export default function DatasetCard(props: DatasetCardProps) {
     lastUpdate,
     categories,
     progress,
-    setDatasetList,
+    updateDatasets,
     setExportId,
     handleOpen,
   } = props;
@@ -66,10 +67,8 @@ export default function DatasetCard(props: DatasetCardProps) {
     if (!confirmDelete) return;
 
     try {
-      const response = await DatasetsModel.deleteDataset(datasetId);
+      const response = await enhancedAxios('DELETE', `/dataset/${datasetId}`);
 
-      console.log(response.data.detail);
-      console.log(response);
       if (response.status === 400) {
         alert('현재 학습중인 Dataset은 삭제할 수 없습니다.');
         return;
@@ -80,7 +79,7 @@ export default function DatasetCard(props: DatasetCardProps) {
         return;
       }
 
-      setDatasetList(userId);
+      updateDatasets();
     } catch (error) {
       if (error instanceof AxiosError && error.code === 'ERR_BAD_REQUEST') {
         alert('현재 학습중인 Dataset은 삭제할 수 없습니다.');

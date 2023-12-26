@@ -1,12 +1,14 @@
+import { useEffect, useState } from 'react';
 import { useAppSelector } from 'App.hooks';
-import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import { useState } from 'react';
-import Reload from 'routes/Datasets/Reload/Reload';
+import { Container } from './Datasets.style';
+import { useEnhancedSWR } from 'hooks';
+
+import { Box, Button, Typography } from '@mui/material';
+import CachedOutlinedIcon from '@mui/icons-material/CachedOutlined';
+
 import Controls from './Controls/Controls';
 import DatasetList from './DatasetList/DatasetList';
-import { Container } from './Datasets.style';
-import DatasetsModel from './models/Datasets.model';
+import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 
 export interface DatasetType {
   datasetId: number; // Dataset 고유 ID
@@ -27,48 +29,57 @@ export interface DatasetType {
   ];
 }
 
+const Reload = () => {
+  return (
+    <Box>
+      <Typography>Dataset을 불러올 수 없습니다. 다시 시도 해주세요.</Typography>
+      <Button color="info">
+        <CachedOutlinedIcon />
+        reload
+      </Button>
+    </Box>
+  );
+};
+
 export default function Datasets() {
   const [datasets, setDatasets] = useState<DatasetType[]>([]);
   const [filteredDatasets, setFilteredDatasets] = useState<DatasetType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
   const user = useAppSelector((state) => state.auth.user);
 
-  const setDatasetList = async (userId: string) => {
-    try {
-      setIsLoading(true);
-      const response = await DatasetsModel.getDatasetsByUserId(userId);
-      const datasetList = response.data;
-      setDatasets([...datasetList]);
-      setIsError(false);
-    } catch (error) {
-      setIsError(true);
-      axiosErrorHandler(error, 'Failed to get datasets');
-    } finally {
-      setIsLoading(false);
+  const { data, isLoading, isError, mutate } = useEnhancedSWR<DatasetType[]>(
+    'GET',
+    `/dataset/${user.userId}/datasets`,
+  );
+
+  useEffect(() => {
+    if (data) {
+      setDatasets(data);
     }
-  };
+  }, [data]);
 
   if (isError) {
-    return <Reload setDatasetList={setDatasetList} userId={user.userId} />;
+    return <Reload />;
+  }
+
+  if (isLoading) {
+    return (
+      <LoadingSpinner message="Dataset 목록을 불러오는 중입니다. 잠시만 기다려주세요." />
+    );
   }
 
   return (
     <>
-      {isLoading && (
-        <LoadingSpinner message="Dataset 목록을 불러오는 중입니다. 잠시만 기다려주세요." />
-      )}
       <Container id="datasets">
         <Controls
           datasets={datasets}
+          updateDatasets={mutate}
           setFilteredDatasets={setFilteredDatasets}
-          setDatasetList={setDatasetList}
         />
         <DatasetList
           datasets={datasets}
+          updateDatasets={mutate}
           filteredDatasets={filteredDatasets || []}
           setFilteredDatasets={setFilteredDatasets}
-          setDatasetList={setDatasetList}
         />
       </Container>
     </>
