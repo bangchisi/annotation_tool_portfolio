@@ -22,6 +22,7 @@ import {
   Container,
   DeleteAllButton,
 } from './AnnotationList.style';
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 
 export default function AnnotationList() {
   // const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +62,7 @@ export default function AnnotationList() {
   function deleteAllAnnotationInCategories(categoryId: number) {
     if (!categories) return;
     clearCanvas();
+    AnnotationTool.history.clearHistory();
     dispatch(deleteAnnotations({ categoryId }));
   }
 

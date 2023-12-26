@@ -46,6 +46,11 @@ export class ToolHistory {
     this.undo = [];
     this.redo = [];
   }
+
+  clearHistory = () => {
+    AnnotationTool.history.undo = [];
+    AnnotationTool.history.redo = [];
+  };
 }
 
 type ObserverCallback = () => void;
