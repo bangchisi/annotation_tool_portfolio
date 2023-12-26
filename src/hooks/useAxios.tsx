@@ -17,7 +17,7 @@ export const useAxios = <T extends object>(
   body?: T,
 ) => {
   const fetcher = async (url: string) => {
-    const response = await axios({
+    const response = await axios<T>({
       url: `${API_URL}${url}`,
       method,
       data: body,
@@ -26,12 +26,13 @@ export const useAxios = <T extends object>(
     return response.data;
   };
 
-  const { data, error, isLoading } = useSWR(endpoint, fetcher);
+  const { data, error, isLoading, mutate } = useSWR(endpoint, fetcher);
 
   return {
     data,
     isError: error,
     isLoading,
+    mutate,
   };
 };
 
