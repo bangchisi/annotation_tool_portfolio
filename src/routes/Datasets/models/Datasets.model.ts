@@ -1,14 +1,10 @@
 import axios from 'axios';
 
-const DEV_URL = `http://${process.env.REACT_APP_DEV_IP}:${process.env.REACT_APP_DEV_PORT}`;
 const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 
 const DatasetsModel = {
   getDatasetsByUserId: (userId: string) => {
-    const url =
-      process.env.NODE_ENV === 'development'
-        ? `${DEV_URL}/dataset/${userId}/datasets`
-        : `${SERVER_URL}/dataset/${userId}/datasets`;
+    const url = `${SERVER_URL}/dataset/${userId}/datasets`;
 
     return axios.get(url);
   },
@@ -19,10 +15,7 @@ const DatasetsModel = {
     description: string,
     superdatasetName: string,
   ) => {
-    const url =
-      process.env.NODE_ENV === 'development'
-        ? `${DEV_URL}/dataset`
-        : `${SERVER_URL}/dataset`;
+    const url = `${SERVER_URL}/dataset`;
     return axios.post(url, {
       user_id: userId,
       dataset_name: datasetName,
@@ -32,10 +25,7 @@ const DatasetsModel = {
     });
   },
   deleteDataset: (datasetId: number) => {
-    const url =
-      process.env.NODE_ENV === 'development'
-        ? `${DEV_URL}/dataset/${datasetId}`
-        : `${SERVER_URL}/dataset/${datasetId}`;
+    const url = `${SERVER_URL}/dataset/${datasetId}`;
 
     return axios.delete(url);
   },

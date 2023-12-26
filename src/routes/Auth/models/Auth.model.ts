@@ -1,21 +1,16 @@
 import axios from 'axios';
 
-const DEV_URL = `http://${process.env.REACT_APP_DEV_IP}:${process.env.REACT_APP_DEV_PORT}`;
 const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 // headers for CORS
 const headers = {
-  'Access-Control-Allow-Origin':
-    process.env.NODE_ENV === 'development' ? DEV_URL : SERVER_URL,
+  'Access-Control-Allow-Origin': SERVER_URL,
   'Access-Control-Allow-Credentials': 'true',
 };
 
 const AuthModel = {
   // 회원가입
   register: (userId: string, password: string, userName: string) => {
-    const url =
-      process.env.NODE_ENV === 'development'
-        ? `${DEV_URL}/user/register`
-        : `${SERVER_URL}/user/register`;
+    const url = `${SERVER_URL}/user/register`;
 
     return axios.post(
       url,
@@ -31,10 +26,7 @@ const AuthModel = {
   },
   // 로그인
   login: (userId: string, password: string) => {
-    const url =
-      process.env.NODE_ENV === 'development'
-        ? `${DEV_URL}/user/login`
-        : `${SERVER_URL}/user/login`;
+    const url = `${SERVER_URL}/user/login`;
 
     return axios.post(
       url,
@@ -49,10 +41,7 @@ const AuthModel = {
   },
   // 로그아웃
   logout: (userId: string) => {
-    const url =
-      process.env.NODE_ENV === 'development'
-        ? `${DEV_URL}/user/logout`
-        : `${SERVER_URL}/user/logout`;
+    const url = `${SERVER_URL}/user/logout`;
 
     return axios.post(
       url,
