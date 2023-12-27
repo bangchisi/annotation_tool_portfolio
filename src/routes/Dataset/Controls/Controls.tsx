@@ -11,6 +11,8 @@ import { useParams } from 'react-router-dom';
 import DatasetModel from '../models/Dataset.model';
 import { Container, FilesLabel } from './Controls.style';
 import TrainStartModal from './TrainStartModal/TrainStartModal';
+import { DatasetType } from '../Dataset';
+import { KeyedMutator } from 'swr';
 
 declare module 'react' {
   interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -22,10 +24,11 @@ declare module 'react' {
 interface ControlsProps {
   isOnTrain: boolean;
   setIsOnTrain: React.Dispatch<React.SetStateAction<boolean>>;
+  reload: KeyedMutator<DatasetType>;
 }
 
 export default function Controls(props: ControlsProps) {
-  const { isOnTrain, setIsOnTrain } = props;
+  const { isOnTrain, setIsOnTrain, reload } = props;
   const datasetId = Number(useParams().datasetId);
   const [isLoading, setIsLoading] = useState(false);
   const filesInput = useRef<HTMLInputElement>(null);
@@ -45,6 +48,7 @@ export default function Controls(props: ControlsProps) {
     } catch (error) {
       axiosErrorHandler('error', 'Failed to upload images');
     } finally {
+      reload();
       setIsLoading(false);
     }
   };
@@ -73,7 +77,6 @@ export default function Controls(props: ControlsProps) {
 
       await uploadImages(Number(datasetId), formData);
     }
-    window.location.reload();
   };
 
   const onTrainStart = async (

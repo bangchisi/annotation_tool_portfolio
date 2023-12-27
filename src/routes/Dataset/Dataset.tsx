@@ -13,7 +13,7 @@ import { Container, Content } from './Dataset.style';
 import ImageList from './ImageList/ImageList';
 import Information from './Information/Information';
 import { getIsOnTrain } from './helpers/DatasetHelpers';
-import DatasetModel from './models/Dataset.model';
+import { useEnhancedSWR } from 'hooks';
 
 export interface DatasetType {
   superDatasetName: string;
@@ -38,35 +38,29 @@ export interface CategoryType {
 
 export default function Dataset() {
   const userId = useAppSelector((state) => state.auth.user.userId);
-  const [dataset, setDataset] = useState<DatasetType>();
-  const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const datasetId = Number(useParams().datasetId);
   const dispatch = useAppDispatch();
   const [isOnTrain, setIsOnTrain] = useState(false);
 
-  const getDataset = async (datasetId: number | undefined) => {
-    try {
-      setIsLoading(true);
-      const response = await DatasetModel.getDatasetById(datasetId);
-      const dataset = response.data;
+  const { data, isLoading, isError, mutate } = useEnhancedSWR<DatasetType>(
+    'GET',
+    `/dataset/${datasetId}`,
+  );
 
-      setDataset(dataset);
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to get dataset information.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (isError) console.log('Dataset.tsx error');
+
+  if (isLoading)
+    <LoadingSpinner message="데이터셋을 불러오는 중입니다. 잠시만 기다려주세요." />;
 
   // @리팩토링: Datasets 페이지에서 category를 상태로 저장하지 않기 때문에
   // category가 삭제되면 dataset을 다시 불러와야 함
   const handleCategoryDeleted = () => {
-    getDataset(datasetId);
+    mutate();
   };
 
   const handleCategoryAdded = () => {
-    getDataset(datasetId);
+    mutate();
   };
 
   async function deleteImage(imageId: number) {
@@ -79,7 +73,7 @@ export default function Dataset() {
         throw new Error('Failed to delete image');
       }
 
-      getDataset(datasetId);
+      mutate();
     } catch (error) {
       axiosErrorHandler(error, 'Failed to delete image');
     }
@@ -95,7 +89,7 @@ export default function Dataset() {
   useEffect(() => {
     if (!datasetId) return;
     dispatch(setTool(Tool.Select));
-    getDataset(Number(datasetId));
+    mutate();
   }, []);
 
   useEffect(() => {
@@ -105,20 +99,20 @@ export default function Dataset() {
   }, []);
 
   const isImageListEmpty = useMemo(() => {
-    if (!dataset) {
+    if (!data) {
       return true;
     }
 
     if (
       currentPage === 1 &&
-      dataset.imageIds.length === 0 &&
-      dataset.imageIds.length === 0
+      data.imageIds.length === 0 &&
+      data.imageIds.length === 0
     ) {
       return true;
     } else {
       return false;
     }
-  }, [dataset, currentPage]);
+  }, [data, currentPage]);
 
   const [hasScroll, setHasScroll] = useState(false);
   useEffect(() => {
@@ -140,48 +134,47 @@ export default function Dataset() {
     return () => {
       window.removeEventListener('resize', debounceDetectScroll);
     };
-  }, [dataset, dataset?.imageIds]);
+  }, [data, data?.imageIds]);
 
   return (
-    <>
-      {isLoading && (
-        <LoadingSpinner message="데이터셋을 불러오는 중입니다. 잠시만 기다려주세요." />
-      )}
-      <Container id="dataset">
-        <Controls isOnTrain={isOnTrain} setIsOnTrain={setIsOnTrain} />
-        {dataset && (
-          <>
-            <Information
-              {...dataset}
-              handleCategoryDeleted={handleCategoryDeleted}
-              handleCategoryAdded={handleCategoryAdded}
-              isOnTrain={isOnTrain}
-              getDataset={getDataset}
-            />
-            <Content>
-              {!isImageListEmpty && (
-                <PaginationPanel
-                  onCurrentPageChange={onCurrentpageChange}
-                  currentPage={currentPage}
-                  lastPage={dataset.imageIds.length}
-                />
-              )}
-              <ImageList
-                imageIds={dataset.imageIds[currentPage - 1]}
-                deleteImage={deleteImage}
-                isOnTrain={isOnTrain}
+    <Container id="dataset">
+      <Controls
+        isOnTrain={isOnTrain}
+        setIsOnTrain={setIsOnTrain}
+        reload={mutate}
+      />
+      {data && (
+        <>
+          <Information
+            {...data}
+            handleCategoryDeleted={handleCategoryDeleted}
+            handleCategoryAdded={handleCategoryAdded}
+            isOnTrain={isOnTrain}
+            reload={mutate}
+          />
+          <Content>
+            {!isImageListEmpty && (
+              <PaginationPanel
+                onCurrentPageChange={onCurrentpageChange}
+                currentPage={currentPage}
+                lastPage={data.imageIds.length}
               />
-              {!isImageListEmpty && hasScroll && (
-                <PaginationPanel
-                  onCurrentPageChange={onCurrentpageChange}
-                  currentPage={currentPage}
-                  lastPage={dataset.imageIds.length}
-                />
-              )}
-            </Content>
-          </>
-        )}
-      </Container>
-    </>
+            )}
+            <ImageList
+              imageIds={data.imageIds[currentPage - 1]}
+              deleteImage={deleteImage}
+              isOnTrain={isOnTrain}
+            />
+            {!isImageListEmpty && hasScroll && (
+              <PaginationPanel
+                onCurrentPageChange={onCurrentpageChange}
+                currentPage={currentPage}
+                lastPage={data.imageIds.length}
+              />
+            )}
+          </Content>
+        </>
+      )}
+    </Container>
   );
 }

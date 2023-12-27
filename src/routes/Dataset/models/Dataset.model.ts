@@ -3,11 +3,6 @@ import axios from 'axios';
 const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 
 const DatasetModel = {
-  getDatasetById: (datasetId: number | undefined) => {
-    const url = `${SERVER_URL}/dataset/${datasetId}`;
-
-    return axios.get(url);
-  },
   exportDataset: (datasetId: number, exportFormat: string) => {
     const url = `${SERVER_URL}/dataset/export/${datasetId}`;
 

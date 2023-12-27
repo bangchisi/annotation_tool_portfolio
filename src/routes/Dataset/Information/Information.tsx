@@ -14,12 +14,13 @@ import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import { Fragment, useCallback, useState } from 'react';
 import DatasetModel from '../models/Dataset.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { KeyedMutator } from 'swr';
 
 interface InformationProps extends DatasetType {
   isOnTrain: boolean;
   handleCategoryDeleted: () => void;
   handleCategoryAdded: () => void;
-  getDataset: (datasetId: number | undefined) => Promise<void>;
+  reload: KeyedMutator<DatasetType>;
 }
 
 export default function Information(props: InformationProps) {
@@ -33,7 +34,7 @@ export default function Information(props: InformationProps) {
     isOnTrain,
     handleCategoryDeleted,
     handleCategoryAdded,
-    getDataset,
+    reload,
   } = props;
   const [isEdit, setIsEdit] = useState(false);
 
@@ -93,14 +94,14 @@ export default function Information(props: InformationProps) {
       } catch (error) {
         axiosErrorHandler(error, 'Failed to update dataset information.');
       } finally {
-        getDataset(datasetId);
+        reload();
       }
     },
     [
       editSuperDatasetName,
       editDatasetName,
       editDescription,
-      getDataset,
+      reload,
       datasetName,
       superDatasetName,
       description,
