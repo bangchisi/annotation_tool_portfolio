@@ -1,55 +1,15 @@
 import paper from 'paper';
 import { useState } from 'react';
 
-import { useAppDispatch, useAppSelector } from 'App.hooks';
-import {
-  selectAnnotator,
-  setCategories,
-  setCurrentCategoryByCategoryId,
-  setDatasetId,
-  setImage,
-} from '../slices/annotatorSlice';
+import { useAppSelector } from 'App.hooks';
+import { selectAnnotator } from '../slices/annotatorSlice';
 
-import AnnotatorModel from '../models/Annotator.model';
-
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { AnnotationType, CategoriesType } from '../Annotator.types';
 
 const useReloadAnnotator = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useAppDispatch();
   const { categories, currentCategory, currentAnnotation, image } =
     useAppSelector(selectAnnotator);
-
-  const initData = async (imageId: number) => {
-    setIsLoading(true);
-    try {
-      const response = await AnnotatorModel.getData(imageId);
-      const data = response.data;
-      const { datasetId, image: imageData, categories: categoriesData } = data;
-
-      if (!datasetId || !imageData || !categoriesData) return;
-
-      dispatch(setCategories(categoriesData));
-      dispatch(setImage(imageData));
-      dispatch(setDatasetId(datasetId));
-
-      selectFirstCategory(categoriesData);
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to get annotator data');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const selectFirstCategory = (categories: CategoriesType) => {
-    const keys = Object.keys(categories);
-    if (keys.length <= 0) return;
-
-    const firstCategoryId = Number(keys[0]);
-
-    dispatch(setCurrentCategoryByCategoryId(firstCategoryId));
-  };
 
   const drawPaths = (categories: CategoriesType): void => {
     const existingAnnotations = new Set();
@@ -144,7 +104,6 @@ const useReloadAnnotator = () => {
     image,
     isLoading,
     setIsLoading,
-    initData,
     drawPaths,
     clearCanvas,
   };

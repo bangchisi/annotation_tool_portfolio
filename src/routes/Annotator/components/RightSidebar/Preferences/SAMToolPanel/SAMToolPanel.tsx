@@ -28,11 +28,16 @@ import {
 } from './SAMToolPanel.style';
 import useSAMParameter from './hooks/useSAMParameter';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
+import { KeyedMutator } from 'swr';
+import { InitDataType } from 'routes/Annotator/Annotator';
 
-export default function SAMToolPanel() {
+type SAMToolPanelProps = {
+  reload: KeyedMutator<InitDataType>;
+};
+
+export default function SAMToolPanel(props: SAMToolPanelProps) {
   const userId = useAppSelector((state) => state.auth.user.userId);
-  const preference = useAppSelector((state) => state.auth.preference);
-  const { categories, initData, drawPaths } = useReloadAnnotator();
+  const { categories, drawPaths } = useReloadAnnotator();
   const [isFinetuneModelLoading, setIsFinetuneModelLoading] = useState(false);
   const [finetuneModelList, setFinetuneModelList] = useState<LogType[]>([]);
   const [isFinetune, setIsFinetune] = useState(false);
@@ -186,7 +191,7 @@ export default function SAMToolPanel() {
     }
     dispatch(setSAMEverythingLoading(false));
     if (!image || !categories) return;
-    await initData(image.imageId as number);
+    props.reload();
     drawPaths(categories);
   }
 

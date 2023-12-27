@@ -7,7 +7,6 @@ import LeftSidebar from './components/LeftSidebar/LeftSidebar';
 import RightSidebar from './components/RightSidebar/RightSidebar';
 import Workbench from './components/Workbench/Workbench';
 import { useKeyEvents } from './hooks/useKeyEvents';
-import useReloadAnnotator from './hooks/useReloadAnnotator';
 import {
   selectAnnotator,
   setCategories,
@@ -15,12 +14,21 @@ import {
   setCurrentAnnotationByAnnotationId,
   setCurrentCategory,
   setCurrentCategoryByCategoryId,
+  setDatasetId,
+  setImage,
 } from './slices/annotatorSlice';
 import useWarningOnUnsavedChange from './hooks/useWarningOnUnsavedChange';
+import { useEnhancedSWR } from 'hooks';
+import { CategoriesType, ImageType } from './Annotator.types';
+
+export type InitDataType = {
+  datasetId: number;
+  categories: CategoriesType;
+  image: ImageType;
+};
 
 export default function Annotator() {
   const dispatch = useAppDispatch();
-  const { isLoading, initData } = useReloadAnnotator();
   const imageId = Number(useParams().imageId);
   const categories = useAppSelector((state) => state.annotator.categories);
   const { currentCategory, currentAnnotation } =
@@ -30,17 +38,41 @@ export default function Annotator() {
   );
   const { handleSave } = useWarningOnUnsavedChange();
 
+  // get categories using SWR
+  const { data, isLoading, isError, mutate } = useEnhancedSWR<InitDataType>(
+    'GET',
+    `/annotator/data/${imageId}`,
+  );
+
+  if (isError)
+    alert('이미지 정보를 불러오는데 실패했습니다. 새로고침 해주세요.');
+
+  if (isLoading)
+    <LoadingSpinner message="이미지 정보를 불러오는 중입니다. 잠시만 기다려주세요." />;
+
   // @이슈: redux의 categories가 뒤로 가기 했을 때 초기화되지 않는 문때
   // init data
   useEffect(() => {
-    setCategories(undefined);
-    initData(imageId);
+    const selectFirstCategory = (categories: CategoriesType) => {
+      const keys = Object.keys(categories);
+      if (keys.length <= 0) return;
+
+      const firstCategoryId = Number(keys[0]);
+
+      dispatch(setCurrentCategoryByCategoryId(firstCategoryId));
+    };
+
+    if (!data) return;
+    const { datasetId, categories, image } = data;
+    dispatch(setCategories(categories));
+    dispatch(setImage(image));
+    dispatch(setDatasetId(datasetId));
+    selectFirstCategory(categories);
 
     return () => {
       dispatch(setCategories(undefined));
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageId, dispatch]);
+  }, [data, dispatch]);
 
   useEffect(() => {
     if (!currentCategory) return;
@@ -65,10 +97,7 @@ export default function Annotator() {
     <Container>
       <LeftSidebar onSave={handleSave} />
       <Workbench />
-      <RightSidebar />
-      {isLoading && (
-        <LoadingSpinner message="이미지 정보를 불러오는 중입니다. 잠시만 기다려주세요." />
-      )}
+      <RightSidebar reload={mutate} />
       {SAMEverythingLoading && (
         <LoadingSpinner message="SAM Everything 생성중입니다..." />
       )}

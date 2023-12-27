@@ -4,11 +4,6 @@ import { CategoriesType } from '../Annotator.types';
 const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 
 const AnnotatorModel = {
-  getData: (imageId: number) => {
-    const url = `${SERVER_URL}/annotator/data/${imageId}`;
-
-    return axios.get(url);
-  },
   saveData: (
     datasetId: number,
     imageId: number,
