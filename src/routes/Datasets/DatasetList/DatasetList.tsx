@@ -28,6 +28,7 @@ export default function DatasetList(props: DatasetListProps) {
   // const list = filteredDatasets.length > 0 ? filteredDatasets : datasets;
 
   useEffect(() => {
+    if (!datasets) return;
     setFilteredDatasets(datasets);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datasets]);

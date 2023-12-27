@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAppSelector } from 'App.hooks';
 import { Container } from './Datasets.style';
 import { useEnhancedSWR } from 'hooks';
@@ -42,7 +42,7 @@ const Reload = () => {
 };
 
 export default function Datasets() {
-  const [datasets, setDatasets] = useState<DatasetType[]>([]);
+  // const [datasets, setDatasets] = useState<DatasetType[]>([]);
   const [filteredDatasets, setFilteredDatasets] = useState<DatasetType[]>([]);
   const user = useAppSelector((state) => state.auth.user);
 
@@ -50,12 +50,6 @@ export default function Datasets() {
     'GET',
     `/dataset/${user.userId}/datasets`,
   );
-
-  useEffect(() => {
-    if (data) {
-      setDatasets(data);
-    }
-  }, [data]);
 
   if (isError) {
     return <Reload />;
@@ -71,12 +65,12 @@ export default function Datasets() {
     <>
       <Container id="datasets">
         <Controls
-          datasets={datasets}
+          datasets={data || []}
           updateDatasets={mutate}
           setFilteredDatasets={setFilteredDatasets}
         />
         <DatasetList
-          datasets={datasets}
+          datasets={data || []}
           updateDatasets={mutate}
           filteredDatasets={filteredDatasets || []}
           setFilteredDatasets={setFilteredDatasets}
