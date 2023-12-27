@@ -47,6 +47,19 @@ export default function Controls(props: ControlsProps) {
       await ImagesModel.uploadImages(datasetId, images);
     } catch (error) {
       axiosErrorHandler('error', 'Failed to upload images');
+      const { response } = error as AxiosError<{
+        detail: {
+          existedFilenames: string[];
+          numInsertedImages: number;
+        };
+      }>;
+      if (!response) return;
+      const { numInsertedImages, existedFilenames } = response.data.detail;
+      alert(`${numInsertedImages}개 이미지가 업로드 되었습니다. 다음 중복된 ${
+        existedFilenames.length
+      }개 이미지는 업로드되지 않았습니다.
+      ${existedFilenames.join(', ')}
+      `);
     } finally {
       reload();
       setIsLoading(false);
