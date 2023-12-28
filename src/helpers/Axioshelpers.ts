@@ -7,7 +7,7 @@ export const axiosErrorHandler = (error: unknown, message: string) => {
   }
 };
 
-export const enhancedAxios = <T extends object>(
+export const typedAxios = <T extends object>(
   method: 'get' | 'GET' | 'post' | 'POST' | 'put' | 'PUT' | 'delete' | 'DELETE',
   endpoint: string,
   body?: T,

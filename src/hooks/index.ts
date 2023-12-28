@@ -1,2 +1,2 @@
 export { default as useLocalStorage } from './useLocalStorage';
-export { default as useEnhancedSWR } from './useEnhancedSWR';
+export { default as useTypedSWR } from './useTypedSWR';

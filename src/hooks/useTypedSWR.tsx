@@ -3,8 +3,8 @@ import useSWR from 'swr';
 
 const API_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 
-export const useEnhancedSWR = <R,>(
-  method: 'get' | 'post' | 'GET' | 'POST',
+export const useTypedSWR = <R,>(
+  method: 'get' | 'post' | 'delete' | 'put',
   endpoint: string,
   body?: object,
 ) => {
@@ -15,12 +15,12 @@ export const useEnhancedSWR = <R,>(
       data: body,
     });
 
-    return response.data;
+    return response.data as R;
   };
 
-  const { data, error, isLoading, mutate } = useSWR<R>(endpoint, fetcher);
+  const { data, error, isLoading, mutate } = useSWR(endpoint, fetcher);
 
-  return { data, isError: error, isLoading, mutate };
+  return { data, error, isLoading, mutate };
 };
 
-export default useEnhancedSWR;
+export default useTypedSWR;
