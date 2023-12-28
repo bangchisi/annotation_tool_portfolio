@@ -8,14 +8,19 @@ import {
 import { ModalFooter } from './ExportDatasetModal.style';
 import { Fragment, useState } from 'react';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import DatasetModel from 'routes/Dataset/models/Dataset.model';
 import ModalWrapper from 'components/ModalWrapper/ModalWrapper';
+import { useTypedSWRMutation } from 'hooks';
+import axios from 'axios';
 
 interface ExportDatasetModalProps {
   open: boolean;
   handleClose: () => void;
   exportId?: number;
 }
+
+type ExportResponse = {
+  downloadLink: string;
+};
 
 export default function ExportDatasetModal(props: ExportDatasetModalProps) {
   const { open, handleClose, exportId } = props;
@@ -25,16 +30,25 @@ export default function ExportDatasetModal(props: ExportDatasetModalProps) {
     setFormat(event.target.value);
   }
 
-  async function exportDataset(datasetId: number, exportFormat: string) {
+  const { data, trigger } = useTypedSWRMutation<ExportResponse>(
+    {
+      method: 'post',
+      endpoint: `/dataset/export/${exportId}`,
+    },
+    {
+      export_format: format,
+    },
+  );
+
+  async function exportDataset() {
     try {
-      const response = await DatasetModel.exportDataset(
-        datasetId,
-        exportFormat,
-      );
+      await trigger();
 
-      const link = response.data['downloadLink'];
+      if (!data) return;
 
-      DatasetModel.download(link);
+      const link = data['downloadLink'];
+
+      await axios.get(link);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to export dataset');
       alert('Export에 실패했습니다. 다시 시도해주세요.');
@@ -68,9 +82,7 @@ export default function ExportDatasetModal(props: ExportDatasetModalProps) {
             <Button color="warning" onClick={handleClose}>
               Cancel
             </Button>
-            <Button onClick={() => exportDataset(exportId, format)}>
-              Export
-            </Button>
+            <Button onClick={() => exportDataset()}>Export</Button>
           </ModalFooter>
         </ModalWrapper>
       )}

@@ -46,10 +46,10 @@ export default function Datasets() {
   const [filteredDatasets, setFilteredDatasets] = useState<DatasetType[]>([]);
   const user = useAppSelector((state) => state.auth.user);
 
-  const { data, isLoading, error, mutate } = useTypedSWR<DatasetType[]>(
-    'get',
-    `/dataset/${user.userId}/datasets`,
-  );
+  const { data, isLoading, error, mutate } = useTypedSWR<DatasetType[]>({
+    method: 'get',
+    endpoint: `/dataset/${user.userId}/datasets`,
+  });
 
   if (error) {
     return <Reload />;

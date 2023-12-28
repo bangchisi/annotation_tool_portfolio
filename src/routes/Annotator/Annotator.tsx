@@ -39,10 +39,10 @@ export default function Annotator() {
   const { handleSave } = useWarningOnUnsavedChange();
 
   // get categories using SWR
-  const { data, isLoading, error, mutate } = useTypedSWR<InitDataType>(
-    'get',
-    `/annotator/data/${imageId}`,
-  );
+  const { data, isLoading, error, mutate } = useTypedSWR<InitDataType>({
+    method: 'get',
+    endpoint: `/annotator/data/${imageId}`,
+  });
 
   if (error) alert('이미지 정보를 불러오는데 실패했습니다. 새로고침 해주세요.');
 

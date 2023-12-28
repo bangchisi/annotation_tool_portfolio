@@ -13,22 +13,12 @@ import CategoryPanel from './CategoryPanel/CategoryPanel';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import { Fragment, useCallback, useState } from 'react';
 import { KeyedMutator } from 'swr';
-import { useTypedSWR } from 'hooks';
-import { typedAxios } from 'helpers/Axioshelpers';
+import { useTypedSWRMutation } from 'hooks';
 
 interface InformationProps extends DatasetType {
   isOnTrain: boolean;
-  handleCategoryDeleted: () => void;
-  handleCategoryAdded: () => void;
   reload: KeyedMutator<DatasetType>;
 }
-
-type UpdateDatasetType = {
-  dataset_id: number;
-  dataset_name: string;
-  superdataset_name: string;
-  description: string;
-};
 
 export default function Information(props: InformationProps) {
   const {
@@ -39,9 +29,6 @@ export default function Information(props: InformationProps) {
     description,
     categories,
     isOnTrain,
-    handleCategoryDeleted,
-    handleCategoryAdded,
-    reload,
   } = props;
   const [isEdit, setIsEdit] = useState(false);
 
@@ -49,6 +36,15 @@ export default function Information(props: InformationProps) {
     useState(superDatasetName);
   const [editDatasetName, setEditDatasetName] = useState(datasetName);
   const [editDescription, setEditDescription] = useState(description);
+  const { trigger } = useTypedSWRMutation(
+    { method: 'put', endpoint: '/dataset', key: `/dataset/${datasetId}` },
+    {
+      dataset_id: datasetId,
+      dataset_name: editDatasetName,
+      superdataset_name: editSuperDatasetName,
+      description: editDescription,
+    },
+  );
 
   const resetForm = useCallback(() => {
     setEditDatasetName(datasetName);
@@ -90,20 +86,9 @@ export default function Information(props: InformationProps) {
     )
       return;
 
-    try {
-      await typedAxios<UpdateDatasetType>('put', `/dataset`, {
-        dataset_id: datasetId,
-        dataset_name: editDatasetName,
-        superdataset_name: editSuperDatasetName,
-        description: editDescription,
-      });
-      reload();
-    } catch (error) {
-      alert('데이터셋 수정에 실패했습니다.');
-    }
+    trigger();
   }, [
-    reload,
-    datasetId,
+    trigger,
     datasetName,
     editDatasetName,
     superDatasetName,
@@ -213,11 +198,7 @@ export default function Information(props: InformationProps) {
           />
         )}
         {!isEdit && <span className="content">{description}</span>}
-        <CategoryPanel
-          handleCategoryAdded={handleCategoryAdded}
-          handleCategoryDeleted={handleCategoryDeleted}
-          categories={categories}
-        />
+        <CategoryPanel categories={categories} />
       </ContentContainer>
     </Container>
   );

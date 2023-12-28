@@ -19,10 +19,10 @@ export default function Models() {
   const [finetuneId, setFinetuneId] = useState<number[]>([]);
   const { open, setOpen } = useModal();
 
-  const { data, error, isLoading, mutate } = useTypedSWR<LogType[]>(
-    'get',
-    `/finetune/${userId}`,
-  );
+  const { data, error, isLoading, mutate } = useTypedSWR<LogType[]>({
+    method: 'get',
+    endpoint: `/finetune/${userId}`,
+  });
 
   const onDelete = useCallback(async (finetuneIds: number[]) => {
     setIsDeleteLoading(true);

@@ -40,10 +40,10 @@ export default function Controls(props: ControlsProps) {
   const [finetuneName, setFinetuneName] = useState('');
   const [baseModelName, setBaseModelName] = useState('vit_b');
 
-  const { data: annotatedImages } = useTypedSWR<AnnotatedImagesType>(
-    'get',
-    `/dataset/annotated/${datasetId}`,
-  );
+  const { data: annotatedImages } = useTypedSWR<AnnotatedImagesType>({
+    method: 'get',
+    endpoint: `/dataset/annotated/${datasetId}`,
+  });
 
   const uploadImages = async (
     datasetId: number | undefined,

@@ -44,33 +44,15 @@ export default function Dataset() {
   const dispatch = useAppDispatch();
   const [isOnTrain, setIsOnTrain] = useState(false);
 
-  const { data, isLoading, error, mutate } = useTypedSWR<DatasetType>(
-    'get',
-    `/dataset/${datasetId}`,
-  );
+  const { data, isLoading, error, mutate } = useTypedSWR<DatasetType>({
+    method: 'get',
+    endpoint: `/dataset/${datasetId}`,
+  });
 
-  const { data: finetuneList } = useTypedSWR<LogType[]>(
-    'get',
-    `/finetune/${userId}`,
-  );
-
-  if (error) {
-    console.log('Dataset.tsx error');
-    console.dir(error);
-  }
-
-  if (isLoading)
-    <LoadingSpinner message="데이터셋을 불러오는 중입니다. 잠시만 기다려주세요." />;
-
-  // @리팩토링: Datasets 페이지에서 category를 상태로 저장하지 않기 때문에
-  // category가 삭제되면 dataset을 다시 불러와야 함
-  const handleCategoryDeleted = () => {
-    mutate();
-  };
-
-  const handleCategoryAdded = () => {
-    mutate();
-  };
+  const { data: finetuneList } = useTypedSWR<LogType[]>({
+    method: 'get',
+    endpoint: `/finetune/${userId}`,
+  });
 
   async function deleteImage(imageId: number) {
     const confirmDelete = confirm('정말로 삭제하시겠습니까?');
@@ -148,6 +130,17 @@ export default function Dataset() {
     };
   }, [data, data?.imageIds]);
 
+  if (error) {
+    console.log('Dataset.tsx error');
+    console.dir(error);
+  }
+
+  if (isLoading) {
+    return (
+      <LoadingSpinner message="데이터셋을 불러오는 중입니다. 잠시만 기다려주세요." />
+    );
+  }
+
   return (
     <Container id="dataset">
       <Controls
@@ -157,13 +150,7 @@ export default function Dataset() {
       />
       {data && (
         <>
-          <Information
-            {...data}
-            handleCategoryDeleted={handleCategoryDeleted}
-            handleCategoryAdded={handleCategoryAdded}
-            isOnTrain={isOnTrain}
-            reload={mutate}
-          />
+          <Information {...data} isOnTrain={isOnTrain} reload={mutate} />
           <Content>
             {!isImageListEmpty && (
               <PaginationPanel

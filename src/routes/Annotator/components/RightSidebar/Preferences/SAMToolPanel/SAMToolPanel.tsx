@@ -68,7 +68,10 @@ export default function SAMToolPanel(props: SAMToolPanelProps) {
     setPointsPerSide,
   } = useSAMParameter();
 
-  const { data } = useTypedSWR<LogType[]>('get', `/finetune/${userId}`);
+  const { data } = useTypedSWR<LogType[]>({
+    method: 'get',
+    endpoint: `/finetune/${userId}`,
+  });
 
   function onChangeModel(event: SelectChangeEvent<string>) {
     // setCurrentModel(event.target.value);
