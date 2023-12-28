@@ -12,9 +12,9 @@ import { getFormattedDate } from 'helpers/DateHelpers';
 import CategoryPanel from './CategoryPanel/CategoryPanel';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import { Fragment, useCallback, useState } from 'react';
-import DatasetModel from '../models/Dataset.model';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { KeyedMutator } from 'swr';
+import { useTypedSWR } from 'hooks';
+import { typedAxios } from 'helpers/Axioshelpers';
 
 interface InformationProps extends DatasetType {
   isOnTrain: boolean;
@@ -22,6 +22,13 @@ interface InformationProps extends DatasetType {
   handleCategoryAdded: () => void;
   reload: KeyedMutator<DatasetType>;
 }
+
+type UpdateDatasetType = {
+  dataset_id: number;
+  dataset_name: string;
+  superdataset_name: string;
+  description: string;
+};
 
 export default function Information(props: InformationProps) {
   const {
@@ -74,39 +81,36 @@ export default function Information(props: InformationProps) {
     return false;
   }, [editSuperDatasetName, editDatasetName]);
 
-  const onDatasetUpdate = useCallback(
-    async (datasetId: number) => {
-      if (!editSuperDatasetName.trim() || !editDatasetName.trim()) return;
-      if (
-        datasetName === editDatasetName &&
-        superDatasetName === editSuperDatasetName &&
-        description === editDescription
-      )
-        return;
+  const onDatasetUpdate = useCallback(async () => {
+    if (!editSuperDatasetName.trim() || !editDatasetName.trim()) return;
+    if (
+      datasetName === editDatasetName &&
+      superDatasetName === editSuperDatasetName &&
+      description === editDescription
+    )
+      return;
 
-      try {
-        await DatasetModel.updateDataset(
-          datasetId,
-          editSuperDatasetName,
-          editDatasetName,
-          editDescription,
-        );
-      } catch (error) {
-        axiosErrorHandler(error, 'Failed to update dataset information.');
-      } finally {
-        reload();
-      }
-    },
-    [
-      editSuperDatasetName,
-      editDatasetName,
-      editDescription,
-      reload,
-      datasetName,
-      superDatasetName,
-      description,
-    ],
-  );
+    try {
+      await typedAxios<UpdateDatasetType>('put', `/dataset`, {
+        dataset_id: datasetId,
+        dataset_name: editDatasetName,
+        superdataset_name: editSuperDatasetName,
+        description: editDescription,
+      });
+      reload();
+    } catch (error) {
+      alert('데이터셋 수정에 실패했습니다.');
+    }
+  }, [
+    reload,
+    datasetId,
+    datasetName,
+    editDatasetName,
+    superDatasetName,
+    editSuperDatasetName,
+    description,
+    editDescription,
+  ]);
 
   const onEscapeKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -124,10 +128,10 @@ export default function Information(props: InformationProps) {
           resetForm();
           return;
         }
-        onDatasetUpdate(datasetId);
+        onDatasetUpdate();
       }
     },
-    [setIsEdit, onDatasetUpdate, datasetId, resetForm, hasEmpty, validation],
+    [setIsEdit, onDatasetUpdate, resetForm, hasEmpty, validation],
   );
 
   const onClick = useCallback(() => {
@@ -143,16 +147,8 @@ export default function Information(props: InformationProps) {
       return;
     }
     if (!isEdit) return;
-    onDatasetUpdate(datasetId);
-  }, [
-    isEdit,
-    setIsEdit,
-    onDatasetUpdate,
-    datasetId,
-    hasEmpty,
-    resetForm,
-    validation,
-  ]);
+    onDatasetUpdate();
+  }, [isEdit, setIsEdit, onDatasetUpdate, hasEmpty, resetForm, validation]);
 
   return (
     <Container className="information-step">

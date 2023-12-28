@@ -8,11 +8,11 @@ import FinetuneModel from 'models/Finetune.model';
 import ImagesModel from 'models/Images.model';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import DatasetModel from '../models/Dataset.model';
 import { Container, FilesLabel } from './Controls.style';
 import TrainStartModal from './TrainStartModal/TrainStartModal';
 import { DatasetType } from '../Dataset';
 import { KeyedMutator } from 'swr';
+import { useTypedSWR } from 'hooks';
 
 declare module 'react' {
   interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -27,6 +27,11 @@ interface ControlsProps {
   reload: KeyedMutator<DatasetType>;
 }
 
+type AnnotatedImagesType = {
+  num_total_images: number;
+  num_annotated_images: number;
+};
+
 export default function Controls(props: ControlsProps) {
   const { isOnTrain, setIsOnTrain, reload } = props;
   const datasetId = Number(useParams().datasetId);
@@ -34,6 +39,11 @@ export default function Controls(props: ControlsProps) {
   const filesInput = useRef<HTMLInputElement>(null);
   const [finetuneName, setFinetuneName] = useState('');
   const [baseModelName, setBaseModelName] = useState('vit_b');
+
+  const { data: annotatedImages } = useTypedSWR<AnnotatedImagesType>(
+    'get',
+    `/dataset/annotated/${datasetId}`,
+  );
 
   const uploadImages = async (
     datasetId: number | undefined,
@@ -97,7 +107,7 @@ export default function Controls(props: ControlsProps) {
     modelType: string,
     finetuneName: string,
   ) => {
-    const validation = await isEnoughSamples(datasetId);
+    const validation = await isEnoughSamples();
     if (!validation) return;
 
     try {
@@ -125,12 +135,11 @@ export default function Controls(props: ControlsProps) {
   };
 
   // validation (annotated image count)
-  async function isEnoughSamples(datasetId: number) {
+  async function isEnoughSamples() {
     const criteria = 2;
-    const response = await DatasetModel.getAnnotatedImagesCount(datasetId);
-    if (!response) return false;
+    if (!annotatedImages) return false;
 
-    const { num_annotated_images } = response.data; // { num_total_images, num_annotated_images }
+    const { num_annotated_images } = annotatedImages; // { num_total_images, num_annotated_images }
 
     const result = num_annotated_images >= criteria;
     if (!result)

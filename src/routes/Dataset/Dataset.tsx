@@ -12,8 +12,9 @@ import Controls from './Controls/Controls';
 import { Container, Content } from './Dataset.style';
 import ImageList from './ImageList/ImageList';
 import Information from './Information/Information';
-import { getIsOnTrain } from './helpers/DatasetHelpers';
-import { useEnhancedSWR } from 'hooks';
+// import { getIsOnTrain } from './helpers/DatasetHelpers';
+import { useTypedSWR } from 'hooks';
+import { LogType } from 'routes/Models/logTypes';
 
 export interface DatasetType {
   superDatasetName: string;
@@ -43,12 +44,20 @@ export default function Dataset() {
   const dispatch = useAppDispatch();
   const [isOnTrain, setIsOnTrain] = useState(false);
 
-  const { data, isLoading, isError, mutate } = useEnhancedSWR<DatasetType>(
-    'GET',
+  const { data, isLoading, error, mutate } = useTypedSWR<DatasetType>(
+    'get',
     `/dataset/${datasetId}`,
   );
 
-  if (isError) console.log('Dataset.tsx error');
+  const { data: finetuneList } = useTypedSWR<LogType[]>(
+    'get',
+    `/finetune/${userId}`,
+  );
+
+  if (error) {
+    console.log('Dataset.tsx error');
+    console.dir(error);
+  }
 
   if (isLoading)
     <LoadingSpinner message="데이터셋을 불러오는 중입니다. 잠시만 기다려주세요." />;
@@ -90,13 +99,16 @@ export default function Dataset() {
     if (!datasetId) return;
     dispatch(setTool(Tool.Select));
     mutate();
-  }, []);
+  }, [datasetId, dispatch, mutate]);
 
   useEffect(() => {
-    getIsOnTrain(userId, datasetId).then((flag) => {
-      setIsOnTrain(flag);
-    });
-  }, []);
+    const log = finetuneList?.find(
+      (log) => log.datasetId === datasetId && !log.isDone,
+    );
+
+    if (!log) setIsOnTrain(false);
+    else setIsOnTrain(true);
+  }, [finetuneList, datasetId, setIsOnTrain]);
 
   const isImageListEmpty = useMemo(() => {
     if (!data) {
