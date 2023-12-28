@@ -1,6 +1,6 @@
 import { Button } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
-import { axiosErrorHandler, enhancedAxios } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import { useCallback, useState } from 'react';
 import {
   Container,
@@ -61,7 +61,7 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
     superDatasetName: string,
   ) => {
     try {
-      await enhancedAxios('POST', '/dataset', {
+      await typedAxios('POST', '/dataset', {
         user_id: userId,
         dataset_name: datasetName,
         categories,

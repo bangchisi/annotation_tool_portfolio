@@ -3,7 +3,7 @@ import { useAppSelector } from 'App.hooks';
 import { AxiosError } from 'axios';
 import CategoryTag from 'components/CategoryTag/CategoryTag';
 import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
-import { axiosErrorHandler, enhancedAxios } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import { getDifferenceDate } from 'helpers/DateHelpers';
 import { getThumbnailPath } from 'helpers/ImagesHelpers';
 import { useEffect, useState } from 'react';
@@ -67,7 +67,7 @@ export default function DatasetCard(props: DatasetCardProps) {
     if (!confirmDelete) return;
 
     try {
-      const response = await enhancedAxios('DELETE', `/dataset/${datasetId}`);
+      const response = await typedAxios('DELETE', `/dataset/${datasetId}`);
 
       if (response.status === 400) {
         alert('현재 학습중인 Dataset은 삭제할 수 없습니다.');

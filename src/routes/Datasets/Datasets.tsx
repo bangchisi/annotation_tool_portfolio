@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAppSelector } from 'App.hooks';
 import { Container } from './Datasets.style';
-import { useEnhancedSWR } from 'hooks';
+import { useTypedSWR } from 'hooks';
 
 import { Box, Button, Typography } from '@mui/material';
 import CachedOutlinedIcon from '@mui/icons-material/CachedOutlined';
@@ -46,12 +46,12 @@ export default function Datasets() {
   const [filteredDatasets, setFilteredDatasets] = useState<DatasetType[]>([]);
   const user = useAppSelector((state) => state.auth.user);
 
-  const { data, isLoading, isError, mutate } = useEnhancedSWR<DatasetType[]>(
-    'GET',
+  const { data, isLoading, error, mutate } = useTypedSWR<DatasetType[]>(
+    'get',
     `/dataset/${user.userId}/datasets`,
   );
 
-  if (isError) {
+  if (error) {
     return <Reload />;
   }
 
