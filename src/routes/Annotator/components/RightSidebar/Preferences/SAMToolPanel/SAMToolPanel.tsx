@@ -30,6 +30,7 @@ import useSAMParameter from './hooks/useSAMParameter';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { KeyedMutator } from 'swr';
 import { InitDataType } from 'routes/Annotator/Annotator';
+import { useTypedSWR } from 'hooks';
 
 type SAMToolPanelProps = {
   reload: KeyedMutator<InitDataType>;
@@ -38,8 +39,8 @@ type SAMToolPanelProps = {
 export default function SAMToolPanel(props: SAMToolPanelProps) {
   const userId = useAppSelector((state) => state.auth.user.userId);
   const { categories, drawPaths } = useReloadAnnotator();
-  const [isFinetuneModelLoading, setIsFinetuneModelLoading] = useState(false);
-  const [finetuneModelList, setFinetuneModelList] = useState<LogType[]>([]);
+  // const [isFinetuneModelLoading, setIsFinetuneModelLoading] = useState(false);
+  // const [finetuneModelList, setFinetuneModelList] = useState<LogType[]>([]);
   const [isFinetune, setIsFinetune] = useState(false);
   // const [currentModel, setCurrentModel] = useState('vit_h');
   const { model: currentModel } = useAppSelector(selectSAM);
@@ -67,6 +68,8 @@ export default function SAMToolPanel(props: SAMToolPanelProps) {
     setPointsPerSide,
   } = useSAMParameter();
 
+  const { data } = useTypedSWR<LogType[]>('get', `/finetune/${userId}`);
+
   function onChangeModel(event: SelectChangeEvent<string>) {
     // setCurrentModel(event.target.value);
     dispatch(setSAMModel(event.target.value));
@@ -79,7 +82,7 @@ export default function SAMToolPanel(props: SAMToolPanelProps) {
         setIsFinetune(false);
       });
     } else {
-      const selectedFinetunedModel = finetuneModelList.find((finetuneModel) => {
+      const selectedFinetunedModel = data?.find((finetuneModel) => {
         return finetuneModel.finetuneName === event.target.value;
       });
 
@@ -91,19 +94,19 @@ export default function SAMToolPanel(props: SAMToolPanelProps) {
     }
   }
 
-  async function getFinetuneModels(userId: string) {
-    setIsFinetuneModelLoading(true);
-    try {
-      const response = await FinetuneModel.getLogs(userId);
-      if (!response.data) return;
+  // async function getFinetuneModels(userId: string) {
+  //   setIsFinetuneModelLoading(true);
+  //   try {
+  //     const response = await FinetuneModel.getLogs(userId);
+  //     if (!response.data) return;
 
-      setFinetuneModelList(response.data);
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to get finetuned models in SAM Panel');
-    } finally {
-      setIsFinetuneModelLoading(false);
-    }
-  }
+  //     setFinetuneModelList(response.data);
+  //   } catch (error) {
+  //     axiosErrorHandler(error, 'Failed to get finetuned models in SAM Panel');
+  //   } finally {
+  //     setIsFinetuneModelLoading(false);
+  //   }
+  // }
 
   function onEverything() {
     const viewBounds = paper.view.bounds;
@@ -195,9 +198,9 @@ export default function SAMToolPanel(props: SAMToolPanelProps) {
     drawPaths(categories);
   }
 
-  useEffect(() => {
-    getFinetuneModels(userId);
-  }, []);
+  // useEffect(() => {
+  //   getFinetuneModels(userId);
+  // }, []);
 
   return (
     <Container>
@@ -213,18 +216,19 @@ export default function SAMToolPanel(props: SAMToolPanelProps) {
             <MenuItem value="vit_h">vit_h</MenuItem>
             <MenuItem value="vit_l">vit_l</MenuItem>
             <MenuItem value="vit_b">vit_b</MenuItem>
-            {finetuneModelList
-              .filter(
-                (finetuneModel) => finetuneModel.status === 'Finetuning Done',
-              )
-              .map((finetuneModel) => (
-                <MenuItem
-                  key={finetuneModel.finetuneId}
-                  value={finetuneModel.finetuneName}
-                >
-                  {finetuneModel.finetuneName}
-                </MenuItem>
-              ))}
+            {data &&
+              data
+                .filter(
+                  (finetuneModel) => finetuneModel.status === 'Finetuning Done',
+                )
+                .map((finetuneModel) => (
+                  <MenuItem
+                    key={finetuneModel.finetuneId}
+                    value={finetuneModel.finetuneName}
+                  >
+                    {finetuneModel.finetuneName}
+                  </MenuItem>
+                ))}
           </Select>
         </SelectModel>
       </ModelContainer>

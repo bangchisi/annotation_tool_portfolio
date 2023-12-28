@@ -3,11 +3,6 @@ import axios from 'axios';
 const SERVER_URL = `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}`;
 
 const FinetuneModel = {
-  checkAvailableDevice: () => {
-    const url = `${SERVER_URL}/finetune/is_available`;
-
-    return axios.get(url);
-  },
   start: (
     datasetId: number,
     deviceId: number,
@@ -37,11 +32,6 @@ const FinetuneModel = {
       vit_model_type: 'vit_b',
       finetune_name: finetuneName,
     });
-  },
-  getLogs: (userId: string) => {
-    const url = `${SERVER_URL}/finetune/${userId}`;
-
-    return axios.get(url);
   },
   deleteLogs: (finetuneIds: number[]) => {
     const url = `${SERVER_URL}/finetune/${finetuneIds}`;

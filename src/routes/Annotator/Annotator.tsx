@@ -18,7 +18,7 @@ import {
   setImage,
 } from './slices/annotatorSlice';
 import useWarningOnUnsavedChange from './hooks/useWarningOnUnsavedChange';
-import { useEnhancedSWR } from 'hooks';
+import { useTypedSWR } from 'hooks';
 import { CategoriesType, ImageType } from './Annotator.types';
 
 export type InitDataType = {
@@ -39,13 +39,12 @@ export default function Annotator() {
   const { handleSave } = useWarningOnUnsavedChange();
 
   // get categories using SWR
-  const { data, isLoading, isError, mutate } = useEnhancedSWR<InitDataType>(
-    'GET',
+  const { data, isLoading, error, mutate } = useTypedSWR<InitDataType>(
+    'get',
     `/annotator/data/${imageId}`,
   );
 
-  if (isError)
-    alert('이미지 정보를 불러오는데 실패했습니다. 새로고침 해주세요.');
+  if (error) alert('이미지 정보를 불러오는데 실패했습니다. 새로고침 해주세요.');
 
   if (isLoading)
     <LoadingSpinner message="이미지 정보를 불러오는 중입니다. 잠시만 기다려주세요." />;
