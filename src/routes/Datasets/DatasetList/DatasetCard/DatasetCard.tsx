@@ -95,7 +95,7 @@ export default function DatasetCard(props: DatasetCardProps) {
       if (!response) return;
       setImgPath(response);
     });
-  }, []);
+  }, [datasetId]);
 
   return (
     <Container className="dataset-card">
