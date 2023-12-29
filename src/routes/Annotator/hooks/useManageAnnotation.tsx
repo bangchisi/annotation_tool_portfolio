@@ -1,10 +1,9 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { getRandomHexColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import paper from 'paper';
 import { useState } from 'react';
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
-import AnnotatorModel from '../models/Annotator.model';
 import {
   addAnnotation,
   deleteAnnotation,
@@ -14,6 +13,8 @@ import {
   setLastSelectedAnnotationByCategoryId,
 } from '../slices/annotatorSlice';
 import useReloadAnnotator from './useReloadAnnotator';
+import { useTypedSWRMutation } from 'hooks';
+import useSWRMutation from 'swr/mutation';
 
 export const selectPathSegments = (
   categoryId: number,
@@ -46,6 +47,38 @@ const useManageAnnotation = () => {
     useReloadAnnotator();
   const { datasetId } = useAppSelector(selectAnnotator);
 
+  const { trigger: createAnnotation } = useTypedSWRMutation<{
+    annotationId: number;
+    color: string;
+  }>(
+    {
+      method: 'post',
+      endpoint: '/annotation',
+    },
+    {
+      image_id: image?.imageId,
+      dataset_id: datasetId,
+      category_id: currentCategory?.categoryId,
+      color: getRandomHexColor(),
+    },
+  );
+
+  const deleteAnnotationByIdFetcher = async (
+    url: string,
+    { arg }: { arg: { annotationId: number } },
+  ) => {
+    try {
+      await typedAxios('delete', `/annotation/${arg.annotationId}`);
+    } catch (error) {
+      console.log('Failed to delete annotation');
+    }
+  };
+
+  const { trigger: deleteAnnotationById } = useSWRMutation(
+    '/annotation/delete',
+    deleteAnnotationByIdFetcher,
+  );
+
   // empty annotation 생성
   async function createEmptyAnnotation() {
     // 항목 2. categories 업데이트
@@ -63,31 +96,19 @@ const useManageAnnotation = () => {
       AnnotationTool.initializeHistory();
     }
 
-    // 랜덤 색상 생성
-    const annotationColor = getRandomHexColor();
-
     setIsLoading(true);
+
     try {
-      // 빈 annotation 껍데기 생성 요청
-      const response = await AnnotatorModel.createAnnotation(
-        image.imageId,
-        datasetId,
-        currentCategory.categoryId,
-        annotationColor,
-      );
-
-      if (response.status !== 200)
-        throw new Error('Failed to create annotation');
-
+      const { annotationId, color } = await createAnnotation();
       // 서버에서 생성한 마지막 annotation id
-      const newAnnotationId = response.data.annotationId;
+      const newAnnotationId = annotationId;
 
       // 새 annotation 생성, default 값들임.
       const newAnnotation = {
         annotationId: newAnnotationId,
         isCrowd: false,
         isBbox: false,
-        color: annotationColor,
+        color: color,
         segmentation: [[]],
         area: 0,
         bbox: [0, 0, 0, 0],
@@ -103,13 +124,13 @@ const useManageAnnotation = () => {
 
       // 항목 1. paper 업데이트
       const compoundPathToAdd = new paper.CompoundPath({});
-      compoundPathToAdd.fillColor = new paper.Color(annotationColor);
+      compoundPathToAdd.fillColor = new paper.Color(color);
       compoundPathToAdd.strokeColor = new paper.Color(1, 1, 1, 1);
       compoundPathToAdd.opacity = 0.5;
       const dataToAdd = {
         categoryId: currentCategory.categoryId,
         annotationId: newAnnotationId,
-        annotationColor: annotationColor,
+        annotationColor: color,
       };
       compoundPathToAdd.data = dataToAdd;
 
@@ -144,9 +165,7 @@ const useManageAnnotation = () => {
       [];
 
     try {
-      const response = await AnnotatorModel.deleteAnnotation(annotationId);
-      if (response.status !== 200)
-        throw new Error('Failed to delete annotation');
+      await deleteAnnotationById({ annotationId });
 
       // delete compound in canvas
       deleteCompound(categoryId, annotationId);

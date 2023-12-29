@@ -15,7 +15,6 @@ import { useKeyEvents } from 'routes/Annotator/hooks/useKeyEvents';
 import { useParams } from 'react-router-dom';
 import { useAppSelector } from 'App.hooks';
 import { createCategoriesToUpdate } from 'routes/Annotator/helpers/Annotator.helper';
-import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
 import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import useSWRMutation from 'swr/mutation';
 
