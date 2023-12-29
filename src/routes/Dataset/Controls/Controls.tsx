@@ -3,9 +3,8 @@ import DriveFolderUploadOutlinedIcon from '@mui/icons-material/DriveFolderUpload
 import { AxiosError } from 'axios';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import FinetuneModel from 'models/Finetune.model';
-import ImagesModel from 'models/Images.model';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, FilesLabel } from './Controls.style';
@@ -13,6 +12,7 @@ import TrainStartModal from './TrainStartModal/TrainStartModal';
 import { DatasetType } from '../Dataset';
 import { KeyedMutator } from 'swr';
 import { useTypedSWR } from 'hooks';
+import useSWRMutation from 'swr/mutation';
 
 declare module 'react' {
   interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -45,6 +45,18 @@ export default function Controls(props: ControlsProps) {
     endpoint: `/dataset/annotated/${datasetId}`,
   });
 
+  const uploadFetcher = async (
+    url: string,
+    { arg }: { arg: { images: FormData } },
+  ) => {
+    return typedAxios('post', `/image?dataset_id=${datasetId}`, arg.images);
+  };
+
+  const { trigger: uploadImage } = useSWRMutation(
+    `/dataset/${datasetId}`,
+    uploadFetcher,
+  );
+
   const uploadImages = async (
     datasetId: number | undefined,
     images: FormData,
@@ -54,7 +66,7 @@ export default function Controls(props: ControlsProps) {
 
     try {
       setIsLoading(true);
-      await ImagesModel.uploadImages(datasetId, images);
+      await uploadImage({ images });
     } catch (error) {
       axiosErrorHandler('error', 'Failed to upload images');
       const { response } = error as AxiosError<{

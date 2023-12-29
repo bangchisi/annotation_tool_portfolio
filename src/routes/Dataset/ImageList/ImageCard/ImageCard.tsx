@@ -3,7 +3,6 @@ import classnames from 'classnames';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { getImagePath } from 'helpers/ImagesHelpers';
-import ImagesModel from 'models/Images.model';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Container,
@@ -14,6 +13,7 @@ import {
   TitleContainer,
   Wrapper,
 } from './ImageCard.style';
+import { useTypedSWR } from 'hooks';
 
 interface ImageCardProps {
   imageId: number;
@@ -33,18 +33,19 @@ export default function ImageCard(props: ImageCardProps) {
   const imagePath = getImagePath(Number(imageId), 200);
   const link = `/annotator/${imageId}`;
 
+  const { data, error } = useTypedSWR<{
+    filename: string;
+    isAnnotated: boolean;
+  }>({
+    method: 'get',
+    endpoint: `/image/info/${imageId}`,
+  });
+
   // @이슈: 이미지 이름 가져오려고 했는데,
   // 너무 비효율적인 방법임. 초기에 이미지 이름까지 같이 받아서 처리해야함.
   useEffect(() => {
     const fetchImageInfo = async () => {
       try {
-        const response = await ImagesModel.getImageInfo(imageId);
-
-        if (response.status !== 200) {
-          throw new Error('이미지 정보를 가져오는데 실패했습니다.');
-        }
-
-        const data = await response.data;
         if (data) {
           setImageInfo(data);
         } else {
@@ -56,7 +57,7 @@ export default function ImageCard(props: ImageCardProps) {
     };
 
     fetchImageInfo();
-  }, [imageId]);
+  }, [data]);
 
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -92,6 +93,10 @@ export default function ImageCard(props: ImageCardProps) {
     () => classnames('image-title', isTitleClipped && 'clipped'),
     [isTitleClipped],
   );
+
+  if (error) {
+    console.log(error);
+  }
 
   return (
     <Wrapper>

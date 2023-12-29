@@ -1,9 +1,8 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import PaginationPanel from 'components/PaginationPanel/PaginationPanel';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { typedAxios } from 'helpers/Axioshelpers';
 import { debounce } from 'lodash';
-import ImagesModel from 'models/Images.model';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { setTool } from 'routes/Annotator/slices/annotatorSlice';
@@ -12,9 +11,9 @@ import Controls from './Controls/Controls';
 import { Container, Content } from './Dataset.style';
 import ImageList from './ImageList/ImageList';
 import Information from './Information/Information';
-// import { getIsOnTrain } from './helpers/DatasetHelpers';
 import { useTypedSWR } from 'hooks';
 import { LogType } from 'routes/Models/logTypes';
+import useSWRMutation from 'swr/mutation';
 
 export interface DatasetType {
   superDatasetName: string;
@@ -54,20 +53,23 @@ export default function Dataset() {
     endpoint: `/finetune/${userId}`,
   });
 
+  const deleteImageFetcher = async (
+    url: string,
+    { arg }: { arg: { imageId: number } },
+  ) => {
+    return typedAxios('delete', `/image/${arg.imageId}`);
+  };
+
+  const { trigger: deleteImageTrigger } = useSWRMutation(
+    `/dataset/${datasetId}`,
+    deleteImageFetcher,
+  );
+
   async function deleteImage(imageId: number) {
     const confirmDelete = confirm('정말로 삭제하시겠습니까?');
     if (!confirmDelete) return;
-    try {
-      const response = await ImagesModel.deleteImage(imageId);
 
-      if (response.status !== 200) {
-        throw new Error('Failed to delete image');
-      }
-
-      mutate();
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to delete image');
-    }
+    await deleteImageTrigger({ imageId });
   }
 
   const onCurrentpageChange = (
