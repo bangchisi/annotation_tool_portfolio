@@ -4,11 +4,11 @@ import {
   InputField,
   RegisterButton,
 } from './RegisterForm.style';
-import AuthModel from 'routes/Auth/models/Auth.model';
 import { AxiosError } from 'axios';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { Typography } from '@mui/material';
+import { useTypedSWRMutation } from 'hooks';
 
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +16,18 @@ export default function RegisterForm() {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const { trigger: register } = useTypedSWRMutation(
+    {
+      method: 'post',
+      endpoint: '/user/register',
+    },
+    {
+      user_id: userId,
+      password,
+      username: userName,
+    },
+  );
 
   const handleUserNameChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setUserName(event?.target?.value);
@@ -74,14 +86,7 @@ export default function RegisterForm() {
 
     try {
       setIsLoading(true);
-      const response = await AuthModel.register(userId, password, userName);
-
-      if (response.status === 200) {
-        alert('회원등록 성공');
-        window.location.reload();
-      } else {
-        alert('회원등록 실패');
-      }
+      await register();
     } catch (error) {
       axiosErrorHandler(error, 'Failed to register');
       if (error instanceof AxiosError && error.code === 'ERR_BAD_REQUEST') {

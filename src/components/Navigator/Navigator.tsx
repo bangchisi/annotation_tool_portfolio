@@ -20,7 +20,6 @@ import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { clearSAM } from 'routes/Annotator/slices/SAMSlice';
 import { clearAnnotator } from 'routes/Annotator/slices/annotatorSlice';
-import AuthModel from 'routes/Auth/models/Auth.model';
 import {
   clearAuth,
   setIsAuthenticated,
@@ -36,6 +35,7 @@ import {
   UserInfoButton,
 } from './Navigator.style';
 import { OnboardingButton } from 'components/Onboarding';
+import { useTypedSWRMutation } from 'hooks';
 
 interface NavigatorProps {
   currentMode: RouteMode;
@@ -47,15 +47,29 @@ export default function Navigator(props: NavigatorProps) {
   const user = useAppSelector((state) => state.auth.user);
   const route = useLocation().pathname.split('/')[1];
 
-  const onLogout = async (userId: string) => {
+  const { trigger: logout } = useTypedSWRMutation<{
+    userId: string;
+    userName: string;
+    isOnline: boolean;
+  }>(
+    {
+      method: 'post',
+      endpoint: '/user/logout',
+    },
+    {
+      user_id: user.userId,
+    },
+  );
+
+  const onLogout = async () => {
     if (!user.userId) return;
-    const response = await AuthModel.logout(userId);
-    dispatch(setIsAuthenticated(response.data.isOnline));
+    const response = await logout();
+    dispatch(setIsAuthenticated(response.isOnline));
     dispatch(
       setUser({
         userId: '',
         userName: '',
-        isOnline: response.data.isOnline,
+        isOnline: response.isOnline,
       }),
     );
 
@@ -63,9 +77,9 @@ export default function Navigator(props: NavigatorProps) {
     dispatch(clearAnnotator());
     dispatch(clearSAM());
   };
-  const handleLogout = (userId: string) => {
+  const handleLogout = () => {
     console.log('logout');
-    onLogout(userId);
+    onLogout();
     handleClose(new Event('click'));
   };
 
@@ -195,7 +209,7 @@ export default function Navigator(props: NavigatorProps) {
                         <ListItemText>Settings</ListItemText>
                       </MenuItem>
                       <Divider />
-                      <MenuItem onClick={() => handleLogout(user.userId)}>
+                      <MenuItem onClick={() => handleLogout()}>
                         <ListItemIcon>
                           <LogoutOutlinedIcon fontSize="small" />
                         </ListItemIcon>

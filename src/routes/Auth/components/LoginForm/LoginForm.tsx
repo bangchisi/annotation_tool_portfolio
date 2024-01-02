@@ -1,7 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FormContainer, InputField, LoginButton } from './LoginForm.style';
-import AuthModel from 'routes/Auth/models/Auth.model';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import { AxiosError } from 'axios';
 import { useAppDispatch } from 'App.hooks';
@@ -13,6 +12,8 @@ import {
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { useCookies } from 'react-cookie';
 import { Typography } from '@mui/material';
+import { useTypedSWRMutation } from 'hooks';
+import { userType } from 'types';
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +22,17 @@ export default function LoginForm() {
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
+
+  const { trigger: login } = useTypedSWRMutation<userType>(
+    {
+      method: 'post',
+      endpoint: '/user/login',
+    },
+    {
+      user_id: userId,
+      password,
+    },
+  );
 
   const routeChange = (path: string) => {
     navigate(path);
@@ -48,25 +60,25 @@ export default function LoginForm() {
 
     try {
       setIsLoading(true);
-      const response = await AuthModel.login(userId, password);
+      const response = await login();
 
-      if (response.status === 200) {
-        setCookie('userId', response.data.userId, {
+      if (response.userId) {
+        setCookie('userId', response.userId, {
           path: '/',
           maxAge: 1000 * 60 * 60,
         });
 
-        dispatch(setIsAuthenticated(response.data.isOnline));
+        dispatch(setIsAuthenticated(response.isOnline));
         // user 정보를 redux에 넣음
         dispatch(
           setUser({
-            userId: response.data.userId,
-            userName: response.data.userName,
-            isOnline: response.data.isOnline,
+            userId: response.userId,
+            userName: response.userName,
+            isOnline: response.isOnline,
           }),
         );
         // preference redux에 넣음
-        dispatch(setPreference(response.data.preference));
+        dispatch(setPreference(response.preference));
         routeChange('/datasets');
       } else {
         dispatch(setIsAuthenticated(false));
