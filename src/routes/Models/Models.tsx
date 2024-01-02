@@ -2,15 +2,15 @@ import { Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { useModal } from 'components/ModalWrapper/ModalWrapper';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import FinetuneModel from 'models/Finetune.model';
-import { useCallback, useMemo, useState } from 'react';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import FlexTable from 'routes/Models/Components/FlexTable';
 import { LogType } from 'routes/Models/logTypes';
 import ModelDeleteModal from './Components/ModelDeleteModal/ModelDeleteModal';
 import { Container, QueueBox, TableWrapper } from './Models.style';
 import { useTypedSWR } from 'hooks';
+import useSWRMutation from 'swr/mutation';
 
 export default function Models() {
   const userId = useAppSelector((state) => state.auth.user.userId);
@@ -24,16 +24,40 @@ export default function Models() {
     endpoint: `/finetune/${userId}`,
   });
 
-  const onDelete = useCallback(async (finetuneIds: number[]) => {
-    setIsDeleteLoading(true);
-    try {
-      await FinetuneModel.deleteLogs(finetuneIds);
-    } catch (error) {
-      axiosErrorHandler(error, 'Failed to delete finetune model');
-    } finally {
-      setIsDeleteLoading(false);
-    }
-  }, []);
+  const deleteModelFetcher = async (
+    url: string,
+    { arg }: { arg: { finetuneIds: number[] } },
+  ) => {
+    return typedAxios('delete', `/finetune/${arg.finetuneIds}`);
+  };
+  const { trigger: deleteModel } = useSWRMutation(
+    '/finetune/delete',
+    deleteModelFetcher,
+  );
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      mutate();
+    }, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [mutate]);
+
+  const onDelete = useCallback(
+    async (finetuneIds: number[]) => {
+      setIsDeleteLoading(true);
+      try {
+        await deleteModel({ finetuneIds });
+      } catch (error) {
+        axiosErrorHandler(error, 'Failed to delete finetune model');
+      } finally {
+        setIsDeleteLoading(false);
+      }
+    },
+    [deleteModel],
+  );
 
   const handleDelete = useCallback(
     (finetuneId: number, finetuneName: string) => {

@@ -5,8 +5,7 @@ import { useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import FinetuneModel from 'models/Finetune.model';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import { ImageType } from 'routes/Annotator/Annotator.types';
 import useManageTool from 'routes/Annotator/components/Workbench/Canvas/tools/useManageTool';
 import SAMModel from 'routes/Annotator/models/SAM.model';
@@ -19,6 +18,7 @@ import {
 } from 'routes/Annotator/slices/SAMSlice';
 import { Tool } from 'types';
 import { AnnotationTool } from '../hooks/useTools';
+import useSWRMutation from 'swr/mutation';
 
 const useSAMTool = () => {
   const coords = useRef<[number, number][]>([]);
@@ -29,6 +29,17 @@ const useSAMTool = () => {
     useAppSelector(selectAnnotator);
 
   const tool = useManageTool(Tool.SAM);
+
+  const loadModelFetcher = async (
+    url: string,
+    { arg }: { arg: { finetuneId: number } },
+  ) => {
+    return typedAxios('get', `/sam/load/finetuned/${arg.finetuneId}`);
+  };
+  const { trigger: loadModel } = useSWRMutation(
+    '/sam/load/finetuned',
+    loadModelFetcher,
+  );
 
   useEffect(() => {
     coords.current = [];
@@ -250,9 +261,7 @@ const useSAMTool = () => {
   const loadFinetunedModel = async (finetuneId: number) => {
     dispatch(setSAMModelLoading(true));
     try {
-      const response = await FinetuneModel.loadFinetunedModel(finetuneId);
-      if (response.status !== 200)
-        throw new Error('Failed to load finetuned model');
+      await loadModel({ finetuneId });
     } catch (error) {
       axiosErrorHandler(error, 'Failed to load SAM');
       // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이

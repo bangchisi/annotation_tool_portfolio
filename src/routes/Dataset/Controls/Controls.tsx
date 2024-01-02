@@ -4,14 +4,13 @@ import { AxiosError } from 'axios';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
-import FinetuneModel from 'models/Finetune.model';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, FilesLabel } from './Controls.style';
 import TrainStartModal from './TrainStartModal/TrainStartModal';
 import { DatasetType } from '../Dataset';
 import { KeyedMutator } from 'swr';
-import { useTypedSWR } from 'hooks';
+import { useTypedSWR, useTypedSWRMutation } from 'hooks';
 import useSWRMutation from 'swr/mutation';
 
 declare module 'react' {
@@ -33,7 +32,7 @@ type AnnotatedImagesType = {
 };
 
 export default function Controls(props: ControlsProps) {
-  const { isOnTrain, setIsOnTrain, reload } = props;
+  const { isOnTrain, reload } = props;
   const datasetId = Number(useParams().datasetId);
   const [isLoading, setIsLoading] = useState(false);
   const filesInput = useRef<HTMLInputElement>(null);
@@ -55,6 +54,21 @@ export default function Controls(props: ControlsProps) {
   const { trigger: uploadImage } = useSWRMutation(
     `/dataset/${datasetId}`,
     uploadFetcher,
+  );
+
+  const { trigger: queue } = useTypedSWRMutation<{
+    message: string;
+    finetuneId: number;
+  }>(
+    {
+      method: 'post',
+      endpoint: '/finetune/queue',
+    },
+    {
+      dataset_id: datasetId,
+      vit_model_type: 'vit_b',
+      finetune_name: finetuneName,
+    },
   );
 
   const uploadImages = async (
@@ -114,35 +128,15 @@ export default function Controls(props: ControlsProps) {
     }
   };
 
-  const onTrainStart = async (
-    datasetId: number,
-    modelType: string,
-    finetuneName: string,
-  ) => {
+  const onTrainStart = async () => {
     const validation = await isEnoughSamples();
     if (!validation) return;
 
     try {
-      const response = await FinetuneModel.queue(
-        datasetId,
-        modelType,
-        finetuneName,
-      );
-      if (response.status !== 200) {
-        throw new Error('Failed to start train');
-      }
-
+      await queue();
       alert(`${baseModelName} 기반 ${finetuneName} 모델 학습을 시작했습니다.`);
-
-      setIsOnTrain(true);
     } catch (error) {
-      if (error instanceof AxiosError && error.code === 'ERR_BAD_REQUEST') {
-        alert('중복된 모델 이름입니다. 다른 이름을 사용해주세요.');
-      } else {
-        alert('학습 시작에 실패했습니다. 다시 시도해주세요.');
-      }
-
-      axiosErrorHandler(error, 'Failed to start train');
+      alert('중복된 모델 이름입니다. 다른 이름을 사용해주세요');
     }
   };
 

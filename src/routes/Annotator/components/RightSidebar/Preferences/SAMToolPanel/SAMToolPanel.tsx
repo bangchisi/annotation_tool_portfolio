@@ -1,9 +1,8 @@
 import { MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import FinetuneModel from 'models/Finetune.model';
 import paper from 'paper';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import useSAMTool from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import SAMModel from 'routes/Annotator/models/SAM.model';
