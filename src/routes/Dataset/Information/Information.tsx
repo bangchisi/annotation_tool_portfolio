@@ -12,14 +12,12 @@ import { getFormattedDate } from 'helpers/DateHelpers';
 import CategoryPanel from './CategoryPanel/CategoryPanel';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import { Fragment, useCallback, useState } from 'react';
-import DatasetModel from '../models/Dataset.model';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { KeyedMutator } from 'swr';
+import { useTypedSWRMutation } from 'hooks';
 
 interface InformationProps extends DatasetType {
   isOnTrain: boolean;
-  handleCategoryDeleted: () => void;
-  handleCategoryAdded: () => void;
-  getDataset: (datasetId: number | undefined) => Promise<void>;
+  reload: KeyedMutator<DatasetType>;
 }
 
 export default function Information(props: InformationProps) {
@@ -31,9 +29,6 @@ export default function Information(props: InformationProps) {
     description,
     categories,
     isOnTrain,
-    handleCategoryDeleted,
-    handleCategoryAdded,
-    getDataset,
   } = props;
   const [isEdit, setIsEdit] = useState(false);
 
@@ -41,6 +36,15 @@ export default function Information(props: InformationProps) {
     useState(superDatasetName);
   const [editDatasetName, setEditDatasetName] = useState(datasetName);
   const [editDescription, setEditDescription] = useState(description);
+  const { trigger } = useTypedSWRMutation(
+    { method: 'put', endpoint: '/dataset', key: `/dataset/${datasetId}` },
+    {
+      dataset_id: datasetId,
+      dataset_name: editDatasetName,
+      superdataset_name: editSuperDatasetName,
+      description: editDescription,
+    },
+  );
 
   const resetForm = useCallback(() => {
     setEditDatasetName(datasetName);
@@ -73,39 +77,25 @@ export default function Information(props: InformationProps) {
     return false;
   }, [editSuperDatasetName, editDatasetName]);
 
-  const onDatasetUpdate = useCallback(
-    async (datasetId: number) => {
-      if (!editSuperDatasetName.trim() || !editDatasetName.trim()) return;
-      if (
-        datasetName === editDatasetName &&
-        superDatasetName === editSuperDatasetName &&
-        description === editDescription
-      )
-        return;
+  const onDatasetUpdate = useCallback(async () => {
+    if (!editSuperDatasetName.trim() || !editDatasetName.trim()) return;
+    if (
+      datasetName === editDatasetName &&
+      superDatasetName === editSuperDatasetName &&
+      description === editDescription
+    )
+      return;
 
-      try {
-        await DatasetModel.updateDataset(
-          datasetId,
-          editSuperDatasetName,
-          editDatasetName,
-          editDescription,
-        );
-      } catch (error) {
-        axiosErrorHandler(error, 'Failed to update dataset information.');
-      } finally {
-        getDataset(datasetId);
-      }
-    },
-    [
-      editSuperDatasetName,
-      editDatasetName,
-      editDescription,
-      getDataset,
-      datasetName,
-      superDatasetName,
-      description,
-    ],
-  );
+    trigger();
+  }, [
+    trigger,
+    datasetName,
+    editDatasetName,
+    superDatasetName,
+    editSuperDatasetName,
+    description,
+    editDescription,
+  ]);
 
   const onEscapeKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -123,10 +113,10 @@ export default function Information(props: InformationProps) {
           resetForm();
           return;
         }
-        onDatasetUpdate(datasetId);
+        onDatasetUpdate();
       }
     },
-    [setIsEdit, onDatasetUpdate, datasetId, resetForm, hasEmpty, validation],
+    [setIsEdit, onDatasetUpdate, resetForm, hasEmpty, validation],
   );
 
   const onClick = useCallback(() => {
@@ -142,16 +132,8 @@ export default function Information(props: InformationProps) {
       return;
     }
     if (!isEdit) return;
-    onDatasetUpdate(datasetId);
-  }, [
-    isEdit,
-    setIsEdit,
-    onDatasetUpdate,
-    datasetId,
-    hasEmpty,
-    resetForm,
-    validation,
-  ]);
+    onDatasetUpdate();
+  }, [isEdit, setIsEdit, onDatasetUpdate, hasEmpty, resetForm, validation]);
 
   return (
     <Container className="information-step">
@@ -216,11 +198,7 @@ export default function Information(props: InformationProps) {
           />
         )}
         {!isEdit && <span className="content">{description}</span>}
-        <CategoryPanel
-          handleCategoryAdded={handleCategoryAdded}
-          handleCategoryDeleted={handleCategoryDeleted}
-          categories={categories}
-        />
+        <CategoryPanel categories={categories} />
       </ContentContainer>
     </Container>
   );

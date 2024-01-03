@@ -1,8 +1,7 @@
 import { Button } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import { useCallback, useState } from 'react';
-import DatasetsModel from '../../models/Datasets.model';
 import {
   Container,
   CreateButton,
@@ -16,14 +15,16 @@ import {
   getTextColor,
 } from 'components/CategoryTag/helpers/CategoryTagHelpers';
 import ModalWrapper, { useModal } from 'components/ModalWrapper/ModalWrapper';
+import { KeyedMutator } from 'swr';
+import { DatasetType } from 'routes/Datasets/Datasets';
 
 interface CreateDatasetModalProps {
-  setDatasetList: (userId: string) => Promise<void>;
+  updateDatasets: KeyedMutator<DatasetType[]>;
 }
 
 export default function CreateDatasetModal(props: CreateDatasetModalProps) {
   const user = useAppSelector((state) => state.auth.user);
-  const { setDatasetList } = props;
+  const { updateDatasets } = props;
 
   const [datasetName, setDatasetName] = useState<string>('');
   const [addCategoryName, setAddCategoryName] = useState<string>('');
@@ -57,22 +58,23 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
     datasetName: string,
     categories: string[][],
     description: string,
+    superDatasetName: string,
   ) => {
     try {
-      await DatasetsModel.createDataset(
-        userId,
-        datasetName,
+      await typedAxios('POST', '/dataset', {
+        user_id: userId,
+        dataset_name: datasetName,
         categories,
         description,
-        superDatasetName,
-      );
+        superdataset_name: superDatasetName,
+      });
 
       handleClose();
     } catch (error) {
       axiosErrorHandler(error, 'Failed to create dataset');
       alert('Dataset 생성 실패. Dataset 이름이 너무 깁니다 (45자 이하)');
     } finally {
-      setDatasetList(userId);
+      updateDatasets();
     }
   };
 
@@ -187,7 +189,13 @@ export default function CreateDatasetModal(props: CreateDatasetModalProps) {
                 alert('Dataset 이름은 필수입니다.');
                 return;
               }
-              createDataset(user.userId, datasetName, categories, description);
+              createDataset(
+                user.userId,
+                datasetName,
+                categories,
+                description,
+                superDatasetName,
+              );
               setCategories([]);
             }}
           >

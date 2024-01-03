@@ -1,5 +1,4 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { useAppSelector } from 'App.hooks';
 import { useModal } from 'components/ModalWrapper/ModalWrapper';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DatasetType } from '../Datasets';
@@ -11,30 +10,25 @@ import {
   StyledAccordionSummary,
 } from './DatasetList.style';
 import ExportDatasetModal from './ExportDatasetModal/ExportDatasetModal';
+import { KeyedMutator } from 'swr';
 
 interface DatasetListProps {
   datasets: DatasetType[];
+  updateDatasets: KeyedMutator<DatasetType[]>;
   filteredDatasets: DatasetType[];
   setFilteredDatasets: React.Dispatch<React.SetStateAction<DatasetType[]>>;
-  setDatasetList: (userId: string) => Promise<void>;
 }
 
 export default function DatasetList(props: DatasetListProps) {
-  const user = useAppSelector((state) => state.auth.user);
   const [exportId, setExportId] = useState<number>();
   const { open, handleOpen, handleClose } = useModal();
 
-  const { datasets, filteredDatasets, setFilteredDatasets, setDatasetList } =
+  const { datasets, updateDatasets, filteredDatasets, setFilteredDatasets } =
     props;
   // const list = filteredDatasets.length > 0 ? filteredDatasets : datasets;
-  const list = filteredDatasets;
 
   useEffect(() => {
-    setDatasetList(user.userId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
+    if (!datasets) return;
     setFilteredDatasets(datasets);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datasets]);
@@ -92,7 +86,7 @@ export default function DatasetList(props: DatasetListProps) {
                   <DatasetCard
                     key={dataset.datasetId}
                     {...dataset}
-                    setDatasetList={setDatasetList}
+                    updateDatasets={updateDatasets}
                     setExportId={setExportId}
                     handleOpen={handleOpen}
                   />

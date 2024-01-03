@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import { getCanvasImage } from 'helpers/ImagesHelpers';
 import paper from 'paper';
 import {
@@ -12,7 +12,6 @@ import {
   useState,
 } from 'react';
 import { useParams } from 'react-router-dom';
-import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
   selectSAM,
   setSAMEmbeddingId,
@@ -29,6 +28,8 @@ import useTools, { AnnotationTool } from './hooks/useTools';
 import { Helmet } from 'react-helmet-async';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
 import { initializePaper } from 'utils';
+import { useTypedSWRMutation } from 'hooks';
+import useSWRMutation from 'swr/mutation';
 
 const adjustCanvasSize = (
   canvas: HTMLCanvasElement | null,
@@ -71,31 +72,51 @@ export default function Canvas(props: CanvasProps) {
     everythingLoading: isSAMEverythingLoading,
   } = useAppSelector(selectSAM);
 
-  // SAM model 로드
-  const loadSAM = useCallback(
-    async (modelType?: string) => {
-      dispatch(setSAMModelLoading(true));
-      try {
-        const response = await SAMModel.loadModel(
-          modelType ? modelType : 'vit_l',
-        );
-        if (response.status !== 200) throw new Error('Failed to load SAM');
-
-        dispatch(setSAMModelLoaded(true));
-      } catch (error) {
-        axiosErrorHandler(error, 'Failed to load SAM');
-        // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
-        dispatch(setSAMModelLoaded(false));
-
-        alert(
-          'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
-        );
-      } finally {
-        dispatch(setSAMModelLoading(false));
-      }
-    },
-    [dispatch],
+  const embedFetcher = async (
+    url: string,
+    { arg }: { arg: { topLeft: paper.Point; bottomRight: paper.Point } },
+  ) => {
+    return typedAxios('post', '/sam/embed', {
+      image_id: image?.imageId,
+      image_left_top_coord: [
+        Math.floor(arg.topLeft.x),
+        Math.floor(arg.topLeft.y),
+      ],
+      image_right_bottom_coord: [
+        Math.floor(arg.bottomRight.x),
+        Math.floor(arg.bottomRight.y),
+      ],
+    });
+  };
+  const { trigger: embedTrigger } = useSWRMutation(
+    '/sam/embed/canvas',
+    embedFetcher,
   );
+
+  const { trigger: loadModel } = useTypedSWRMutation({
+    method: 'get',
+    endpoint: '/sam/load/vit_h',
+  });
+
+  // SAM model 로드
+  const loadSAM = useCallback(async () => {
+    dispatch(setSAMModelLoading(true));
+    try {
+      await loadModel();
+
+      dispatch(setSAMModelLoaded(true));
+    } catch (error) {
+      axiosErrorHandler(error, 'Failed to load SAM');
+      // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
+      dispatch(setSAMModelLoaded(false));
+
+      alert(
+        'SAM을 불러오는데 실패했습니다. 다른 툴을 선택했다 SAM을 다시 선택해주세요.',
+      );
+    } finally {
+      dispatch(setSAMModelLoading(false));
+    }
+  }, [loadModel, dispatch]);
 
   const embedImage = useCallback(
     async (imageId: number) => {
@@ -115,13 +136,10 @@ export default function Canvas(props: CanvasProps) {
         // 이건 첫 embed 생성이다.
         // (0, 0)과 (image.width, image.height)를 보내는 이유는
         // embed image가 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
-        const response = await SAMModel.embedImage(
-          imageId,
-          new paper.Point(0, 0),
-          new paper.Point(image.width, image.height),
-        );
-        if (response.status !== 200)
-          throw new Error('Failed to get image embedding');
+        await embedTrigger({
+          topLeft: new paper.Point(0, 0),
+          bottomRight: new paper.Point(image.width, image.height),
+        });
         dispatch(setSAMEmbeddingId(imageId));
       } catch (error) {
         axiosErrorHandler(error, 'Failed to get image embedding');
@@ -130,7 +148,7 @@ export default function Canvas(props: CanvasProps) {
         dispatch(setSAMEmbeddingLoading(false));
       }
     },
-    [dispatch, image],
+    [dispatch, image, embedTrigger],
   );
 
   const onCanvasWheel = useCallback((event: WheelEvent): void => {

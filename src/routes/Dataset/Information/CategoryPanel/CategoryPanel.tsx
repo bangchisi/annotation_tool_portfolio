@@ -4,23 +4,45 @@ import {
   getRandomHexColor,
   getTextColor,
 } from 'components/CategoryTag/helpers/CategoryTagHelpers';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { CategoryType } from 'routes/Dataset/Dataset';
-import DatasetModel from 'routes/Dataset/models/Dataset.model';
 import { Container, InputCategory } from './CategoryPanel.style';
+import { useTypedSWRMutation } from 'hooks';
+import useSWRMutation from 'swr/mutation';
 
 interface CategoryPanelProps {
   categories: CategoryType[];
-  handleCategoryDeleted: () => void;
-  handleCategoryAdded: () => void;
 }
 
 export default function CategoryPanel(props: CategoryPanelProps) {
   const datasetId = Number(useParams().datasetId);
-  const { categories, handleCategoryDeleted, handleCategoryAdded } = props;
+  const { categories } = props;
   const [addCategoryName, setAddCategoryName] = useState('');
+
+  const { trigger: addCategory } = useTypedSWRMutation(
+    {
+      method: 'post',
+      endpoint: `/dataset/category/${datasetId}`,
+      key: `/dataset/${datasetId}`,
+    },
+    {
+      name: addCategoryName,
+      color: getRandomHexColor(),
+    },
+  );
+
+  const { trigger: deleteCategory } = useSWRMutation(
+    `/dataset/${datasetId}`,
+    async (url, { arg }: { arg: { categoryId: number } }) => {
+      try {
+        await typedAxios('delete', `/dataset/category/${arg.categoryId}`);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  );
 
   const handleCategoryTagClick = async (categoryId: number) => {
     const isDelete = window.confirm(
@@ -28,13 +50,8 @@ export default function CategoryPanel(props: CategoryPanelProps) {
     );
     if (!isDelete) return;
     try {
-      // await API Call
-      const response = await DatasetModel.deleteCategory(categoryId);
-      if (response.status !== 200) throw new Error('Failed to delete category');
-
-      handleCategoryDeleted();
+      await deleteCategory({ categoryId });
     } catch (error) {
-      // Axios Handler
       axiosErrorHandler(error, `Failed to delete category: ${categoryId}`);
     }
   };
@@ -43,13 +60,7 @@ export default function CategoryPanel(props: CategoryPanelProps) {
     if (addCategoryName === '') return;
 
     try {
-      const response = await DatasetModel.addCategory(
-        datasetId,
-        addCategoryName,
-        getRandomHexColor(),
-      );
-      if (response.status !== 200) throw new Error('Failed to add category');
-      handleCategoryAdded();
+      await addCategory();
     } catch (error) {
       axiosErrorHandler(error, 'Failed to add category');
       alert('중복된 카테고리 이름입니다.');

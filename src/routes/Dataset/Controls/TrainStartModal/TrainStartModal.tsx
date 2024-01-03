@@ -5,7 +5,6 @@ import {
   Container,
   FieldContainer,
   ModalFooter,
-  TrainContainer,
   TrainModelButton,
 } from './TrainStartModal.style';
 

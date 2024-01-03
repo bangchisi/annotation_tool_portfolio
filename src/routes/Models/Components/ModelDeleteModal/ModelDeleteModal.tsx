@@ -2,18 +2,20 @@ import { Button, TextField, Typography } from '@mui/material';
 import ModalWrapper from 'components/ModalWrapper/ModalWrapper';
 import { useState } from 'react';
 import { ModalFooter } from './ModelDeleteModal.style';
+import { KeyedMutator } from 'swr';
+import { LogType } from 'routes/Models/logTypes';
 
 interface ModelDeleteModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   deleteModelName: string;
   onDelete: (finetuneIds: number[]) => Promise<void>;
-  getLogs: () => Promise<void>;
+  reload: KeyedMutator<LogType[]>;
   finetuneId: number[];
 }
 
 export default function ModelDeleteModal(props: ModelDeleteModalProps) {
-  const { open, setOpen, deleteModelName, onDelete, getLogs, finetuneId } =
+  const { open, setOpen, deleteModelName, onDelete, reload, finetuneId } =
     props;
   const [deleteModelNameConfirm, setDeleteModelNameConfirm] = useState('');
   const [modelNameColor, setModelNameColor] = useState('orange');
@@ -78,7 +80,7 @@ export default function ModelDeleteModal(props: ModelDeleteModalProps) {
             alert('삭제성공');
             handleClose();
             onDelete(finetuneId).then(() => {
-              getLogs();
+              reload();
             });
           }}
         >

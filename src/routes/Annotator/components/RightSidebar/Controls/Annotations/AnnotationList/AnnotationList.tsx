@@ -7,7 +7,6 @@ import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import useManageAnnotation from 'routes/Annotator/hooks/useManageAnnotation';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
-import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
 import {
   deleteAnnotations,
   selectAnnotator,
@@ -22,6 +21,8 @@ import {
   Container,
   DeleteAllButton,
 } from './AnnotationList.style';
+import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
+import { useTypedSWRMutation } from 'hooks';
 
 export default function AnnotationList() {
   // const [isLoading, setIsLoading] = useState(false);
@@ -34,6 +35,11 @@ export default function AnnotationList() {
   const { clearCanvas } = useReloadAnnotator();
   const annotations = currentCategory?.annotations;
 
+  const { trigger: clearAnnotations } = useTypedSWRMutation({
+    method: 'delete',
+    endpoint: `/annotation/clear/${imageId}/${currentCategory?.categoryId}`,
+  });
+
   // annotation 목록을 ID 내림차순 정렬
   const sortedAnnotations = useMemo(() => {
     if (!annotations) return [];
@@ -45,12 +51,7 @@ export default function AnnotationList() {
 
   async function deleteAllAnnotations(imageId: number, categoryId: number) {
     try {
-      const response = await AnnotatorModel.deleteAllAnnotations(
-        imageId,
-        categoryId,
-      );
-      if (response.status !== 200)
-        throw new Error('Failed to delete all annotations');
+      await clearAnnotations();
       deleteAllAnnotationInCategories(categoryId);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to delete all annotations');
@@ -61,6 +62,7 @@ export default function AnnotationList() {
   function deleteAllAnnotationInCategories(categoryId: number) {
     if (!categories) return;
     clearCanvas();
+    AnnotationTool.history.clearHistory();
     dispatch(deleteAnnotations({ categoryId }));
   }
 

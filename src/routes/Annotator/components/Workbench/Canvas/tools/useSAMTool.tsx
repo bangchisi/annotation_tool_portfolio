@@ -5,11 +5,9 @@ import { useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
 import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import FinetuneModel from 'models/Finetune.model';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import { ImageType } from 'routes/Annotator/Annotator.types';
 import useManageTool from 'routes/Annotator/components/Workbench/Canvas/tools/useManageTool';
-import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
   setSAMClickLoading,
   setSAMEmbeddingId,
@@ -19,6 +17,7 @@ import {
 } from 'routes/Annotator/slices/SAMSlice';
 import { Tool } from 'types';
 import { AnnotationTool } from '../hooks/useTools';
+import useSWRMutation from 'swr/mutation';
 
 const useSAMTool = () => {
   const coords = useRef<[number, number][]>([]);
@@ -29,6 +28,68 @@ const useSAMTool = () => {
     useAppSelector(selectAnnotator);
 
   const tool = useManageTool(Tool.SAM);
+
+  const loadModelFetcher = async (
+    url: string,
+    { arg }: { arg: { finetuneId: number } },
+  ) => {
+    return typedAxios('get', `/sam/load/finetuned/${arg.finetuneId}`);
+  };
+  const { trigger: loadModel } = useSWRMutation(
+    '/sam/load/finetuned',
+    loadModelFetcher,
+  );
+
+  const clickFetcher = async (url: string, { arg }: { arg: any }) => {
+    return typedAxios('post', '/sam/click', {
+      image_id: image?.imageId,
+      point_coords: coords.current,
+      point_labels: labels.current,
+      image_left_top_coord: [
+        Math.floor(arg.topLeft.x),
+        Math.floor(arg.topLeft.y),
+      ],
+      image_right_bottom_coord: [
+        Math.floor(arg.bottomRight.x),
+        Math.floor(arg.bottomRight.y),
+      ],
+    });
+  };
+
+  const { trigger: clickTrigger } = useSWRMutation('/sam/click', clickFetcher);
+
+  const embedFetcher = async (
+    url: string,
+    { arg }: { arg: { topLeft: paper.Point; bottomRight: paper.Point } },
+  ) => {
+    return typedAxios('post', '/sam/embed', {
+      image_id: image?.imageId,
+      image_left_top_coord: [
+        Math.floor(arg.topLeft.x),
+        Math.floor(arg.topLeft.y),
+      ],
+      image_right_bottom_coord: [
+        Math.floor(arg.bottomRight.x),
+        Math.floor(arg.bottomRight.y),
+      ],
+    });
+  };
+  const { trigger: embedTrigger } = useSWRMutation(
+    '/sam/embed/samtool',
+    embedFetcher,
+  );
+
+  const loadBaseModelFetcher = async (
+    url: string,
+    { arg }: { arg: { modelType: string } },
+  ) => {
+    return typedAxios('get', `/sam/load/${arg.modelType}`);
+  };
+
+  const { trigger: loadBaseModel } = useSWRMutation(
+    '/sam/load/base',
+    loadBaseModelFetcher,
+  );
 
   useEffect(() => {
     coords.current = [];
@@ -74,13 +135,11 @@ const useSAMTool = () => {
 
     dispatch(setSAMClickLoading(true));
     try {
-      const response = await SAMModel.click(
-        imageId,
-        coords.current,
-        labels.current,
+      const response = await clickTrigger({
         topLeft,
         bottomRight,
-      );
+      });
+
       const segmentation = response.data.segmentation;
       setChildrenWithSegmentation(segmentation, correction);
     } catch (error) {
@@ -147,9 +206,7 @@ const useSAMTool = () => {
     // embed image, 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
     dispatch(setSAMEmbeddingLoading(true));
     try {
-      const response = await SAMModel.embedImage(imageId, topLeft, bottomRight);
-      if (response.status !== 200)
-        throw new Error('Failed to get image embedding');
+      await embedTrigger({ topLeft, bottomRight });
       dispatch(setSAMEmbeddingId(imageId));
     } catch (error) {
       axiosErrorHandler(error, 'Failed to get image embedding');
@@ -229,10 +286,7 @@ const useSAMTool = () => {
   const loadSAM = async (modelType: string) => {
     dispatch(setSAMModelLoading(true));
     try {
-      const response = await SAMModel.loadModel(
-        modelType ? modelType : 'vit_h',
-      );
-      if (response.status !== 200) throw new Error('Failed to load SAM');
+      await loadBaseModel({ modelType: modelType ? modelType : 'vit_h' });
       // dispatch(setIsSAMModelLoaded(true));
     } catch (error) {
       axiosErrorHandler(error, 'Failed to load SAM');
@@ -250,9 +304,7 @@ const useSAMTool = () => {
   const loadFinetunedModel = async (finetuneId: number) => {
     dispatch(setSAMModelLoading(true));
     try {
-      const response = await FinetuneModel.loadFinetunedModel(finetuneId);
-      if (response.status !== 200)
-        throw new Error('Failed to load finetuned model');
+      await loadModel({ finetuneId });
     } catch (error) {
       axiosErrorHandler(error, 'Failed to load SAM');
       // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이

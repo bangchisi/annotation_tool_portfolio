@@ -3,15 +3,16 @@ import { Container, LeftControl } from './Controls.style';
 import SearchPanel from './SearchPanel/SearchPanel';
 // import Sort from './Sort/Sort';
 import { DatasetType } from '../Datasets';
+import { KeyedMutator } from 'swr';
 
 interface ControlsProps {
   datasets: DatasetType[];
+  updateDatasets: KeyedMutator<DatasetType[]>;
   setFilteredDatasets: React.Dispatch<React.SetStateAction<DatasetType[]>>;
-  setDatasetList: (userId: string) => Promise<void>;
 }
 
 export default function Controls(props: ControlsProps) {
-  const { datasets, setFilteredDatasets, setDatasetList } = props;
+  const { datasets, updateDatasets, setFilteredDatasets } = props;
   return (
     <Container>
       <LeftControl>
@@ -21,7 +22,7 @@ export default function Controls(props: ControlsProps) {
           setFilteredDatasets={setFilteredDatasets}
         />
       </LeftControl>
-      <CreateDatasetModal setDatasetList={setDatasetList} />
+      <CreateDatasetModal updateDatasets={updateDatasets} />
     </Container>
   );
 }

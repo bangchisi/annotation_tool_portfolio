@@ -1,14 +1,11 @@
 import { LinearProgress, Typography } from '@mui/material';
 import { useAppSelector } from 'App.hooks';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import CategoryTag from 'components/CategoryTag/CategoryTag';
 import { getTextColor } from 'components/CategoryTag/helpers/CategoryTagHelpers';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import { getDifferenceDate } from 'helpers/DateHelpers';
-import { getThumbnailPath } from 'helpers/ImagesHelpers';
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import DatasetsModel from '../../models/Datasets.model';
 import {
   CategoriesContainer,
   CategoriesPadding,
@@ -25,6 +22,9 @@ import {
   UpdatedAt,
 } from './DatasetCard.style';
 import DatasetMenu from './DatasetMenu/DatasetMenu';
+import { DatasetType } from 'routes/Datasets/Datasets';
+import useSWR, { KeyedMutator } from 'swr';
+import { useRef } from 'react';
 
 interface DatasetCardProps {
   datasetId: number; // Dataset 고유 ID
@@ -42,7 +42,7 @@ interface DatasetCardProps {
       supercategory: string; // 상위 카테고리
     },
   ];
-  setDatasetList: (userId: string) => Promise<void>;
+  updateDatasets: KeyedMutator<DatasetType[]>;
   setExportId: React.Dispatch<React.SetStateAction<number | undefined>>;
   handleOpen: () => void;
 }
@@ -56,20 +56,30 @@ export default function DatasetCard(props: DatasetCardProps) {
     lastUpdate,
     categories,
     progress,
-    setDatasetList,
+    updateDatasets,
     setExportId,
     handleOpen,
   } = props;
+
+  const imgPath = useRef(
+    `http://${process.env.REACT_APP_IP}:${process.env.REACT_APP_PORT}/image/thumbnail/${datasetId}?length=100`,
+  );
+
+  const { error } = useSWR(imgPath.current, (url: string) => {
+    return axios.get(url);
+  });
+
+  if (error) {
+    imgPath.current = '/no_image.png';
+  }
 
   const deleteDataset = async (userId: string, datasetId: number) => {
     const confirmDelete = confirm('Dataset을 삭제하시겠습니까?');
     if (!confirmDelete) return;
 
     try {
-      const response = await DatasetsModel.deleteDataset(datasetId);
+      const response = await typedAxios('DELETE', `/dataset/${datasetId}`);
 
-      console.log(response.data.detail);
-      console.log(response);
       if (response.status === 400) {
         alert('현재 학습중인 Dataset은 삭제할 수 없습니다.');
         return;
@@ -80,7 +90,7 @@ export default function DatasetCard(props: DatasetCardProps) {
         return;
       }
 
-      setDatasetList(userId);
+      updateDatasets();
     } catch (error) {
       if (error instanceof AxiosError && error.code === 'ERR_BAD_REQUEST') {
         alert('현재 학습중인 Dataset은 삭제할 수 없습니다.');
@@ -90,21 +100,15 @@ export default function DatasetCard(props: DatasetCardProps) {
     }
   };
 
-  const [imgPath, setImgPath] = useState('');
-  useEffect(() => {
-    getThumbnailPath(datasetId, 100).then((response) => {
-      if (!response) return;
-      setImgPath(response);
-    });
-  }, []);
-
   return (
     <Container className="dataset-card">
       <ImageContainer>
         <Link to={'/dataset/' + datasetId}>
           <img
-            src={imgPath}
-            className={imgPath.includes('no_image') ? 'no-image' : undefined}
+            src={imgPath.current}
+            className={
+              imgPath.current.includes('no_image') ? 'no-image' : undefined
+            }
           />
         </Link>
       </ImageContainer>

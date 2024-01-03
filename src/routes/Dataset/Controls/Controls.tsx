@@ -3,14 +3,15 @@ import DriveFolderUploadOutlinedIcon from '@mui/icons-material/DriveFolderUpload
 import { AxiosError } from 'axios';
 import ComponentBlocker from 'components/ComponentBlocker/ComponentBlocker';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
-import FinetuneModel from 'models/Finetune.model';
-import ImagesModel from 'models/Images.model';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import DatasetModel from '../models/Dataset.model';
 import { Container, FilesLabel } from './Controls.style';
 import TrainStartModal from './TrainStartModal/TrainStartModal';
+import { DatasetType } from '../Dataset';
+import { KeyedMutator } from 'swr';
+import { useTypedSWR, useTypedSWRMutation } from 'hooks';
+import useSWRMutation from 'swr/mutation';
 
 declare module 'react' {
   interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -22,15 +23,53 @@ declare module 'react' {
 interface ControlsProps {
   isOnTrain: boolean;
   setIsOnTrain: React.Dispatch<React.SetStateAction<boolean>>;
+  reload: KeyedMutator<DatasetType>;
 }
 
+type AnnotatedImagesType = {
+  num_total_images: number;
+  num_annotated_images: number;
+};
+
 export default function Controls(props: ControlsProps) {
-  const { isOnTrain, setIsOnTrain } = props;
+  const { isOnTrain, reload } = props;
   const datasetId = Number(useParams().datasetId);
   const [isLoading, setIsLoading] = useState(false);
   const filesInput = useRef<HTMLInputElement>(null);
   const [finetuneName, setFinetuneName] = useState('');
   const [baseModelName, setBaseModelName] = useState('vit_b');
+
+  const { data: annotatedImages } = useTypedSWR<AnnotatedImagesType>({
+    method: 'get',
+    endpoint: `/dataset/annotated/${datasetId}`,
+  });
+
+  const uploadFetcher = async (
+    url: string,
+    { arg }: { arg: { images: FormData } },
+  ) => {
+    return typedAxios('post', `/image?dataset_id=${datasetId}`, arg.images);
+  };
+
+  const { trigger: uploadImage } = useSWRMutation(
+    `/dataset/${datasetId}`,
+    uploadFetcher,
+  );
+
+  const { trigger: queue } = useTypedSWRMutation<{
+    message: string;
+    finetuneId: number;
+  }>(
+    {
+      method: 'post',
+      endpoint: '/finetune/queue',
+    },
+    {
+      dataset_id: datasetId,
+      vit_model_type: 'vit_b',
+      finetune_name: finetuneName,
+    },
+  );
 
   const uploadImages = async (
     datasetId: number | undefined,
@@ -41,10 +80,24 @@ export default function Controls(props: ControlsProps) {
 
     try {
       setIsLoading(true);
-      await ImagesModel.uploadImages(datasetId, images);
+      await uploadImage({ images });
     } catch (error) {
       axiosErrorHandler('error', 'Failed to upload images');
+      const { response } = error as AxiosError<{
+        detail: {
+          existedFilenames: string[];
+          numInsertedImages: number;
+        };
+      }>;
+      if (!response) return;
+      const { numInsertedImages, existedFilenames } = response.data.detail;
+      alert(`${numInsertedImages}개 이미지가 업로드 되었습니다. 다음 중복된 ${
+        existedFilenames.length
+      }개 이미지는 업로드되지 않았습니다.
+      ${existedFilenames.join(', ')}
+      `);
     } finally {
+      reload();
       setIsLoading(false);
     }
   };
@@ -73,48 +126,26 @@ export default function Controls(props: ControlsProps) {
 
       await uploadImages(Number(datasetId), formData);
     }
-    window.location.reload();
   };
 
-  const onTrainStart = async (
-    datasetId: number,
-    modelType: string,
-    finetuneName: string,
-  ) => {
-    const validation = await isEnoughSamples(datasetId);
+  const onTrainStart = async () => {
+    const validation = await isEnoughSamples();
     if (!validation) return;
 
     try {
-      const response = await FinetuneModel.queue(
-        datasetId,
-        modelType,
-        finetuneName,
-      );
-      if (response.status !== 200) {
-        throw new Error('Failed to start train');
-      }
-
+      await queue();
       alert(`${baseModelName} 기반 ${finetuneName} 모델 학습을 시작했습니다.`);
-
-      setIsOnTrain(true);
     } catch (error) {
-      if (error instanceof AxiosError && error.code === 'ERR_BAD_REQUEST') {
-        alert('중복된 모델 이름입니다. 다른 이름을 사용해주세요.');
-      } else {
-        alert('학습 시작에 실패했습니다. 다시 시도해주세요.');
-      }
-
-      axiosErrorHandler(error, 'Failed to start train');
+      alert('중복된 모델 이름입니다. 다른 이름을 사용해주세요');
     }
   };
 
   // validation (annotated image count)
-  async function isEnoughSamples(datasetId: number) {
+  async function isEnoughSamples() {
     const criteria = 2;
-    const response = await DatasetModel.getAnnotatedImagesCount(datasetId);
-    if (!response) return false;
+    if (!annotatedImages) return false;
 
-    const { num_annotated_images } = response.data; // { num_total_images, num_annotated_images }
+    const { num_annotated_images } = annotatedImages; // { num_total_images, num_annotated_images }
 
     const result = num_annotated_images >= criteria;
     if (!result)

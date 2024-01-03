@@ -15,8 +15,8 @@ import { useKeyEvents } from 'routes/Annotator/hooks/useKeyEvents';
 import { useParams } from 'react-router-dom';
 import { useAppSelector } from 'App.hooks';
 import { createCategoriesToUpdate } from 'routes/Annotator/helpers/Annotator.helper';
-import AnnotatorModel from 'routes/Annotator/models/Annotator.model';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
+import useSWRMutation from 'swr/mutation';
 
 type LeftSidebarProps = {
   onSave: () => void;
@@ -27,6 +27,23 @@ export default function LeftSidebar({ onSave: handleSave }: LeftSidebarProps) {
   const categories = useAppSelector((state) => state.annotator.categories);
   const datasetId = useAppSelector((state) => state.annotator.datasetId);
 
+  const saveFetcher = useCallback(
+    (
+      url: string,
+      { arg }: { arg: { categories: typeof createCategoriesToUpdate } },
+    ) => {
+      // ...
+      return typedAxios('post', url, {
+        dataset_id: datasetId,
+        image_id: imageId,
+        categories: arg.categories,
+      });
+    },
+    [datasetId, imageId],
+  );
+
+  const { trigger: save } = useSWRMutation('/annotator/data', saveFetcher);
+
   const saveData = useCallback(
     async (datasetId: number | undefined, imageId: number) => {
       if (!datasetId || !imageId) return;
@@ -34,21 +51,14 @@ export default function LeftSidebar({ onSave: handleSave }: LeftSidebarProps) {
       try {
         const categoriesToUpdate = createCategoriesToUpdate(categories);
 
-        const response = await AnnotatorModel.saveData(
-          datasetId,
-          imageId,
-          categoriesToUpdate,
-        );
-        if (response.status !== 200) {
-          throw new Error('Failed to save annotator data');
-        }
+        await save({ categories: categoriesToUpdate });
 
         handleSave();
       } catch (error) {
         axiosErrorHandler(error, 'Failed to save annotator data');
       }
     },
-    [categories, handleSave],
+    [categories, handleSave, save],
   );
 
   const ctrlSKeyEvent = useMemo(
