@@ -1,11 +1,10 @@
 import { MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'App.hooks';
-import { axiosErrorHandler } from 'helpers/Axioshelpers';
+import { axiosErrorHandler, typedAxios } from 'helpers/Axioshelpers';
 import paper from 'paper';
 import { useState } from 'react';
 import useSAMTool from 'routes/Annotator/components/Workbench/Canvas/tools/useSAMTool';
 import useReloadAnnotator from 'routes/Annotator/hooks/useReloadAnnotator';
-import SAMModel from 'routes/Annotator/models/SAM.model';
 import {
   selectSAM,
   setSAMEverythingLoading,
@@ -30,6 +29,7 @@ import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hoo
 import { KeyedMutator } from 'swr';
 import { InitDataType } from 'routes/Annotator/Annotator';
 import { useTypedSWR } from 'hooks';
+import useSWRMutation from 'swr/mutation';
 
 type SAMToolPanelProps = {
   reload: KeyedMutator<InitDataType>;
@@ -72,6 +72,32 @@ export default function SAMToolPanel(props: SAMToolPanelProps) {
     endpoint: `/finetune/${userId}`,
   });
 
+  const everythingFetcher = async (url: string, { arg }: { arg: any }) => {
+    return typedAxios('post', '/sam/everything', {
+      image_id: image?.imageId,
+      category_id: currentCategory?.categoryId,
+      image_left_top_coord: [
+        Math.floor(arg.topLeft.x),
+        Math.floor(arg.topLeft.y),
+      ],
+      image_right_bottom_coord: [
+        Math.floor(arg.bottomRight.x),
+        Math.floor(arg.bottomRight.y),
+      ],
+      params: {
+        pred_iou_thresh: arg.predIOUThresh,
+        box_nms_thresh: arg.boxNMSThresh,
+        points_per_side: arg.pointsPerSide,
+      },
+      is_finetune: arg.isFinetune,
+    });
+  };
+
+  const { trigger: everythingTrigger } = useSWRMutation(
+    '/sam/everything',
+    everythingFetcher,
+  );
+
   function onChangeModel(event: SelectChangeEvent<string>) {
     // setCurrentModel(event.target.value);
     dispatch(setSAMModel(event.target.value));
@@ -95,20 +121,6 @@ export default function SAMToolPanel(props: SAMToolPanelProps) {
       });
     }
   }
-
-  // async function getFinetuneModels(userId: string) {
-  //   setIsFinetuneModelLoading(true);
-  //   try {
-  //     const response = await FinetuneModel.getLogs(userId);
-  //     if (!response.data) return;
-
-  //     setFinetuneModelList(response.data);
-  //   } catch (error) {
-  //     axiosErrorHandler(error, 'Failed to get finetuned models in SAM Panel');
-  //   } finally {
-  //     setIsFinetuneModelLoading(false);
-  //   }
-  // }
 
   function onEverything() {
     const viewBounds = paper.view.bounds;
@@ -177,14 +189,14 @@ export default function SAMToolPanel(props: SAMToolPanelProps) {
       currentModel === 'vit_l' ||
       currentModel === 'vit_b';
     try {
-      const response = await SAMModel.everything(
-        imageId,
-        categoryId,
+      const response = await everythingTrigger({
         topLeft,
         bottomRight,
-        params,
-        isBaseModel ? false : true,
-      );
+        predIOUThresh: params.predIOUThresh,
+        boxNMSThresh: params.boxNMSThresh,
+        pointsPerSide: params.pointsPerSide,
+        isFinetune: !isBaseModel,
+      });
 
       if (response.status !== 200) {
         alert('everything 모드 실패, F5를 눌러 새로고침 해주세요.');
