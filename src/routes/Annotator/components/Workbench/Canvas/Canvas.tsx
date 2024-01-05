@@ -155,6 +155,10 @@ export default function Canvas(props: CanvasProps) {
     event.preventDefault();
     const dragAmount = 30;
 
+    paper.view.emit('minimap', {
+      event,
+    });
+
     if (event.ctrlKey) {
       if (event.deltaY < 0) {
         paper.view.center = paper.view.center.subtract(

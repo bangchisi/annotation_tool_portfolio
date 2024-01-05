@@ -8,5 +8,7 @@ export const Container = styled('div')(() => {
     minHeight: '25%',
     maxHeight: '25%',
     overflow: 'hidden',
+    marginTop: 'auto',
+    border: '1px solid rgba(0, 0, 0, 0.3)',
   };
 });

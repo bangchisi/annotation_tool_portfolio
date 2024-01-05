@@ -24,6 +24,9 @@ const useSelectTool = () => {
 
   // 마우스 드래그
   tool.onMouseDrag = function (event: paper.MouseEvent) {
+    paper.view.emit('minimap', {
+      event,
+    });
     if (!startingPoint.current) return;
     isDragging.current = true;
 

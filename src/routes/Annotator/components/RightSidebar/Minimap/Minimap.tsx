@@ -1,50 +1,59 @@
-import { useAppSelector } from 'App.hooks';
+import paper from 'paper';
+
+import { useEffect, useRef } from 'react';
 import { Container } from './Minimap.style';
-import Canvas from '../../Workbench/Canvas/Canvas';
-import { getImagePath } from 'helpers/ImagesHelpers';
+import { getCanvasImage } from 'helpers/ImagesHelpers';
+import { useAppSelector } from 'App.hooks';
+import { selectAnnotator } from 'routes/Annotator/slices/annotatorSlice';
 
-/** 기능
- * 캔버스에서 실제로 보고 있는 부분을 빨간 네모로 표시
- * 미니맵을 단지 표시 기능으로만
- */
+export default function Minimap() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rectRef = useRef<paper.Path.Rectangle>();
+  const { image } = useAppSelector(selectAnnotator);
 
-/**
- * 구현방법
- * 캔버스 view bound와 view center를 <Workbench />와 공유.
- * 이럴바엔 그냥 view 정보 전체를 전달. view 정보는 paper.view 임.
- * 그냥 캔버스를 똑같이 그려버림?
- * 캔버스는 <Workbench />, 미니맵은 <RightSidebar />에 있음.
- * 따라서 view 정보를 공유하기 위해선 공통 부모 컴포넌트인 <Annotator />의 state로 둬야 함.
- * view 정보는 <RightSidebar />에 있는 SAM Tool의 detail by zoom 기능에서도 쓰일 거니까
- * <Annotator />의 state로 두고 props로 하위 전달하는 것이 맞다.
- * view 정보를 어디서 생성하든 어찌 됐든 간에 props로 view 정보와 이미지 정보를 받는건 맞으니 props를 설정
- */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    console.log(canvasRef.current.width);
+    console.log(canvasRef.current.height);
 
-/** props
- * view 정보, 이미지 정보
- */
+    if (!image) return;
 
-/** state
- * 없음
- */
+    const scope = new paper.PaperScope();
+    scope.setup(canvas);
 
-interface MinimapProps {
-  view: paper.View | null;
-  image: HTMLImageElement | null;
-}
+    const url = getCanvasImage(image?.imageId);
+    const raster = new scope.Raster(url);
 
-export default function Minimap(props: MinimapProps) {
-  const image = useAppSelector((state) => state.annotator.image);
+    scope.project.activeLayer.addChild(raster);
+    raster.sendToBack();
+    scope.view.viewSize = new scope.Size(image.width, image.height).multiply(
+      0.4,
+    );
+    scope.view.scale(0.4, new scope.Point(image.width / 2, image.height / 2));
+
+    const minimapHanlder = () => {
+      if (rectRef.current) rectRef.current.remove();
+      scope.activate();
+      rectRef.current = new scope.Path.Rectangle({
+        from: paper.view.bounds.topLeft,
+        to: paper.view.bounds.bottomRight,
+        strokeColor: new scope.Color('red'),
+        strokeWidth: 3,
+      });
+    };
+
+    paper.view.on('minimap', minimapHanlder);
+
+    return () => {
+      scope.project.clear();
+      paper.view.off('minimap', minimapHanlder);
+    };
+  }, [image]);
 
   return (
     <Container>
-      {image && (
-        <img
-          src={getImagePath(image.imageId)}
-          width={image.width}
-          height={image?.height}
-        />
-      )}
+      <canvas ref={canvasRef} />
     </Container>
   );
 }
