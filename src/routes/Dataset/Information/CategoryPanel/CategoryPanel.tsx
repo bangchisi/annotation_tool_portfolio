@@ -12,15 +12,18 @@ import { Container, InputCategory } from './CategoryPanel.style';
 import { useTypedSWRMutation } from 'hooks';
 import useSWRMutation from 'swr/mutation';
 
+// 카테고리 패널 props 타입
 interface CategoryPanelProps {
-  categories: CategoryType[];
+  categories: CategoryType[]; // 카테고리 목록
 }
 
+// 카테고리 패널 컴포넌트
 export default function CategoryPanel(props: CategoryPanelProps) {
-  const datasetId = Number(useParams().datasetId);
+  const datasetId = Number(useParams().datasetId); // 데이터셋 ID
   const { categories } = props;
-  const [addCategoryName, setAddCategoryName] = useState('');
+  const [addCategoryName, setAddCategoryName] = useState(''); // 추가할 카테고리 이름
 
+  // 카테고리 추가 요청
   const { trigger: addCategory } = useTypedSWRMutation(
     {
       method: 'post',
@@ -33,6 +36,7 @@ export default function CategoryPanel(props: CategoryPanelProps) {
     },
   );
 
+  // 카테고리 삭제 요청
   const { trigger: deleteCategory } = useSWRMutation(
     `/dataset/${datasetId}`,
     async (url, { arg }: { arg: { categoryId: number } }) => {
@@ -44,6 +48,7 @@ export default function CategoryPanel(props: CategoryPanelProps) {
     },
   );
 
+  // 카테고리 태그 버튼 클릭 핸들러
   const handleCategoryTagClick = async (categoryId: number) => {
     const isDelete = window.confirm(
       '카테고리를 삭제하시겠습니까? 관련 annotation이 모두 삭제됩니다.',
@@ -56,6 +61,7 @@ export default function CategoryPanel(props: CategoryPanelProps) {
     }
   };
 
+  // 카테고리 추가 버튼 클릭 핸들러
   const onAddCategory = async () => {
     if (addCategoryName === '') return;
 
@@ -72,6 +78,7 @@ export default function CategoryPanel(props: CategoryPanelProps) {
   return (
     <Container>
       <InputCategory>
+        {/* 추가할 카테고리 이름 입력 */}
         <TextField
           label="add category"
           variant="outlined"
@@ -81,6 +88,7 @@ export default function CategoryPanel(props: CategoryPanelProps) {
             setAddCategoryName(e.target.value);
           }}
         ></TextField>
+        {/* 카테고리 추가 버튼 */}
         <Button
           color="primary"
           sx={{
@@ -94,6 +102,7 @@ export default function CategoryPanel(props: CategoryPanelProps) {
           Add
         </Button>
       </InputCategory>
+      {/* 카테고리 태그 목록 */}
       {categories.map((category) => {
         const textcolor = getTextColor(category.color);
         return (
