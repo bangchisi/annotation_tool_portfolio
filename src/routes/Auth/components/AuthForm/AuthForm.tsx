@@ -31,7 +31,9 @@ export default function AuthForm() {
       </AuthTabs>
       {/* 현재 선택된 탭에 따라 다른 컴포넌트를 렌더링합니다. */}
       {currentMode === mode.LOGIN && <LoginForm />}
-      {currentMode === mode.REGISTER && <RegisterForm />}
+      {currentMode === mode.REGISTER && (
+        <RegisterForm setCurrentMode={setCurrentMode} />
+      )}
     </Container>
   );
 }

@@ -9,8 +9,14 @@ import { axiosErrorHandler } from 'helpers/Axioshelpers';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
 import { Typography } from '@mui/material';
 import { useTypedSWRMutation } from 'hooks';
+import { mode } from '../AuthForm/AuthForm';
 
-export default function RegisterForm() {
+// RegisterForm 컴포넌트의 props 타입 정의
+type RegisterFormProps = {
+  setCurrentMode: React.Dispatch<React.SetStateAction<mode>>; // 현재 선택된 탭을 변경하는 함수
+};
+
+export default function RegisterForm(props: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false); // 회원가입 요청 중인지 여부
   const [userName, setUserName] = useState(''); // 입력된 유저이름
   const [userId, setUserId] = useState(''); // 입력된 아이디
@@ -81,6 +87,9 @@ export default function RegisterForm() {
 
       // 회원가입 mutation을 실행
       await register();
+
+      // 회원가입이 완료되었으므로 mode를 LOGIN으로 변경
+      props.setCurrentMode(mode.LOGIN);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to register');
       if (error instanceof AxiosError && error.code === 'ERR_BAD_REQUEST') {
