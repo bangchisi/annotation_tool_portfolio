@@ -15,13 +15,15 @@ type UseKeyEventsProps = {
   [key: string]: (event: KeyboardEvent) => void;
 };
 
+// 키보드 이벤트를 관리하는 커스텀 훅
 export const useKeyEvents = (props?: UseKeyEventsProps) => {
   const dispatch = useAppDispatch();
   const { selectedTool, currentCategory, currentAnnotation } =
     useAppSelector(selectAnnotator);
-  const { brushRadius, eraserRadius } = useAppSelector(selectAuth).preference;
+  const { brushRadius, eraserRadius } = useAppSelector(selectAuth).preference; // 브러쉬, 지우개 크기
   const { createEmptyAnnotation, onClickDeleteButton } = useManageAnnotation();
 
+  // 키보드 이벤트 핸들러 객체
   const keyEvents = useMemo(
     () => ({
       Space: () => {

@@ -58,6 +58,7 @@ export function toCurrentCategoryAnnotations(annotations: AnnotationsType) {
   return annotationList;
 }
 
+// paperjs의 CompoundPath를 이용하여 mask를 그림.
 export function getCompoundPathWithData(
   segmentation: number[][],
   categoryId: number,
@@ -73,6 +74,7 @@ export function getCompoundPathWithData(
   return compoundPath;
 }
 
+// segmentation을 이용하여 CompoundPath를 생성
 export function segmentationToCompoundPath(segmentation: number[][]) {
   const compoundPath = new paper.CompoundPath({});
 
@@ -83,6 +85,7 @@ export function segmentationToCompoundPath(segmentation: number[][]) {
   return compoundPath;
 }
 
+// 좌표의 배열을 이용해 이용하여 Path를 생성
 export function pointsToPath(points: number[]) {
   const raster = paper.project.activeLayer.children[0] as paper.Raster;
   const { x, y } = raster.bounds.topLeft;
@@ -101,6 +104,7 @@ export function pointsToPath(points: number[]) {
   });
 }
 
+// path를 점 좌표 배열로 변환
 export function pathToPoints(path: paper.Path) {
   const points: number[] = [];
   const raster = paper.project.activeLayer.children[0] as paper.Raster;
@@ -116,6 +120,7 @@ export function pathToPoints(path: paper.Path) {
   return points;
 }
 
+// 한 CompoundPath의 모든 마스킹을 하나의 segmentation으로 변환
 export function compoundPathToSegmentation(compoundPath: paper.CompoundPath) {
   // 한 CompoundPath의 모든 마스킹을 하나의 segmentation으로 변환
   const { children } = compoundPath;
@@ -178,6 +183,7 @@ function getBbox(compound: paper.CompoundPath, annotationId: number) {
   ];
 }
 
+// 업데이트할 카테고리 목록 객체를 생성.
 export function createCategoriesToUpdate(categories: CategoriesType) {
   const children = paper.project.activeLayer.children;
 
@@ -191,7 +197,7 @@ export function createCategoriesToUpdate(categories: CategoriesType) {
     }
   });
 
-  // 속성 이름 kebab_case로 맞춤
+  // 속성 이름 kebab_case로 맞춤. 이유는 python 기반 백엔드의 컨벤션인 snake_case와 맞추기 위함.
   Object.entries(categoriesToUpdate).map(([categoryId]) => {
     categoriesToUpdate[categoryId]['category_id'] = categoryId;
     delete categoriesToUpdate[categoryId].categoryId;

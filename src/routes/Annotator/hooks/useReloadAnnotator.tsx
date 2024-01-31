@@ -11,6 +11,7 @@ const useReloadAnnotator = () => {
   const { categories, currentCategory, currentAnnotation, image } =
     useAppSelector(selectAnnotator);
 
+  // 캔버스에 mask를 그리는 함수
   const drawPaths = (categories: CategoriesType): void => {
     const existingAnnotations = new Set();
     paper.project.activeLayer.children.forEach((child) => {

@@ -11,9 +11,10 @@ import {
   setCurrentCategoryByCategoryId,
 } from 'routes/Annotator/slices/annotatorSlice';
 
+// 카테고리 선택 컴포넌트
 export default function Categories() {
   const dispatch = useAppDispatch();
-  const { categories, currentCategory } = useAppSelector(selectAnnotator);
+  const { categories, currentCategory } = useAppSelector(selectAnnotator); // 카테고리 목록, 현재 선택된 카테고리
 
   // 카테고리 선택 변경
   const handleCategoryChange = useCallback(
@@ -25,6 +26,7 @@ export default function Categories() {
       // 선택한 id와 같은 category 검색
       const selectedCategory = categories[`${selectedCategoryId}`];
 
+      // 선택한 카테고리가 존재하면 현재 카테고리 변경
       if (selectedCategory) {
         dispatch(setCurrentCategoryByCategoryId(selectedCategoryId));
       }
@@ -33,6 +35,7 @@ export default function Categories() {
   );
 
   return (
+    // 카테고리 선택 셀렉트 박스
     <FormControl
       className="category-select-step"
       fullWidth
@@ -50,6 +53,7 @@ export default function Categories() {
         },
       }}
     >
+      {/* 선택 가능한 카테고리 목록을 Select 엘리먼트로 렌더링 */}
       {currentCategory && categories && (
         <Select
           value={currentCategory.categoryId + '' || ''}

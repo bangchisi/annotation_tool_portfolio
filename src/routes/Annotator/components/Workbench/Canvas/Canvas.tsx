@@ -31,18 +31,20 @@ import { initializePaper } from 'utils';
 import { useTypedSWRMutation } from 'hooks';
 import useSWRMutation from 'swr/mutation';
 
+// 캔버스 사이즈 조정
 const adjustCanvasSize = (
-  canvas: HTMLCanvasElement | null,
-  container: HTMLDivElement | null,
+  canvas: HTMLCanvasElement | null, // 캔버스
+  container: HTMLDivElement | null, // 캔버스 컨테이너
 ) => {
+  // 캔버스가 없거나, 컨테이너가 없으면 아무것도 안 함
   if (!canvas || !container) return;
 
-  const { width, height } = container.getBoundingClientRect();
+  const { width, height } = container.getBoundingClientRect(); // 컨테이너의 크기를 가져옴
 
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = width; // 캔버스의 크기를 컨테이너의 크기로 조정
+  canvas.height = height; // 캔버스의 크기를 컨테이너의 크기로 조정
 
-  paper.view.viewSize = new paper.Size(width, height);
+  paper.view.viewSize = new paper.Size(width, height); // 캔버스의 뷰 사이즈를 컨테이너의 크기로 조정
 
   return {
     width,
@@ -50,28 +52,30 @@ const adjustCanvasSize = (
   };
 };
 
+// 캔버스 props
 interface CanvasProps {
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement>; // 캔버스 컨테이너
 }
 
-// TODO: paper init to another file?
+// 캔버스 컴포넌트
 export default function Canvas(props: CanvasProps) {
   const dispatch = useAppDispatch();
-  const imageId = Number(useParams().imageId);
-  const { selectedTool, categories, image } = useAppSelector(selectAnnotator);
-  const { drawPaths } = useReloadAnnotator();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageId = Number(useParams().imageId); // 이미지 아이디
+  const { selectedTool, categories, image } = useAppSelector(selectAnnotator); // 선택된 툴, 카테고리 목록 객체, 이미지 객체
+  const { drawPaths } = useReloadAnnotator(); // 캔버스에 mask를 그리는 함수
+  const canvasRef = useRef<HTMLCanvasElement>(null); // 캔버스 ref
 
   // SAM 관련 state
   const {
-    embeddingId,
-    clickLoading,
-    modelLoaded: SAMModelLoaded,
-    modelLoading: isSAMModelLoading,
-    embeddingLoading: isEmbeddingLoading,
-    everythingLoading: isSAMEverythingLoading,
+    embeddingId, // 생성된 이미지 임베딩 id
+    clickLoading, // 클릭 모드 로딩 여부
+    modelLoaded: SAMModelLoaded, // SAM 모델 로드 여부
+    modelLoading: isSAMModelLoading, // SAM 모델 로딩 여부
+    embeddingLoading: isEmbeddingLoading, // 이미지 임베딩 로딩 여부
+    everythingLoading: isSAMEverythingLoading, // SAM Everything 로딩 여부
   } = useAppSelector(selectSAM);
 
+  // 이미지 임베딩 요청 fetcher
   const embedFetcher = async (
     url: string,
     { arg }: { arg: { topLeft: paper.Point; bottomRight: paper.Point } },
@@ -88,17 +92,20 @@ export default function Canvas(props: CanvasProps) {
       ],
     });
   };
+
+  // 이미지 임베딩 요청 mutation
   const { trigger: embedTrigger } = useSWRMutation(
     '/sam/embed/canvas',
     embedFetcher,
   );
 
+  // SAM 모델 로드 요청 mutation
   const { trigger: loadModel } = useTypedSWRMutation({
     method: 'get',
     endpoint: '/sam/load/vit_h',
   });
 
-  // SAM model 로드
+  // SAM model 로드 함수. 모델 선택할 때와 다르게 초기 로드기 때문에 기본 선택된 모델인 vit_h를 로드합니다.
   const loadSAM = useCallback(async () => {
     dispatch(setSAMModelLoading(true));
     try {
@@ -107,7 +114,6 @@ export default function Canvas(props: CanvasProps) {
       dispatch(setSAMModelLoaded(true));
     } catch (error) {
       axiosErrorHandler(error, 'Failed to load SAM');
-      // TODO: prompt를 띄워 다시 로딩하시겠습니까? yes면 다시 load 트라이
       dispatch(setSAMModelLoaded(false));
 
       alert(
@@ -118,6 +124,7 @@ export default function Canvas(props: CanvasProps) {
     }
   }, [loadModel, dispatch]);
 
+  // 이미지 임베딩 불러오는 함수. 이미지 크기가 4096*4096보다 크면 요청하지 않습니다.
   const embedImage = useCallback(
     async (imageId: number) => {
       if (!image) return;
@@ -133,9 +140,9 @@ export default function Canvas(props: CanvasProps) {
       dispatch(setSAMEmbeddingLoading(true));
 
       try {
-        // 이건 첫 embed 생성이다.
-        // (0, 0)과 (image.width, image.height)를 보내는 이유는
-        // embed image가 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같다
+        // 이건 첫 embed 생성입니다.
+        // (0, 0)과 (image.width, image.height)를 인자로 보내는 이유는
+        // 첫 embedding 생성은 전체 크기에 대한 embedding이기 때문에 좌표는 이미지 크기 값과 같기 때문입니다.
         await embedTrigger({
           topLeft: new paper.Point(0, 0),
           bottomRight: new paper.Point(image.width, image.height),
@@ -151,11 +158,13 @@ export default function Canvas(props: CanvasProps) {
     [dispatch, image, embedTrigger],
   );
 
+  // 캔버스 휠 이벤트
   const onCanvasWheel = useCallback((event: WheelEvent): void => {
     event.preventDefault();
-    const dragAmount = 30;
+    const dragAmount = 30; // 드래그 양. ctrl, shift 키를 누르면 이만큼 이동합니다.
 
     if (event.ctrlKey) {
+      // ctrl 키를 누르면 세로로 이동합니다.
       if (event.deltaY < 0) {
         paper.view.center = paper.view.center.subtract(
           new paper.Point(0, dragAmount),
@@ -166,6 +175,7 @@ export default function Canvas(props: CanvasProps) {
         );
       }
     } else if (event.shiftKey) {
+      // shift 키를 누르면 가로로 이동합니다.
       if (event.deltaY < 0) {
         paper.view.center = paper.view.center.subtract(
           new paper.Point(dragAmount, 0),
@@ -176,6 +186,7 @@ export default function Canvas(props: CanvasProps) {
         );
       }
     } else {
+      // 아무 키도 누르지 않으면 확대/축소합니다.
       if (event.deltaY < 0) {
         paper.view.zoom += 0.1;
       } else if (paper.view.zoom > 0.2 && event.deltaY > 0) {
@@ -189,8 +200,8 @@ export default function Canvas(props: CanvasProps) {
 
   // 캔버스 초기 설정 시, 캔버스 히스토리 초기리
   useEffect(() => {
-    AnnotationTool.history.undo = [];
-    AnnotationTool.history.redo = [];
+    AnnotationTool.history.undo = []; // 되돌리기 히스토리 초기화
+    AnnotationTool.history.redo = []; // 다시하기 히스토리 초기화
   }, []);
 
   // 캔버스 초기 설정 useEffect (이미지 로드 후)
@@ -199,13 +210,15 @@ export default function Canvas(props: CanvasProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // 캔버스 초기화
     initializePaper(canvas);
 
+    // 캔버스 휠 이벤트 등록
     canvas.onwheel = onCanvasWheel;
 
-    const { children } = paper.project.activeLayer;
+    const { children } = paper.project.activeLayer; // 캔버스의 요소들을 불러오기 위해 activeLayer의 children을 가져옴
 
-    const imageUrl = getCanvasImage(imageId);
+    const imageUrl = getCanvasImage(imageId); // 이미지 url 가져오기
     const raster = new paper.Raster({
       source: imageUrl,
       onLoad: () => {
@@ -213,12 +226,13 @@ export default function Canvas(props: CanvasProps) {
 
         children.forEach((child) => {
           if (child instanceof paper.CompoundPath)
+            // 마스크를 그린 경우, 마스크의 좌표를 이미지의 좌표만큼 이동. 이렇게 해야 이미지 위에 마스크가 그려짐.
             child.position = child.position.add(raster.bounds.topLeft);
         });
         // 이미지 로드 여부를 정해버림
         setIsImageLoaded(true);
       },
-    });
+    }); // 이미지 객체인 Raster 생성. source에 이미지 url을 넣어줌. onLoad는 이미지가 로드되면 실행됨.
     // 박스 쉐도우 추가
     raster.shadowColor = new paper.Color('rgba(0, 0, 0, 0.4)');
     raster.shadowBlur = 12;
@@ -234,6 +248,7 @@ export default function Canvas(props: CanvasProps) {
     // 이유는 이미지가 로드 되기 전에 마스크를 그리면 기준 좌표가 0, 0이 되기 때문이다.
     if (!isImageLoaded) return;
 
+    // mask를 그림.
     drawPaths(categories);
 
     AnnotationTool.initializeHistory();
@@ -249,7 +264,7 @@ export default function Canvas(props: CanvasProps) {
         return;
       }
 
-      // SAM 로드 안했을때.
+      // SAM 로드 안했을때. 모델 로드 후 이미지 임베딩 생성
       loadSAM().then(() => {
         if (embeddingId === imageId) return;
         embedImage(imageId);
@@ -258,6 +273,8 @@ export default function Canvas(props: CanvasProps) {
   }, [selectedTool, SAMModelLoaded, embeddingId, imageId, embedImage, loadSAM]);
 
   const { containerRef } = props;
+
+  // 캔버스 사이즈 조정
   useEffect(() => {
     const { width, height } = adjustCanvasSize(
       canvasRef.current,
@@ -269,6 +286,7 @@ export default function Canvas(props: CanvasProps) {
     paper.view.center = new paper.Point(width / 2, height / 2);
   }, [containerRef]);
 
+  // 캔버스 사이즈 조정. 리사이즈 이벤트 발생 시, debounce를 이용해 캔버스 사이즈 조정
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
 
@@ -284,9 +302,6 @@ export default function Canvas(props: CanvasProps) {
       }, 75);
     };
 
-    // 이거랑 밑에랑 같은 함수인데... 여기서 실행하면 안 되고 밑에서 실행해야 함
-    // setTimeout interval 때문인가 싶기도 하고... 그냥 이렇게 해놓고 밑에서 실행하자
-    // resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     return () => {
       window.removeEventListener('resize', resizeCanvas);
@@ -300,7 +315,7 @@ export default function Canvas(props: CanvasProps) {
   // height들이 작기 때문에 Canvas사이즈도 작아지고
   // 그걸 해결하기 위해 마운트 된 뒤에, 다시 한번 캔버스 사이즈를 조정해주는 것이다.
 
-  // 근데 이거랑 위에랑 같은 함수인데 왜인지 이게 없으면 초반 렌더링이 제대로 안 되는 중...
+  // 해당 useEffect가 없으면 초기 렌더링에 문제가 생기는데 이유를 파악하지 못함.
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;

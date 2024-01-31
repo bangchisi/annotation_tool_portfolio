@@ -24,17 +24,19 @@ import {
 import { AnnotationTool } from 'routes/Annotator/components/Workbench/Canvas/hooks/useTools';
 import { useTypedSWRMutation } from 'hooks';
 
+// 어노테이션 목록 컴포넌트
 export default function AnnotationList() {
   // const [isLoading, setIsLoading] = useState(false);
   const { isLoading, createEmptyAnnotation, selectAnnotation } =
-    useManageAnnotation();
+    useManageAnnotation(); // 어노테이션 생성, 선택 함수
   const dispatch = useAppDispatch();
   const { categories, currentCategory, currentAnnotation } =
-    useAppSelector(selectAnnotator);
-  const imageId = Number(useParams().imageId);
-  const { clearCanvas } = useReloadAnnotator();
-  const annotations = currentCategory?.annotations;
+    useAppSelector(selectAnnotator); // 카테고리 목록, 현재 선택된 카테고리, 현재 선택된 어노테이션
+  const imageId = Number(useParams().imageId); // 현재 이미지 id
+  const { clearCanvas } = useReloadAnnotator(); // 캔버스 초기화 함수
+  const annotations = currentCategory?.annotations; // 현재 카테고리의 어노테이션 목록. 추후 정렬을 위한 변수.
 
+  // 어노테이션 모두 삭제 mutation
   const { trigger: clearAnnotations } = useTypedSWRMutation({
     method: 'delete',
     endpoint: `/annotation/clear/${imageId}/${currentCategory?.categoryId}`,
@@ -44,25 +46,32 @@ export default function AnnotationList() {
   const sortedAnnotations = useMemo(() => {
     if (!annotations) return [];
 
+    // compare function(prev, next)을 사용하여 annotationId를 기준으로 내림차순 정렬
     return Object.values(annotations).sort(
       (prev, next) => Number(next.annotationId) - Number(prev.annotationId),
     );
   }, [annotations]);
 
+  // 현재 카테고리의 모든 어노테이션 삭제 버튼 클릭 핸들러
   async function deleteAllAnnotations(imageId: number, categoryId: number) {
     try {
+      // 모든 어노테이션 삭제 요청
       await clearAnnotations();
+      // 카테고리 id를 베이스로 어노테이션 목록을 비움
       deleteAllAnnotationInCategories(categoryId);
     } catch (error) {
       axiosErrorHandler(error, 'Failed to delete all annotations');
     }
   }
 
-  // category의 모든 annotation 삭제
+  // 현재 카테고리의 모든 어노테이션 삭제 함수
   function deleteAllAnnotationInCategories(categoryId: number) {
     if (!categories) return;
+    // 캔버스 초기화
     clearCanvas();
+    // 툴의 작업 히스토리 초기화. redo, undo 기록 삭제
     AnnotationTool.history.clearHistory();
+    // 현재 카테고리의 어노테이션 목록을 비움
     dispatch(deleteAnnotations({ categoryId }));
   }
 
@@ -94,8 +103,10 @@ export default function AnnotationList() {
 
   return (
     <Container>
+      {/* 어노테이션 목록을 가져오는 중이면 로딩 인디케이터 렌더링 */}
       {isLoading && <LoadingSpinner message="annotation 목록 갱신 중입니다." />}
       <ButtonsContainer className="annotation-buttons-step">
+        {/* 어노테이션 생성 버튼 */}
         <AddButton
           functionName="Add Annotation (Spacebar)"
           iconComponent={<AddCircleOutlineOutlinedIcon />}
@@ -103,6 +114,7 @@ export default function AnnotationList() {
           placement="left"
           isFunction={true}
         />
+        {/* 현재 카테고리의 모든 어노테이션 삭제 버튼 */}
         <DeleteAllButton
           functionName="Delete All"
           iconComponent={<DeleteSweepOutlinedIcon />}
@@ -118,6 +130,7 @@ export default function AnnotationList() {
         />
       </ButtonsContainer>
       <div className="annotation-list-step">
+        {/* 현재 카테고리의 어노테이션 목록을 렌더링 */}
         {currentCategory &&
           sortedAnnotations &&
           sortedAnnotations.map(({ annotationId, color }) => (

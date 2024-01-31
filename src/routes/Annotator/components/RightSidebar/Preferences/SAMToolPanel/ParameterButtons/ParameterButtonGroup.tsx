@@ -9,10 +9,11 @@ export enum ParameterType {
   pointsPerSide = 'pointsPerSide',
 }
 
+// Everything parameter 버튼 그룹 컴포넌트 props
 interface ParameterButtonGroupProps {
-  onClick: React.Dispatch<React.SetStateAction<number>>;
-  currentParamValue: number;
-  paramType: ParameterType;
+  onClick: React.Dispatch<React.SetStateAction<number>>; // 1, 2, 3 버튼 클릭 시 실행할 핸들러
+  currentParamValue: number; // 현재 선택된 버튼의 값
+  paramType: ParameterType; // 현재 선택된 버튼의 종류
 }
 
 const ParameterButtonGroup = (props: ParameterButtonGroupProps) => {
@@ -21,22 +22,25 @@ const ParameterButtonGroup = (props: ParameterButtonGroupProps) => {
     predIOUThresh: [0.7, 0.88, 0.92],
     boxNMSThresh: [0.1, 0.4, 0.7],
     pointsPerSide: [16, 32, 48],
-  };
+  }; // 각 옵션 별 버튼 값
 
   return (
     <Container value={currentParamValue} size="small" color="primary">
+      {/* 옵션 1 버튼*/}
       <ParameterButton
         value={value[paramType][0]}
         onClick={() => onClick(value[paramType][0])}
       >
         1
       </ParameterButton>
+      {/* 옵션 2 버튼*/}
       <ParameterButton
         value={value[paramType][1]}
         onClick={() => onClick(value[paramType][1])}
       >
         2
       </ParameterButton>
+      {/* 옵션 3 버튼*/}
       <ParameterButton
         value={value[paramType][2]}
         onClick={() => onClick(value[paramType][2])}
